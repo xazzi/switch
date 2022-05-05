@@ -1,5 +1,5 @@
 pullApiInformation = function(s, itemNumber, theNewToken){
-	function pingAPI_v2(s, itemNumber, theNewToken){
+	function pingAPI(s, itemNumber, theNewToken){
 		var specs = {
 			complete: false,
 			process: null, //This should stay null, it's to allow process/string searching elsewhere.
@@ -63,10 +63,14 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 			specs.width = dataDump.width;
 			specs.height = dataDump.height;
 			specs.shipDate = dataDump.ship_date;
-			try{
 			specs.facility = dataDump.facility;
-			}catch(e){}
 
+		// If there is "rider" in the item name, don't let it undersize
+		if(dataDump.item_name.toLowerCase().match(new RegExp("rider","g"))){
+			specs.undersize = false;
+		}
+
+		// Loop through the order_specs and set some values based on them
 		for(var k=0; k<dataDump.order_specs.length; k++){
 			if(dataDump.order_specs[k].code == "GROM"){
 				specs.grommets = true;
@@ -145,5 +149,5 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 		}
 		return specs
 	}
-	return contents = pingAPI_v2(s, itemNumber, theNewToken)
+	return contents = pingAPI(s, itemNumber, theNewToken)
 }
