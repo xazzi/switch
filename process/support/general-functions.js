@@ -63,15 +63,10 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 		addNode_db(theXML, infoNode, "projectID", data.projectID);
 		addNode_db(theXML, infoNode, "projectNotes", data.projectNotes);
 
-	//if(matInfo != null){
 	if(matInfo != "Material Data Missing" && matInfo != null){
 		addNode_db(theXML, infoNode, "process", matInfo.prodName);
 		addNode_db(theXML, infoNode, "subProcess", matInfo.subProcess);
-		try{
-			addNode_db(theXML, infoNode, "paper", matInfo.imsPaper);
-		}catch(e){
-			addNode_db(theXML, infoNode, "paper", data.paper);
-		}
+		addNode_db(theXML, infoNode, "paper", data.paper);
 	}
 		
 	var messageNode = theXML.createElement("message", null);
