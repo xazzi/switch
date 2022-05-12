@@ -64,6 +64,7 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 			specs.height = dataDump.height;
 			specs.shipDate = dataDump.ship_date;
 			specs.facility = dataDump.facility;
+			specs.dueDate = dataDump.due_date;
 
 		// If there is "rider" in the item name, don't let it undersize
 		if(dataDump.item_name.toLowerCase().match(new RegExp("rider","g"))){
