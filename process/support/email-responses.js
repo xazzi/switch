@@ -52,15 +52,15 @@ getEmailResponse = function(query, product, matInfo, data, userInfo){
         break;
         case "Item Notes":
             subject = "Item Notes: " + product.itemNumber;
-            body = "These things happened to your file:" + "\n\n" + itemNotes;
+            body = "These things happened to your gang:" + "\n\n" + itemNotes;
             to = [userInfo.email]
-            cc = [email.bret]
+            cc = []
         break;
         case "Gang Notes":
             subject = "Gang Notes: " + data.projectID;
-            body = "These things happened to your file:" + "\n\n" + gangNotes;
+            body = "General Data--" + "\n" + "Process: " + matInfo.prodName + "\n\n" + "These adjustments were made to your gang--" + "\n" + gangNotes;
             to = [userInfo.email];
-            cc = [email.bret]
+            cc = []
         break;
         case "API GET Failed":
             subject = "API GET Failed: " + data.projectID;
