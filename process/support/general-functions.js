@@ -77,14 +77,15 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 		addNode_db(theXML, messageNode, "to", message.to);
 		addNode_db(theXML, messageNode, "cc", message.cc);
 		
-	var userNode = theXML.createElement("user", null);
-		baseNode.appendChild(userNode);
-		
-		addNode_db(theXML, userNode, "first", userInfo.first);
-		addNode_db(theXML, userNode, "last", userInfo.last);
-		addNode_db(theXML, userNode, "email", userInfo.email);
-		addNode_db(theXML, userNode, "folder", userInfo.dir);
-		addNode_db(theXML, userNode, "found", userInfo.found);
+	if(userInfo != null){
+		var userNode = theXML.createElement("user", null);
+			baseNode.appendChild(userNode);
+			
+			addNode_db(theXML, userNode, "first", userInfo.first);
+			addNode_db(theXML, userNode, "last", userInfo.last);
+			addNode_db(theXML, userNode, "email", userInfo.email);
+			addNode_db(theXML, userNode, "folder", userInfo.dir);
+	}
 	
 	var theDataset = newXML.createDataset("XML");
 	
