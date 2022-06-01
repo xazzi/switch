@@ -6,10 +6,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo){
 
     var email = {
         bret: "bret.c@digitalroominc.com",
-        dalenna: "dalenna.mv@digitalroominc.com",
-        chelsea: "chelsea.mv@digitalroominc.com",
-        gary: "gary.s@digitalroominc.com",
-        chris: "chris.r@digitalroominc.com"
+        chelsea: "chelsea.mv@digitalroominc.com"
     }
 
     if(data != null){
@@ -36,6 +33,12 @@ getEmailResponse = function(query, product, matInfo, data, userInfo){
             body = "The following item is missing the required template for the butt-cut process: " + "\n\n" + "Item: " + product.itemNumber + "\n" + "Width: " + product.width + "\n" + "Height: " + product.height + ".\n" + "Please create it via the launcher after processing.";
             to = [userInfo.email]
             cc = [email.bret]
+        break;
+        case "Undefined User":
+            subject = "Undefined User!";
+            body = "Email: " + userInfo;
+            to = [email.bret]
+            cc = [email.chelsea]
         break;
         case "Undefined Material":
             subject = "Undefined Material: " + data.projectID;

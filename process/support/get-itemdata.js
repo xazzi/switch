@@ -13,6 +13,9 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 			},
 			hem: false,
 			hemMethod: null,
+			pocketTop: false,
+			pocketBottom: false,
+			pocketSize: null,
 			mount: false,
 			mountValue: null,
 			itemName: null,
@@ -29,6 +32,7 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 			secondSurface: false,
 			doubleSided: false,
 			buttCut: false,
+			backdrop: false,
 			undersize: true,
 			facility: null,
 			notes: ""
@@ -104,6 +108,13 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 			if(dataDump.order_specs[k].code == "AFRAME"){
 				specs.frame = true;
 				specs.frameValue = dataDump.order_specs[k].value.replace(/,/g,'');
+			}
+			if(dataDump.order_specs[k].code == "POLPCKT"){
+				specs.pocketTop = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("top","g"));
+				specs.pocketBottom = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("bottom","g"));
+				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("4.5","g"))){
+					specs.pocketSize = 4.5;
+				}
 			}
 			if(dataDump.order_specs[k].code == "MOUNT"){
 				if(dataDump.order_specs[k].value != "No Mount (Print Only)"){
