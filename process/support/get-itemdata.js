@@ -141,7 +141,7 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 				if(dataDump.order_specs[k].value == "Circle"){
 					specs.shape.oval = true;
 				}
-				if(dataDump.order_specs[k].value == "Custom Shape"){
+				if(dataDump.order_specs[k].value == "Custom Shape" || dataDump.order_specs[k].value == "Custom"){
 					specs.shape.custom = true;
 				}
 				specs.shape.value = dataDump.order_specs[k].value;
