@@ -22,7 +22,7 @@ getMatInfo = function(query){
     var paperMapId = Number(db_mapPaper.getString(1));
     
     var db_material = new Statement(dbConn);
-        db_material.execute('CALL `digital_room`.`getMaterial_v2`(' + paperMapId + ',' + itemMapId + ',' + facilityId + ')');
+        db_material.execute('CALL `digital_room`.`getMaterial_v3`(' + paperMapId + ',' + itemMapId + ',' + facilityId + ')');
     if(!db_material.isRowAvailable()){
         return "Material Data Missing";
     }
@@ -90,7 +90,8 @@ getMatInfo = function(query){
         subProcess: null,
         pageHandling: db_material.getString(40),
         overrun: db_material.getString(41),
-        forceUndersize: db_material.getString(42) == "0" ? false : true
+        forceUndersize: db_material.getString(42) == "0" ? false : true,
+        sideMix: db_material.getString(44) == "0" ? false : true
     }
 
     return matInfo

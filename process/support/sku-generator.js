@@ -1,5 +1,3 @@
-// For use in Switch.
-
 skuGenerator = function(length, type, dateID){
 
     function scanCSV(length, type, dateID){

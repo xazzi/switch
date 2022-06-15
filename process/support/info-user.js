@@ -1,3 +1,6 @@
+//This is now disabled, all data is housed in MySql tables. (6/14/22)
+
+/*
 getUserInfo = function(query){
 
     function findUser(query){
@@ -76,3 +79,4 @@ getUserInfo = function(query){
 
     return contents = findUser(query)
 }
+*/
