@@ -1,5 +1,5 @@
-pullApiInformation = function(s, itemNumber, theNewToken){
-	function pingAPI(s, itemNumber, theNewToken){
+pullApiInformation = function(s, itemNumber, theNewToken, environment){
+	function pingAPI(s, itemNumber, theNewToken, environment){
 		var specs = {
 			complete: false,
 			process: null, //This should stay null, it's to allow process/string searching elsewhere.
@@ -40,6 +40,9 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 		
 		var theHTTP = new HTTP(HTTP.SSL);
 			theHTTP.url = "https://prism-services.digitalroominc.com/job-items?id[]=" + itemNumber
+			if(environment == "QA"){
+				theHTTP.url = "https://qaprism-services.digitalroominc.com/job-items?id[]=" + itemNumber
+			}
 			theHTTP.authScheme = HTTP.OauthAuth;
 			theHTTP.addHeader("Authorization", "Bearer " + theNewToken);
 			theHTTP.timeOut = 300;
@@ -161,5 +164,5 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 		}
 		return specs
 	}
-	return contents = pingAPI(s, itemNumber, theNewToken)
+	return contents = pingAPI(s, itemNumber, theNewToken, environment)
 }
