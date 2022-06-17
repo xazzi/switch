@@ -159,6 +159,10 @@ pullApiInformation = function(s, itemNumber, theNewToken){
 				}
 			}
 		}
+		for(var k=0; k<dataDump.active_file.length; k++){
+			//s.log(2, dataDump.active_file[k].file_id)
+			specs.fileID = dataDump.active_file[k].file_id
+		}
 		return specs
 	}
 	return contents = pingAPI(s, itemNumber, theNewToken)
