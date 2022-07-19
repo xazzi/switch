@@ -134,6 +134,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 					specs.secondSurface = true;
 				}
 			}
+			if(dataDump.order_specs[k].code == "PRINTDR"){
+				if(dataDump.order_specs[k].value == "Reverse Printing"){
+					specs.secondSurface = true;
+				}
+			}
 			if(dataDump.order_specs[k].code == "SHAPE"){
 				if(dataDump.order_specs[k].value == "Square/Rectangle"){
 					specs.shape.rectangle = true;

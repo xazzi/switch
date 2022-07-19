@@ -1,13 +1,6 @@
-skuGenerator = function(length, type, dateID){
+skuGenerator = function(length, type, data, dbConn){
 
-    function scanCSV(length, type, dateID){
-
-        var skuLog = new File("C:\\Switch/SKU/" + dateID + "_" + length + ".txt");
-        if(!skuLog.exists){
-            skuLog.open(File.Append);
-            skuLog.writeLine("Logged Randomly Generated Numbers")
-            skuLog.close()
-        }
+    function scanCSV(length, type, data, dbConn){
 
         var result = '';
         var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -31,32 +24,20 @@ skuGenerator = function(length, type, dateID){
         makeSKU(chars);
 
         function makeSKU(chars){
-
             // Make a SKU.
             while (result.length < length){
                 result += chars.charAt(Math.round(Math.random() * (chars.length) - 1) + 1)
             }
-
             // Check and see if the SKU is already in use.
-                skuLog.open(File.ReadOnly);
-            var lines = skuLog.read().split('\n');
-                for(i=0; i<lines.length; i++){
-                    if(lines[i] == result){
-                        // If it's in use then search again.
-                        skuLog.close();
-                        result = '';
-                        makeSKU(chars);
-                    }
-                }
-                skuLog.close();
+            var db_active_sku = new Statement(dbConn);
+                db_active_sku.execute("SELECT * FROM digital_room.active_sku WHERE sku = '" + result + "' and date_id = '" + data.dateID + "' and facility = '" + data.facility + "';");
+            if(db_active_sku.isRowAvailable()){
+                result = '';
+                makeSKU(chars);
+            }
+                db_active_sku.execute("INSERT INTO digital_room.active_sku (sku, date_id, facility, gang_number) VALUES ('" + result + "', '" + data.dateID + "', '" + data.facility + "', '" + data.projectID + "');");
         }
-
-            skuLog.open(File.Append);
-            skuLog.writeLine(result);
-            skuLog.close(); 
-
         return result;
     }
-
-    return contents = scanCSV(length, type, dateID)
+    return contents = scanCSV(length, type, data, dbConn)
 }
