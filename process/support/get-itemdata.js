@@ -134,6 +134,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 					specs.secondSurface = true;
 				}
 			}
+			if(dataDump.order_specs[k].code == "PRINTDR"){
+				if(dataDump.order_specs[k].value == "Reverse Printing"){
+					specs.secondSurface = true;
+				}
+			}
 			if(dataDump.order_specs[k].code == "SHAPE"){
 				if(dataDump.order_specs[k].value == "Square/Rectangle"){
 					specs.shape.rectangle = true;
@@ -161,6 +166,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 					specs.undersize = false;
 				}
 			}
+		}
+		for(var k=0; k<dataDump.active_file.length; k++){
+			//s.log(2, dataDump.active_file[k].file_id)
+			specs.fileID = dataDump.active_file[k].file_id
 		}
 		return specs
 	}
