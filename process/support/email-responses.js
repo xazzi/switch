@@ -3,7 +3,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
     var subject, body, to, cc;
     var itemNotes = "";
     var gangNotes = "";
-    var escalate = "To escalate an issue, please forward this email to chelsea.mv@digitalroominc.com and bret.c@digitalroominc.com"
+    var escalate = "To escalate an issue, please forward this email to Chelsea McVay and Bret Combe."
 
     var sendTo = {
         bret: "bret.c@digitalroominc.com",
@@ -86,7 +86,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
         break;
         case "Gang Notes":
             subject = "Gang Summary: " + data.projectID;
-            body = "Overview:\n" + "Process: " + matInfo.prodName + "\n" + gangNotes + "\n\n" + escalate;
+            body = "Overview:\n" + "Process: " + matInfo.prodName + "\n" + gangNotes + "\n" + escalate;
             to = [userInfo.email];
             cc = []
         break;
