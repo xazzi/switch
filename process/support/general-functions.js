@@ -1,3 +1,19 @@
+connectToDatabase_db = function(database){
+	// This is the property to pass into the function when calling.
+	// s.getPropertyValue("database")
+
+	var dbConn = new DataSource();
+		dbConn.connect(database,"bret.c","e4gPM^VJ(3t/K?D/");
+	
+	if(dbConn.isConnected()){
+		//s.log(2, "Connected to " + database + ".");
+		return dbConn;
+	}else{
+		s.log(2, "Connection to " + database + " failed!");
+		return;
+	}
+}
+
 loadDataset = function(dataset){
     var datasetJob = job.getDataset(dataset);
 	if (datasetJob === undefined || !datasetJob.hasValidData()) {

@@ -1,7 +1,4 @@
-getMatInfo = function(query){
-
-    var dbConn = new DataSource();
-        dbConn.connect("manufacturing","root","MmxG?5ZH@5");
+getMatInfo = function(query, dbConn){
 
     var db_facility = new Statement(dbConn);
         db_facility.execute("SELECT * FROM digital_room.facility WHERE name = '" + query.facility + "';");
@@ -22,7 +19,7 @@ getMatInfo = function(query){
     var paperMapId = Number(db_mapPaper.getString(1));
     
     var db_material = new Statement(dbConn);
-        db_material.execute('CALL `digital_room`.`getMaterial_v3`(' + paperMapId + ',' + itemMapId + ',' + facilityId + ')');
+        db_material.execute('CALL digital_room.getMaterial_v3(' + paperMapId + ',' + itemMapId + ',' + facilityId + ')');
     if(!db_material.isRowAvailable()){
         return "Material Data Missing";
     }

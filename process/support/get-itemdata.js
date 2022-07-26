@@ -12,7 +12,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 				value: null
 			},
 			hem: false,
-			hemMethod: null,
+			hemMethod: {
+				weld: null,
+				sewn: null
+			},
 			pocketTop: false,
 			pocketBottom: false,
 			pocketSize: null,
@@ -73,6 +76,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			specs.facility = dataDump.facility;
 			specs.dueDate = dataDump.due_date;
 
+			specs.retractable = dataDump.item_name.toLowerCase().match(new RegExp("retractable","g")) == "retractable";
+
 		// If there is "rider" in the item name, don't let it undersize
 		if(dataDump.item_name.toLowerCase().match(new RegExp("rider","g"))){
 			specs.undersize = false;
@@ -86,7 +91,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			}
 			if(dataDump.order_specs[k].code == "HEMMING"){
 				specs.hem = true;
-				specs.hemMethod = dataDump.order_specs[k].value;
+				specs.hemMethod.weld = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("heat|weld","g")) != undefined;
+				specs.hemMethod.sewn = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("sewn","g")) != undefined;
+				specs.webbing = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("webbing","g")) == "webbing";
 			}
 			if(dataDump.order_specs[k].code == "PPR"){
 				specs.paper = dataDump.order_specs[k].value;
@@ -113,8 +120,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 				specs.frameValue = dataDump.order_specs[k].value.replace(/,/g,'');
 			}
 			if(dataDump.order_specs[k].code == "POLPCKT"){
-				specs.pocketTop = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("top","g"));
-				specs.pocketBottom = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("bottom","g"));
+				specs.pocketTop = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("top","g")) != undefined;
+				specs.pocketBottom = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("bottom","g")) != undefined;
 				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("4.5","g"))){
 					specs.pocketSize = 4.5;
 				}
