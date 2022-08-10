@@ -31,14 +31,15 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			frame: false,
 			frameValue: null,
 			base: false,
-			baseValue: null,
+			baseValue: "",
 			secondSurface: false,
 			doubleSided: false,
 			buttCut: false,
 			backdrop: false,
 			undersize: true,
 			facility: null,
-			notes: ""
+			notes: "",
+			cvColors: null
 		}
 		
 		var theHTTP = new HTTP(HTTP.SSL);
@@ -175,6 +176,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("rider","g"))){
 					specs.undersize = false;
 				}
+			}
+			if(dataDump.order_specs[k].code == "VINYL_CLR"){
+				specs.cvColors = dataDump.order_specs[k].value;
 			}
 		}
 		for(var k=0; k<dataDump.active_file.length; k++){

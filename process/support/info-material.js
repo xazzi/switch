@@ -6,7 +6,7 @@ getMatInfo = function(query, dbConn){
     var facilityId = db_facility.getString(0);
         
     var db_mapItem = new Statement(dbConn);
-        db_mapItem.execute("SELECT * FROM digital_room.map_item WHERE item_name = '" + query.itemName + "';");
+        db_mapItem.execute("SELECT * FROM digital_room.map_item WHERE item_name = '" + query.itemName.replace(/'/g,"\\'") + "';");
         db_mapItem.fetchRow();
     var itemMapId = db_mapItem.getString(1);
     
