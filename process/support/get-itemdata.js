@@ -31,14 +31,15 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			frame: false,
 			frameValue: null,
 			base: false,
-			baseValue: null,
+			baseValue: "",
 			secondSurface: false,
 			doubleSided: false,
 			buttCut: false,
 			backdrop: false,
 			undersize: true,
 			facility: null,
-			notes: ""
+			notes: "",
+			cvColors: null
 		}
 		
 		var theHTTP = new HTTP(HTTP.SSL);
@@ -76,10 +77,13 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			specs.facility = dataDump.facility;
 			specs.dueDate = dataDump.due_date;
 
-			specs.retractable = dataDump.item_name.toLowerCase().match(new RegExp("retractable","g")) == "retractable";
+			// Process specific item names.
+			specs.retractable = specs.itemName.toLowerCase().match(new RegExp("retractable","g")) == "retractable";
+			specs.stretchTableCover = specs.itemName.toLowerCase().match(new RegExp("stretch table cover","g")) == "stretch table cover";
+			specs.tableCloths = specs.itemName.toLowerCase().match(new RegExp("tablecloths","g")) == "tablecloths";
 
 		// If there is "rider" in the item name, don't let it undersize
-		if(dataDump.item_name.toLowerCase().match(new RegExp("rider","g"))){
+		if(specs.itemName.toLowerCase().match(new RegExp("rider","g"))){
 			specs.undersize = false;
 		}
 
@@ -172,6 +176,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("rider","g"))){
 					specs.undersize = false;
 				}
+			}
+			if(dataDump.order_specs[k].code == "VINYL_CLR"){
+				specs.cvColors = dataDump.order_specs[k].value;
 			}
 		}
 		for(var k=0; k<dataDump.active_file.length; k++){
