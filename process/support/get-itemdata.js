@@ -39,7 +39,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			undersize: true,
 			facility: null,
 			notes: "",
-			cvColors: null
+			cvColors: null,
+			cutType: null
 		}
 		
 		var theHTTP = new HTTP(HTTP.SSL);
@@ -53,14 +54,14 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			theHTTP.get();
 			
 		while(!theHTTP.waitForFinished(3)){
-			s.log(5, "Downloading...", theHTTP.progress() );
+			s.log(5, "Downloading...", theHTTP.progress());
 		}
 		
 		if(theHTTP.finishedStatus == HTTP.Ok && theHTTP.statusCode == 200){
 			s.log(1, "Download completed successfully" );
 			specs.complete = true;
 		}else{
-			s.log(2, "Download failed with the status code %1", theHTTP.statusCode);
+			s.log(3, "Download failed with the status code %1", theHTTP.statusCode);
 			return specs;
 		}
 		
@@ -74,8 +75,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			specs.width = dataDump.width;
 			specs.height = dataDump.height;
 			specs.shipDate = dataDump.ship_date;
-			specs.facility = dataDump.facility;
 			specs.dueDate = dataDump.due_date;
+			specs.facility = "facility" in dataDump ? dataDump.facility : undefined;
 
 			// Process specific item names.
 			specs.retractable = specs.itemName.toLowerCase().match(new RegExp("retractable","g")) == "retractable";
@@ -179,6 +180,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			}
 			if(dataDump.order_specs[k].code == "VINYL_CLR"){
 				specs.cvColors = dataDump.order_specs[k].value;
+			}
+			if(dataDump.order_specs[k].code == "CUT"){
+				specs.cutType = dataDump.order_specs[k].value;
 			}
 		}
 		for(var k=0; k<dataDump.active_file.length; k++){
