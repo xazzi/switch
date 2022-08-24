@@ -14,17 +14,6 @@ connectToDatabase_db = function(database){
 	}
 }
 
-loadDataset = function(dataset){
-    var datasetJob = job.getDataset(dataset);
-	if (datasetJob === undefined || !datasetJob.hasValidData()) {
-		job.fail("Missing " + dataset);
-		return;
-	}
-	var datasetDoc = new Document(datasetJob.getPath());
-    
-    return datasetDoc
-}
-
 loadDataset_db = function(dataset){
     var datasetJob = job.getDataset(dataset);
 	if (datasetJob === undefined || !datasetJob.hasValidData()) {
