@@ -76,6 +76,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			specs.height = dataDump.height;
 			specs.shipDate = dataDump.ship_date;
 			specs.dueDate = dataDump.due_date;
+			specs.facilityId = "facility_id" in dataDump ? dataDump.facility_id : undefined;
 			specs.facility = "facility" in dataDump ? dataDump.facility : undefined;
 
 			// Process specific item names.

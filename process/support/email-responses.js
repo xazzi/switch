@@ -92,7 +92,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
         break;
         case "Gang Notes":
             subject = "Gang Summary: " + data.projectID;
-            body = "Overview:\n" + "Process: " + matInfo.prodName + "\n" + gangNotes + "\n" + escalate;
+            body = "Overview:\n" + "Process: " + matInfo.prodName + "Subprocess: " + matInfo.subprocess + "\n" + gangNotes + "\n" + escalate;
             to = [userInfo.email];
             cc = []
             bcc = [];

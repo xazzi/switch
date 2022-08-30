@@ -1,0 +1,26 @@
+{
+    "subprocess": "breakaway",
+    "id": "2",
+    "facility": [
+        {
+            "name": "Salt Lake City",
+            "id": "28",
+            "enabled": true,
+            "overrides": {
+                "subprocess": "Breakaway",
+                "pageHandling": "OnePerPage",
+                "sideMix": 1
+            }
+        },
+        {
+            "name": "Brighton",
+            "id": "18",
+            "enabled": true,
+            "overrides": {
+                "subprocess": "Breakaway",
+                "pageHandling": "OnePerPage",
+                "sideMix": 1
+            }
+        }
+    ]
+}
