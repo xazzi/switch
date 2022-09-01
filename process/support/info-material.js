@@ -1,12 +1,18 @@
 getMatInfo = function(query, dbConn){
 
     var db_mapPaper = new Statement(dbConn);
-        db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.paper + "' AND facility_id = '" + query.facilityId + "';");
+        db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.paper + "';");
     if(!db_mapPaper.isRowAvailable()){
-        db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.material + "' AND facility_id = '" + query.facilityId + "';");
+        db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.material + "';");
     }
         db_mapPaper.fetchRow();
-    var paperMapId = Number(db_mapPaper.getString(2));
+
+    var paperMapId
+    if(query.facilityId == 28){
+        paperMapId = Number(db_mapPaper.getString(2));
+    }else if(query.facilityId == 18){
+        paperMapId = Number(db_mapPaper.getString(3));
+    }
     
     var db_material = new Statement(dbConn);
         db_material.execute('CALL digital_room.getMaterial(' + paperMapId + ')');
@@ -24,7 +30,6 @@ getMatInfo = function(query, dbConn){
         width: Number(db_material.getString(3)),
         height: Number(db_material.getString(4)),
         phoenixStock: db_material.getString(5),
-        rotation: db_material.getString(6),
 
         spacing: {
             type: db_material.getString(7),
@@ -36,6 +41,7 @@ getMatInfo = function(query, dbConn){
         },
 
         bleed: db_material.getString(13),
+        rotation: db_material.getString(6),
         allowedRotations: db_material.getString(14),
         impositionProfile: db_material.getString(15),
         grade: db_material.getString(16),

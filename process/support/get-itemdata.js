@@ -40,7 +40,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			facility: null,
 			notes: "",
 			cvColors: null,
-			cutType: null
+			cutType: null,
+			hemValue: null
 		}
 		
 		var theHTTP = new HTTP(HTTP.SSL);
@@ -100,6 +101,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 				specs.hemMethod.weld = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("heat|weld","g")) != undefined;
 				specs.hemMethod.sewn = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("sewn","g")) != undefined;
 				specs.webbing = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("webbing","g")) == "webbing";
+				specs.hemValue = dataDump.order_specs[k].value;
 			}
 			if(dataDump.order_specs[k].code == "PPR"){
 				specs.paper = dataDump.order_specs[k].value;

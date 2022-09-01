@@ -8,7 +8,7 @@
             "enabled": true,
             "overrides": {
                 "subprocess": "A-Frame",
-                "rotation": "custom",
+                "rotation": "Custom",
                 "allowedRotations": 90,
                 "impositionProfile": "Sheet",
                 "pageHandling": "OnePerPage",
@@ -23,7 +23,7 @@
             "enabled": true,
             "overrides": {
                 "subprocess": "A-Frame",
-                "rotation": "custom",
+                "rotation": "Custom",
                 "allowedRotations": 90,
                 "impositionProfile": "Sheet",
                 "pageHandling": "OnePerPage",

@@ -1,0 +1,23 @@
+{
+    "subprocess": "butt-cut",
+    "id": null,
+    "facility": [
+        {
+            "name": "Salt Lake City",
+            "id": "28",
+            "enabled": true,
+            "overrides": {
+                "stock": "Proc_ButtCut_48x96",
+                "marks": "",
+                "impositionProfile": "Template-Create",
+                "spacingTop": 0,
+                "spacingBottom": 0,
+                "spacingLeft": 0,
+                "spacingRight": 1,
+                "overruns": 50,
+                "rotation": "None",
+                "allowedRotations": 0
+            }
+        }
+    ]
+}
