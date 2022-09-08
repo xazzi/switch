@@ -6,8 +6,12 @@
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
+            "processes": [
+                "Coroplast"
+            ],
             "overrides": {
                 "subprocess": "A-Frame",
+                "prodMatFileName": "A-Frame",
                 "rotation": "Custom",
                 "allowedRotations": 90,
                 "impositionProfile": "Sheet",
@@ -21,8 +25,12 @@
             "name": "Brighton",
             "id": "18",
             "enabled": true,
+            "processes": [
+                "Coroplast"
+            ],
             "overrides": {
                 "subprocess": "A-Frame",
+                "prodMatFileName": "A-Frame-Cor",
                 "rotation": "Custom",
                 "allowedRotations": 90,
                 "impositionProfile": "Sheet",

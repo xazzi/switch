@@ -6,8 +6,12 @@
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
+            "processes": [
+                "13ozBanner"
+            ],
             "overrides": {
                 "subprocess": "Breakaway",
+                "prodMatFileName": "Breakaway",
                 "pageHandling": "OnePerPage",
                 "sideMix": 1
             }
@@ -16,8 +20,13 @@
             "name": "Brighton",
             "id": "18",
             "enabled": true,
+            "processes": [
+                "13oz-Matte",
+                "13oz-Gloss"
+            ],
             "overrides": {
                 "subprocess": "Breakaway",
+                "prodMatFileName": "Breakaway",
                 "pageHandling": "OnePerPage",
                 "sideMix": 1
             }

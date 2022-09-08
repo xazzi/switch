@@ -26,6 +26,7 @@ getMatInfo = function(query, dbConn){
         id: db_material.getString(0),
         prodName: db_material.getString(1),
         subprocess: "None",
+        prodMatFileName: db_material.getString(34),
         type: db_material.getString(2),
         width: Number(db_material.getString(3)),
         height: Number(db_material.getString(4)),

@@ -6,6 +6,9 @@
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
+            "processes": [
+                "Coroplast"
+            ],
             "overrides": {
                 "stock": "Proc_ButtCut_48x96",
                 "marks": "",

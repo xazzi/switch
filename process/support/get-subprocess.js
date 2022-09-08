@@ -5,6 +5,16 @@ getSubprocess = function(folder, dbConn, query, matInfo){
             db_mapItem.fetchRow();
         var subprocessMapId = db_mapItem.getString(2);
 
+        function contains(a, obj) {
+            var i = a.length;
+            while (i--) {
+               if (a[i] === obj) {
+                   return true;
+               }
+            }
+            return false;
+        }
+
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);
         for(var i=0; i<files.length; i++){
             var str = File.read(folder.path + "/" + files[i], "UTF-8");
@@ -13,10 +23,12 @@ getSubprocess = function(folder, dbConn, query, matInfo){
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){
-                            for(var key in dump.facility[j].overrides){
-                                matInfo[key] = dump.facility[j].overrides[key]
+                            if(contains(dump.facility[j].processes, matInfo.prodName)){
+                                for(var key in dump.facility[j].overrides){
+                                    matInfo[key] = dump.facility[j].overrides[key]
+                                }
+                                return matInfo;
                             }
-                            return matInfo;
                         }
                     }
                 }

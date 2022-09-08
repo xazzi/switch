@@ -68,17 +68,10 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
             cc = [sendTo.chelsea]
             bcc = [];
         break;
-        case "Undefined Material":
-            subject = "Undefined Material: " + data.projectID;
-            body = "The following material specs are undefined:" + "\n\n" + "Paper: " + matInfo.imsPaper + "\n" + "ItemName: " +  matInfo.imsItemName  + "\n\n" + "ItemName is not required to be defined, but Paper must be in the database for production.";
-            to = [sendTo.chelsea,sendTo.bret]
-            cc = [userInfo.email]
-            bcc = [];
-        break;
         case "Undefined Material v1":
             //paper, material, itemName do not exist in matInfo, these are being pulled from orderSpecs pass in.
             subject = "Undefined Material: " + data.projectID;
-            body = "The following material specs are undefined:" + "\n\n" + "Paper: " + matInfo.paper + "\n" + "Material: " + matInfo.material + "\n" + "ItemName: " +  matInfo.itemName  + "\n\n" + "ItemName is not required to be defined, but Paper must be in the database for production.";
+            body = "The following material specs are undefined:" + "\n\n" + "Paper: " + matInfo.paper + "\n" + "Material: " + matInfo.material + "\n" + "ItemName: " +  matInfo.itemName + "\n" + "Facility: " +  matInfo.facility  + "\n\n" + "ItemName is not required to be defined, but Paper must be in the database for production.";
             to = [sendTo.chelsea,sendTo.bret]
             cc = [userInfo.email]
             bcc = [];
@@ -92,7 +85,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
         break;
         case "Gang Notes":
             subject = "Gang Summary: " + data.projectID;
-            body = "Overview:\n" + "Process: " + matInfo.prodName + "\n" + "Subprocess: " + matInfo.subprocess + "\n" + gangNotes + "\n" + escalate;
+            body = "Overview:\n" + "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility + "\n" + gangNotes + "\n" + escalate;
             to = [userInfo.email];
             cc = []
             bcc = [];
