@@ -12,6 +12,8 @@ getMatInfo = function(query, dbConn){
         paperMapId = Number(db_mapPaper.getString(2));
     }else if(query.facilityId == 18){
         paperMapId = Number(db_mapPaper.getString(3));
+    }else if(query.facilityId == 25){
+        paperMapId = Number(db_mapPaper.getString(4));
     }
     
     var db_material = new Statement(dbConn);

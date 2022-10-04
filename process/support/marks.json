@@ -1,0 +1,818 @@
+{
+    "marks": [
+        {
+            "description": "Hem labels, mesh.",
+            "process": [
+                "Mesh",
+                "8oz-Mesh"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hemMethod.sewn"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "data.doubleSided"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "TextLabel-Prefix",
+                    "dir": "/Hem Labels/Mesh/",
+                    "scale": true
+                },
+                {
+                    "name": "TextLabel-Suffix",
+                    "dir": "/Hem Labels/Mesh/",
+                    "scale": true
+                },
+                {
+                    "name": "Barcode",
+                    "dir": "/Hem Labels/Mesh/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Hem labels, vinyl banners.",
+            "process": [
+                "13ozBanner",
+                "18ozBanner",
+                "13oz-Matte",
+                "13oz-Gloss",
+                "13oz-Smooth",
+                "CeltecBanner",
+                "Celtec"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hemMethod.sewn",
+                        "orderArray.hemMethod.weld"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "data.doubleSided"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.tableCloths"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.stretchTableCover"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "TextLabel-Prefix",
+                    "dir": "/Hem Labels/",
+                    "scale": true
+                },
+                {
+                    "name": "TextLabel-Suffix",
+                    "dir": "/Hem Labels/",
+                    "scale": true
+                },
+                {
+                    "name": "Barcode",
+                    "dir": "/Hem Labels/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Webbing label, mesh.",
+            "process": [
+                "Mesh",
+                "8oz-Mesh"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hemMethod.sewn"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "data.doubleSided"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.webbing"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Webbing",
+                    "dir": "/Hem Labels/Mesh/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Webbing label, vinyl banners.",
+            "process": [
+                "13ozBanner",
+                "18ozBanner",
+                "13oz-Matte",
+                "13oz-Gloss",
+                "13oz-Smooth"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hemMethod.sewn"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "data.doubleSided"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.webbing"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Webbing",
+                    "dir": "/Hem Labels/Mesh/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Backdrop labels, top pocket.",
+            "process": [
+                "All"
+            ],
+            "subprocess": [
+                "Backdrop"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "data.doubleSided"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.pocketTop"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "TextLabel-Prefix",
+                    "dir": "/Hem Labels/Backdrop/Top/",
+                    "scale": true
+                },
+                {
+                    "name": "TextLabel-Suffix",
+                    "dir": "/Hem Labels/Backdrop/Top/",
+                    "scale": true
+                },
+                {
+                    "name": "Barcode",
+                    "dir": "/Hem Labels/Backdrop/Top/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Backdrop labels, bottom pocket.",
+            "process": [
+                "All"
+            ],
+            "subprocess": [
+                "Backdrop"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "data.doubleSided"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.pocketBottom"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "TextLabel-Prefix",
+                    "dir": "/Hem Labels/Backdrop/Bottom/",
+                    "scale": true
+                },
+                {
+                    "name": "TextLabel-Suffix",
+                    "dir": "/Hem Labels/Backdrop/Bottom/",
+                    "scale": true
+                },
+                {
+                    "name": "Barcode",
+                    "dir": "/Hem Labels/Backdrop/Bottom/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Grommets, flush, top corners only.",
+            "process": [
+                "13ozBanner",
+                "18ozBanner",
+                "Coroplast",
+                "Mesh"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Salt Lake City"
+                    ],
+                    "parameter": [
+                        "data.facility"
+                    ]
+                },
+                {
+                    "value": [
+                        "Two grommets on top"
+                    ],
+                    "parameter": [
+                        "orderArray.grommetMethod"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.hem"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Grommets-Flush-Top",
+                    "dir": "/Grommets/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Grommets, flush cut, all corners.",
+            "process": [
+                "13ozBanner",
+                "18ozBanner",
+                "Coroplast",
+                "Mesh"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Salt Lake City"
+                    ],
+                    "parameter": [
+                        "data.facility"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.grommets"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.hem"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Grommets-Flush-AllCorners",
+                    "dir": "/Grommets/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Grommets, hems, top corners only.",
+            "process": [
+                "13ozBanner",
+                "18ozBanner",
+                "Coroplast",
+                "Mesh"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Salt Lake City"
+                    ],
+                    "parameter": [
+                        "data.facility"
+                    ]
+                },
+                {
+                    "value": [
+                        "Two grommets on top"
+                    ],
+                    "parameter": [
+                        "orderArray.grommetMethod"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hem"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.webbing"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Grommets-Flush-Top",
+                    "dir": "/Grommets/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Grommets, hems, all corners.",
+            "process": [
+                "13ozBanner",
+                "18ozBanner",
+                "Coroplast",
+                "Mesh"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Salt Lake City"
+                    ],
+                    "parameter": [
+                        "data.facility"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.grommets"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hem"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.webbing"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Grommets-Weld-AllCorners",
+                    "dir": "/Grommets/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Grommets, hems w/ webbing, top corners only.",
+            "process": [
+                "13ozBanner",
+                "Mesh"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Salt Lake City"
+                    ],
+                    "parameter": [
+                        "data.facility"
+                    ]
+                },
+                {
+                    "value": [
+                        "Two grommets on top"
+                    ],
+                    "parameter": [
+                        "orderArray.grommetMethod"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hem"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.webbing"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Grommets-Weld-Top",
+                    "dir": "/Grommets/Webbing/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Grommets, hems w/ webbing, all corners.",
+            "process": [
+                "13ozBanner",
+                "Mesh"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Salt Lake City"
+                    ],
+                    "parameter": [
+                        "data.facility"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.grommets"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hem"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.webbing"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Grommets-Weld-AllCorners",
+                    "dir": "/Grommets/Webbing/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Stretched table covers.",
+            "process": [
+                "CeltecBanner",
+                "Celtec"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.stretchTableCover"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "TextLabel-Prefix",
+                    "dir": "/Hem Labels/Stretched Table Cloths/",
+                    "scale": true
+                },
+                {
+                    "name": "TextLabel-Suffix",
+                    "dir": "/Hem Labels/Stretched Table Cloths/",
+                    "scale": true
+                },
+                {
+                    "name": "Barcode",
+                    "dir": "/Hem Labels/Stretched Table Cloths/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Tablecloths",
+            "process": [
+                "CeltecBanner",
+                "Celtec"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.tableCloths"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "TextLabel-Prefix",
+                    "dir": "/Hem Labels/Table Cloths/",
+                    "scale": true
+                },
+                {
+                    "name": "TextLabel-Suffix",
+                    "dir": "/Hem Labels/Table Cloths/",
+                    "scale": true
+                },
+                {
+                    "name": "Barcode",
+                    "dir": "/Hem Labels/Table Cloths/",
+                    "scale": true
+                }
+            ]
+        },
+        {
+            "description": "Retractable labels",
+            "process": [
+                "All"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "product.retractable"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Retractable-Labels",
+                    "dir": "/Misc/",
+                    "scale": false
+                }
+            ]
+        },
+        {
+            "description": "Table top labels",
+            "process": [
+                "All"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Tabletop Banners"
+                    ],
+                    "parameter": [
+                        "product.itemName"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Retractable-Labels",
+                    "dir": "/Misc/",
+                    "scale": false
+                }
+            ]
+        },
+        {
+            "description": "Polished edges",
+            "process": [
+                "125-Acrylic",
+                "25-Acrylic"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Polished"
+                    ],
+                    "parameter": [
+                        "orderArray.edgeValue"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Polished-Edge",
+                    "dir": "/Misc/",
+                    "scale": false
+                }
+            ]
+        },
+        {
+            "description": "Mount info",
+            "process": [
+                "PhotoMatte",
+                "PhotoGloss"
+            ],
+            "subprocess": [
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.mount"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Mount-Info",
+                    "dir": "/Mount/",
+                    "scale": false
+                }
+            ]
+        },
+        {
+            "description": "A-frame labels",
+            "process": [
+                "All"
+            ],
+            "subprocess": [
+                "A-Frame"
+            ],
+            "restrictions": [
+                "None"
+            ],
+            "settings": [
+                {
+                    "name": "A-Frame-Type",
+                    "dir": "/Misc/",
+                    "scale": false
+                }
+            ]
+        },
+        {
+            "description": "Product Labels",
+            "process": [
+                "All"
+            ],
+            "subprocess": [
+                "A-Frame",
+                "Breakaway",
+                "None"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.shape.custom"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "ProductLabel",
+                    "dir": "/Product Labels/",
+                    "scale": true
+                }
+            ]
+        }
+    ]
+}
