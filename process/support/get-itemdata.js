@@ -16,6 +16,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 				weld: null,
 				sewn: null
 			},
+			pocket: false,
 			pocketTop: false,
 			pocketBottom: false,
 			pocketSize: null,
@@ -41,7 +42,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			notes: "",
 			cvColors: null,
 			cutType: null,
-			hemValue: null
+			hemValue: null,
+			finishingType: null
 		}
 		
 		var theHTTP = new HTTP(HTTP.SSL);
@@ -83,7 +85,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			// Process specific item names.
 			specs.retractable = specs.itemName.toLowerCase().match(new RegExp("retractable","g")) == "retractable";
 			specs.stretchTableCover = specs.itemName.toLowerCase().match(new RegExp("stretch table cover","g")) == "stretch table cover";
-			specs.tableCloths = specs.itemName.toLowerCase().match(new RegExp("tablecloths","g")) == "tablecloths";
+			specs.tableCloths = specs.itemName.toLowerCase().match(new RegExp("table cloths","g")) == "table cloths";
 
 		// If there is "rider" in the item name, don't let it undersize
 		if(specs.itemName.toLowerCase().match(new RegExp("rider","g"))){
@@ -98,10 +100,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			}
 			if(dataDump.order_specs[k].code == "HEMMING"){
 				specs.hem = true;
+				specs.finishingType = "Hem"
 				specs.hemMethod.weld = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("heat|weld","g")) != undefined;
 				specs.hemMethod.sewn = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("sewn","g")) != undefined;
 				specs.webbing = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("webbing","g")) == "webbing";
-				specs.hemValue = dataDump.order_specs[k].value;
+				specs.hemValue = dataDump.order_specs[k].value.replace(/"/g,'');
 			}
 			if(dataDump.order_specs[k].code == "PPR"){
 				specs.paper = dataDump.order_specs[k].value;
@@ -128,6 +131,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 				specs.frameValue = dataDump.order_specs[k].value.replace(/,/g,'');
 			}
 			if(dataDump.order_specs[k].code == "POLPCKT"){
+				specs.finishingType = "Pocket";
 				specs.pocketTop = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("top","g")) != undefined;
 				specs.pocketBottom = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("bottom","g")) != undefined;
 				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("4.5","g"))){
