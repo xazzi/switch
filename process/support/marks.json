@@ -4,7 +4,8 @@
             "description": "Hem labels, mesh.",
             "process": [
                 "Mesh",
-                "8oz-Mesh"
+                "8oz-Mesh",
+                "12oz-Mesh"
             ],
             "subprocess": [
                 "None"
@@ -15,7 +16,8 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn"
+                        "orderArray.hemMethod.sewn",
+                        "orderArray.hemMethod.weld"
                     ]
                 },
                 {
@@ -116,7 +118,8 @@
             "description": "Webbing label, mesh.",
             "process": [
                 "Mesh",
-                "8oz-Mesh"
+                "8oz-Mesh",
+                "12oz-Mesh"
             ],
             "subprocess": [
                 "None"
@@ -127,7 +130,8 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn"
+                        "orderArray.hemMethod.sewn",
+                        "orderArray.hemMethod.weld"
                     ]
                 },
                 {
