@@ -25,6 +25,16 @@ loadDataset_db = function(dataset){
     return datasetDoc
 }
 
+contains = function(a, object) {
+	var i = a.length;
+	while (i--) {
+	   if (a[i] === object) {
+		   return true;
+	   }
+	}
+	return false;
+}
+
 findConnectionByName_db = function(s, inName){
 	function findConnection(s, inName){
 		var outConnectionList = s.getOutConnections();
@@ -81,6 +91,7 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 		addNode_db(theXML, messageNode, "body", message.body);
 		addNode_db(theXML, messageNode, "to", message.to);
 		addNode_db(theXML, messageNode, "cc", message.cc);
+		addNode_db(theXML, messageNode, "bcc", message.bcc);
 		
 	if(userInfo != null){
 		var userNode = theXML.createElement("user", null);

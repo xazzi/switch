@@ -1,5 +1,5 @@
-pullApiInformation = function(s, itemNumber, theNewToken, environment){
-	function pingAPI(s, itemNumber, theNewToken, environment){
+pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn){
+	function pingAPI(s, itemNumber, theNewToken, environment, dbConn){
 		var specs = {
 			complete: false,
 			process: null, //This should stay null, it's to allow process/string searching elsewhere.
@@ -43,7 +43,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			cvColors: null,
 			cutType: null,
 			hemValue: null,
-			finishingType: null
+			finishingType: "No Hem",
+			reprint: false,
+			reprintReason: null,
+			replacement: false
 		}
 		
 		var theHTTP = new HTTP(HTTP.SSL);
@@ -85,7 +88,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 			// Process specific item names.
 			specs.retractable = specs.itemName.toLowerCase().match(new RegExp("retractable","g")) == "retractable";
 			specs.stretchTableCover = specs.itemName.toLowerCase().match(new RegExp("stretch table cover","g")) == "stretch table cover";
-			specs.tableCloths = specs.itemName.toLowerCase().match(new RegExp("table cloths","g")) == "table cloths";
+			specs.tableCloths = specs.itemName.replace(/ /g,'').toLowerCase().match(new RegExp("tablecloths","g")) == "tablecloths";
 
 		// If there is "rider" in the item name, don't let it undersize
 		if(specs.itemName.toLowerCase().match(new RegExp("rider","g"))){
@@ -94,9 +97,24 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 
 		// Loop through the order_specs and set some values based on them
 		for(var k=0; k<dataDump.order_specs.length; k++){
+			if(dataDump.order_specs[k].code == "RP_REASON"){
+				specs.reprint = true;
+				specs.reprintReason = dataDump.order_specs[k].value;
+			}
 			if(dataDump.order_specs[k].code == "GROM"){
 				specs.grommets = true;
-				specs.grommetMethod = dataDump.order_specs[k].value;
+				var db_grommet_options = new Statement(dbConn);
+					db_grommet_options.execute("SELECT * FROM digital_room.grommet_options WHERE parameter = '" + dataDump.order_specs[k].value + "';");
+				if(!db_grommet_options.isRowAvailable()){
+					db_grommet_options.execute("INSERT INTO digital_room.grommet_options (parameter) VALUES ('" + dataDump.order_specs[k].value + "');");
+				}
+				//specs.grommetMethod = dataDump.order_specs[k].value;
+				if(dataDump.order_specs[k].value == "One on Top-Center, One on Bottom-Center"){
+					specs.grommetMethod = "No Corners"
+				}else{
+					specs.grommetMethod = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("two grommets on top","g")) ? "Top only" : "All sides"
+				}
+				//specs.grommetMethod = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("two grommets on top","g")) ? "Top only" : "All sides"
 			}
 			if(dataDump.order_specs[k].code == "HEMMING"){
 				specs.hem = true;
@@ -126,12 +144,18 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 				specs.edge = true;
 				specs.edgeValue = dataDump.order_specs[k].value;
 			}
+			if(dataDump.order_specs[k].code == "DESC"){
+				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("replacement","g"))){
+					specs.replacement = true;
+					specs.undersize = false;
+				}
+			}
 			if(dataDump.order_specs[k].code == "AFRAME"){
 				specs.frame = true;
 				specs.frameValue = dataDump.order_specs[k].value.replace(/,/g,'');
 			}
 			if(dataDump.order_specs[k].code == "POLPCKT"){
-				specs.finishingType = "Pocket";
+				//specs.finishingType = "Pocket";
 				specs.pocketTop = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("top","g")) != undefined;
 				specs.pocketBottom = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("bottom","g")) != undefined;
 				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("4.5","g"))){
@@ -198,5 +222,5 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment){
 		}
 		return specs
 	}
-	return contents = pingAPI(s, itemNumber, theNewToken, environment)
+	return contents = pingAPI(s, itemNumber, theNewToken, environment, dbConn)
 }
