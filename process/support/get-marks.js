@@ -5,16 +5,6 @@ setMarks = function(folder, matInfo, data, orderArray, product){
         var dump = JSON.parse(str);
         var apply;
 
-        function contains(a, object) {
-            var i = a.length;
-            while (i--) {
-               if (a[i] === object) {
-                   return true;
-               }
-            }
-            return false;
-        }
-
         for(var j in dump.marks){
             if(!contains(dump.marks[j].process, data.prodName)){
                 if(!contains(dump.marks[j].process, "All")){
@@ -22,8 +12,18 @@ setMarks = function(folder, matInfo, data, orderArray, product){
                 }
             }
             
-            if(!contains(dump.marks[j].subprocess, data.subprocess)){
+            if(!contains(dump.marks[j].subprocess.approve, data.subprocess)){
                 continue;
+            }
+
+            if(contains(dump.marks[j].subprocess.ignore, data.subprocess)){
+                continue;
+            }
+
+            if(!contains(dump.marks[j].facility, data.facility)){
+                if(!contains(dump.marks[j].facility, "All")){
+                    continue;
+                }
             }
 
             if(matInfo.printer.name == "C500"){
@@ -54,7 +54,7 @@ setMarks = function(folder, matInfo, data, orderArray, product){
             }
 
             for(var k in dump.marks[j].settings){
-                marksArray.push(data.facility + dump.marks[j].settings[k].dir + dump.marks[j].settings[k].name + (dump.marks[j].settings[k].scale ? data.scale : ""));
+                marksArray.push(data.facility + dump.marks[j].settings[k].dir + dump.marks[j].settings[k].name);
             }
         }
         return marksArray

@@ -90,6 +90,20 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
             cc = []
             bcc = [];
         break;
+        case "Reprint":
+            subject = "Item is a Reprint: " + product.jobItemId;
+            body =  "Gang: " + data.projectID + "\n" + "Order: " + product.jobOrderId + "\n" + "Item: " + product.jobItemId + "\n" + "Reason: " + product.reprintReason + "\n\n" + "This item is a reprint from a previous order. Please check the reason in IMS and the accuracy of the file on the approval report in Switch.";
+            to = [userInfo.email];
+            cc = []
+            bcc = [sendTo.bret, sendTo.chelsea];
+        break;
+        case "Replacement":
+            subject = "Item is a Replacement: " + product.jobItemId;
+            body =  "Gang: " + data.projectID + "\n" + "Order: " + product.jobOrderId + "\n" + "Item: " + product.jobItemId + "\n\n" + "Undersizing has been disabled." + "\n\n" + "This is assumed to be a replacement product for an a-frame.";
+            to = [sendTo.bret, sendTo.chelsea];
+            cc = []
+            bcc = [];
+        break;
         case "API GET Failed":
             subject = "API GET Failed: " + data.projectID;
             body = "This job failed to gather the extra information required for processing, likely due to network problems. Please try again.\n\n" + escalate;

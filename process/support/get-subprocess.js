@@ -5,16 +5,6 @@ getSubprocess = function(folder, dbConn, query, matInfo){
             db_mapItem.fetchRow();
         var subprocessMapId = db_mapItem.getString(2);
 
-        function contains(a, obj) {
-            var i = a.length;
-            while (i--) {
-               if (a[i] === obj) {
-                   return true;
-               }
-            }
-            return false;
-        }
-
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);
         for(var i=0; i<files.length; i++){
             var str = File.read(folder.path + "/" + files[i], "UTF-8");
