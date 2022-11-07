@@ -1,0 +1,36 @@
+{
+    "subprocess": "uv-greyback",
+    "id": 3,
+    "facility": [
+        {
+            "name": "Salt Lake City",
+            "id": "28",
+            "enabled": true,
+            "processes": [
+                "Celtec"
+            ],
+            "overrides": {
+                "prodName": "UV-Greyback",
+                "prodMatFileName": "UV-Greyback",
+                "rotation": "None",
+                "allowedRotations": 0,
+                "impositionProfile": "Sheet",
+                "sideMix": 1,
+                "height": "150",
+                "printer": {
+                    "name": "512",
+                    "margin": {
+                        "top": "1.625",
+                        "bottom": "1.625",
+                        "left": ".25",
+                        "right": ".25" 
+                    }
+                },
+                "rip": {
+                    "device": "Caldera",
+                    "hotfolder": "Hotfolder3"
+                }
+            }
+        }
+    ]
+}
