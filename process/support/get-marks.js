@@ -20,7 +20,7 @@ setMarks = function(folder, matInfo, data, orderArray, product){
                 continue;
             }
 
-            if(!contains(dump.marks[j].facility, data.facility)){
+            if(!contains(dump.marks[j].facility, data.facility.destination)){
                 if(!contains(dump.marks[j].facility, "All")){
                     continue;
                 }
@@ -54,7 +54,7 @@ setMarks = function(folder, matInfo, data, orderArray, product){
             }
 
             for(var k in dump.marks[j].settings){
-                marksArray.push(data.facility + dump.marks[j].settings[k].dir + dump.marks[j].settings[k].name);
+                marksArray.push(data.facility.destination + dump.marks[j].settings[k].dir + dump.marks[j].settings[k].name + data.scale);
             }
         }
         return marksArray
