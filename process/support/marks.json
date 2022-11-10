@@ -1191,6 +1191,49 @@
                     "dir": "/Product Labels/"
                 }
             ]
+        },
+        {
+            "description": "Dashed lines for banners with a hem on all sides.",
+            "type": "Dashed Line",
+            "process": [
+                "13ozBanner"
+            ],
+            "subprocess": {
+                "approve": [
+                    "None"
+                ],
+                "ignore": [
+                    "Breakaway"
+                ]
+            },
+            "facility": [
+                "Salt Lake City"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.pocket"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hemMethod.sewn",
+                        "orderArray.hemMethod.weld"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Hem-AllSides",
+                    "dir": "/Dashes/"
+                }
+            ]
         }
     ]
 }
