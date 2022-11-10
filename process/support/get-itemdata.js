@@ -155,7 +155,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn){
 				specs.frameValue = dataDump.order_specs[k].value.replace(/,/g,'');
 			}
 			if(dataDump.order_specs[k].code == "POLPCKT"){
-				//specs.finishingType = "Pocket";
+				specs.pocket = true;
 				specs.pocketTop = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("top","g")) != undefined;
 				specs.pocketBottom = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("bottom","g")) != undefined;
 				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("4.5","g"))){
