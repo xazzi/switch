@@ -85,7 +85,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
         break;
         case "Gang Notes":
             subject = "Gang Summary: " + data.projectID;
-            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility + "\n" + gangNotes + "\n" + escalate;
+            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + gangNotes + "\n" + escalate;
             to = [userInfo.email];
             cc = []
             bcc = [];
@@ -95,7 +95,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
             body =  "Gang: " + data.projectID + "\n" + "Order: " + product.jobOrderId + "\n" + "Item: " + product.jobItemId + "\n" + "Reason: " + product.reprintReason + "\n\n" + "This item is a reprint from a previous order. Please check the reason in IMS and the accuracy of the file on the approval report in Switch.";
             to = [userInfo.email];
             cc = []
-            bcc = [sendTo.bret, sendTo.chelsea];
+            bcc = [];
         break;
         case "Replacement":
             subject = "Item is a Replacement: " + product.jobItemId;
