@@ -17,6 +17,7 @@
                 "impositionProfile": "Sheet",
                 "sideMix": 1,
                 "height": "150",
+                "pageHandling": "OnePerPage",
                 "printer": {
                     "name": "512",
                     "margin": {
