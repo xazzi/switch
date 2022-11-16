@@ -199,8 +199,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn){
 			}
 			if(dataDump.order_specs[k].code == "SIDE"){
 				if(dataDump.order_specs[k].value == "Front and Back" ||
-				dataDump.order_specs[k].value == "Front and Back (Same File)" ||
-				dataDump.order_specs[k].value != "Front Only"){
+					dataDump.order_specs[k].value == "Front and Back (Same File)" ||
+					dataDump.order_specs[k].value != "Front Only"){
 					specs.doubleSided = true;
 				}
 			}

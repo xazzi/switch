@@ -1,0 +1,59 @@
+{
+    "marks": [
+        {
+            "description": "Dashed lines, sewn hem.",
+            "process": [
+                "Celtec",
+                "CeltecBanner"
+            ],
+            "subprocess": {
+                "approve": [
+                    "None"
+                ],
+                "ignore": [
+                ]
+            },
+            "facility": [
+                "Salt Lake City"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "orderArray.hemMethod.sewn"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.pocket"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.tableCloths"
+                    ]
+                },
+                {
+                    "value": [
+                        false
+                    ],
+                    "parameter": [
+                        "orderArray.stretchTableCover"
+                    ]
+                }
+            ],
+            "settings": {
+                "finishingType": "SewnHem",
+                "offset": 1.125
+            }
+        }
+    ]
+}
