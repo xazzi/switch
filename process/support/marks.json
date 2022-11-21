@@ -615,7 +615,7 @@
             ],
             "settings": [
                 {
-                    "name": "Grommets-Flush-Top",
+                    "name": "Grommets-Weld-Top",
                     "dir": "/Grommets/"
                 }
             ]
@@ -1030,6 +1030,80 @@
             ]
         },
         {
+            "description": "Retractable banner barcode.",
+            "type": "Custom Label",
+            "process": [
+                "All"
+            ],
+            "subprocess": {
+                "approve": [
+                    "None"
+                ],
+                "ignore": [
+                ]
+            },
+            "facility": [
+                "All"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "product.retractable"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Retractable-Barcode",
+                    "dir": "/Misc/"
+                }
+            ]
+        },
+        {
+            "description": "Retractable banner doublesided indicator.",
+            "type": "Custom Label",
+            "process": [
+                "All"
+            ],
+            "subprocess": {
+                "approve": [
+                    "None"
+                ],
+                "ignore": [
+                ]
+            },
+            "facility": [
+                "All"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "product.retractable"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "product.doubleSided"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Retractable-DoubleSided",
+                    "dir": "/Misc/"
+                }
+            ]
+        },
+        {
             "description": "Table top banner labels.",
             "type": "Custom Label",
             "process": [
@@ -1058,6 +1132,39 @@
             "settings": [
                 {
                     "name": "Retractable-Labels",
+                    "dir": "/Misc/"
+                }
+            ]
+        },
+        {
+            "description": "Table top banner barcode.",
+            "type": "Custom Label",
+            "process": [
+                "All"
+            ],
+            "subprocess": {
+                "approve": [
+                    "None"
+                ],
+                "ignore": [
+                ]
+            },
+            "facility": [
+                "All"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Tabletop Banners"
+                    ],
+                    "parameter": [
+                        "product.itemName"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Retractable-Barcode",
                     "dir": "/Misc/"
                 }
             ]
