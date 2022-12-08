@@ -10,10 +10,16 @@
                 "13ozBanner"
             ],
             "overrides": {
-                "subprocess": "Breakaway",
-                "prodMatFileName": "Breakaway",
-                "pageHandling": "OnePerPage",
-                "sideMix": 1
+                "matInfo": {
+                    "sideMix": 1
+                },
+                "product": {
+                    "pageHandling": "OnePerPage"
+                },
+                "data": {
+                    "subprocess": "Breakaway",
+                    "prodMatFileName": "Breakaway"
+                }
             }
         },
         {
@@ -25,10 +31,16 @@
                 "13oz-Gloss"
             ],
             "overrides": {
-                "subprocess": "Breakaway",
-                "prodMatFileName": "Breakaway",
-                "pageHandling": "OnePerPage",
-                "sideMix": 1
+                "matInfo": {
+                    "sideMix": 1
+                },
+                "product": {
+                    "pageHandling": "OnePerPage"
+                },
+                "data": {
+                    "subprocess": "Breakaway",
+                    "prodMatFileName": "Breakaway"
+                }
             }
         }
     ]

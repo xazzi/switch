@@ -76,6 +76,14 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
             cc = [userInfo.email]
             bcc = [];
         break;
+        case "New Entry":
+            subject = "New Table Entry!";
+            body = "A new entry has been added to the " + matInfo + " table!";
+            //to = [sendTo.bret,sendTo.chelsea]
+            to = [sendTo.bret]
+            cc = []
+            bcc = [];
+        break;
         case "Item Notes":
             subject = "Item Notes: " + product.itemNumber;
             body = "These things happened to your gang:" + "\n\n" + itemNotes;

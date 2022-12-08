@@ -1,0 +1,25 @@
+{
+    "subprocess": "retractable",
+    "id": 4,
+    "facility": [
+        {
+            "name": "Salt Lake City",
+            "id": "28",
+            "enabled": true,
+            "processes": [
+                "13ozBanner"
+            ],
+            "overrides": {
+                "matInfo": {
+                    "sideMix": 1
+                },
+                "product": {
+                    "pageHandling": "OnePerPage"
+                },
+                "data": {
+                    
+                }
+            }
+        }
+    ]
+}

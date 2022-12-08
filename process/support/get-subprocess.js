@@ -1,30 +1,94 @@
-getSubprocess = function(folder, dbConn, query, matInfo){
-    function readFiles(folder, dbConn, query, matInfo){
-        var db_mapItem = new Statement(dbConn);
-            db_mapItem.execute("SELECT * FROM digital_room.map_item WHERE item_name = '" + query.itemName.replace(/'/g,"\\'") + "';");
-            db_mapItem.fetchRow();
-        var subprocessMapId = db_mapItem.getString(2);
+var parent = []
+
+getSubprocess = function(folder, dbConn, query, matInfo, product, data, subprocess){
+    function readFiles(folder, dbConn, query, matInfo, product, data, subprocess){
+
+        if(subprocess == null){
+            var db_mapItem = new Statement(dbConn);
+                db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
+                db_mapItem.fetchRow();
+
+            subprocess = db_mapItem.getString(4);
+        }
 
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);
+
         for(var i=0; i<files.length; i++){
             var str = File.read(folder.path + "/" + files[i], "UTF-8");
             var dump = JSON.parse(str)
-            if(dump.id == subprocessMapId){
+            if(dump.id == subprocess || dump.subprocess == subprocess){
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){
                             if(contains(dump.facility[j].processes, matInfo.prodName)){
-                                for(var key in dump.facility[j].overrides){
-                                    matInfo[key] = dump.facility[j].overrides[key]
-                                }
-                                return matInfo;
+                                checkObject(s, dump.facility[j].overrides, matInfo, product, data)
+                                return;
                             }
                         }
                     }
                 }
             }
         }
-        return matInfo;
+        return;
+
+        /*
+        for(var i=0; i<files.length; i++){
+            var str = File.read(folder.path + "/" + files[i], "UTF-8");
+            var dump = JSON.parse(str)
+            if(dump.id == subprocess || dump.subprocess == subprocess){
+                for(var j in dump.facility){
+                    // Find the correct facility.
+                    if(dump.facility[j].id == query.facilityId){
+                        // Check if the json is enabled.
+                        if(dump.facility[j].enabled){
+                            // Check if the product is enabled for that subprocess
+                            if(contains(dump.facility[j].processes, matInfo.prodName)){
+                                // Parse through the overrides to set new parameters.
+                                for(var l in dump.facility[j].overrides){
+                                    for(var h in dump.facility[j].overrides[l]){
+                                        if(typeof dump.facility[j].overrides[l][h] === 'object'){
+                                            for(var b in dump.facility[j].overrides[l][h]){
+                                                if(typeof dump.facility[j].overrides[l][h][b] === 'object'){
+                                                    for(q in dump.facility[j].overrides[l][h][b]){
+                                                        eval(l + "." + h + "." + b + "." + q + " = '" + dump.facility[j].overrides[l][h][b][q] + "'")
+                                                    }
+                                                }else{
+                                                    eval(l + "." + h + "." + b + " = '" + dump.facility[j].overrides[l][h][b] + "'")
+                                                }
+                                            }
+                                        }else{
+                                            eval(l + "." + h + " = '" + dump.facility[j].overrides[l][h] + "'")
+                                        }
+                                    }
+                                }
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return
+        */
     }
-    return contents = readFiles(folder, dbConn, query, matInfo);
+    readFiles(folder, dbConn, query, matInfo, product, data, subprocess);
+    return;
+}
+
+function checkObject(s, parameter, matInfo, product, data){
+    for(var l in parameter){
+
+        // If the parameter is an nested object, dig further.
+        if(typeof parameter[l] === 'object'){
+            parent.push(l + ".");
+            checkObject(s, parameter[l], matInfo, product, data);
+
+        // Eval the new parameter.
+        }else{
+            var thing = parent.join('');
+            eval(thing + l + " = '" + parameter[l] + "'");
+        }
+    }
+    // Remove the last entry of the array when that level of nest is completed.
+    parent = parent.slice(0,-1)
 }

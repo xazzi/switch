@@ -19,10 +19,10 @@
             "restrictions": [
                 {
                     "value": [
-                        true
+                        "Sewn"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn"
+                        "orderArray.hem.method"
                     ]
                 },
                 {

@@ -19,10 +19,10 @@
             "restrictions": [
                 {
                     "value": [
-                        true
+                        "Sewn"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn"
+                        "orderArray.hem.method"
                     ]
                 },
                 {
@@ -60,10 +60,10 @@
             "restrictions": [
                 {
                     "value": [
-                        true
+                        "Weld"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.weld"
+                        "orderArray.hem.method"
                     ]
                 },
                 {
@@ -103,11 +103,11 @@
             "restrictions": [
                 {
                     "value": [
-                        true
+                        "Weld",
+                        "Sewn"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn",
-                        "orderArray.hemMethod.weld"
+                        "orderArray.hem.method"
                     ]
                 },
                 {
@@ -157,11 +157,11 @@
             "restrictions": [
                 {
                     "value": [
-                        true
+                        "Weld",
+                        "Sewn"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn",
-                        "orderArray.hemMethod.weld"
+                        "orderArray.hem.method"
                     ]
                 },
                 {
@@ -224,11 +224,11 @@
             "restrictions": [
                 {
                     "value": [
-                        true
+                        "Weld",
+                        "Sewn"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn",
-                        "orderArray.hemMethod.weld"
+                        "orderArray.hem.method"
                     ]
                 },
                 {
@@ -292,11 +292,11 @@
             "restrictions": [
                 {
                     "value": [
-                        true
+                        "Weld",
+                        "Sewn"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn",
-                        "orderArray.hemMethod.weld"
+                        "orderArray.hem.method"
                     ]
                 },
                 {
@@ -312,7 +312,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.webbing"
+                        "orderArray.hem.webbing"
                     ]
                 }
             ],
@@ -346,10 +346,10 @@
             "restrictions": [
                 {
                     "value": [
-                        true
+                        "Sewn"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn"
+                        "orderArray.hem.method"
                     ]
                 },
                 {
@@ -365,7 +365,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.webbing"
+                        "orderArray.hem.webbing"
                     ]
                 }
             ],
@@ -498,7 +498,7 @@
             "restrictions": [
                 {
                     "value": [
-                        "Top only"
+                        "TopOnly"
                     ],
                     "parameter": [
                         "orderArray.grommetMethod"
@@ -509,7 +509,7 @@
                         false
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 }
             ],
@@ -544,7 +544,7 @@
             "restrictions": [
                 {
                     "value": [
-                        "All sides"
+                        "AllCorners"
                     ],
                     "parameter": [
                         "orderArray.grommetMethod"
@@ -555,7 +555,7 @@
                         false
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 }
             ],
@@ -590,7 +590,7 @@
             "restrictions": [
                 {
                     "value": [
-                        "Top only"
+                        "TopOnly"
                     ],
                     "parameter": [
                         "orderArray.grommetMethod"
@@ -601,7 +601,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 },
                 {
@@ -609,13 +609,13 @@
                         false
                     ],
                     "parameter": [
-                        "orderArray.webbing"
+                        "orderArray.hem.webbing"
                     ]
                 }
             ],
             "settings": [
                 {
-                    "name": "Grommets-Flush-Top",
+                    "name": "Grommets-Weld-Top",
                     "dir": "/Grommets/"
                 }
             ]
@@ -644,7 +644,7 @@
             "restrictions": [
                 {
                     "value": [
-                        "All sides"
+                        "AllCorners"
                     ],
                     "parameter": [
                         "orderArray.grommetMethod"
@@ -655,7 +655,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 },
                 {
@@ -663,7 +663,7 @@
                         false
                     ],
                     "parameter": [
-                        "orderArray.webbing"
+                        "orderArray.hem.webbing"
                     ]
                 }
             ],
@@ -709,7 +709,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 }
             ],
@@ -744,7 +744,7 @@
             "restrictions": [
                 {
                     "value": [
-                        "Top only"
+                        "TopOnly"
                     ],
                     "parameter": [
                         "orderArray.grommetMethod"
@@ -755,7 +755,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 }
             ],
@@ -790,7 +790,7 @@
             "restrictions": [
                 {
                     "value": [
-                        "All sides"
+                        "AllCorners"
                     ],
                     "parameter": [
                         "orderArray.grommetMethod"
@@ -801,7 +801,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 }
             ],
@@ -832,7 +832,7 @@
             "restrictions": [
                 {
                     "value": [
-                        "Top only"
+                        "TopOnly"
                     ],
                     "parameter": [
                         "orderArray.grommetMethod"
@@ -843,7 +843,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 },
                 {
@@ -851,7 +851,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.webbing"
+                        "orderArray.hem.webbing"
                     ]
                 }
             ],
@@ -882,7 +882,7 @@
             "restrictions": [
                 {
                     "value": [
-                        "All sides"
+                        "AllCorners"
                     ],
                     "parameter": [
                         "orderArray.grommetMethod"
@@ -893,7 +893,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.hem"
+                        "orderArray.hem.active"
                     ]
                 },
                 {
@@ -901,7 +901,7 @@
                         true
                     ],
                     "parameter": [
-                        "orderArray.webbing"
+                        "orderArray.hem.webbing"
                     ]
                 }
             ],
@@ -1030,6 +1030,80 @@
             ]
         },
         {
+            "description": "Retractable banner barcode.",
+            "type": "Custom Label",
+            "process": [
+                "All"
+            ],
+            "subprocess": {
+                "approve": [
+                    "None"
+                ],
+                "ignore": [
+                ]
+            },
+            "facility": [
+                "All"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "product.retractable"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Retractable-Barcode",
+                    "dir": "/Misc/"
+                }
+            ]
+        },
+        {
+            "description": "Retractable banner doublesided indicator.",
+            "type": "Custom Label",
+            "process": [
+                "All"
+            ],
+            "subprocess": {
+                "approve": [
+                    "None"
+                ],
+                "ignore": [
+                ]
+            },
+            "facility": [
+                "All"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "product.retractable"
+                    ]
+                },
+                {
+                    "value": [
+                        true
+                    ],
+                    "parameter": [
+                        "product.doubleSided"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Retractable-DoubleSided",
+                    "dir": "/Misc/"
+                }
+            ]
+        },
+        {
             "description": "Table top banner labels.",
             "type": "Custom Label",
             "process": [
@@ -1058,6 +1132,39 @@
             "settings": [
                 {
                     "name": "Retractable-Labels",
+                    "dir": "/Misc/"
+                }
+            ]
+        },
+        {
+            "description": "Table top banner barcode.",
+            "type": "Custom Label",
+            "process": [
+                "All"
+            ],
+            "subprocess": {
+                "approve": [
+                    "None"
+                ],
+                "ignore": [
+                ]
+            },
+            "facility": [
+                "All"
+            ],
+            "restrictions": [
+                {
+                    "value": [
+                        "Tabletop Banners"
+                    ],
+                    "parameter": [
+                        "product.itemName"
+                    ]
+                }
+            ],
+            "settings": [
+                {
+                    "name": "Retractable-Barcode",
                     "dir": "/Misc/"
                 }
             ]
@@ -1220,11 +1327,11 @@
                 },
                 {
                     "value": [
-                        true
+                        "Weld",
+                        "Sewn"
                     ],
                     "parameter": [
-                        "orderArray.hemMethod.sewn",
-                        "orderArray.hemMethod.weld"
+                        "orderArray.hem.method"
                     ]
                 }
             ],

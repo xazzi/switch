@@ -1,12 +1,15 @@
 getMatInfo = function(query, dbConn){
 
+    // Pull the base paper mapping.
     var db_mapPaper = new Statement(dbConn);
         db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.paper + "';");
     if(!db_mapPaper.isRowAvailable()){
-        db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.material + "';");
+        return "Material Data Missing"
+        //db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.material + "';");
     }
         db_mapPaper.fetchRow();
 
+    // Get the paper mapping ID for the specific facility.
     var paperMapId
     if(query.facilityId == 28){
         paperMapId = Number(db_mapPaper.getString(2));
@@ -18,6 +21,7 @@ getMatInfo = function(query, dbConn){
         paperMapId = Number(db_mapPaper.getString(5));
     }
     
+    // Pull the material data based on the facility mapping ID.
     var db_material = new Statement(dbConn);
         db_material.execute('CALL digital_room.getMaterial(' + paperMapId + ')');
     if(!db_material.isRowAvailable()){
