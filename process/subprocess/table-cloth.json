@@ -1,7 +1,7 @@
 {
-    "subprocess": "retractable",
-    "name": "Retractable",
-    "id": 4,
+    "subprocess": "table-cloth",
+    "name": "TableCloth",
+    "id": 9,
     "facility": [
         {
             "name": "Salt Lake City",
@@ -9,17 +9,13 @@
             "enabled": true,
             "mixed": true,
             "processes": [
-                "13ozBanner"
+                "CeltecBanner",
+                "Celtec"
             ],
             "overrides": {
                 "matInfo": {
-                    "sideMix": 1
                 },
                 "product": {
-                    "pageHandling": "OnePerPage",
-                    "customLabel": {
-                        "apply": true
-                    }
                 },
                 "data": {
                 }

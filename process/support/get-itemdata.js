@@ -3,13 +3,23 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 		var specs = {
 			complete: false,
 			process: null, //This should stay null, it's to allow process/string searching elsewhere.
-			grommets: false,
-			grommetMethod: null,
-			shape: {
-				rectangle: false,
-				oval: false,
-				custom: false,
+			itemName: null,
+			paper: {
+				active: false,
 				value: null
+			},
+			material: {
+				active: false,
+				value: null
+			},
+			shape: {
+				active: false,
+				method: null,
+				value: null
+			},
+			grommet: {
+				active: false,
+                key: null
 			},
 			hem: {
 				active: false,
@@ -17,33 +27,63 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
                 webbing: false,
                 value: null
 			},
-			pocket: false,
-			pocketTop: false,
-			pocketBottom: false,
-			pocketSize: null,
-			mount: false,
-			mountValue: null,
-			itemName: null,
-			paper: null,
-			material: null,
-			coating: false,
-			coatingType: null,
-			edge: false,
-			edgeValue: null,
-			frame: false,
-			frameValue: null,
-			base: false,
-			baseValue: "",
+			pocket: {
+				active: false,
+                method: null,
+                size: null,
+                value: null
+			},
+			mount: {
+				active: false,
+				method: null,
+				value: null
+			},
+			coating: {
+				active: false,
+				method: null,
+				value: null
+			},
+			edge: {
+				active: false,
+				method: null,
+				value: null
+			},
+			frame: {
+				active: false,
+				method: null,
+				value: null
+			},
+			yardframe:{
+				active: false
+			},
+			base: {
+				active: false,
+				method: null,
+				value: null
+			},
+			printDir: {
+				active: false,
+				method: null,
+				value: null
+			},
+			viewDir: {
+				active: false,
+				method: null,
+				value: null
+			},
+			laminate: {
+				active: false
+			},
+			disable: {
+				label: {
+					hem: false
+				}
+			},
 			secondSurface: false,
 			doubleSided: false,
-			buttCut: false,
-			backdrop: false,
-			undersize: true,
 			facility: null,
 			notes: "",
 			cvColors: null,
-			cutType: null,
-			hemValue: null,
 			finishingType: "No Hem",
 			reprint: false,
 			reprintReason: null,
@@ -88,19 +128,6 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 
 			addToTable(s, dbConn, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo);
 
-			// Process specific item names.
-			specs.retractable = specs.itemName.toLowerCase().match(new RegExp("retractable","g")) == "retractable";
-			if(specs.retractable){
-				addToTable(s, dbConn, "specs_retractables", specs.itemName, dataDump.job_item_id, data, userInfo);
-			}
-			specs.stretchTableCover = specs.itemName.toLowerCase().match(new RegExp("stretch table cover","g")) == "stretch table cover";
-			specs.tableCloths = specs.itemName.replace(/ /g,'').toLowerCase().match(new RegExp("tablecloths","g")) == "tablecloths";
-
-		// If there is "rider" in the item name, don't let it undersize
-		if(specs.itemName.toLowerCase().match(new RegExp("rider","g"))){
-			specs.undersize = false;
-		}
-
 		// Loop through the order_specs and set some values based on them
 		for(var k=0; k<dataDump.order_specs.length; k++){
 			if(dataDump.order_specs[k].code == "RP_REASON"){
@@ -108,119 +135,74 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				specs.reprintReason = dataDump.order_specs[k].value;
 			}
 			if(dataDump.order_specs[k].code == "GROM"){
-				specs.grommets = true;
-				specs.grommetMethod = addToTable(s, dbConn, "options_grommets", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+				specs.grommet = addToTable(s, dbConn, "options_grommets", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo)
 			}
 			if(dataDump.order_specs[k].code == "HEMMING"){
 				specs.finishingType = "Hem"
 				specs.hem = addToTable(s, dbConn, "options_hems", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "PPR"){
-				addToTable(s, dbConn, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				specs.paper = dataDump.order_specs[k].value;
+				specs.paper = addToTable(s, dbConn, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "MATRL"){
-				addToTable(s, dbConn, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				specs.material = dataDump.order_specs[k].value;
+				specs.material = addToTable(s, dbConn, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
-				if(dataDump.order_specs[k].value != "No Coating"){
-					specs.coating = true;
-					specs.coatingType = dataDump.order_specs[k].value;
-					addToTable(s, dbConn, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				}
+				specs.coating = addToTable(s, dbConn, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "LAM"){
-				specs.coating = true;
-				specs.coatingType = dataDump.order_specs[k].value;
-				addToTable(s, dbConn, "options_laminate", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+				specs.laminate = addToTable(s, dbConn, "options_laminate", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "EDGE"){
-				specs.edge = true;
-				specs.edgeValue = dataDump.order_specs[k].value;
-				addToTable(s, dbConn, "options_edge", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-			}
-			if(dataDump.order_specs[k].code == "DESC"){
-				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("replacement","g"))){
-					specs.replacement = true;
-					specs.undersize = false;
-				}
+				specs.edge = addToTable(s, dbConn, "options_edge", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "AFRAME"){
-				addToTable(s, dbConn, "options_a-frame", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				specs.frame = true;
-				specs.frameValue = dataDump.order_specs[k].value.replace(/,/g,'');
+				specs.frame = addToTable(s, dbConn, "options_a-frame", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "POLPCKT"){
-				specs.pocket = true;
-				addToTable(s, dbConn, "options_pockets", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				specs.pocketTop = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("top","g")) != undefined;
-				specs.pocketBottom = dataDump.order_specs[k].value.toLowerCase().match(new RegExp("bottom","g")) != undefined;
-				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("4.5","g"))){
-					specs.pocketSize = 4.5;
-				}
+				specs.pocket = addToTable(s, dbConn, "options_pockets", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "MOUNT"){
-				addToTable(s, dbConn, "options_mount", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				if(dataDump.order_specs[k].value != "No Mount (Print Only)"){
-					specs.mount = true;
-					specs.mountValue = dataDump.order_specs[k].value.replace(/,/g,'');
-				}
+				specs.mount = addToTable(s, dbConn, "options_mount", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "BASEATT"){
-				specs.base = true;
-				specs.baseValue = dataDump.order_specs[k].value.replace(/,/g,'');
-				addToTable(s, dbConn, "options_base", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+				specs.base = addToTable(s, dbConn, "options_base", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "VIEWDIR"){
-				addToTable(s, dbConn, "options_view-direction", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				if(dataDump.order_specs[k].value == "Installed inside, viewed outside"){
+				specs.viewDir = addToTable(s, dbConn, "options_view-direction", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+				if(specs.viewDir.method == "2nd"){
 					specs.secondSurface = true;
 				}
 			}
 			if(dataDump.order_specs[k].code == "PRINTDR"){
-				addToTable(s, dbConn, "options_print-direction", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				if(dataDump.order_specs[k].value == "Reverse Printing"){
+				specs.printDir = addToTable(s, dbConn, "options_print-direction", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+				if(specs.printDir.method == "2nd"){
 					specs.secondSurface = true;
 				}
 			}
 			if(dataDump.order_specs[k].code == "SHAPE"){
-				addToTable(s, dbConn, "options_shape", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				if(dataDump.order_specs[k].value == "Square/Rectangle"){
-					specs.shape.rectangle = true;
-				}
-				if(dataDump.order_specs[k].value == "Circle / Oval"){
-					specs.shape.oval = true;
-				}
-				if(dataDump.order_specs[k].value == "Circle"){
-					specs.shape.oval = true;
-				}
-				if(dataDump.order_specs[k].value == "Custom Shape" || dataDump.order_specs[k].value == "Custom"){
-					specs.shape.custom = true;
-				}
-				specs.shape.value = dataDump.order_specs[k].value;
+				specs.shape = addToTable(s, dbConn, "options_shape", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "SIDE"){
-				addToTable(s, dbConn, "options_side", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				if(dataDump.order_specs[k].value == "Front and Back" ||
-					dataDump.order_specs[k].value == "Front and Back (Same File)" ||
-					dataDump.order_specs[k].value != "Front Only"){
+				specs.side = addToTable(s, dbConn, "options_side", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+				if(specs.side.method == "FB" || specs.side.method == "FBsame"){
 					specs.doubleSided = true;
 				}
 			}
 			if(dataDump.order_specs[k].code == "YARDFRAME"){
-				addToTable(s, dbConn, "options_yard-frame", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("rider","g"))){
-					specs.undersize = false;
-				}
+				specs.yardframe = addToTable(s, dbConn, "options_yard-frame", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "VINYL_CLR"){
 				addToTable(s, dbConn, "options_vinyl-color", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 				specs.cvColors = dataDump.order_specs[k].value;
 			}
 			if(dataDump.order_specs[k].code == "CUT"){
-				addToTable(s, dbConn, "options_cut", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
-				specs.cutType = dataDump.order_specs[k].value;
+				specs.cut = addToTable(s, dbConn, "options_cut", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+			}
+			if(dataDump.order_specs[k].code == "DESC"){
+				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("replacement","g"))){
+					specs.replacement = true;
+				}
 			}
 		}
 		for(var k=0; k<dataDump.active_file.length; k++){

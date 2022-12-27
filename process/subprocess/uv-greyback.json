@@ -1,11 +1,13 @@
 {
     "subprocess": "uv-greyback",
+    "name": "UV-Greyback",
     "id": 3,
     "facility": [
         {
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
+            "mixed": true,
             "processes": [
                 "Celtec",
                 "13ozBanner"

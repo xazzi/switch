@@ -1,27 +1,20 @@
-getMatInfo = function(query, dbConn){
-
-    // Pull the base paper mapping.
-    var db_mapPaper = new Statement(dbConn);
-        db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.paper + "';");
-    if(!db_mapPaper.isRowAvailable()){
-        return "Material Data Missing"
-        //db_mapPaper.execute("SELECT * FROM digital_room.map_paper WHERE paper_name = '" + query.material + "';");
-    }
-        db_mapPaper.fetchRow();
+getMatInfo = function(orderSpecs, dbConn){
 
     // Get the paper mapping ID for the specific facility.
     var paperMapId
-    if(query.facilityId == 28){
-        paperMapId = Number(db_mapPaper.getString(2));
-    }else if(query.facilityId == 18){
-        paperMapId = Number(db_mapPaper.getString(3));
-    }else if(query.facilityId == 25){
-        paperMapId = Number(db_mapPaper.getString(4));
-    }else if(query.facilityId == 35){
-        paperMapId = Number(db_mapPaper.getString(5));
+    if(orderSpecs.facilityId == 28){
+        paperMapId = orderSpecs.paper.map.slc;
+    }else if(orderSpecs.facilityId == 18){
+        paperMapId = orderSpecs.paper.map.bri;
+    }else if(orderSpecs.facilityId == 25){
+        paperMapId = orderSpecs.paper.map.sln;
+    }else if(orderSpecs.facilityId == 35){
+        paperMapId = orderSpecs.paper.map.lou;
+    }else if(orderSpecs.facilityId == 5){
+        paperMapId = orderSpecs.paper.map.arl;
     }
     
-    // Pull the material data based on the facility mapping ID.
+    // Pull the material defaults based on the facility mapping ID.
     var db_material = new Statement(dbConn);
         db_material.execute('CALL digital_room.getMaterial(' + paperMapId + ')');
     if(!db_material.isRowAvailable()){
@@ -33,7 +26,6 @@ getMatInfo = function(query, dbConn){
 
         id: db_material.getString(0),
         prodName: db_material.getString(1),
-        subprocess: "None",
         prodMatFileName: db_material.getString(34),
         type: db_material.getString(2),
         width: Number(db_material.getString(3)),

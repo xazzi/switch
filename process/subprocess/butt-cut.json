@@ -1,11 +1,13 @@
 {
     "subprocess": "butt-cut",
+    "name": "ButtCut",
     "id": null,
     "facility": [
         {
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
+            "mixed": false,
             "processes": [
                 "Coroplast"
             ],
@@ -18,13 +20,12 @@
                     "spacingTop": 0,
                     "spacingBottom": 0,
                     "spacingLeft": 0,
-                    "spacingRight": 1,
+                    "spacingRight": 0,
                     "rotation": "None",
                     "overruns": 50,
                     "allowedRotations": 0
                 },
                 "data": {
-                    "subprocess": "ButtCut"
                 }
             }
         }

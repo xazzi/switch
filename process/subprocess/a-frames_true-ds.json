@@ -1,11 +1,13 @@
 {
     "subprocess": "a-frames",
+    "name": "A-Frame",
     "id": "5",
     "facility": [
         {
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
+            "mixed": false,
             "processes": [
                 "Coroplast"
             ],
@@ -19,10 +21,10 @@
                     "rotation": "Custom",
                     "allowedRotations": 90,
                     "pageHandling": "OnePerTwoPages",
-                    "overrun": 0
+                    "overrun": 0,
+                    "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "subprocess": "A-Frame",
                     "prodMatFileName": "A-Frame"
                 }  
             }
@@ -31,6 +33,7 @@
             "name": "Brighton",
             "id": "18",
             "enabled": true,
+            "mixed": false,
             "processes": [
                 "Coroplast"
             ],
@@ -44,10 +47,10 @@
                     "rotation": "Custom",
                     "allowedRotations": 90,
                     "pageHandling": "OnePerTwoPages",
-                    "overrun": 0
+                    "overrun": 0,
+                    "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "subprocess": "A-Frame",
                     "prodMatFileName": "A-Frame-Cor"
                 }
             }

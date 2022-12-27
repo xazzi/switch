@@ -3,14 +3,14 @@ var parent = []
 getSubprocess = function(folder, dbConn, query, matInfo, product, data, subprocess){
     function readFiles(folder, dbConn, query, matInfo, product, data, subprocess){
 
-        if(subprocess == null){
-            var db_mapItem = new Statement(dbConn);
-                db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
-                db_mapItem.fetchRow();
+        var db_mapItem = new Statement(dbConn);
+            db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
+            db_mapItem.fetchRow();
 
+        if(subprocess == null){
             subprocess = db_mapItem.getString(4);
         }
-
+    
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);
 
         for(var i=0; i<files.length; i++){
@@ -22,14 +22,25 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
                         if(dump.facility[j].enabled){
                             if(contains(dump.facility[j].processes, matInfo.prodName)){
                                 checkObject(s, dump.facility[j].overrides, matInfo, product, data)
-                                return;
+                                return settings = {
+                                    name: dump.name,
+                                    exists: true,
+                                    mixed: dump.facility[j].mixed,
+                                    undersize: db_mapItem.getString(5) == 0 ? false : true
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        return;
+
+        return settings = {
+            name: "None",
+            exists: false,
+            mixed: true,
+            undersize: db_mapItem.getString(5) == 0 ? false : true
+        };
 
         /*
         for(var i=0; i<files.length; i++){
@@ -71,8 +82,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
         return
         */
     }
-    readFiles(folder, dbConn, query, matInfo, product, data, subprocess);
-    return;
+    return readFiles(folder, dbConn, query, matInfo, product, data, subprocess);
 }
 
 function checkObject(s, parameter, matInfo, product, data){

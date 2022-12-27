@@ -1,7 +1,7 @@
 {
-    "subprocess": "retractable",
-    "name": "Retractable",
-    "id": 4,
+    "subprocess": "table-top",
+    "name": "TableTop",
+    "id": 7,
     "facility": [
         {
             "name": "Salt Lake City",
@@ -9,7 +9,7 @@
             "enabled": true,
             "mixed": true,
             "processes": [
-                "13ozBanner"
+                "DSS"
             ],
             "overrides": {
                 "matInfo": {

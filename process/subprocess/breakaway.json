@@ -1,11 +1,13 @@
 {
     "subprocess": "breakaway",
+    "name": "Breakaway",
     "id": "2",
     "facility": [
         {
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
+            "mixed": false,
             "processes": [
                 "13ozBanner"
             ],
@@ -17,7 +19,6 @@
                     "pageHandling": "OnePerPage"
                 },
                 "data": {
-                    "subprocess": "Breakaway",
                     "prodMatFileName": "Breakaway"
                 }
             }
@@ -26,6 +27,7 @@
             "name": "Brighton",
             "id": "18",
             "enabled": true,
+            "mixed": false,
             "processes": [
                 "13oz-Matte",
                 "13oz-Gloss"
@@ -38,7 +40,6 @@
                     "pageHandling": "OnePerPage"
                 },
                 "data": {
-                    "subprocess": "Breakaway",
                     "prodMatFileName": "Breakaway"
                 }
             }

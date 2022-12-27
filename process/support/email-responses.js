@@ -71,7 +71,15 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
         case "Undefined Material v1":
             //paper, material, itemName do not exist in matInfo, these are being pulled from orderSpecs pass in.
             subject = "Undefined Material: " + data.projectID;
-            body = "The following material specs are undefined:" + "\n\n" + "Paper: " + matInfo.paper + "\n" + "Material: " + matInfo.material + "\n" + "ItemName: " +  matInfo.itemName + "\n" + "Facility: " +  matInfo.facility  + "\n\n" + "ItemName is not required to be defined, but Paper must be in the database for production.";
+            body = "The following material specs are undefined:" + "\n\n" + "Paper: " + matInfo.paper.value + "\n" + "Material: " + matInfo.material.value + "\n" + "ItemName: " +  matInfo.itemName + "\n" + "Facility: " +  matInfo.facility  + "\n\n" + "ItemName is not required to be defined, but Paper must be in the database for production.";
+            to = [sendTo.chelsea,sendTo.bret]
+            cc = [userInfo.email]
+            bcc = [];
+        break;
+        case "Unmapped Paper":
+            //paper, material, itemName do not exist in matInfo, these are being pulled from orderSpecs pass in.
+            subject = "Undefined Paper Mapping: " + data.projectID;
+            body = "The following paper specs are not mapped:" + "\n\n" + "Paper: " + matInfo.paper + "\n" + "Material: " + matInfo.material + "\n" + "ItemName: " +  matInfo.itemName + "\n" + "Facility: " +  matInfo.facility  + "\n\n" + "ItemName is not required to be defined, but Paper must be in the database for production.";
             to = [sendTo.chelsea,sendTo.bret]
             cc = [userInfo.email]
             bcc = [];
@@ -79,8 +87,8 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
         case "New Entry":
             subject = "New Table Entry!";
             body = "A new entry has been added to the " + matInfo + " table!";
-            //to = [sendTo.bret,sendTo.chelsea]
-            to = [sendTo.bret]
+            to = [sendTo.bret,sendTo.chelsea]
+            //to = [sendTo.bret]
             cc = []
             bcc = [];
         break;

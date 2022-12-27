@@ -11,6 +11,8 @@
                     "None"
                 ],
                 "ignore": [
+                    "TableCloth",
+                    "StretchTableCover"
                 ]
             },
             "facility": [
@@ -31,22 +33,6 @@
                     ],
                     "parameter": [
                         "orderArray.pocket"
-                    ]
-                },
-                {
-                    "value": [
-                        false
-                    ],
-                    "parameter": [
-                        "orderArray.tableCloths"
-                    ]
-                },
-                {
-                    "value": [
-                        false
-                    ],
-                    "parameter": [
-                        "orderArray.stretchTableCover"
                     ]
                 }
             ],

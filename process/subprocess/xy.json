@@ -1,27 +1,29 @@
 {
-    "subprocess": "retractable",
-    "name": "Retractable",
-    "id": 4,
+    "subprocess": "xy",
+    "name": "XY",
+    "id": null,
     "facility": [
         {
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
-            "mixed": true,
+            "mixed": false,
             "processes": [
-                "13ozBanner"
+                "PhotoMatte",
+                "PhotoGloss"
             ],
             "overrides": {
                 "matInfo": {
                     "sideMix": 1
                 },
                 "product": {
-                    "pageHandling": "OnePerPage",
-                    "customLabel": {
-                        "apply": true
-                    }
+                    "grade": "251",
+                    "bleed": 0,
+                    "stock": "Proc_XY"
                 },
                 "data": {
+                    "cropGang": true,
+                    "impositionProfile": "XY"
                 }
             }
         }

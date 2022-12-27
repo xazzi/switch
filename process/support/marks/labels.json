@@ -1,0 +1,646 @@
+{
+    "marks":[
+        {
+            "description":"Hem labels for mesh banners.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "12oz-Mesh"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "active":true
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"TextLabel-Prefix",
+                    "dir":"/Hem Labels/Mesh/"
+                },
+                {
+                    "name":"TextLabel-Suffix",
+                    "dir":"/Hem Labels/Mesh/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Hem Labels/Mesh/"
+                }
+            ]
+        },
+        {
+            "description":"Hem labels for vinyl banners.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[
+                    "StretchTableCover",
+                    "TableCloth"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "active":true
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"TextLabel-Prefix",
+                    "dir":"/Hem Labels/"
+                },
+                {
+                    "name":"TextLabel-Suffix",
+                    "dir":"/Hem Labels/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Hem Labels/"
+                }
+            ]
+        },
+        {
+            "description":"Hem labels for fabric banners.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[
+                    "StretchTableCover",
+                    "TableCloth"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "active":true
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "itemName":"Table Runner",
+                        "disable":{
+                            "label": {
+                                "hem":true
+                            }
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"TextLabel-Prefix",
+                    "dir":"/Hem Labels/Fabric/"
+                },
+                {
+                    "name":"TextLabel-Suffix",
+                    "dir":"/Hem Labels/Fabric/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Hem Labels/Fabric/"
+                }
+            ]
+        },
+        {
+            "description":"Webbing label for mesh banners.",
+            "type":"Webbing Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "12oz-Mesh"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "active":true,
+                            "webbing":true
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Webbing",
+                    "dir":"/Hem Labels/Mesh/"
+                }
+            ]
+        },
+        {
+            "description":"Webbing label for vinyl banners.",
+            "type":"Webbing Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "active":true,
+                            "method":"Sewn",
+                            "webbing":true
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Webbing",
+                    "dir":"/Hem Labels/Mesh/"
+                }
+            ]
+        },
+        {
+            "description":"Backdrop labels w/ top pocket.",
+            "type":"Backdrop Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "Backdrop"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "pocket":{
+                            "method":["TB","T"]
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"TextLabel-Prefix",
+                    "dir":"/Hem Labels/Backdrop/Top/"
+                },
+                {
+                    "name":"TextLabel-Suffix",
+                    "dir":"/Hem Labels/Backdrop/Top/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Hem Labels/Backdrop/Top/"
+                }
+            ]
+        },
+        {
+            "description":"Backdrop labels w/ bottom pocket.",
+            "type":"Backdrop Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "Backdrop"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "pocket":{
+                            "method":["TB","B"]
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"TextLabel-Prefix",
+                    "dir":"/Hem Labels/Backdrop/Bottom/"
+                },
+                {
+                    "name":"TextLabel-Suffix",
+                    "dir":"/Hem Labels/Backdrop/Bottom/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Hem Labels/Backdrop/Bottom/"
+                }
+            ]
+        },
+        {
+            "description":"Stretched table cover hem labels.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "StretchTableCover"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"TextLabel-Prefix",
+                    "dir":"/Hem Labels/Stretched Table Cloths/"
+                },
+                {
+                    "name":"TextLabel-Suffix",
+                    "dir":"/Hem Labels/Stretched Table Cloths/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Hem Labels/Stretched Table Cloths/"
+                }
+            ]
+        },
+        {
+            "description":"Tablecloths hem labels.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "TableCloth"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"TextLabel-Prefix",
+                    "dir":"/Hem Labels/Table Cloths/"
+                },
+                {
+                    "name":"TextLabel-Suffix",
+                    "dir":"/Hem Labels/Table Cloths/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Hem Labels/Table Cloths/"
+                }
+            ]
+        },
+        {
+            "description":"TensionStand hem labels.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "Tension Stand"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"TextLabel-Prefix",
+                    "dir":"/Hem Labels/Tension Stand/"
+                },
+                {
+                    "name":"TextLabel-Suffix",
+                    "dir":"/Hem Labels/Tension Stand/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Hem Labels/Tension Stand/"
+                }
+            ]
+        },
+        {
+            "description":"Retractable banner labels and barcode.",
+            "type":"Custom Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "Retractable",
+                    "TableTop"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Retractable-Labels",
+                    "dir":"/Misc/"
+                },
+                {
+                    "name":"Retractable-Barcode",
+                    "dir":"/Misc/"
+                }
+            ]
+        },
+        {
+            "description":"Retractable banner doublesided indicator.",
+            "type":"Custom Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "Retractable"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "doubleSided":true
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Retractable-DoubleSided",
+                    "dir":"/Misc/"
+                }
+            ]
+        },
+        {
+            "description":"A-frame labels.",
+            "type":"Custom Label",
+            "key":"None",
+            "facility":[
+                "All"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"A-Frame-Type",
+                    "dir":"/Misc/"
+                }
+            ]
+        },
+        {
+            "description": "General Product labels, beneath the print.",
+            "type": "Product Label",
+            "key":"None",
+            "facility": [
+                "Salt Lake City"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None"
+                ],
+                "rejections":[
+                    "XY",
+                    "Tension Stand"
+                ]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "name": "ProductLabel",
+                    "dir": "/Product Labels/"
+                }
+            ]
+        },
+        {
+            "description": "Product labels.",
+            "type": "Product Label",
+            "key":"None",
+            "facility": [
+                "Brighton"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None"
+                ],
+                "rejections":[
+                    "13oz-Matte",
+                    "Tension Stand"
+                ]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "name": "ProductLabel",
+                    "dir": "/Product Labels/"
+                }
+            ]
+        }
+    ]
+}

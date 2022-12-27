@@ -79,8 +79,8 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 		addNode_db(theXML, infoNode, "projectNotes", data.projectNotes);
 
 	if(matInfo != "Material Data Missing" && matInfo != null){
-		addNode_db(theXML, infoNode, "process", matInfo.prodName);
-		addNode_db(theXML, infoNode, "subprocess", matInfo.subprocess);
+		addNode_db(theXML, infoNode, "process", data.prodName);
+		addNode_db(theXML, infoNode, "subprocess", data.subprocess);
 		addNode_db(theXML, infoNode, "paper", data.paper);
 	}
 		

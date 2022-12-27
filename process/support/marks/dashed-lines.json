@@ -1,0 +1,49 @@
+{
+    "marks": [
+        {
+            "description": "Dashed lines for banners with a hem on all sides.",
+            "type": "Dashed Line",
+            "key":"None",
+            "facility": [
+                "Salt Lake City"
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[
+                    "Breakaway"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "pocket":{
+                            "active":false
+                        },
+                        "hem":{
+                            "active":true
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "itemName":"Table Runner"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "name": "Hem-AllSides",
+                    "dir": "/Dashes/"
+                }
+            ]
+        }
+    ]
+}
