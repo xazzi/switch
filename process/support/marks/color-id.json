@@ -55,7 +55,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -81,7 +82,7 @@
             ]
         },
         {
-            "description":"Color ID for grommets w/ hems and no grommets.",
+            "description":"Color ID for hems and no grommets.",
             "type":"Color ID",
             "key":"None",
             "facility":[
@@ -100,7 +101,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -147,7 +149,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -194,7 +197,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },

@@ -68,7 +68,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -224,7 +225,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -581,7 +583,8 @@
                 ],
                 "rejections":[
                     "XY",
-                    "Tension Stand"
+                    "Tension Stand",
+                    "ButtWeld"
                 ]
             },
             "specs":{
@@ -622,7 +625,8 @@
                 ],
                 "rejections":[
                     "13oz-Matte",
-                    "Tension Stand"
+                    "Tension Stand",
+                    "ButtWeld"
                 ]
             },
             "specs":{

@@ -1,0 +1,26 @@
+{
+    "subprocess": "butt-weld",
+    "name": "ButtWeld",
+    "id": null,
+    "facility": [
+        {
+            "name": "Brighton",
+            "id": "18",
+            "enabled": true,
+            "mixed": false,
+            "processes": [
+                "13oz-Matte"
+            ],
+            "overrides": {
+                "matInfo": {},
+                "product": {
+                    "spacingTop": 0,
+                    "spacingBottom": 0,
+                    "spacingLeft": 0,
+                    "spacingRight": 0
+                },
+                "data": {}
+            }
+        }
+    ]
+}
