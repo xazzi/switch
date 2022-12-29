@@ -39,7 +39,7 @@
         },
         {
             "description": "Mount info.",
-            "type": "Custom Info",
+            "type": "Custom Mark",
             "key":"None",
             "facility": [
                 "All"
@@ -73,6 +73,84 @@
                 {
                     "name": "Mount-Info",
                     "dir": "/Mount/"
+                }
+            ]
+        },
+        {
+            "description": "LATE product identifier.",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                "Salt Lake City",
+                "Brighton",
+                "Arlington",
+                "Louisville"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[
+                    "ButtCut"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "late":true
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "name": "LATE-Product",
+                    "dir": "/Misc/"
+                }
+            ]
+        },
+        {
+            "description": "REPRINT product identifier.",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                "Salt Lake City",
+                "Brighton",
+                "Arlington",
+                "Louisville"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[
+                    "ButtCut"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "reprint":true
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "name": "REPRINT-Product",
+                    "dir": "/Misc/"
                 }
             ]
         }

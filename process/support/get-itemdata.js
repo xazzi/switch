@@ -121,10 +121,13 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			specs.itemName = dataDump.item_name;
 			specs.width = dataDump.width;
 			specs.height = dataDump.height;
-			specs.shipDate = dataDump.ship_date;
-			specs.dueDate = dataDump.due_date;
 			specs.facilityId = "facility_id" in dataDump ? dataDump.facility_id : undefined;
 			specs.facility = "facility" in dataDump ? dataDump.facility : undefined;
+
+			specs.date = {
+				due: dataDump.due_date,
+				gangBy: dataDump.gang_by_date
+			}
 
 			addToTable(s, dbConn, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo);
 
