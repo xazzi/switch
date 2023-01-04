@@ -26,7 +26,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
                                     name: dump.name,
                                     exists: true,
                                     mixed: dump.facility[j].mixed,
-                                    undersize: db_mapItem.getString(5) == 0 ? false : true
+                                    undersize: db_mapItem.getString(5) == 'y' ? true : false
                                 }
                             }
                         }

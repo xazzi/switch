@@ -196,7 +196,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				specs.yardframe = addToTable(s, dbConn, "options_yard-frame", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "VINYL_CLR"){
-				addToTable(s, dbConn, "options_vinyl-color", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+				var temp = dataDump.order_specs[k].value.split(',');
+				for(var r in temp){
+					addToTable(s, dbConn, "options_vinyl-color", temp[r].replace(/^\s+/g, ''), dataDump.job_item_id, data, userInfo);
+				}
 				specs.cvColors = dataDump.order_specs[k].value;
 			}
 			if(dataDump.order_specs[k].code == "CUT"){
