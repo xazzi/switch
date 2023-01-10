@@ -30,12 +30,12 @@ skuGenerator = function(length, type, data, dbConn){
             }
             // Check and see if the SKU is already in use.
             var db_active_sku = new Statement(dbConn);
-                db_active_sku.execute("SELECT * FROM digital_room.active_sku WHERE sku = '" + result + "' and date_id = '" + data.dateID + "' and facility = '" + data.facility + "';");
+                db_active_sku.execute("SELECT * FROM digital_room.active_sku WHERE sku = '" + result + "' and date_id = '" + data.dateID + "' and facility = '" + data.facility.destination + "';");
             if(db_active_sku.isRowAvailable()){
                 result = '';
                 makeSKU(chars);
             }
-                db_active_sku.execute("INSERT INTO digital_room.active_sku (sku, date_id, facility, gang_number) VALUES ('" + result + "', '" + data.dateID + "', '" + data.facility + "', '" + data.projectID + "');");
+                db_active_sku.execute("INSERT INTO digital_room.active_sku (sku, date_id, facility, gang_number) VALUES ('" + result + "', '" + data.dateID + "', '" + data.facility.destination + "', '" + data.projectID + "');");
         }
         return result;
     }

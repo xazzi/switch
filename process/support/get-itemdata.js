@@ -83,7 +83,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			doubleSided: false,
 			facility: null,
 			notes: "",
-			cvColors: null,
+			cvColors: [],
 			finishingType: "No Hem",
 			reprint: false,
 			reprintReason: null,
@@ -199,8 +199,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				var temp = dataDump.order_specs[k].value.split(',');
 				for(var r in temp){
 					addToTable(s, dbConn, "options_vinyl-color", temp[r].replace(/^\s+/g, ''), dataDump.job_item_id, data, userInfo);
+					specs.cvColors.push(temp[r].replace(/^\s+/g, ''))
 				}
-				specs.cvColors = dataDump.order_specs[k].value;
 			}
 			if(dataDump.order_specs[k].code == "CUT"){
 				specs.cut = addToTable(s, dbConn, "options_cut", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
