@@ -61,6 +61,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				method: null,
 				value: null
 			},
+			display: {
+				active: false,
+				method: null,
+				value: null
+			},
 			printDir: {
 				active: false,
 				method: null,
@@ -170,6 +175,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			}
 			if(dataDump.order_specs[k].code == "BASEATT"){
 				specs.base = addToTable(s, dbConn, "options_base", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
+			}
+			if(dataDump.order_specs[k].code == "DISPOPT"){
+				specs.display = addToTable(s, dbConn, "options_display", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);
 			}
 			if(dataDump.order_specs[k].code == "VIEWDIR"){
 				specs.viewDir = addToTable(s, dbConn, "options_view-direction", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo);

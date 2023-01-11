@@ -10,7 +10,8 @@
             "mixed": true,
             "processes": [
                 "Celtec",
-                "13ozBanner"
+                "13ozBanner",
+                "UV-Greyback"
             ],
             "overrides": {
                 "matInfo": {
@@ -35,7 +36,10 @@
                 "product": {
                     "rotation": "None",
                     "allowedRotations": 0,
-                    "pageHandling": "OnePerPage"
+                    "pageHandling": "OnePerPage",
+                    "customLabel": {
+                        "apply": true
+                    }
                 },
                 "data": {
                     "prodMatFileName": "UV-Greyback"

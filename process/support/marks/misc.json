@@ -94,7 +94,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "UV-Greyback"
                 ],
                 "rejections":[
                     "ButtCut"
@@ -133,7 +134,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "UV-Greyback"
                 ],
                 "rejections":[
                     "ButtCut"

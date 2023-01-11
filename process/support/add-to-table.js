@@ -121,7 +121,16 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             }
         }
 
-        // Base options
+        // Display options
+        if(table == "options_display"){
+            return specs = {
+                active: true,
+                method: db_options.getString(4),
+                value: parameter.replace(/,/g,'')
+            }
+        }
+
+        // View direction options
         if(table == "options_view-direction"){
             return specs = {
                 active: true,

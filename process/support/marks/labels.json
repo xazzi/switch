@@ -479,7 +479,8 @@
             "subprocess":{
                 "requirements":[
                     "Retractable",
-                    "TableTop"
+                    "TableTop",
+                    "UV-Greyback"
                 ],
                 "rejections":[]
             },
@@ -513,7 +514,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "Retractable"
+                    "Retractable",
+                    "UV-Greyback"
                 ],
                 "rejections":[]
             },

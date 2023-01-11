@@ -8,7 +8,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
             db_mapItem.fetchRow();
 
         if(subprocess == null){
-            subprocess = db_mapItem.getString(4);
+            subprocess = db_mapItem.getString(4).split(',');
         }
     
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);
@@ -16,7 +16,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
         for(var i=0; i<files.length; i++){
             var str = File.read(folder.path + "/" + files[i], "UTF-8");
             var dump = JSON.parse(str)
-            if(dump.id == subprocess || dump.subprocess == subprocess){
+            if(contains(subprocess, dump.id) || dump.subprocess == subprocess){
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){

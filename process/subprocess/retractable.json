@@ -9,7 +9,8 @@
             "enabled": true,
             "mixed": true,
             "processes": [
-                "13ozBanner"
+                "13ozBanner",
+                "DSS"
             ],
             "overrides": {
                 "matInfo": {

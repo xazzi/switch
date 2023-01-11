@@ -28,7 +28,7 @@ loadDataset_db = function(dataset){
 contains = function(a, object) {
 	var i = a.length;
 	while (i--) {
-	   if (a[i] === object) {
+	   if (a[i] == object) {
 		   return true;
 	   }
 	}
