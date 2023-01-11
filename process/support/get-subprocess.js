@@ -8,15 +8,29 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
             db_mapItem.fetchRow();
 
         if(subprocess == null){
-            subprocess = db_mapItem.getString(4).split(',');
+            subprocess = db_mapItem.getString(4);
         }
+
+        if(subprocess == undefined){
+            return settings = {
+                name: "None",
+                exists: false,
+                mixed: true,
+                undersize: db_mapItem.getString(5) == 0 ? false : true
+            }
+        }
+
+            subprocess = subprocess.split(',');
     
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);
 
         for(var i=0; i<files.length; i++){
             var str = File.read(folder.path + "/" + files[i], "UTF-8");
             var dump = JSON.parse(str)
-            if(contains(subprocess, dump.id) || dump.subprocess == subprocess){
+            if(dump.id == "undefined"){
+                dump.id = dump.subprocess
+            }
+            if(contains(subprocess, dump.id)){
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){
@@ -40,7 +54,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
             exists: false,
             mixed: true,
             undersize: db_mapItem.getString(5) == 0 ? false : true
-        };
+        }
 
         /*
         for(var i=0; i<files.length; i++){

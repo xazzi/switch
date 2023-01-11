@@ -10,7 +10,6 @@
             "mixed": true,
             "processes": [
                 "Celtec",
-                "13ozBanner",
                 "UV-Greyback"
             ],
             "overrides": {
