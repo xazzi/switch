@@ -79,7 +79,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                webbing: db_options.getString(5) == 1,
+                webbing: db_options.getString(5) == "y" ? true : false,
                 value: parameter.replace(/"/g,'')
             }
         }
