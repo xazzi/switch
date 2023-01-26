@@ -14,7 +14,6 @@
             "overrides": {
                 "matInfo": {
                     "forceUndersize": false,
-                    "impositionProfile": "Sheet",
                     "sideMix": 1
                 },
                 "product": {
@@ -25,6 +24,7 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
+                    "impositionProfile": "Sheet",
                     "prodMatFileName": "A-Frame"
                 }   
             }
@@ -40,7 +40,6 @@
             "overrides": {
                 "matInfo": {
                     "forceUndersize": false,
-                    "impositionProfile": "Sheet",
                     "sideMix": 1
                 },
                 "product": {
@@ -51,6 +50,33 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
+                    "impositionProfile": "Sheet",
+                    "prodMatFileName": "A-Frame-Cor"
+                }  
+            }
+        },
+        {
+            "name": "Wixom",
+            "id": "37",
+            "enabled": true,
+            "mixed": false,
+            "processes": [
+                "Coroplast"
+            ],
+            "overrides": {
+                "matInfo": {
+                    "forceUndersize": false,
+                    "sideMix": 1
+                },
+                "product": {
+                    "rotation": "Custom",
+                    "allowedRotations": 90,
+                    "pageHandling": "OnePerPage",
+                    "overrun": 0,
+                    "shapeSearch": "Multiple"
+                },
+                "data": {
+                    "impositionProfile": "Sheet",
                     "prodMatFileName": "A-Frame-Cor"
                 }  
             }

@@ -1,6 +1,6 @@
 {
-    "subprocess": "butt-cut",
-    "name": "ButtCut",
+    "subprocess": "full-sheet",
+    "name": "FullSheet",
     "id": null,
     "facility": [
         {
@@ -9,23 +9,24 @@
             "enabled": true,
             "mixed": false,
             "processes": [
-                "Coroplast"
+                "MDO"
             ],
             "overrides": {
                 "matInfo": {
                 },
                 "product": {
-                    "stock": "Proc_ButtCut_48x96",
+                    "stock": "Proc_FullSheet_48x96",
                     "spacingTop": 0,
                     "spacingBottom": 0,
                     "spacingLeft": 0,
                     "spacingRight": 0,
-                    "rotation": "None",
-                    "overruns": 50,
-                    "allowedRotations": 0
+                    "rotation": "Orthogonal"
                 },
                 "data": {
-                    "impositionProfile": "Template-Create"
+                    "impositionProfile": "Sheet"
+                },
+                "scale": {
+                    "locked": true
                 }
             }
         }

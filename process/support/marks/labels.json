@@ -32,7 +32,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
@@ -87,7 +93,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
@@ -145,6 +157,9 @@
                             "label": {
                                 "hem":true
                             }
+                        },
+                        "shape":{
+                            "method":"Custom"
                         }
                     }
                 }
@@ -197,7 +212,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
@@ -243,7 +264,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
@@ -611,7 +638,8 @@
             "type": "Product Label",
             "key":"None",
             "facility": [
-                "Brighton"
+                "Brighton",
+                "Wixom"
             ],
             "process":{
                 "requirements":[

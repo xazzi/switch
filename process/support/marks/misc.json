@@ -83,6 +83,7 @@
             "facility": [
                 "Salt Lake City",
                 "Brighton",
+                "Wixom",
                 "Arlington",
                 "Louisville"
             ],
@@ -105,6 +106,11 @@
                 "requirements":{
                     "product":{
                         "late":true
+                    },
+                    "orderArray":{
+                        "shape":{
+                            "method":"Rect"
+                        }
                     }
                 },
                 "rejections":{}
@@ -123,6 +129,7 @@
             "facility": [
                 "Salt Lake City",
                 "Brighton",
+                "Wixom",
                 "Arlington",
                 "Louisville"
             ],
@@ -144,7 +151,10 @@
             "specs":{
                 "requirements":{
                     "orderArray":{
-                        "reprint":true
+                        "reprint":true,
+                        "shape":{
+                            "method":"Custom"
+                        }
                     }
                 },
                 "rejections":{}

@@ -1,7 +1,7 @@
 var parent = []
 
-getSubprocess = function(folder, dbConn, query, matInfo, product, data, subprocess){
-    function readFiles(folder, dbConn, query, matInfo, product, data, subprocess){
+getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, subprocess){
+    function readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess){
 
         var db_mapItem = new Statement(dbConn);
             db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
@@ -35,7 +35,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){
                             if(contains(dump.facility[j].processes, matInfo.prodName)){
-                                checkObject(s, dump.facility[j].overrides, matInfo, product, data)
+                                checkObject(s, dump.facility[j].overrides, matInfo, product, data, scale)
                                 return settings = {
                                     name: dump.name,
                                     exists: true,
@@ -96,16 +96,16 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
         return
         */
     }
-    return readFiles(folder, dbConn, query, matInfo, product, data, subprocess);
+    return readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess);
 }
 
-function checkObject(s, parameter, matInfo, product, data){
+function checkObject(s, parameter, matInfo, product, data, scale){
     for(var l in parameter){
 
         // If the parameter is an nested object, dig further.
         if(typeof parameter[l] === 'object'){
             parent.push(l + ".");
-            checkObject(s, parameter[l], matInfo, product, data);
+            checkObject(s, parameter[l], matInfo, product, data, scale);
 
         // Eval the new parameter.
         }else{

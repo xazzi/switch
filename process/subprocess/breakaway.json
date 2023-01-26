@@ -43,6 +43,27 @@
                     "prodMatFileName": "Breakaway"
                 }
             }
+        },
+        {
+            "name": "Wixom",
+            "id": "37",
+            "enabled": true,
+            "mixed": false,
+            "processes": [
+                "13oz-Matte",
+                "13oz-Gloss"
+            ],
+            "overrides": {
+                "matInfo": {
+                    "sideMix": 1
+                },
+                "product": {
+                    "pageHandling": "OnePerPage"
+                },
+                "data": {
+                    "prodMatFileName": "Breakaway"
+                }
+            }
         }
     ]
 }

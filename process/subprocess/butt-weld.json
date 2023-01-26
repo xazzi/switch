@@ -9,7 +9,32 @@
             "enabled": true,
             "mixed": false,
             "processes": [
-                "13oz-Matte"
+                "13oz-Matte",
+                "9oz-Mesh",
+                "8oz-Mesh",
+                "12oz-Mesh"
+            ],
+            "overrides": {
+                "matInfo": {},
+                "product": {
+                    "spacingTop": 0,
+                    "spacingBottom": 0,
+                    "spacingLeft": 0,
+                    "spacingRight": 0
+                },
+                "data": {}
+            }
+        },
+        {
+            "name": "Wixom",
+            "id": "37",
+            "enabled": true,
+            "mixed": false,
+            "processes": [
+                "13oz-Matte",
+                "9oz-Mesh",
+                "8oz-Mesh",
+                "12oz-Mesh"
             ],
             "overrides": {
                 "matInfo": {},
