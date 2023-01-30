@@ -768,15 +768,19 @@ runParser = function(s, job){
                 
                 // Backdrop undersizing for shipping purposes
                 if(subprocess.name == "Backdrop"){
-                    // Width == 96
-                    if(product.width == "96"){
-                        scale.width = 94/product.width*100;
-                        data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
-                    }
-                    // Height == 96
-                    if(product.height == "96"){
-                        scale.height = 94/product.height*100;
-                        data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                    if(file.width == product.width){
+                        // Width == 96
+                        if(product.width == "96"){
+                            scale.width = 94/product.width*100;
+                            data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
+                        }
+                        // Height == 96
+                        if(product.width != product.height){
+                            if(product.height == "96"){
+                                scale.height = 94/product.height*100;
+                                data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                            }
+                        }
                     }
                 }
                 

@@ -10,7 +10,8 @@ setMarks = function(s, folder, matInfo, data, orderArray, product, subprocess, m
             "grommets.json",
             "labels.json",
             "misc.json",
-            "dashed-lines.json"
+            "dashed-lines.json",
+            "color-day.json"
         ]
 
         // Loop through that array to find any applicable marks.
