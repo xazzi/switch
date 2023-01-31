@@ -29,7 +29,7 @@ runUsage = function(s, job){
             dbQuery.execute("UPDATE digital_room.history_gang SET `average-usage` = '" + phoenixPlan.averageUsage + "' WHERE `gang-number` = '" + phoenixPlan.id + "' AND `SKU` = '" + handoffData.sku + "';");
                 
             // Send the job to be approved.
-            job.sendToSingle(job.getPath())
+            job.sendToNull(job.getPath())
             
         }catch(e){
             s.log(2, "Critical Error: Usage")
