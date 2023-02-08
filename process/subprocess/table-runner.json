@@ -1,0 +1,44 @@
+{
+    "subprocess": "table-runner",
+    "name": "TableRunner",
+    "id": "12",
+    "facility": [
+        {
+            "name": "Salt Lake City",
+            "id": "28",
+            "enabled": true,
+            "mixed": false,
+            "processes": [
+                "Celtec"
+            ],
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "scripts": {
+                        "enabled": true,
+                        "name": "TableRunner"
+                    },
+                    "stock": "Proc_TableRunner_126",
+                    "spacingTop": 1,
+                    "spacingBottom": 1,
+                    "spacingLeft": 1,
+                    "spacingRight": 1,
+                    "offcut": {
+                        "top": 1,
+                        "bottom": 1,
+                        "left": 1,
+                        "right": 1
+                    },
+                    "rotation": "Custom",
+                    "allowedRotations": "0,90"
+                },
+                "data": {
+                    "phoenix": {
+                        "cutExport": "Auto_SaltLakeCity_Scripts"
+                    }
+                }
+            }
+        }
+    ]
+}

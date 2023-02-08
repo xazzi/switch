@@ -2,9 +2,8 @@ runParser = function(s, job){
     function parser(s, job){
         try{
             var dir = {
-                support: s.getPropertyValue("support"),
-                main: s.getPropertyValue("main"),
-                subprocess: new Dir(s.getPropertyValue("subprocess"))
+                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
+                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/")
             }
                                 
             eval(File.read(dir.support + "/get-token.js"));
@@ -36,12 +35,12 @@ runParser = function(s, job){
             }
                 
             var submitDS
-            if(s.getPropertyValue("development") == "No"){
+            if(s.getPropertyValue("devMode") == "No"){
                 submitDS = loadDataset_db("Submit");
             }
             
             var submit = {
-                nodes: s.getPropertyValue("development") == "No" ? submitDS.evalToNodes("//field-list/field") : [],
+                nodes: s.getPropertyValue("devMode") == "No" ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
                 route: false,
@@ -97,6 +96,7 @@ runParser = function(s, job){
             var orderArray = [];
             var adjustmentArray = [];
             var matInfo = null;
+            var matInfoCheck = false;
             
             var validate = {
                 prodName: null
@@ -109,7 +109,7 @@ runParser = function(s, job){
                 projectID: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: s.getPropertyValue("environment"),
-                fileSource: s.getPropertyValue("file_source"),
+                fileSource: s.getPropertyValue("fileSource"),
                 doubleSided: null,
                 secondSurface: null,
                 coating: {
@@ -151,7 +151,7 @@ runParser = function(s, job){
                     cutExport: "Auto_SaltLakeCity",
                     gangLabel: []
                 },
-                subprocess: null,
+                subprocess: [],
                 mixed: null,
                 prodMatFileName: null,
                 cropGang: null,
@@ -207,7 +207,7 @@ runParser = function(s, job){
                 }
             }
             
-            if(s.getPropertyValue("development") == "Yes"){
+            if(s.getPropertyValue("devMode") == "Yes"){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
                 job.setUserEmail("bret.c@digitalroominc.com");
@@ -267,9 +267,15 @@ runParser = function(s, job){
                 if(submit.route){
                     orderSpecs.facilityId = submit.facilityId;
                 }
+
+                // Check for DS 13oz-Matte remapping to 13oz-Smooth
+                if(orderSpecs.doubleSided && orderSpecs.paper.map.bri == 48){
+                    matInfoCheck = true;
+                    orderSpecs.paper.map.bri = 51;
+                }
                 
                 // Pull the material information if it hasn't been pulled yet.
-                if(matInfo == null){
+                if(matInfo == null || matInfoCheck){
                     matInfo = getMatInfo(orderSpecs, dbConn);
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.projectID + " :: Material entry doesn't exist, job rejected.");
@@ -472,6 +478,12 @@ runParser = function(s, job){
                     spacingBottom: matInfo.spacing.bottom == undefined ? matInfo.spacing.base : matInfo.spacing.bottom,
                     spacingLeft: matInfo.spacing.left == undefined ? matInfo.spacing.base : matInfo.spacing.left,
                     spacingRight: matInfo.spacing.right == undefined ? matInfo.spacing.base : matInfo.spacing.right,
+                    offcut:{
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0
+                    },
                     bleed: matInfo.bleed,
                     grade: matInfo.grade,
                     shapeSearch: "Largest",
@@ -485,6 +497,10 @@ runParser = function(s, job){
                     customLabel: {
                         apply: false,
                         value: ""
+                    },
+                    scripts: {
+                        enabled: false,
+                        name: null
                     },
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
@@ -533,24 +549,30 @@ runParser = function(s, job){
                         product.query = "full-sheet";
                     }
                 }
+
+                // If it has pockets then enable the Phoenix script.
+                if(orderArray[i].pocket.active){
+                    product.scripts.enabled = true;
+                    product.scripts.name = "PolePocket"
+                }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
-                var subprocess = getSubprocess(dir.subprocess, dbConn, orderArray[i], matInfo, product, data, scale, product.query);
-                
-                // If there is a subprocess present in the gang, assign the data level parameter.
-                if(data.subprocess == null){
-                    data.subprocess = subprocess.name;
-                }
+                product.subprocess = getSubprocess(dir.subprocess, dbConn, orderArray[i], matInfo, product, data, scale, product.query);
                 
                 // Set mixing data based off of the first item.
                 if(data.mixed == null){
-                    data.mixed = subprocess.mixed;
+                    data.mixed = product.subprocess.mixed;
                 }
                 
                 // If the subprocess can't be mixed with the parent subprocess, continue on.
-                if(subprocess.mixed != data.mixed){
-                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + subprocess.name + "), removed from gang.");
+                if(product.subprocess.mixed != data.mixed){
+                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
                     continue
+                }
+
+                // Add the subprocess to the data level array if it's missing.
+                if(!contains(data.subprocess, product.subprocess.name)){
+                    data.subprocess.push(product.subprocess.name)
                 }
                 
                 // Check for side deviation.
@@ -581,7 +603,7 @@ runParser = function(s, job){
                 if(orderArray[i].replacement){
                     sendEmail_db(s, data, matInfo, getEmailResponse("Replacement", orderArray[i], matInfo, data, userInfo, null), userInfo);
                     data.notes.push(orderArray[i].jobItemId + ": Replacement. Automated undersizing has been disabled.");
-                    subprocess.undersize = false;
+                    product.subprocess.undersize = false;
                 }
                 
                 var usableArea = {
@@ -608,7 +630,7 @@ runParser = function(s, job){
                 }
                 
                 // Check if the sizes need to be flipped to standard WxH format.
-                if(subprocess.name != "A-Frame" && data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+                if(product.subprocess.name != "A-Frame" && data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     try{
                         // Read stats from the file...
                         file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
@@ -633,7 +655,7 @@ runParser = function(s, job){
                     }
                 }
                 
-                if(subprocess.name == "Breakaway"){
+                if(product.subprocess.name == "Breakaway"){
                     // Read stats from the file...
                     file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
                     file.pages = file.stats.getNumber("NumberOfPages");
@@ -647,19 +669,19 @@ runParser = function(s, job){
                 // Check if the item_number can be undersized.
                 dbQuery.execute("SELECT * FROM digital_room.item_number_fullsize WHERE item_number = '" + product.itemNumber + "';");
                 if(dbQuery.isRowAvailable()){
-                    subprocess.undersize = false;
+                    product.subprocess.undersize = false;
                 }
                 
                 // Check the yard frame table for any hardware that would require full size product.
                 if(orderArray[i].yardframe.active){
                     if(orderArray[i].yardframe.undersize){
-                        subprocess.undersize = false
+                        product.subprocess.undersize = false
                     }
                 }
 
                 // Disable undersizing for a size that is assumed to be riders.
                 if(product.width == 24 && product.height == 6){
-                    subprocess.undersize = false;
+                    product.subprocess.undersize = false;
                 }
                 
                 // Material specific adjustments and settings.
@@ -738,7 +760,7 @@ runParser = function(s, job){
                 }
                 
                 // If the product can be undersized...
-                if(subprocess.undersize && matInfo.forceUndersize == true){
+                if(product.subprocess.undersize && matInfo.forceUndersize == true){
                         dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
                     if(dbQuery.isRowAvailable()){
                         dbQuery.fetchRow();
@@ -755,7 +777,7 @@ runParser = function(s, job){
                 }
                 
                 // Retractable undersizing so it fits in the stand easier.
-                if(subprocess.name == "Retractable" || subprocess.name == "UV-Greyback"){
+                if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
                     if(product.width == 24){
                         scale.width = 23.5/product.width*100;
                         data.notes.push(product.itemNumber + ': Retractable width was undersized for production. (' + Math.round(scale.width) + '%)');
@@ -767,13 +789,14 @@ runParser = function(s, job){
                 }
                 
                 // Backdrop undersizing for shipping purposes
-                if(subprocess.name == "Backdrop"){
+                if(product.subprocess.name == "Backdrop"){
                     if(file.width == product.width){
                         // Width == 96
                         if(product.width == "96"){
                             scale.width = 94/product.width*100;
                             data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
                         }
+                        /*
                         // Height == 96
                         if(product.width != product.height){
                             if(product.height == "96"){
@@ -781,6 +804,7 @@ runParser = function(s, job){
                                 data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
                             }
                         }
+                        */
                     }
                 }
                 
@@ -811,11 +835,11 @@ runParser = function(s, job){
                 if(matInfo.prodMatFileName == "TensionStand"){
                     product.dieDesignSource = "DieDesignLibrary";
                     product.dieDesignName = product.width + "x" + product.height;
-                    data.subprocess = "Tension Stand";
+                    product.subprocess.name = "Tension Stand";
                 }
                 
                 // A-Frames Rotations
-                if(subprocess.name == "A-Frame"){
+                if(product.subprocess.name == "A-Frame"){
                     // Rotate if the product is 22" wide or less.
                     if((product.width == 22 && product.height == 28) || (product.width == 28 && product.height == 22)){
                         product.rotation = "Custom";
@@ -840,7 +864,7 @@ runParser = function(s, job){
                 
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
-                setMarks(s, dir.support, matInfo, data, orderArray[i], product, subprocess, marksArray);	
+                setMarks(s, dir.support, matInfo, data, orderArray[i], product, marksArray);	
                 dashInfo = setDashes(dir.support, matInfo, data, orderArray[i], product);
                     
                 // If the product requires a custom label, apply it.
@@ -910,7 +934,7 @@ runParser = function(s, job){
                             data.thing += "_" + matInfo.height + "in";
                         }
                     }
-                    if(data.subprocess == "ButtCut"){
+                    if(product.subprocess.name == "ButtCut"){
                         data.thing += "_ButtCut";
                     }
                 }
@@ -926,7 +950,7 @@ runParser = function(s, job){
                     writeCSV(csvFile, infoArray, 1);
                     
                 // If it's breakaway, write it again for the 2nd page.
-                if(subprocess.name == "Breakaway"){
+                if(product.subprocess.name == "Breakaway"){
                     product.artworkFile = product.contentFile.split('.')[0] + "_1.pdf";
                     marksArray.push(data.facility.destination + "/Hem Labels/Breakaway/Velcro" + data.scale);
                     var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -1023,13 +1047,19 @@ function compileCSV(product, matInfo, scale, orderArray, data){
 		["Spacing Left",product.spacingLeft],
 		["Spacing Right",product.spacingRight],
 		["Spacing Type",matInfo.spacing.type],
+        ["Offcut Top",product.offcut.top],
+        ["Offcut Bottom",product.offcut.bottom],
+        ["Offcut Left",product.offcut.left],
+        ["Offcut Right",product.offcut.right],
 		["Bleed",product.bleed],
 		["Rotation",product.rotation],
 		["Allowed Rotations",product.allowedRotations],
 		["Width",scale.width + "%"],
 		["Height",scale.height + "%"],
-		["ViewWidth",product.width],
-		["ViewHeight",product.height],
+        ["Scale Width",scale.width],
+		["Scale Height",scale.height],
+		["View Width",product.width],
+		["View Height",product.height],
 		["Description","Description"],
 		["Shape Search",product.shapeSearch],
 		["Notes","SheetLevelData"], //wtf is this?
@@ -1054,7 +1084,9 @@ function compileCSV(product, matInfo, scale, orderArray, data){
 		["Finishing Type", typeof(dashInfo["finishingType"]) == "undefined" ? "None" : dashInfo.finishingType],
 		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
 		["Late", product.late],
-		["Reprint", orderArray.reprint]
+		["Reprint", orderArray.reprint],
+        ["Enable Scripts", product.scripts.enabled],
+        ["Script Name", product.scripts.name]
 	];
 	return infoArray
 }
@@ -1151,6 +1183,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 			addNode_db(theXML, productNode, "cvFrosted", data.prodName == "CutVinyl-Frosted");
 			addNode_db(theXML, productNode, "cvColors", orderArray.cvColors);
 			addNode_db(theXML, productNode, "nametag", product.nametag);
+            addNode_db(theXML, productNode, "subprocess", product.subprocess.name);
 	}
 	
 	if(writeProducts){
