@@ -20,7 +20,7 @@
                     "rotation": "Custom",
                     "allowedRotations": 90,
                     "pageHandling": "OnePerPage",
-                    "overrun": 0,
+                    "overrun": 20,
                     "shapeSearch": "Multiple"
                 },
                 "data": {
@@ -46,7 +46,7 @@
                     "rotation": "Custom",
                     "allowedRotations": 90,
                     "pageHandling": "OnePerPage",
-                    "overrun": 0,
+                    "overrun": 20,
                     "shapeSearch": "Multiple"
                 },
                 "data": {
@@ -72,7 +72,7 @@
                     "rotation": "Custom",
                     "allowedRotations": 90,
                     "pageHandling": "OnePerPage",
-                    "overrun": 0,
+                    "overrun": 20,
                     "shapeSearch": "Multiple"
                 },
                 "data": {

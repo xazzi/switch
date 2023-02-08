@@ -34,7 +34,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){
-                            if(contains(dump.facility[j].processes, matInfo.prodName)){
+                            if(contains(dump.facility[j].processes, matInfo.prodName) || contains(dump.facility[j].processes, "All")){
                                 checkObject(s, dump.facility[j].overrides, matInfo, product, data, scale)
                                 return settings = {
                                     name: dump.name,

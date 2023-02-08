@@ -1,8 +1,8 @@
 var parent = []
 var apply
 
-setMarks = function(s, folder, matInfo, data, orderArray, product, subprocess, marksArray){
-    function readFiles(s, folder, matInfo, data, orderArray, product, subprocess, marksArray){
+setMarks = function(s, folder, matInfo, data, orderArray, product, marksArray){
+    function readFiles(s, folder, matInfo, data, orderArray, product, marksArray){
 
         // Create an array of the json files that need to be searched.
         var markFiles = [
@@ -51,12 +51,12 @@ setMarks = function(s, folder, matInfo, data, orderArray, product, subprocess, m
                 }
                 
                 // Check for required subprocesses
-                if(!contains(dump.marks[j].subprocess.requirements, subprocess.name)){
+                if(!contains(dump.marks[j].subprocess.requirements, product.subprocess.name)){
                     continue;
                 }
 
                 // Check for rejected subprocesses
-                if(contains(dump.marks[j].subprocess.rejections, subprocess.name)){
+                if(contains(dump.marks[j].subprocess.rejections, product.subprocess.name)){
                     continue;
                 }
 
@@ -86,7 +86,7 @@ setMarks = function(s, folder, matInfo, data, orderArray, product, subprocess, m
             }
         }
     }
-    readFiles(s, folder, matInfo, data, orderArray, product, subprocess, marksArray);
+    readFiles(s, folder, matInfo, data, orderArray, product, marksArray);
 }
 
 function checkObject(s, type, parameter, matInfo, product, data, orderArray){
