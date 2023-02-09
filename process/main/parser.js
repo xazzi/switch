@@ -505,7 +505,8 @@ runParser = function(s, job){
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
-                    late: now.date >= orderArray[i].date.due
+                    late: now.date >= orderArray[i].date.due,
+                    finishingType: null
                 }
                 
                 var scale = {
@@ -553,7 +554,8 @@ runParser = function(s, job){
                 // If it has pockets then enable the Phoenix script.
                 if(orderArray[i].pocket.active){
                     product.scripts.enabled = true;
-                    product.scripts.name = "PolePocket"
+                    product.scripts.name = "PolePocket";
+                    product.finishingType = orderArray[i].pocket.method;
                 }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
@@ -783,7 +785,7 @@ runParser = function(s, job){
                         data.notes.push(product.itemNumber + ': Retractable width was undersized for production. (' + Math.round(scale.width) + '%)');
                     }
                     if(product.width == 33){
-                        scale.width = 32.75/product.width*100;
+                        scale.width = 33.25/product.width*100;
                         data.notes.push(product.itemNumber + ': Retractable width was undersized for production. (' + Math.round(scale.width) + '%)');
                     }
                 }
@@ -796,7 +798,6 @@ runParser = function(s, job){
                             scale.width = 94/product.width*100;
                             data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
                         }
-                        /*
                         // Height == 96
                         if(product.width != product.height){
                             if(product.height == "96"){
@@ -804,7 +805,6 @@ runParser = function(s, job){
                                 data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
                             }
                         }
-                        */
                     }
                 }
                 
@@ -1081,7 +1081,7 @@ function compileCSV(product, matInfo, scale, orderArray, data){
 		["Group Number", product.groupNumber],
 		["Custom Label", product.customLabel.value],
 		["Hem Value", product.hemValue],
-		["Finishing Type", typeof(dashInfo["finishingType"]) == "undefined" ? "None" : dashInfo.finishingType],
+		["Finishing Type", product.finishingType],
 		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
 		["Late", product.late],
 		["Reprint", orderArray.reprint],

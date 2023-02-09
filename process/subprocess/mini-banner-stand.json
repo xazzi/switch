@@ -20,13 +20,15 @@
                     "sideMix": 1
                 },
                 "product": {
-                    "stock": "Roll_54",
+                    "stock": "Roll_52",
                     "pageHandling": "OnePerPage",
                     "customLabel": {
                         "apply": true
                     }
                 },
-                "data": {},
+                "data": {
+                    "prodMatFileName": "10xMBS"
+                },
                 "scale": {}
             }
         },
@@ -47,13 +49,15 @@
                     "sideMix": 1
                 },
                 "product": {
-                    "stock": "Roll_54",
+                    "stock": "Roll_52",
                     "pageHandling": "OnePerPage",
                     "customLabel": {
                         "apply": true
                     }
                 },
-                "data": {},
+                "data": {
+                    "prodMatFileName": "10xMBS"
+                },
                 "scale": {}
             }
         }
