@@ -150,10 +150,12 @@
             },
             "specs":{
                 "requirements":{
+                    "product":{
+                        "reprint":true
+                    },
                     "orderArray":{
-                        "reprint":true,
                         "shape":{
-                            "method":"Custom"
+                            "method":"Rect"
                         }
                     }
                 },
