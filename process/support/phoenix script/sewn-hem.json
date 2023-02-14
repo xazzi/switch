@@ -1,0 +1,47 @@
+{
+    "marks":[
+        {
+            "description":"Dashed lines, sewn hem.",
+            "type":"Sewn Hem",
+            "key":"None",
+            "facility":[
+                "Salt Lake City"
+            ],
+            "process":{
+                "requirements":[
+                    "Celtec",
+                    "CeltecBanner"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":"Sewn"
+                        },
+                        "pocket":{
+                            "active":false
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":{
+                "product": {
+                    "scripts":{
+                        "enabled":true,
+                        "name":"SewnHem",
+                        "offset":1.125
+                    }
+                }
+            }
+        }
+    ]
+}

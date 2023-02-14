@@ -55,46 +55,6 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             mixed: true,
             undersize: db_mapItem.getString(5) == 0 ? false : true
         }
-
-        /*
-        for(var i=0; i<files.length; i++){
-            var str = File.read(folder.path + "/" + files[i], "UTF-8");
-            var dump = JSON.parse(str)
-            if(dump.id == subprocess || dump.subprocess == subprocess){
-                for(var j in dump.facility){
-                    // Find the correct facility.
-                    if(dump.facility[j].id == query.facilityId){
-                        // Check if the json is enabled.
-                        if(dump.facility[j].enabled){
-                            // Check if the product is enabled for that subprocess
-                            if(contains(dump.facility[j].processes, matInfo.prodName)){
-                                // Parse through the overrides to set new parameters.
-                                for(var l in dump.facility[j].overrides){
-                                    for(var h in dump.facility[j].overrides[l]){
-                                        if(typeof dump.facility[j].overrides[l][h] === 'object'){
-                                            for(var b in dump.facility[j].overrides[l][h]){
-                                                if(typeof dump.facility[j].overrides[l][h][b] === 'object'){
-                                                    for(q in dump.facility[j].overrides[l][h][b]){
-                                                        eval(l + "." + h + "." + b + "." + q + " = '" + dump.facility[j].overrides[l][h][b][q] + "'")
-                                                    }
-                                                }else{
-                                                    eval(l + "." + h + "." + b + " = '" + dump.facility[j].overrides[l][h][b] + "'")
-                                                }
-                                            }
-                                        }else{
-                                            eval(l + "." + h + " = '" + dump.facility[j].overrides[l][h] + "'")
-                                        }
-                                    }
-                                }
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return
-        */
     }
     return readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess);
 }

@@ -15,7 +15,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/get-subprocess.js"));
             eval(File.read(dir.support + "/get-marks.js"));
-            eval(File.read(dir.support + "/get-dashes.js"));
+            eval(File.read(dir.support + "/get-phoenix-scripts.js"));
             eval(File.read(dir.support + "/add-to-table.js"));
             
             var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
@@ -345,7 +345,7 @@ runParser = function(s, job){
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
-                    data.notes.push(orderSpecs.jobItemId + ": Different process (" + matInfo.prodName + "), removed from gang.");
+                    data.notes.push(orderSpecs.jobItemId + ": Different process (" + matInfo.prodName + "), removed from gang.1");
                     continue;
                 }
                 
@@ -367,7 +367,7 @@ runParser = function(s, job){
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     if(data.secondSurface != orderSpecs.secondSurface){
                         var type = orderSpecs.secondSurface ? "(2nd Surface)" : "(1st Surface)"
-                        data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                        data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.2");
                         continue;
                     }
                 }
@@ -375,21 +375,21 @@ runParser = function(s, job){
                 // Check if coating deviation
                 if(data.coating.active != orderSpecs.coating.active){
                     var type = orderSpecs.coating.active ? "(Coated)" : "(Uncoated)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.3");
                     continue;
                 }
                 
                 // Check if laminate deviation
                 if(data.laminate.active != orderSpecs.laminate.active){
                     var type = orderSpecs.laminate.active ? "(laminate)" : "(Unlaminated)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.4");
                     continue;
                 }
                 
                 // Check if mount deviation
                 if(data.mount.active != orderSpecs.mount.active){
                     var type = orderSpecs.mount.active ? "(Mounted)" : "(Not Mounted)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.5");
                     continue;
                 }
                 
@@ -500,13 +500,15 @@ runParser = function(s, job){
                     },
                     scripts: {
                         enabled: false,
-                        name: null
+                        name: null,
+                        offset: null
                     },
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
                     late: now.date >= orderArray[i].date.due,
-                    finishingType: null
+                    reprint: orderArray[i].reprint,
+                    finishingType: orderArray[i].pocket.method
                 }
                 
                 var scale = {
@@ -521,17 +523,24 @@ runParser = function(s, job){
                 // Check if it should use buttCut processing
                 if(matInfo.prodName == "Coroplast"){
                     if(data.facility.destination == "Salt Lake City"){
-                        if(orderArray[i].qty >= 20){
-                            if(orderArray[i].shape.method == "Rect"){
-                                // Turn buttcut off if required.
-                                dbQuery.execute("SELECT * FROM digital_room.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
-                                if(dbQuery.isRowAvailable()){
-                                    data.notes.push(orderArray[i].jobItemId + ": Butt cut disabled per database entry.");
-                                }else{
+                        if(orderArray[i].shape.method == "Rect"){
+                            // Turn buttcut off if required.
+                            dbQuery.execute("SELECT * FROM digital_room.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
+                            if(dbQuery.isRowAvailable()){
+                                data.notes.push(orderArray[i].jobItemId + ": Butt cut disabled per database entry.");
+
+                            // Otherwise check the scenarios...
+                            }else{
+                                // Scenario 1 to activate butt-cut
+                                if(orderArray[i].qty >= 20){
                                     if(orderArray[i].width <= 24 && orderArray[i].height <= 48){
-                                        if(orderArray[i].width <= 48 && orderArray[i].height <= 24){
-                                            product.query = "butt-cut";
-                                        }
+                                        product.query = "butt-cut";
+                                    }
+                                }
+                                // Scenario 2 to activate butt-cut
+                                if(orderArray[i].qty >= 2){
+                                    if(orderArray[i].width == 48 && orderArray[i].height == 48){
+                                        product.query = "butt-cut";
                                     }
                                 }
                             }
@@ -550,13 +559,6 @@ runParser = function(s, job){
                         product.query = "full-sheet";
                     }
                 }
-
-                // If it has pockets then enable the Phoenix script.
-                if(orderArray[i].pocket.active){
-                    product.scripts.enabled = true;
-                    product.scripts.name = "PolePocket";
-                    product.finishingType = orderArray[i].pocket.method;
-                }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, dbConn, orderArray[i], matInfo, product, data, scale, product.query);
@@ -568,7 +570,7 @@ runParser = function(s, job){
                 
                 // If the subprocess can't be mixed with the parent subprocess, continue on.
                 if(product.subprocess.mixed != data.mixed){
-                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
+                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.6");
                     continue
                 }
 
@@ -583,13 +585,13 @@ runParser = function(s, job){
                         data.doubleSided = true;
                     }else{
                         var type = product.doubleSided ? "(Double Sided)" : "(Single Sided)"
-                        data.notes.push(orderArray[i].jobItemId + ": Different process " + type + ", removed from gang.");
+                        data.notes.push(orderArray[i].jobItemId + ": Different process " + type + ", removed from gang.7");
                         continue;
                     }
                 }
                 
                 // If the order is a reprint, send an email to the user.
-                if(orderArray[i].reprint){
+                if(product.reprint){
                     if(s.getPropertyValue("email_reprint") == "Send"){
                         sendEmail_db(s, data, matInfo, getEmailResponse("Reprint", orderArray[i], matInfo, data, userInfo, null), userInfo);
                     }
@@ -865,7 +867,7 @@ runParser = function(s, job){
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
                 setMarks(s, dir.support, matInfo, data, orderArray[i], product, marksArray);	
-                dashInfo = setDashes(dir.support, matInfo, data, orderArray[i], product);
+                setPhoenixScripts(s, dir.support, matInfo, data, orderArray[i], product);
                     
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
@@ -1084,13 +1086,13 @@ function compileCSV(product, matInfo, scale, orderArray, data){
 		["Finishing Type", product.finishingType],
 		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
 		["Late", product.late],
-		["Reprint", orderArray.reprint],
+		["Reprint", product.reprint],
         ["Enable Scripts", product.scripts.enabled],
-        ["Script Name", product.scripts.name]
+        ["Script Name", product.scripts.name],
+        ["Sewn Hem Offset", product.scripts.offset]
 	];
 	return infoArray
 }
-
 
 function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now){
 	

@@ -609,7 +609,8 @@
                 "requirements":[
                     "A-Frame",
                     "Breakaway",
-                    "None"
+                    "None",
+                    "Busmark"
                 ],
                 "rejections":[
                     "XY",
@@ -652,7 +653,8 @@
                 "requirements":[
                     "A-Frame",
                     "Breakaway",
-                    "None"
+                    "None",
+                    "Busmark"
                 ],
                 "rejections":[
                     "13oz-Matte",
