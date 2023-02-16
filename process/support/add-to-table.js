@@ -16,7 +16,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
                     bri: Number(db_options.getString(5)),
                     sln: Number(db_options.getString(6)),
                     lou: Number(db_options.getString(7)),
-                    arl: Number(db_options.getString(8))
+                    arl: Number(db_options.getString(8)),
+                    wix: Number(db_options.getString(9))
                 }
             }
         }
