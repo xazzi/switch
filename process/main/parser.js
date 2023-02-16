@@ -50,7 +50,8 @@ runParser = function(s, job){
                     mixedFinishing: null,
                     rush: false,
                     priority: 0,
-                    date: false
+                    date: false,
+                    redownload: false
                 }
             }
                 
@@ -66,9 +67,14 @@ runParser = function(s, job){
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mixed finishing?"){
                     submit.override.mixedFinishing = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
+
+                // Finishing separation field.
+                if(submit.nodes.getItem(i).evalToString('tag') == "Redownload file?"){
+                    submit.override.redownload = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                }
                 
                 // Due date override
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mixed Due Dates?"){
+                if(submit.nodes.getItem(i).evalToString('tag') == "Mixed due dates?"){
                     submit.override.date = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
                 
@@ -621,8 +627,11 @@ runParser = function(s, job){
                     depository: new File("//10.21.71.213/Storage/pdfDepository/" + product.contentFile)
                 }
                     
+                // Do we need to transfer the file from the depository?
                 if(file.depository.exists){
-                    //product.transfer = true;
+                    if(submit.override.redownload){
+                        product.transfer = true;
+                    }
                 }else{
                     if(file.source.exists){
                         product.transfer = true;
