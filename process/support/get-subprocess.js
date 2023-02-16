@@ -1,7 +1,7 @@
 var parent = []
 
-getSubprocess = function(folder, dbConn, query, matInfo, product, data, subprocess){
-    function readFiles(folder, dbConn, query, matInfo, product, data, subprocess){
+getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, subprocess){
+    function readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess){
 
         var db_mapItem = new Statement(dbConn);
             db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
@@ -16,7 +16,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
                 name: "None",
                 exists: false,
                 mixed: true,
-                undersize: db_mapItem.getString(5) == 0 ? false : true
+                undersize: db_mapItem.getString(5) == 'n' ? false : true
             }
         }
 
@@ -34,8 +34,8 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){
-                            if(contains(dump.facility[j].processes, matInfo.prodName)){
-                                checkObject(s, dump.facility[j].overrides, matInfo, product, data)
+                            if(contains(dump.facility[j].processes, matInfo.prodName) || contains(dump.facility[j].processes, "All")){
+                                checkObject(s, dump.facility[j].overrides, matInfo, product, data, scale)
                                 return settings = {
                                     name: dump.name,
                                     exists: true,
@@ -55,57 +55,17 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, subproce
             mixed: true,
             undersize: db_mapItem.getString(5) == 0 ? false : true
         }
-
-        /*
-        for(var i=0; i<files.length; i++){
-            var str = File.read(folder.path + "/" + files[i], "UTF-8");
-            var dump = JSON.parse(str)
-            if(dump.id == subprocess || dump.subprocess == subprocess){
-                for(var j in dump.facility){
-                    // Find the correct facility.
-                    if(dump.facility[j].id == query.facilityId){
-                        // Check if the json is enabled.
-                        if(dump.facility[j].enabled){
-                            // Check if the product is enabled for that subprocess
-                            if(contains(dump.facility[j].processes, matInfo.prodName)){
-                                // Parse through the overrides to set new parameters.
-                                for(var l in dump.facility[j].overrides){
-                                    for(var h in dump.facility[j].overrides[l]){
-                                        if(typeof dump.facility[j].overrides[l][h] === 'object'){
-                                            for(var b in dump.facility[j].overrides[l][h]){
-                                                if(typeof dump.facility[j].overrides[l][h][b] === 'object'){
-                                                    for(q in dump.facility[j].overrides[l][h][b]){
-                                                        eval(l + "." + h + "." + b + "." + q + " = '" + dump.facility[j].overrides[l][h][b][q] + "'")
-                                                    }
-                                                }else{
-                                                    eval(l + "." + h + "." + b + " = '" + dump.facility[j].overrides[l][h][b] + "'")
-                                                }
-                                            }
-                                        }else{
-                                            eval(l + "." + h + " = '" + dump.facility[j].overrides[l][h] + "'")
-                                        }
-                                    }
-                                }
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return
-        */
     }
-    return readFiles(folder, dbConn, query, matInfo, product, data, subprocess);
+    return readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess);
 }
 
-function checkObject(s, parameter, matInfo, product, data){
+function checkObject(s, parameter, matInfo, product, data, scale){
     for(var l in parameter){
 
         // If the parameter is an nested object, dig further.
         if(typeof parameter[l] === 'object'){
             parent.push(l + ".");
-            checkObject(s, parameter[l], matInfo, product, data);
+            checkObject(s, parameter[l], matInfo, product, data, scale);
 
         // Eval the new parameter.
         }else{

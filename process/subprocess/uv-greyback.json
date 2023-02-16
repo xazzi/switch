@@ -15,7 +15,6 @@
             "overrides": {
                 "matInfo": {
                     "prodName": "UV-Greyback",
-                    "impositionProfile": "Sheet",
                     "sideMix": 1,
                     "height": "150",
                     "printer": {
@@ -41,6 +40,7 @@
                     }
                 },
                 "data": {
+                    "impositionProfile": "Sheet",
                     "prodMatFileName": "UV-Greyback"
                 }
             }

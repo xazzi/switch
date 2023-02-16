@@ -5,7 +5,8 @@
             "type":"Color ID",
             "key":"None",
             "facility":[
-                "Brighton"
+                "Brighton",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -31,7 +32,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
@@ -45,7 +52,8 @@
             "type":"Color ID",
             "key":"None",
             "facility":[
-                "Brighton"
+                "Brighton",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -72,7 +80,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
@@ -86,7 +100,8 @@
             "type":"Color ID",
             "key":"None",
             "facility":[
-                "Brighton"
+                "Brighton",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -120,7 +135,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
@@ -134,7 +155,8 @@
             "type":"Color ID",
             "key":"None",
             "facility":[
-                "Brighton"
+                "Brighton",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -168,7 +190,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
@@ -182,7 +210,8 @@
             "type":"Color ID",
             "key":"None",
             "facility":[
-                "Brighton"
+                "Brighton",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -216,7 +245,13 @@
                         "doubleSided":false
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings":[
                 {
