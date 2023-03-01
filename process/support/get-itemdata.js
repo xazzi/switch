@@ -4,6 +4,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			complete: false,
 			process: null, //This should stay null, it's to allow process/string searching elsewhere.
 			itemName: null,
+			item: {
+				active: false,
+				value: null,
+				id: null
+			},
 			paper: {
 				active: false,
 				value: null
@@ -134,7 +139,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				gangBy: dataDump.gang_by_date
 			}
 
-			addToTable(s, dbConn, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo);
+			specs.item = addToTable(s, dbConn, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo);
 
 		// Loop through the order_specs and set some values based on them
 		for(var k=0; k<dataDump.order_specs.length; k++){

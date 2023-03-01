@@ -22,6 +22,15 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             }
         }
 
+        // Item mapping
+        if(table == "specs_item-name"){
+            return specs = {
+                active: true,
+                value: parameter.replace(/"/g,''),
+                id: db_options.getString(4)
+            }
+        }
+
         // Material options
         if(table == "options_material"){
             return specs = {

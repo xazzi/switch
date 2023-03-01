@@ -22,7 +22,7 @@ runParser = function(s, job){
                 dbQuery = new Statement(dbConn);
                 
             var localTime = new Date();
-            var hourOffset = s.getPropertyValue("timezoneOffset") == "Yes" ? 7 : 0;
+            var hourOffset = s.getPropertyValue("timezone") == "AWS" ? 7 : 0;
             var hourAdjustment = localTime.getTime() - (3600000*hourOffset);
             var adjustedTime = new Date(hourAdjustment).toString();
                 
@@ -275,9 +275,9 @@ runParser = function(s, job){
                 }
 
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
-                if(orderSpecs.doubleSided && orderSpecs.paper.map.bri == 48){
+                if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.id != "3,4" && orderSpecs.item.id != "4" && orderSpecs.item.value != "X-Stand Banners"){
                     matInfoCheck = true;
-                    orderSpecs.paper.map.bri = 51;
+                    orderSpecs.paper.map.wix = 51;
                 }
                 
                 // Pull the material information if it hasn't been pulled yet.
@@ -296,20 +296,6 @@ runParser = function(s, job){
                         return;
                     }
                 }
-                
-                /*
-                // If it's DS 13ozBanner for SLC, skip it and send an email.
-                if(data.facility.destination == "Salt Lake City"){
-                    if(orderSpecs.doubleSided && matInfo.prodName == "13ozBanner"){
-                        if(!orderSpecs.retractable){
-                            s.log(3, orderSpecs.jobItemId + ": DS 13oz banner assigned to SLC, removed from gang " + data.projectID + ".");
-                            data.notes.push(orderSpecs.jobItemId + ": DS 13oz banner assigned to SLC, removed from gang.");
-                            sendEmail_db(s, data, matInfo, getEmailResponse("DS 13ozBanner", orderSpecs, matInfo, data, userInfo, null), userInfo);
-                            continue;
-                        }
-                    }
-                }
-                */
                 
                 // Set the processes and subprocesses values and check if following items match it.
                 if(data.prodName == null){
@@ -339,7 +325,7 @@ runParser = function(s, job){
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
                     }
-                    if(data.facility.destination == "Brighton" || data.facility.destination == "Louisville" || data.facility.destination == "Wixom"){
+                    if(data.facility.destination == "Brighton" || data.facility.destination == "Louisville" || data.facility.destination == "Wixom" || data.facility.destination == "Arlington"){
                         if(matInfo.prodName != "13ozBanner"){
                             data.phoenix.cutExport = "Auto_Brighton";
                         }
@@ -351,7 +337,7 @@ runParser = function(s, job){
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
-                    data.notes.push(orderSpecs.jobItemId + ": Different process (" + matInfo.prodName + "), removed from gang.1");
+                    data.notes.push(orderSpecs.jobItemId + ": Different process (" + matInfo.prodName + "), removed from gang.");
                     continue;
                 }
                 
@@ -373,7 +359,7 @@ runParser = function(s, job){
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     if(data.secondSurface != orderSpecs.secondSurface){
                         var type = orderSpecs.secondSurface ? "(2nd Surface)" : "(1st Surface)"
-                        data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.2");
+                        data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
                         continue;
                     }
                 }
@@ -381,21 +367,21 @@ runParser = function(s, job){
                 // Check if coating deviation
                 if(data.coating.active != orderSpecs.coating.active){
                     var type = orderSpecs.coating.active ? "(Coated)" : "(Uncoated)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.3");
+                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
                     continue;
                 }
                 
                 // Check if laminate deviation
                 if(data.laminate.active != orderSpecs.laminate.active){
                     var type = orderSpecs.laminate.active ? "(laminate)" : "(Unlaminated)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.4");
+                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
                     continue;
                 }
                 
                 // Check if mount deviation
                 if(data.mount.active != orderSpecs.mount.active){
                     var type = orderSpecs.mount.active ? "(Mounted)" : "(Not Mounted)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.5");
+                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
                     continue;
                 }
                 
@@ -514,7 +500,8 @@ runParser = function(s, job){
                     query: null,
                     late: now.date >= orderArray[i].date.due,
                     reprint: orderArray[i].reprint,
-                    finishingType: orderArray[i].pocket.method
+                    finishingType: orderArray[i].pocket.method,
+                    orientation: "Standard"
                 }
                 
                 var scale = {
@@ -539,7 +526,7 @@ runParser = function(s, job){
                             }else{
                                 // Scenario 1 to activate butt-cut
                                 if(orderArray[i].qty >= 20){
-                                    if(orderArray[i].width <= 24 && orderArray[i].height <= 48){
+                                    if(orderArray[i].width <= 24 || orderArray[i].height <= 48){
                                         product.query = "butt-cut";
                                     }
                                 }
@@ -573,10 +560,22 @@ runParser = function(s, job){
                 if(data.mixed == null){
                     data.mixed = product.subprocess.mixed;
                 }
+
+                // If it's DS 13ozBanner for SLC, skip it and send an email.
+                if(data.facility.destination == "Salt Lake City"){
+                    if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
+                        if(product.subprocess.name != "Retractable"){
+                            s.log(3, orderArray[i].jobItemId + ": DS 13oz banner assigned to SLC, removed from gang " + data.projectID + ".");
+                            data.notes.push(orderArray[i].jobItemId + ": DS 13oz banner assigned to SLC, removed from gang.");
+                            sendEmail_db(s, data, matInfo, getEmailResponse("DS 13ozBanner", orderArray[i], matInfo, data, userInfo, null), userInfo);
+                            continue;
+                        }
+                    }
+                }
                 
                 // If the subprocess can't be mixed with the parent subprocess, continue on.
                 if(product.subprocess.mixed != data.mixed){
-                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.6");
+                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
                     continue
                 }
 
@@ -591,7 +590,7 @@ runParser = function(s, job){
                         data.doubleSided = true;
                     }else{
                         var type = product.doubleSided ? "(Double Sided)" : "(Single Sided)"
-                        data.notes.push(orderArray[i].jobItemId + ": Different process " + type + ", removed from gang.7");
+                        data.notes.push(orderArray[i].jobItemId + ": Different process " + type + ", removed from gang.");
                         continue;
                     }
                 }
@@ -655,14 +654,33 @@ runParser = function(s, job){
                             data.notes.push(product.itemNumber + ": File missing 2nd page for DS printing.");
                             continue;
                         }
-                
-                        if(file.width == product.height && file.height == product.width){
-                            if(product.width != product.height){
-                                data.notes.push(product.itemNumber + ": Flipped sizes to standard format.");
-                                product.width = file.width;
-                                product.height = file.height;
+                        
+                        var variance = {
+                            square: product.width - product.height,
+                            standard: Math.abs(file.width-product.width) + Math.abs(file.height-product.height),
+                            flipped: Math.abs(file.width-product.height) + Math.abs(file.height-product.width)
+                        }
+
+                        if(variance.square == 0){
+                            product.orientation = "Square";
+                        }else{
+                            if(product.finishingType == "TB" || product.finishingType == "T" || product.finishingType == "B"){
+                                product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
+                            }else{
+                                product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard"
                             }
                         }
+
+                        if(product.orientation == "Flipped"){
+                            data.notes.push(product.itemNumber + ": Flipped sizes to standard format.");
+                            var temp = {
+                                width: product.width,
+                                height: product.height
+                            }
+                            product.width = temp.height;
+                            product.height = temp.width;
+                        }
+
                     }catch(e){
                         data.notes.push(product.itemNumber + ": File statistics do not exist, can't confirm orientation, please verify in gang.");
                     }
@@ -793,16 +811,16 @@ runParser = function(s, job){
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
                     if(product.width == 24){
                         scale.width = 23.5/product.width*100;
-                        data.notes.push(product.itemNumber + ': Retractable width was undersized for production. (' + Math.round(scale.width) + '%)');
+                        data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
                     }
                     if(product.width == 33){
                         scale.width = 33.25/product.width*100;
-                        data.notes.push(product.itemNumber + ': Retractable width was undersized for production. (' + Math.round(scale.width) + '%)');
+                        data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
                     }
                 }
                 
                 // Backdrop undersizing for shipping purposes
-                if(product.subprocess.name == "Backdrop"){
+                if(product.subprocess.name == "Backdrop" && product.subprocess.undersize){
                     if(file.width == product.width){
                         // Width == 96
                         if(product.width == "96"){
@@ -829,24 +847,17 @@ runParser = function(s, job){
                 // Coroplast rotation
                 if(data.prodName == "Coroplast"){
                     if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
-                    product.rotation = "Custom";
-                    product.allowedRotations = 90;
+                        product.rotation = "Custom";
+                        product.allowedRotations = 90;
                     }
                 }
                 
                 // Brushed Silver rotation
                 if(data.prodName == "BrushedSilver"){ // BrushedSilver rotates 90 degrees by default
                     if((product.height*(scale.width/100)) > usableArea.width){
-                    product.rotation = "Orthogonal";
-                    product.allowedRotations = 0;
+                        product.rotation = "Orthogonal";
+                        product.allowedRotations = 0;
                     }
-                }
-                
-                // Tension Stands
-                if(matInfo.prodMatFileName == "TensionStand"){
-                    product.dieDesignSource = "DieDesignLibrary";
-                    product.dieDesignName = product.width + "x" + product.height;
-                    product.subprocess.name = "Tension Stand";
                 }
                 
                 // A-Frames Rotations
@@ -881,6 +892,21 @@ runParser = function(s, job){
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '" x ' + product.height + '" ' + product.itemName
+                }
+
+                // Tension Stands
+                if(matInfo.prodMatFileName == "TensionStand"){
+                    product.artworkFile = product.contentFile.split('.')[0] + "_1.pdf"
+                    product.dieDesignSource = "DieDesignLibrary";
+                    product.dieDesignName = product.width + "x" + product.height;
+                    product.subprocess.name = "Tension Stand";
+                    product.customLabel.value = (i+1)+"-F";
+                    data.impositionProfile = "TenstionStands";
+                    marksArray.push(data.facility.destination + "/Misc/TensionStand-Label");
+                    if((product.width*(scale.width/100)) > usableArea.width){
+                        product.rotation = "Orthogonal";
+                        product.allowedRotations = 0;
+                    }
                 }
                 
                 // Specific gang adjustments ----------------------------------------------------------
@@ -949,6 +975,10 @@ runParser = function(s, job){
                         data.thing += "_ButtCut";
                     }
                 }
+
+                if(product.width > usableArea.width && product.height > usableArea.width){
+                    //product.stock += "_MaxWidth"
+                }
                 
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -964,7 +994,16 @@ runParser = function(s, job){
                 if(product.subprocess.name == "Breakaway"){
                     product.artworkFile = product.contentFile.split('.')[0] + "_1.pdf";
                     marksArray.push(data.facility.destination + "/Hem Labels/Breakaway/Velcro" + data.scale);
-                    var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                    infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        
+                    writeCSV(csvFile, infoArray, 1);
+                }
+
+                // If it's breakaway, write it again for the 2nd page.
+                if(matInfo.prodMatFileName == "TensionStand"){
+                    product.artworkFile = product.contentFile.split('.')[0] + "_2.pdf";
+                    product.customLabel.value = (i+1)+"-B";
+                    infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                         
                     writeCSV(csvFile, infoArray, 1);
                 }
@@ -1001,7 +1040,7 @@ runParser = function(s, job){
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation,product.itemName]);
                 
                 // Write the gang number to the database.
                 dbQuery.execute("SELECT * FROM digital_room.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
@@ -1018,7 +1057,7 @@ runParser = function(s, job){
             csvFile.close();
         
             createDataset(newCSV, data, matInfo, false, null, null, userInfo, true, now);
-            createReport(s, newCSV, data)
+            //createReport(s, newCSV, data)
             newCSV.setHierarchyPath([data.environment,data.sku]);	
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
@@ -1210,6 +1249,8 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 				addNode_db(theXML, subProductsNode, "itemNumber", productArray[i][2]);
 				addNode_db(theXML, subProductsNode, "notes", productArray[i][3]);
 				addNode_db(theXML, subProductsNode, "due-date", productArray[i][4]);
+                addNode_db(theXML, subProductsNode, "orientation", productArray[i][5]);
+                addNode_db(theXML, subProductsNode, "item-name", productArray[i][6]);
 		}
 	}
 	

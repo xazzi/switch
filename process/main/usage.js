@@ -2,9 +2,9 @@ runUsage = function(s, job){
     function usage(s, job){
         try{
             var dir = {
-                support: s.getPropertyValue("support")
+                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
             }
-            
+
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
 

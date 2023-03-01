@@ -8,6 +8,7 @@
             "id": "28",
             "enabled": true,
             "mixed": false,
+            "undersize": true,
             "processes": [
                 "13ozBanner"
             ],
@@ -19,10 +20,14 @@
             "id": "18",
             "enabled": true,
             "mixed": true,
+            "undersize": false,
             "processes": [
                 "13oz-Matte"
             ],
             "overrides": {
+                "matInfo": {
+                    "forceUndersize": false
+                }
             }
         },
         {
@@ -30,10 +35,14 @@
             "id": "37",
             "enabled": true,
             "mixed": true,
+            "undersize": false,
             "processes": [
                 "13oz-Matte"
             ],
             "overrides": {
+                "matInfo": {
+                    "forceUndersize": false
+                }
             }
         }
     ]
