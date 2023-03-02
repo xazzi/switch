@@ -471,10 +471,10 @@ runParser = function(s, job){
                     spacingLeft: matInfo.spacing.left == undefined ? matInfo.spacing.base : matInfo.spacing.left,
                     spacingRight: matInfo.spacing.right == undefined ? matInfo.spacing.base : matInfo.spacing.right,
                     offcut:{
-                        top: 0,
-                        bottom: 0,
-                        left: 0,
-                        right: 0
+                        top: "None",
+                        bottom: "None",
+                        left: "None",
+                        right: "None"
                     },
                     bleed: matInfo.bleed,
                     grade: matInfo.grade,
@@ -543,7 +543,9 @@ runParser = function(s, job){
                 
                 // Check for butt-weld processing
                 if(orderArray[i].hem.method == "Weld"){
-                    product.query = "butt-weld";
+                    if(!orderArray[i].doubleSided){
+                        product.query = "butt-weld";
+                    }
                 }
                 
                 // Full-Sheet subprocessing
@@ -568,6 +570,18 @@ runParser = function(s, job){
                             s.log(3, orderArray[i].jobItemId + ": DS 13oz banner assigned to SLC, removed from gang " + data.projectID + ".");
                             data.notes.push(orderArray[i].jobItemId + ": DS 13oz banner assigned to SLC, removed from gang.");
                             sendEmail_db(s, data, matInfo, getEmailResponse("DS 13ozBanner", orderArray[i], matInfo, data, userInfo, null), userInfo);
+                            continue;
+                        }
+                    }
+                }
+
+                // Long banners with weld in ARL need to go somewhere else.
+                if(data.facility.destination == "Arlington"){
+                    if(matInfo.prodName == "13oz-Matte"){
+                        if(orderArray[i].hem.method == "Weld"){
+                            s.log(3, orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang " + data.projectID + ".");
+                            data.notes.push(orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang.");
+                            sendEmail_db(s, data, matInfo, getEmailResponse("Oversized Weld", orderArray[i], matInfo, data, userInfo, null), userInfo);
                             continue;
                         }
                     }

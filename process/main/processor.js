@@ -89,7 +89,6 @@ runProcessor = function(s, job){
                 if(data.jobState == "Pass" || data.jobState == "Approve"){
                     if(files[i].split("_")[2] == data.projectID + ".xml"){
                         if(prismPost == "Yes" && validation.post){
-                            s.log(2, "Starting")
                             var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, endPoint, validation);
                             if(response == "Success"){
                                 // Email the success of the prism post.

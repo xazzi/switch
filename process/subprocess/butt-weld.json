@@ -36,7 +36,9 @@
                 "13oz-Matte",
                 "9oz-Mesh",
                 "8oz-Mesh",
-                "12oz-Mesh"
+                "12oz-Mesh",
+                "13oz-Smooth",
+                "18oz-Matte"
             ],
             "overrides": {
                 "matInfo": {},
