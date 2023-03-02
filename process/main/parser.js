@@ -48,6 +48,7 @@ runParser = function(s, job){
                 facilityId: "Default",
                 override: {
                     mixedFinishing: null,
+                    sideMix: null,
                     rush: false,
                     priority: 0,
                     date: false,
@@ -64,7 +65,7 @@ runParser = function(s, job){
                 }
                 
                 // Finishing separation field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mixed finishing?"){
+                if(submit.nodes.getItem(i).evalToString('tag') == "Mix finishing?"){
                     submit.override.mixedFinishing = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
@@ -74,8 +75,13 @@ runParser = function(s, job){
                 }
                 
                 // Due date override
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mixed due dates?"){
+                if(submit.nodes.getItem(i).evalToString('tag') == "Mix due dates?"){
                     submit.override.date = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                }
+
+                // Finishing separation field.
+                if(submit.nodes.getItem(i).evalToString('tag') == "Mix sides?"){
+                    submit.override.sideMix = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
                 
                 // Rerouting input field.
@@ -600,7 +606,7 @@ runParser = function(s, job){
                 
                 // Check for side deviation.
                 if(data.doubleSided != product.doubleSided){
-                    if(matInfo.sideMix){
+                    if(matInfo.sideMix || submit.override.sideMix){
                         data.doubleSided = true;
                     }else{
                         var type = product.doubleSided ? "(Double Sided)" : "(Single Sided)"
@@ -915,7 +921,7 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height;
                     product.subprocess.name = "Tension Stand";
                     product.customLabel.value = (i+1)+"-F";
-                    data.impositionProfile = "TenstionStands";
+                    data.impositionProfile = "TensionStands";
                     marksArray.push(data.facility.destination + "/Misc/TensionStand-Label");
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
