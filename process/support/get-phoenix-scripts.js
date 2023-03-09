@@ -7,7 +7,8 @@ setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
         // Create an array of the json files that need to be searched.
         var markFiles = [
             "sewn-hem.json",
-            "pockets.json"
+            "pockets.json",
+            //"day-labels.json"
         ]
 
         // Loop through that array to find any applicable marks.
@@ -48,7 +49,9 @@ setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
                 
                 // Check for required subprocesses
                 if(!contains(dump.marks[j].subprocess.requirements, product.subprocess.name)){
-                    continue;
+                    if(!contains(dump.marks[j].subprocess.requirements, "All")){
+                        continue;
+                    }
                 }
 
                 // Check for rejected subprocesses
