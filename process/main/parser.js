@@ -9,6 +9,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/get-itemdata.js"));
             eval(File.read(dir.support + "/get-next-shipdate.js"));
+            eval(File.read(dir.support + "/get-ship-type.js"));
             eval(File.read(dir.support + "/info-material.js"));
             eval(File.read(dir.support + "/sku-generator.js"));
             eval(File.read(dir.support + "/email-responses.js"));
@@ -52,7 +53,8 @@ runParser = function(s, job){
                     rush: false,
                     priority: 0,
                     date: false,
-                    redownload: false
+                    redownload: false,
+                    forceFullsize: false
                 }
             }
                 
@@ -77,6 +79,11 @@ runParser = function(s, job){
                 // Due date override
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix due dates?"){
                     submit.override.date = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                }
+
+                // Undersize override
+                if(submit.nodes.getItem(i).evalToString('tag') == "Force fullsize?"){
+                    submit.override.forceFullsize = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
                 // Finishing separation field.
@@ -163,7 +170,8 @@ runParser = function(s, job){
                     cutExport: "Auto_SaltLakeCity",
                     gangLabel: []
                 },
-                subprocess: [],
+                //subprocess: [],
+                subprocess: null,
                 mixed: null,
                 prodMatFileName: null,
                 cropGang: null,
@@ -301,6 +309,11 @@ runParser = function(s, job){
                         job.sendToNull(job.getPath());
                         return;
                     }
+                }
+
+                // Enable the force laminate override
+                if(matInfo.forceLam){
+                    orderSpecs.laminate.active = true
                 }
                 
                 // Set the processes and subprocesses values and check if following items match it.
@@ -501,13 +514,20 @@ runParser = function(s, job){
                         name: null,
                         offset: null
                     },
+                    subprocess: {
+                        name: null,
+                        exists: false,
+                        mixed: false,
+                        undersize: false
+                    },
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
                     late: now.date >= orderArray[i].date.due,
                     reprint: orderArray[i].reprint,
                     finishingType: orderArray[i].pocket.method,
-                    orientation: "Standard"
+                    orientation: "Standard",
+                    shipType: getShipType(orderArray[i].ship.serviceCode)
                 }
                 
                 var scale = {
@@ -563,11 +583,6 @@ runParser = function(s, job){
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, dbConn, orderArray[i], matInfo, product, data, scale, product.query);
-                
-                // Set mixing data based off of the first item.
-                if(data.mixed == null){
-                    data.mixed = product.subprocess.mixed;
-                }
 
                 // If it's DS 13ozBanner for SLC, skip it and send an email.
                 if(data.facility.destination == "Salt Lake City"){
@@ -592,16 +607,16 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
-                // If the subprocess can't be mixed with the parent subprocess, continue on.
-                if(product.subprocess.mixed != data.mixed){
-                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
-                    continue
-                }
 
                 // Add the subprocess to the data level array if it's missing.
-                if(!contains(data.subprocess, product.subprocess.name)){
-                    data.subprocess.push(product.subprocess.name)
+                if(data.subprocess == null){
+                    data.subprocess = product.subprocess.name;
+                }
+                
+                // If the subprocess can't be mixed with the parent subprocess, continue on.
+                if(product.subprocess.name != data.subprocess){
+                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
+                    continue
                 }
                 
                 // Check for side deviation.
@@ -737,7 +752,6 @@ runParser = function(s, job){
                 
                 // Material specific adjustments and settings.
                 if(matInfo.type == "roll"){
-                    
                     if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
                         if(product.width >= 198 || product.height >= 198){
                             scale.widthModifier = 2;
@@ -773,35 +787,37 @@ runParser = function(s, job){
                 // General automated scaling for when approaching material dims.
                 // Not for undersizing to force better yield.
                 if(!scale.locked){
-                    if(!data.oversize && !data.scaled){
-                        if(product.width > product.height){
-                            if(product.width >= usableArea.height){
-                                scale.width = ((usableArea.height-.25)/product.width)*100;
-                                scale.adjusted = true;
-                                if(product.width == product.height){
-                                    scale.height = scale.width
+                    if(!submit.override.forceFullsize){
+                        if(!data.oversize && !data.scaled){
+                            if(product.width > product.height){
+                                if(product.width >= usableArea.height){
+                                    scale.width = ((usableArea.height-.25)/product.width)*100;
+                                    scale.adjusted = true;
+                                    if(product.width == product.height){
+                                        scale.height = scale.width
+                                    }
                                 }
-                            }
-                            if(product.height >= usableArea.width){
-                                scale.height = ((usableArea.width-.25)/product.height)*100;
-                                scale.adjusted = true;
-                                if(product.width == product.height){
-                                    scale.width = scale.height
+                                if(product.height >= usableArea.width){
+                                    scale.height = ((usableArea.width-.25)/product.height)*100;
+                                    scale.adjusted = true;
+                                    if(product.width == product.height){
+                                        scale.width = scale.height
+                                    }
                                 }
-                            }
-                        }else{
-                            if(product.height >= usableArea.height){
-                                scale.height = ((usableArea.height-.25)/product.height)*100;
-                                scale.adjusted = true;
-                                if(product.width == product.height){
-                                    scale.width = scale.height
+                            }else{
+                                if(product.height >= usableArea.height){
+                                    scale.height = ((usableArea.height-.25)/product.height)*100;
+                                    scale.adjusted = true;
+                                    if(product.width == product.height){
+                                        scale.width = scale.height
+                                    }
                                 }
-                            }
-                            if(product.width >= usableArea.width){
-                                scale.width = ((usableArea.width-.25)/product.width)*100;
-                                scale.adjusted = true;
-                                if(product.width == product.height){
-                                    scale.height = scale.width
+                                if(product.width >= usableArea.width){
+                                    scale.width = ((usableArea.width-.25)/product.width)*100;
+                                    scale.adjusted = true;
+                                    if(product.width == product.height){
+                                        scale.height = scale.width
+                                    }
                                 }
                             }
                         }
@@ -811,7 +827,7 @@ runParser = function(s, job){
                 }
                 
                 // If the product can be undersized...
-                if(product.subprocess.undersize && matInfo.forceUndersize == true){
+                if(product.subprocess.undersize && matInfo.forceUndersize == true && !submit.override.forceFullsize){
                         dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
                     if(dbQuery.isRowAvailable()){
                         dbQuery.fetchRow();
@@ -829,29 +845,33 @@ runParser = function(s, job){
                 
                 // Retractable undersizing so it fits in the stand easier.
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
-                    if(product.width == 24){
-                        scale.width = 23.5/product.width*100;
-                        data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
-                    }
-                    if(product.width == 33){
-                        scale.width = 33.25/product.width*100;
-                        data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
+                    if(!submit.override.forceFullsize){
+                        if(product.width == 24){
+                            scale.width = 23.5/product.width*100;
+                            data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
+                        }
+                        if(product.width == 33){
+                            scale.width = 33.25/product.width*100;
+                            data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
+                        }
                     }
                 }
                 
                 // Backdrop undersizing for shipping purposes
-                if(product.subprocess.name == "Backdrop" && product.subprocess.undersize){
-                    if(file.width == product.width){
-                        // Width == 96
-                        if(product.width == "96"){
-                            scale.width = 94/product.width*100;
-                            data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
-                        }
-                        // Height == 96
-                        if(product.width != product.height){
-                            if(product.height == "96"){
-                                scale.height = 94/product.height*100;
-                                data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                if(product.subprocess.name == "Backdrop"){
+                    if(product.subprocess.undersize && !submit.override.forceFullsize){
+                        if(file.width == product.width){
+                            // Width == 96
+                            if(product.width == "96"){
+                                scale.width = 94/product.width*100;
+                                data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
+                            }
+                            // Height == 96
+                            if(product.width != product.height){
+                                if(product.height == "96"){
+                                    scale.height = 94/product.height*100;
+                                    data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                                }
                             }
                         }
                     }
@@ -1020,7 +1040,7 @@ runParser = function(s, job){
                 }
 
                 // If it's breakaway, write it again for the 2nd page.
-                if(matInfo.prodMatFileName == "TensionStand"){
+                if(matInfo.prodMatFileName == "TensionStand" && product.doubleSided){
                     product.artworkFile = product.contentFile.split('.')[0] + "_2.pdf";
                     product.customLabel.value = (i+1)+"-B";
                     infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -1146,6 +1166,7 @@ function compileCSV(product, matInfo, scale, orderArray, data){
 		["Die Design Name",product.dieDesignName],
 		["Max Overruns",product.overruns],
 		["Ship Date",orderArray.date.due],
+        ["Ship Type",product.shipType],
 		["Due Date",data.date.due],
 		["Gang Info", data.phoenix.gangLabel],
 		["Group Number", product.groupNumber],
