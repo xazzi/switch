@@ -30,6 +30,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             if(dump.id == "undefined"){
                 dump.id = dump.subprocess
             }
+            /*
             if(data.subprocess != null){
                 if(dump.name != data.subprocess){
                     return settings = {
@@ -40,6 +41,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                     }
                 }
             }
+            */
             if(contains(subprocess, dump.id)){
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){

@@ -736,11 +736,11 @@ runParser = function(s, job){
                 dbQuery.execute("SELECT * FROM digital_room.item_number_fullsize WHERE item_number = '" + product.itemNumber + "';");
                 if(dbQuery.isRowAvailable()){
                     product.subprocess.undersize = false;
-                }
+                }                
                 
                 // Check the yard frame table for any hardware that would require full size product.
                 if(orderArray[i].yardframe.active){
-                    if(orderArray[i].yardframe.undersize){
+                    if(!orderArray[i].yardframe.undersize){
                         product.subprocess.undersize = false
                     }
                 }

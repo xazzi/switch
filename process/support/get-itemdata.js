@@ -59,7 +59,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				value: null
 			},
 			yardframe:{
-				active: false
+				active: false,
+				method: null,
+				value: null,
+				undersize: null
 			},
 			base: {
 				active: false,
