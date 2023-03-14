@@ -10,7 +10,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "specs_paper"){
             return specs = {
                 active: true,
-                value: parameter.replace(/"/g,''),
+                value: parameter.replace(/"|'/g,''),
                 map: {
                     slc: Number(db_options.getString(4)),
                     bri: Number(db_options.getString(5)),
@@ -26,7 +26,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "specs_item-name"){
             return specs = {
                 active: true,
-                value: parameter.replace(/"/g,''),
+                value: parameter.replace(/"|'/g,''),
                 id: db_options.getString(4)
             }
         }
@@ -35,7 +35,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_material"){
             return specs = {
                 active: true,
-                value: parameter.replace(/"/g,'')
+                value: parameter.replace(/"|'/g,''),
             }
         }
 
@@ -154,7 +154,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter.replace(/"/g,'')
+                value: parameter.replace(/"|'/g,'')
             }
         }
 
@@ -163,7 +163,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter.replace(/"/g,'')
+                value: parameter.replace(/"|'/g,'')
             }
         }
 
@@ -191,6 +191,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         method: null,
         value: null,
         size: null,
-        webbing: null
+        webbing: null,
+        undersize: null
     }
 }

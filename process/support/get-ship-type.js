@@ -4,19 +4,19 @@ getShipType = function(query){
 
     switch(query){
         case "1DA":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "1DAS":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "1DM":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "1DMS":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "1DP":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "2DA":
             type = "2";
@@ -28,10 +28,10 @@ getShipType = function(query){
             type = "2";
         break;
         case "3DS":
-            type = "G";
+            type = "GROUND";
         break;
         case "3DSS":
-            type = "G";
+            type = "GROUND";
         break;
         case "ARLINGTON":
             type = "W";
@@ -52,7 +52,7 @@ getShipType = function(query){
             type = "2";
         break;
         case "FEDEX_EXPRESS_SAVER":
-            type = "G";
+            type = "GROUND";
         break;
         case "FEDEX_FREIGHT_ECONOMY":
             type = "F";
@@ -61,25 +61,25 @@ getShipType = function(query){
             type = "F";
         break;
         case "FEDEX_GROUND":
-            type = "G";
+            type = "GROUND";
         break;
         case "FIRST_OVERNIGHT":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "FR":
             type = "X";
         break;
         case "GND":
-            type = "G";
+            type = "GROUND";
         break;
         case "GNDS":
-            type = "G";
+            type = "GROUND";
         break;
         case "GND_SAVER":
-            type = "G";
+            type = "GROUND";
         break;
         case "GROUND_HOME_DELIVERY":
-            type = "G";
+            type = "GROUND";
         break;
         case "HOLD_FOR_NEXT_DROP":
             type = "M";
@@ -88,10 +88,10 @@ getShipType = function(query){
             type = "H";
         break;
         case "INTERNATIONAL_ECONOMY":
-            type = "G";
+            type = "GROUND";
         break;
         case "INTERNATIONAL_PRIORITY":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "LA":
             type = "W";
@@ -121,10 +121,10 @@ getShipType = function(query){
             type = "W";
         break;
         case "OTHER_INTERNATIONAL":
-            type = "G";
+            type = "GROUND";
         break;
         case "PRIORITY_OVERNIGHT":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "RD":
             type = "W";
@@ -133,25 +133,25 @@ getShipType = function(query){
             type = "W";
         break;
         case "SMARTMAIL_PARCEL_EXPEDITED_MAX":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "SMARTMAIL_PARCEL_GROUND":
-            type = "G";
+            type = "GROUND";
         break;
         case "SMART_POST":
-            type = "G";
+            type = "GROUND";
         break;
         case "SOLON":
             type = "W";
         break;
         case "STANDARD_OVERNIGHT":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "STD":
-            type = "G";
+            type = "GROUND";
         break;
         case "SURE_POST":
-            type = "G";
+            type = "GROUND";
         break;
         case "THIRD_PARTY_ACCURATE_COURIER":
             type = "W";
@@ -202,28 +202,28 @@ getShipType = function(query){
             type = "F";
         break;
         case "USPS_FCPINT":
-            type = "G";
+            type = "GROUND";
         break;
         case "USPS_PM":
-            type = "G";
+            type = "GROUND";
         break;
         case "USPS_PME":
-            type = "G";
+            type = "GROUND";
         break;
         case "USPS_PMEINT":
-            type = "G";
+            type = "GROUND";
         break;
         case "USPS_PMINT":
-            type = "G";
+            type = "GROUND";
         break;
         case "VAN NUYS":
             type = "W";
         break;
         case "XPD":
-            type = "O";
+            type = "OVERNIGHT";
         break;
         case "XPP":
-            type = "G";
+            type = "GROUND";
         break;
         default:
             type = "NULL";
