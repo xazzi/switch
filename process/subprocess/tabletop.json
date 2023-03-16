@@ -8,6 +8,7 @@
             "id": "28",
             "enabled": true,
             "mixed": true,
+            "undersize": "Default",
             "processes": [
                 "DSS"
             ],

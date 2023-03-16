@@ -8,6 +8,7 @@
             "id": "28",
             "enabled": true,
             "mixed": false,
+            "undersize": "Default",
             "processes": [
                 "MDO"
             ],
@@ -20,6 +21,7 @@
                     "spacingBottom": 0,
                     "spacingLeft": 0,
                     "spacingRight": 0,
+                    "bleed": 0,
                     "rotation": "Orthogonal"
                 },
                 "data": {

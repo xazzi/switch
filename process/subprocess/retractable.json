@@ -8,6 +8,7 @@
             "id": "28",
             "enabled": true,
             "mixed": false,
+            "undersize": "Default",
             "processes": [
                 "13ozBanner",
                 "DSS"
@@ -31,6 +32,7 @@
             "id": "18",
             "enabled": true,
             "mixed": true,
+            "undersize": "Default",
             "processes": [
                 "13oz-Matte",
                 "13oz-Smooth"
@@ -54,6 +56,7 @@
             "id": "37",
             "enabled": true,
             "mixed": true,
+            "undersize": "Default",
             "processes": [
                 "13oz-Matte",
                 "13oz-Smooth"

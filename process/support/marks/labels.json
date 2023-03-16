@@ -68,7 +68,8 @@
                     "18ozBanner",
                     "13oz-Matte",
                     "13oz-Gloss",
-                    "13oz-Smooth"
+                    "13oz-Smooth",
+                    "DSS"
                 ],
                 "rejections":[]
             },
@@ -190,6 +191,7 @@
                 "requirements":[
                     "Mesh",
                     "8oz-Mesh",
+                    "9oz-Mesh",
                     "12oz-Mesh"
                 ],
                 "rejections":[]
@@ -240,7 +242,8 @@
                     "18ozBanner",
                     "13oz-Matte",
                     "13oz-Gloss",
-                    "13oz-Smooth"
+                    "13oz-Smooth",
+                    "DSS"
                 ],
                 "rejections":[]
             },

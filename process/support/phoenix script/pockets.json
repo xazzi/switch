@@ -33,7 +33,7 @@
             "settings":{
                 "product": {
                     "scripts":{
-                        "enabled":true,
+                        "enabled":false,
                         "name":"PolePocket"
                     }
                 }

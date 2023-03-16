@@ -30,6 +30,18 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             if(dump.id == "undefined"){
                 dump.id = dump.subprocess
             }
+            /*
+            if(data.subprocess != null){
+                if(dump.name != data.subprocess){
+                    return settings = {
+                        name: dump.name,
+                        exists: null,
+                        mixed: null,
+                        undersize: null
+                    }
+                }
+            }
+            */
             if(contains(subprocess, dump.id)){
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
@@ -40,7 +52,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                                     name: dump.name,
                                     exists: true,
                                     mixed: dump.facility[j].mixed,
-                                    undersize: db_mapItem.getString(5) == 'y' ? true : false
+                                    undersize: dump.facility[j].undersize ? true : !dump.facility[j].undersize ? false : db_mapItem.getString(5) == 'y' ? true : false
                                 }
                             }
                         }

@@ -2,7 +2,7 @@ runTableUpdate = function(s, job){
     function tableUpdate(s, job){
         try{
             var dir = {
-                support: s.getPropertyValue("support")
+                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
             }
             
             // Read in any support directories
@@ -30,7 +30,7 @@ runTableUpdate = function(s, job){
             
             // Add all of the item level data into the history_item table.
             for(var j=0; j<handoffData.productNodes.length; j++){
-                dbQuery.execute("INSERT INTO digital_room.history_item (`gang-number`,`item-number`,`order-number`,`processed-time`,`processed-date`,`due-date`) VALUES ('" + phoenixPlan.id + "','" + handoffData.productNodes.at(j).evalToString('itemNumber') + "','" + handoffData.productNodes.at(j).evalToString('orderNumber') + "','" + handoffData.processedTime + "','" + handoffData.processedDate + "','" + handoffData.productNodes.at(j).evalToString('due-date') + "');");
+                dbQuery.execute("INSERT INTO digital_room.history_item (`gang-number`,`item-number`,`order-number`,`processed-time`,`processed-date`,`due-date`,`orientation`) VALUES ('" + phoenixPlan.id + "','" + handoffData.productNodes.at(j).evalToString('itemNumber') + "','" + handoffData.productNodes.at(j).evalToString('orderNumber') + "','" + handoffData.processedTime + "','" + handoffData.processedDate + "','" + handoffData.productNodes.at(j).evalToString('due-date') + "','" + handoffData.productNodes.at(j).evalToString('orientation') + "');");
             }
             
             // Update the gang on the history_gang table to complete.

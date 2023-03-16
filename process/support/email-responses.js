@@ -165,9 +165,16 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
         break;
         case "DS 13ozBanner":
             subject = "DS 13ozBanner: " + product.jobItemId;
-            body = "The following item is doublesided 13ozBanner assigned to SLC and needs to be re-routed: " + "\n\n" + "Item: " + product.jobItemId + "\n" + "Material: " + matInfo.prodName + "\n\n" + "It was rejected by the imposition process and was not ganged in Phoenix.";
+            body = "The following item is a doublesided 13ozBanner assigned to SLC and needs to be re-routed: " + "\n\n" + "Item: " + product.jobItemId + "\n" + "Material: " + matInfo.prodName + "\n\n" + "It was rejected by the imposition process and was not ganged in Phoenix.";
             to = [userInfo.email]
             cc = [sendTo.chelsea]
+            bcc = [];
+        break;
+        case "Oversized Weld":
+            subject = "Oversided Weld: " + product.jobItemId;
+            body = "The following item is a welded banner over 168\" assigned to ARL and needs to be re-routed: " + "\n\n" + "Item: " + product.jobItemId + "\n" + "Material: " + matInfo.prodName + "\n\n" + "It was rejected by the imposition process and was not ganged in Phoenix.";
+            to = [userInfo.email]
+            cc = [sendTo.bret]
             bcc = [];
         break;
         default:

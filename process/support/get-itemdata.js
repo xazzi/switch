@@ -4,6 +4,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			complete: false,
 			process: null, //This should stay null, it's to allow process/string searching elsewhere.
 			itemName: null,
+			item: {
+				active: false,
+				value: null,
+				id: null
+			},
 			paper: {
 				active: false,
 				value: null
@@ -54,7 +59,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				value: null
 			},
 			yardframe:{
-				active: false
+				active: false,
+				method: null,
+				value: null,
+				undersize: null
 			},
 			base: {
 				active: false,
@@ -128,13 +136,19 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			specs.height = dataDump.height;
 			specs.facilityId = "facility_id" in dataDump ? dataDump.facility_id : undefined;
 			specs.facility = "facility" in dataDump ? dataDump.facility : undefined;
+			
+			specs.ship = {
+				methodCode: dataDump.job_item_shipping[0].shipping_method_code,
+				serviceCode: dataDump.job_item_shipping[0].shipping_service_code,
+				service: dataDump.job_item_shipping[0].shipping_service
+			}
 
 			specs.date = {
 				due: dataDump.due_date,
 				gangBy: dataDump.gang_by_date
 			}
 
-			addToTable(s, dbConn, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo);
+			specs.item = addToTable(s, dbConn, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo);
 
 		// Loop through the order_specs and set some values based on them
 		for(var k=0; k<dataDump.order_specs.length; k++){

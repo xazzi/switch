@@ -1,0 +1,33 @@
+{
+    "subprocess": "tension-stand",
+    "name": "TensionStand",
+    "id": 15,
+    "facility": [
+        {
+            "name": "Salt Lake City",
+            "id": "28",
+            "enabled": true,
+            "mixed": false,
+            "undersize": "Default",
+            "processes": [
+                "CeltecBanner",
+                "Celtec"
+            ],
+            "overrides": {
+                "matInfo": {
+                    "cutter": {
+                        "hotfolder": "14"
+                    }
+                },
+                "product": {
+                    "rotation": "None",
+                    "pageHandling": "OnePerPage",
+                    "dieDesignSource": "DieDesignLibrary"
+                },
+                "data": {
+                    "prodMatFileName": "TensionStand"
+                }
+            }
+        }
+    ]
+}
