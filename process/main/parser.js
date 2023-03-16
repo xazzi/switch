@@ -729,7 +729,7 @@ runParser = function(s, job){
                         data.notes.push(product.itemNumber + ": This breakaway banner isn't split into 2, removed from gang.");
                         continue;
                     }
-                    product.artworkFile = product.contentFile.split('.')[0] + "_2.pdf"
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                 }
                 
                 // Check if the item_number can be undersized.
@@ -935,11 +935,11 @@ runParser = function(s, job){
                 }
 
                 // Tension Stands
-                if(matInfo.prodMatFileName == "TensionStand"){
-                    product.artworkFile = product.contentFile.split('.')[0] + "_1.pdf"
-                    product.dieDesignSource = "DieDesignLibrary";
+                if(product.subprocess.name == "TensionStand"){
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    //product.dieDesignSource = "DieDesignLibrary";
                     product.dieDesignName = product.width + "x" + product.height;
-                    product.subprocess.name = "Tension Stand";
+                    //product.subprocess.name = "Tension Stand";
                     product.customLabel.value = (i+1)+"-F";
                     data.impositionProfile = "TensionStands";
                     marksArray.push(data.facility.destination + "/Misc/TensionStand-Label");
@@ -1032,7 +1032,7 @@ runParser = function(s, job){
                     
                 // If it's breakaway, write it again for the 2nd page.
                 if(product.subprocess.name == "Breakaway"){
-                    product.artworkFile = product.contentFile.split('.')[0] + "_1.pdf";
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf";
                     marksArray.push(data.facility.destination + "/Hem Labels/Breakaway/Velcro" + data.scale);
                     infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                         
@@ -1040,12 +1040,14 @@ runParser = function(s, job){
                 }
 
                 // If it's breakaway, write it again for the 2nd page.
-                if(matInfo.prodMatFileName == "TensionStand" && product.doubleSided){
-                    product.artworkFile = product.contentFile.split('.')[0] + "_2.pdf";
-                    product.customLabel.value = (i+1)+"-B";
-                    infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
-                        
-                    writeCSV(csvFile, infoArray, 1);
+                if(product.subprocess.name == "TensionStand"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf";
+                        product.customLabel.value = (i+1)+"-B";
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                            
+                        writeCSV(csvFile, infoArray, 1);
+                    }
                 }
                 
                 // Create the xml to inject the file into the flow.
