@@ -35,7 +35,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_material"){
             return specs = {
                 active: true,
-                value: parameter.replace(/"|'/g,''),
+                value: parameter.replace(/"|'/g,'')
             }
         }
 
