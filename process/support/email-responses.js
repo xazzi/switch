@@ -91,6 +91,13 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email, para
             cc = []
             bcc = [];
         break;
+        case "New Entry Failed":
+            subject = "New Table Entry Failed!";
+            body = "A new entry has failed when adding to the " + matInfo + " table!" + "\n\n" + parameter_1;
+            to = [sendTo.bret,sendTo.chelsea]
+            cc = []
+            bcc = [];
+        break;
         case "Item Notes":
             subject = "Item Notes: " + product.itemNumber;
             body = "These things happened to your gang:" + "\n\n" + itemNotes;
