@@ -510,8 +510,7 @@
                 "requirements":[
                     "Retractable",
                     "TableTop",
-                    "UV-Greyback",
-                    "MiniBannerStand"
+                    "UV-Greyback"
                 ],
                 "rejections":[]
             },

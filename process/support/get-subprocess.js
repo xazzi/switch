@@ -30,23 +30,22 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             if(dump.id == "undefined"){
                 dump.id = dump.subprocess
             }
-            /*
-            if(data.subprocess != null){
-                if(dump.name != data.subprocess){
-                    return settings = {
-                        name: dump.name,
-                        exists: null,
-                        mixed: null,
-                        undersize: null
-                    }
-                }
-            }
-            */
+            
             if(contains(subprocess, dump.id)){
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){
                             if(contains(dump.facility[j].processes, matInfo.prodName) || contains(dump.facility[j].processes, "All")){
+                                if(data.subprocess != null){
+                                    if(dump.name != data.subprocess){
+                                        return settings = {
+                                            name: dump.name,
+                                            exists: null,
+                                            mixed: null,
+                                            undersize: null
+                                        }
+                                    }
+                                }
                                 checkObject(s, dump.facility[j].overrides, matInfo, product, data, scale)
                                 return settings = {
                                     name: dump.name,
