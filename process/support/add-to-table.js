@@ -184,7 +184,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
 
         // If the parameter is not on the table, add it to the able and send an email.
         db_options.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
-        sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, null), userInfo);
+        sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, null, parameter), userInfo);
 
     return specs = {
         active: false,
