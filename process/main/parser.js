@@ -353,6 +353,11 @@ runParser = function(s, job){
                         data.phoenix.cutExport = "Auto_Solon";
                     }
                 }
+
+                if(!orderSpecs.ship.exists){
+                    data.notes.push(orderSpecs.jobItemId + ": Shipping data is missing, removed from gang.");
+                    continue;
+                }
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
@@ -446,6 +451,13 @@ runParser = function(s, job){
                 
                 // Once compiled, push to working array.
                 orderArray.push(orderSpecs);
+            }
+
+            if(orderArray.length == 0){
+                // Send the gang summary email.
+                data.notes.push("All files removed from gang!");
+                sendEmail_db(s, data, matInfo, getEmailResponse("Gang Notes", null, matInfo, data, userInfo, email), userInfo);
+                return
             }
             
             data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
