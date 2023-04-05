@@ -136,11 +136,18 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			specs.height = dataDump.height;
 			specs.facilityId = "facility_id" in dataDump ? dataDump.facility_id : undefined;
 			specs.facility = "facility" in dataDump ? dataDump.facility : undefined;
-			
-			specs.ship = {
-				methodCode: dataDump.job_item_shipping[0].shipping_method_code,
-				serviceCode: dataDump.job_item_shipping[0].shipping_service_code,
-				service: dataDump.job_item_shipping[0].shipping_service
+
+			try{
+				specs.ship = {
+					exists: true,
+					methodCode: dataDump.job_item_shipping[0].shipping_method_code,
+					serviceCode: dataDump.job_item_shipping[0].shipping_service_code,
+					service: dataDump.job_item_shipping[0].shipping_service
+				}
+			}catch(e){
+				specs.ship = {
+					exists: false
+				}
 			}
 
 			specs.date = {
