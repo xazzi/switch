@@ -15,12 +15,12 @@
             ],
             "overrides": {
                 "matInfo": {
-                    "prodName": "Busmark"
+                    "prodName": "FloorDecal"
                 },
                 "product": {
                 },
                 "data": {
-                    "prodMatFileName": "Busmark"
+                    "prodMatFileName": "FloorDecal"
                 }
             }
         }
