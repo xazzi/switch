@@ -3,6 +3,10 @@ var parent = []
 getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, subprocess){
     function readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess){
 
+        query.itemName = query.itemName.replace(/"/g,'\\"');
+        query.itemName = query.itemName.replace(/'/g,"\\'");
+        query.itemName = query.itemName.replace(/,/g,'\\,');
+
         var db_mapItem = new Statement(dbConn);
             db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
             db_mapItem.fetchRow();
