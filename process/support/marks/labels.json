@@ -612,7 +612,8 @@
                     "A-Frame",
                     "Breakaway",
                     "None",
-                    "Busmark"
+                    "Busmark",
+                    "FloorDecal"
                 ],
                 "rejections":[
                     "XY",
@@ -656,7 +657,8 @@
                     "A-Frame",
                     "Breakaway",
                     "None",
-                    "Busmark"
+                    "Busmark",
+                    "FloorDecal"
                 ],
                 "rejections":[
                     "13oz-Matte",

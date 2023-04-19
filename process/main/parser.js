@@ -288,10 +288,23 @@ runParser = function(s, job){
                     orderSpecs.facilityId = submit.facilityId;
                 }
 
+                // Material overrides
+                // -----------------------------------------------------------------------------------------
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
-                if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.id != "3,4" && orderSpecs.item.id != "4" && orderSpecs.item.value != "X-Stand Banners"){
+                if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
                     matInfoCheck = true;
                     orderSpecs.paper.map.wix = 51;
+                }
+
+                // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
+                if(orderSpecs.paper.map.wix == 73 && orderSpecs.material.value == "Adhesive Fabric"){
+                    matInfoCheck = true;
+                    orderSpecs.paper.map.wix = 68;
+                }
+
+                // 4mil with laminate need to print on Floor Decal
+                if(orderSpecs.paper.map.wix == 73 && orderSpecs.laminate.active == true){
+                    orderSpecs.paper.map.wix = 74;
                 }
                 
                 // Pull the material information if it hasn't been pulled yet.
@@ -300,7 +313,7 @@ runParser = function(s, job){
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.projectID + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material v1", null, orderSpecs, data, userInfo, null), userInfo);
-                        job.sendToNull(job.getPath());
+                        job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         return;
                     }
                     if(matInfo == "Paper Data Missing"){

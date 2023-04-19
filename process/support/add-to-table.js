@@ -42,7 +42,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 value: db_options.getString(1),
-                id: db_options.getString(4)
+                subprocess: db_options.getString(4)
             }
         }
 
