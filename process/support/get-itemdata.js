@@ -174,7 +174,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				specs.paper = addToTable(s, dbConn, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "MATRL"){
-				specs.material = addToTable(s, dbConn, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				//specs.material = addToTable(s, dbConn, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
 				specs.coating = addToTable(s, dbConn, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
@@ -240,6 +240,15 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				}
 			}
 		}
+
+		// Loop through the display specs.
+		for(var k=0; k<dataDump.display_specs.length; k++){
+			if(dataDump.display_specs[k].attribute_name == "Material"){
+				specs.material = addToTable(s, dbConn, "options_material", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null);
+			}
+		}
+
+		// Pull the active file id.
 		for(var k=0; k<dataDump.active_file.length; k++){
 			specs.fileID = dataDump.active_file[k].file_id
 		}
