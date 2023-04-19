@@ -933,6 +933,18 @@ runParser = function(s, job){
                         product.allowedRotations = 0;
                     }
                 }
+
+                // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
+                if(data.facility.destination == "Wixom"){
+                    if(product.doubleSided){
+                        if(orderArray[i].pocket.active){
+                            if(product.width*(scale.width/100) < usableArea.width){
+                                product.rotation = "None";
+                                product.allowedRotations = 0;
+                            }
+                        }
+                    }
+                }
                 
                 // Cut Vinyl adjustments (These should be moved to the database in the future)
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
