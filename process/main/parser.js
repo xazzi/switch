@@ -170,8 +170,8 @@ runParser = function(s, job){
                     cutExport: "Auto_SaltLakeCity",
                     gangLabel: []
                 },
-                //subprocess: [],
-                subprocess: null,
+                subprocess: [],
+                //subprocess: null,
                 mixed: null,
                 prodMatFileName: null,
                 cropGang: null,
@@ -634,14 +634,18 @@ runParser = function(s, job){
                 }
 
                 // Add the subprocess to the data level array if it's missing.
-                if(data.subprocess == null){
-                    data.subprocess = product.subprocess.name;
+                if(data.subprocess.length == 0){
+                    data.subprocess.push(product.subprocess.name);
+                    data.mixed = product.subprocess.mixed;
                 }
                 
                 // If the subprocess can't be mixed with the parent subprocess, continue on.
-                if(product.subprocess.name != data.subprocess){
-                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
-                    continue
+                if(!contains(data.subprocess, product.subprocess.name)){
+                    if(!data.mixed || !product.subprocess.mixed){
+                        data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
+                        continue
+                    }
+                    data.subprocess.push(product.subprocess.name);
                 }
                 
                 // Check for side deviation.
