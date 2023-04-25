@@ -7,7 +7,7 @@
             "name": "Salt Lake City",
             "id": "28",
             "enabled": true,
-            "mixed": true,
+            "mixed": false,
             "undersize": "Default",
             "processes": [
                 "Celtec",

@@ -35,11 +35,17 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                 dump.id = dump.subprocess
             }
             
+            // Find the correct subprocess support file.
             if(contains(subprocess, dump.id)){
+                // Loop through all of the facilities in the subprocess.
                 for(var j in dump.facility){
+                    // The facility has to have a subprocess assigned to it to advance.
                     if(dump.facility[j].id == query.facilityId){
+                        // If the facility is enabled, advance.
                         if(dump.facility[j].enabled){
+                            // Check that the process is a possible process for the subprocess.
                             if(contains(dump.facility[j].processes, matInfo.prodName) || contains(dump.facility[j].processes, "All")){
+                                /*
                                 if(data.subprocess != null){
                                     if(dump.name != data.subprocess){
                                         return settings = {
@@ -50,6 +56,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                                         }
                                     }
                                 }
+                                */
                                 checkObject(s, dump.facility[j].overrides, matInfo, product, data, scale)
                                 return settings = {
                                     name: dump.name,
