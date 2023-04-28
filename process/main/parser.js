@@ -151,6 +151,7 @@ runParser = function(s, job){
                 scale: "",
                 oversize: false,
                 thing: null,
+                printer: null,
                 rip: {
                     device: null,
                     hotfolder: null
@@ -328,6 +329,16 @@ runParser = function(s, job){
                 if(matInfo.forceLam){
                     orderSpecs.laminate.active = true
                 }
+
+                if(data.facility.destination == "Arlington"){
+                    if(matInfo.prodName == "13oz-Matte"){
+                        if(orderSpecs.width > 62 && orderSpecs.height > 62){
+                            matInfo.width = 126;
+                            matInfo.printer.name = "3200";
+                            matInfo.phoenixStock = "Roll_126";
+                        }
+                    }
+                }
                 
                 // Set the processes and subprocesses values and check if following items match it.
                 if(data.prodName == null){
@@ -349,6 +360,9 @@ runParser = function(s, job){
                     data.impositionProfile = matInfo.impositionProfile;
                     data.cropGang = matInfo.cropGang;
                     data.finishingType = orderSpecs.finishingType;
+
+                    data.printer = matInfo.printer.name;
+                    data.phoenixStock = matInfo.phoenixStock;
                     
                     // Data overrides and array pushes.
                     if(data.coating.active || data.laminate.active){
@@ -365,6 +379,11 @@ runParser = function(s, job){
                     if(data.facility.destination == "Solon"){
                         data.phoenix.cutExport = "Auto_Solon";
                     }
+                }
+
+                if(data.printer != matInfo.printer.name){
+                    data.notes.push(orderSpecs.jobItemId + ": Different printer " + matInfo.printer.name + ", removed from gang.");
+                    continue;
                 }
 
                 if(!orderSpecs.ship.exists){
@@ -385,10 +404,12 @@ runParser = function(s, job){
                 }
                 
                 // If finishing type is different, remove them from the gang.
-                if(!submit.override.mixedFinishing){
-                    if(data.finishingType != orderSpecs.finishingType){
-                        data.notes.push(orderSpecs.jobItemId + ": Different finishing type (" + orderSpecs.finishingType + "), removed from gang.");
-                        continue;
+                if(data.facility.destination != "Arlington"){
+                    if(!submit.override.mixedFinishing){
+                        if(data.finishingType != orderSpecs.finishingType){
+                            data.notes.push(orderSpecs.jobItemId + ": Different finishing type (" + orderSpecs.finishingType + "), removed from gang.");
+                            continue;
+                        }
                     }
                 }
                 
@@ -508,7 +529,7 @@ runParser = function(s, job){
                     coating: orderArray[i].coating.active ? true : orderArray[i].laminate.active ? true : false,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
-                    stock: matInfo.phoenixStock,
+                    stock: data.phoenixStock,
                     spacingBase: matInfo.spacing.base,
                     spacingTop: matInfo.spacing.top == undefined ? matInfo.spacing.base : matInfo.spacing.top,
                     spacingBottom: matInfo.spacing.bottom == undefined ? matInfo.spacing.base : matInfo.spacing.bottom,
@@ -625,10 +646,11 @@ runParser = function(s, job){
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
-                            s.log(3, orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang " + data.projectID + ".");
-                            data.notes.push(orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang.");
-                            sendEmail_db(s, data, matInfo, getEmailResponse("Oversized Weld", orderArray[i], matInfo, data, userInfo, null), userInfo);
-                            continue;
+                            if(orderArray[i].width >= 168 || orderArray[i].height >= 168){
+                                data.notes.push(orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang.");
+                                sendEmail_db(s, data, matInfo, getEmailResponse("Oversized Weld", orderArray[i], matInfo, data, userInfo, null), userInfo);
+                                continue;
+                            }
                         }
                     }
                 }
@@ -1041,8 +1063,8 @@ runParser = function(s, job){
                 }
                 
                 // Set the Phoenix printer (thing).
-                data.thing = data.facility.destination + "/" + matInfo.printer.name;
-                if(matInfo.printer.name != "None"){		 
+                data.thing = data.facility.destination + "/" + data.printer;
+                if(data.printer != "None"){		 
                     if(matInfo.type == "roll"){
                         if(data.scaled){
                             data.thing += "_10pct";
@@ -1255,7 +1277,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		handoffNode.appendChild(settingsNode);	
 	
 		addNode_db(theXML, settingsNode, "things", data.thing);
-		addNode_db(theXML, settingsNode, "printer", matInfo.printer.name);
+		addNode_db(theXML, settingsNode, "printer", data.printer);
 		addNode_db(theXML, settingsNode, "whiteink", matInfo.whiteElements);
 		addNode_db(theXML, settingsNode, "doublesided", data.doubleSided);
 		addNode_db(theXML, settingsNode, "secondsurf", data.secondSurface);

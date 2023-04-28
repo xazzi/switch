@@ -33,8 +33,8 @@
                     }
                 },
                 "product": {
-                    "rotation": "None",
-                    "allowedRotations": 0,
+                    "rotation": "Custom",
+                    "allowedRotations": "0,90",
                     "pageHandling": "OnePerPage",
                     "customLabel": {
                         "apply": true
@@ -42,7 +42,8 @@
                 },
                 "data": {
                     "impositionProfile": "Sheet",
-                    "prodMatFileName": "UV-Greyback"
+                    "prodMatFileName": "UV-Greyback",
+                    "printer": "512"
                 }
             }
         }

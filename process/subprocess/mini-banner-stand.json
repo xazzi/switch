@@ -28,7 +28,8 @@
                     }
                 },
                 "data": {
-                    "prodMatFileName": "10xMBS"
+                    "prodMatFileName": "10xMBS",
+                    "printer": "Epson"
                 },
                 "scale": {}
             }
@@ -58,7 +59,8 @@
                     }
                 },
                 "data": {
-                    "prodMatFileName": "10xMBS"
+                    "prodMatFileName": "10xMBS",
+                    "printer": "Epson"
                 },
                 "scale": {}
             }
