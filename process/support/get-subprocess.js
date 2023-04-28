@@ -45,18 +45,17 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                         if(dump.facility[j].enabled){
                             // Check that the process is a possible process for the subprocess.
                             if(contains(dump.facility[j].processes, matInfo.prodName) || contains(dump.facility[j].processes, "All")){
-                                /*
-                                if(data.subprocess != null){
-                                    if(dump.name != data.subprocess){
-                                        return settings = {
-                                            name: dump.name,
-                                            exists: null,
-                                            mixed: null,
-                                            undersize: null
-                                        }
+                                // If the subprocess does not allow mixed, not the first run through the array, and subprocess doesn't not match
+                                if(!dump.facility[j].mixed && data.mixed != null && !contains(data.subprocess, dump.name)){
+                                    return settings = {
+                                        name: dump.name,
+                                        exists: null,
+                                        mixed: null,
+                                        undersize: null
                                     }
                                 }
-                                */
+
+                                // Apply the subprocess overrides
                                 checkObject(s, dump.facility[j].overrides, matInfo, product, data, scale)
                                 return settings = {
                                     name: dump.name,

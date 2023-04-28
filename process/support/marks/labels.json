@@ -613,7 +613,9 @@
                     "Breakaway",
                     "None",
                     "Busmark",
-                    "FloorDecal"
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable"
                 ],
                 "rejections":[
                     "XY",
