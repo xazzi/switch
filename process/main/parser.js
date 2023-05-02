@@ -332,7 +332,7 @@ runParser = function(s, job){
 
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.prodName == "13oz-Matte"){
-                        if(orderSpecs.width > 62 && orderSpecs.height > 62){
+                        if(orderSpecs.width > 59 && orderSpecs.height > 59){
                             matInfo.width = 126;
                             matInfo.printer.name = "3200";
                             matInfo.phoenixStock = "Roll_126";
@@ -800,7 +800,11 @@ runParser = function(s, job){
                 if(product.width == 24 && product.height == 6){
                     product.subprocess.undersize = false;
                 }
+
+                scale.widthModifier = Math.round(product.width/file.width);
+                scale.heightModifier = Math.round(product.height/file.height);
                 
+                /*
                 // Material specific adjustments and settings.
                 if(matInfo.type == "roll"){
                     if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
@@ -833,6 +837,7 @@ runParser = function(s, job){
                         }
                     }
                 }
+                */
                 
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
