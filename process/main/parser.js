@@ -614,7 +614,7 @@ runParser = function(s, job){
                 }
                 
                 // Check for butt-weld processing
-                if(orderArray[i].hem.method == "Weld"){
+                if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
                     if(!orderArray[i].doubleSided){
                         product.query = "butt-weld";
                     }
