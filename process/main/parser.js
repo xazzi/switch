@@ -332,7 +332,7 @@ runParser = function(s, job){
 
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.prodName == "13oz-Matte"){
-                        if(orderSpecs.width > 62 && orderSpecs.height > 62){
+                        if(orderSpecs.width > 59 && orderSpecs.height > 59){
                             matInfo.width = 126;
                             matInfo.printer.name = "3200";
                             matInfo.phoenixStock = "Roll_126";
@@ -614,7 +614,7 @@ runParser = function(s, job){
                 }
                 
                 // Check for butt-weld processing
-                if(orderArray[i].hem.method == "Weld"){
+                if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
                     if(!orderArray[i].doubleSided){
                         product.query = "butt-weld";
                     }
