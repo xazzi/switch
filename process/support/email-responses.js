@@ -1,4 +1,4 @@
-getEmailResponse = function(query, product, matInfo, data, userInfo, email){
+getEmailResponse = function(query, product, matInfo, data, userInfo, email, parameter_1){
 
     var subject, body, to, cc, bcc;
     var itemNotes = "";
@@ -86,9 +86,15 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email){
         break;
         case "New Entry":
             subject = "New Table Entry!";
-            body = "A new entry has been added to the " + matInfo + " table!";
+            body = "A new entry has been added to the " + matInfo + " table!" + "\n\n" + parameter_1;
             to = [sendTo.bret,sendTo.chelsea]
-            //to = [sendTo.bret]
+            cc = []
+            bcc = [];
+        break;
+        case "New Entry Failed":
+            subject = "New Table Entry Failed!";
+            body = "A new entry has failed when adding to the " + matInfo + " table!" + "\n\n" + parameter_1;
+            to = [sendTo.bret,sendTo.chelsea]
             cc = []
             bcc = [];
         break;

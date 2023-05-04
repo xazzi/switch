@@ -7,8 +7,7 @@ setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
         // Create an array of the json files that need to be searched.
         var markFiles = [
             "sewn-hem.json",
-            "pockets.json",
-            //"day-labels.json"
+            "pockets.json"
         ]
 
         // Loop through that array to find any applicable marks.

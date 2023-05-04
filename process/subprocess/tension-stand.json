@@ -1,7 +1,7 @@
 {
     "subprocess": "tension-stand",
     "name": "TensionStand",
-    "id": 15,
+    "id": "15",
     "facility": [
         {
             "name": "Salt Lake City",
@@ -16,7 +16,7 @@
             "overrides": {
                 "matInfo": {
                     "cutter": {
-                        "hotfolder": "14"
+                        "hotfolder": "Tension Fabric no comp"
                     }
                 },
                 "product": {

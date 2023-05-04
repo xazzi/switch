@@ -1,5 +1,20 @@
 addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
+    var original = parameter
+
+        parameter = parameter.replace(/"/g,'\\"');
+        parameter = parameter.replace(/'/g,"\\'");
+        parameter = parameter.replace(/,/g,'\\,');
+
     var db_options = new Statement(dbConn);
+
+    // This logic is temporary, it's just to update existing entries in the tables to include the " and ' symbols
+    if(parameter.length != original.length){
+        db_options.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + original.replace(/"|'/g,'') + "';");
+        if(db_options.isRowAvailable()){
+            dbQuery.execute("UPDATE digital_room.`" + table + "` SET `parameter` = '" + parameter + "' WHERE (`parameter` = '" + original.replace(/"|'/g,'') + "');");
+        }
+    }
+
         db_options.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
 
     // If the parameter is found in the tables, return out of the function.
@@ -10,7 +25,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "specs_paper"){
             return specs = {
                 active: true,
-                value: parameter.replace(/"|'/g,''),
+                value: db_options.getString(1),
                 map: {
                     slc: Number(db_options.getString(4)),
                     bri: Number(db_options.getString(5)),
@@ -26,8 +41,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "specs_item-name"){
             return specs = {
                 active: true,
-                value: parameter.replace(/"|'/g,''),
-                id: db_options.getString(4)
+                value: db_options.getString(1),
+                subprocess: db_options.getString(4)
             }
         }
 
@@ -35,7 +50,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_material"){
             return specs = {
                 active: true,
-                value: parameter.replace(/"|'/g,'')
+                value: db_options.getString(1)
             }
         }
 
@@ -44,7 +59,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter
+                value: db_options.getString(1)
             }
         }
 
@@ -53,7 +68,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter,
+                value: db_options.getString(1),
                 undersize: db_options.getString(5) == 1
             }
         }
@@ -63,7 +78,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter
+                value: db_options.getString(1)
             }
         }
 
@@ -72,7 +87,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter
+                value: db_options.getString(1)
             }
         }
 
@@ -90,7 +105,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
                 active: true,
                 method: db_options.getString(4),
                 webbing: db_options.getString(5) == "y" ? true : false,
-                value: parameter.replace(/"/g,'')
+                value: db_options.getString(1)
             }
         }
 
@@ -100,7 +115,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
                 active: true,
                 method: db_options.getString(4),
                 size: db_options.getString(5),
-                value: parameter.replace(/"/g,'')
+                value: db_options.getString(1)
             }
         }
 
@@ -109,7 +124,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: db_options.getString(4) == "None" ? false : true,
                 method: db_options.getString(4),
-                value: parameter
+                value: db_options.getString(1)
             }
         }
 
@@ -118,7 +133,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: db_options.getString(4) == "None" ? false : true,
                 method: db_options.getString(4),
-                value: parameter
+                value: db_options.getString(1)
             }
         }
 
@@ -127,7 +142,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter.replace(/,/g,'')
+                value: db_options.getString(1)
             }
         }
 
@@ -136,7 +151,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter.replace(/,/g,'')
+                value: db_options.getString(1)
             }
         }
 
@@ -145,7 +160,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter
+                value: db_options.getString(1)
             }
         }
 
@@ -154,7 +169,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter.replace(/"|'/g,'')
+                value: db_options.getString(1)
             }
         }
 
@@ -163,7 +178,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter.replace(/"|'/g,'')
+                value: db_options.getString(1)
             }
         }
 
@@ -172,7 +187,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: parameter
+                value: db_options.getString(1)
             }
         }
 
@@ -184,7 +199,13 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
 
         // If the parameter is not on the table, add it to the able and send an email.
         db_options.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
-        sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, null), userInfo);
+        
+        db_options.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
+        if(db_options.isRowAvailable()){
+            sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, null, parameter), userInfo);
+        }else{
+            sendEmail_db(s, data, null, getEmailResponse("New Entry Failed", null, table, data, userInfo, null, parameter), userInfo);
+        }
 
     return specs = {
         active: false,
@@ -192,6 +213,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         value: null,
         size: null,
         webbing: null,
-        undersize: null
+        undersize: null,
+        key: null
     }
 }

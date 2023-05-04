@@ -10,7 +10,8 @@
             "mixed": false,
             "undersize": true,
             "processes": [
-                "13ozBanner"
+                "13ozBanner",
+                "Celtec"
             ],
             "overrides": {
             }

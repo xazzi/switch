@@ -3,6 +3,10 @@ var parent = []
 getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, subprocess){
     function readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess){
 
+        query.itemName = query.itemName.replace(/"/g,'\\"');
+        query.itemName = query.itemName.replace(/'/g,"\\'");
+        query.itemName = query.itemName.replace(/,/g,'\\,');
+
         var db_mapItem = new Statement(dbConn);
             db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
             db_mapItem.fetchRow();
@@ -30,23 +34,28 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             if(dump.id == "undefined"){
                 dump.id = dump.subprocess
             }
-            /*
-            if(data.subprocess != null){
-                if(dump.name != data.subprocess){
-                    return settings = {
-                        name: dump.name,
-                        exists: null,
-                        mixed: null,
-                        undersize: null
-                    }
-                }
-            }
-            */
+            
+            // Find the correct subprocess support file.
             if(contains(subprocess, dump.id)){
+                // Loop through all of the facilities in the subprocess.
                 for(var j in dump.facility){
+                    // The facility has to have a subprocess assigned to it to advance.
                     if(dump.facility[j].id == query.facilityId){
+                        // If the facility is enabled, advance.
                         if(dump.facility[j].enabled){
+                            // Check that the process is a possible process for the subprocess.
                             if(contains(dump.facility[j].processes, matInfo.prodName) || contains(dump.facility[j].processes, "All")){
+                                // If the subprocess does not allow mixed, not the first run through the array, and subprocess doesn't not match
+                                if(!dump.facility[j].mixed && data.mixed != null && !contains(data.subprocess, dump.name)){
+                                    return settings = {
+                                        name: dump.name,
+                                        exists: null,
+                                        mixed: null,
+                                        undersize: null
+                                    }
+                                }
+
+                                // Apply the subprocess overrides
                                 checkObject(s, dump.facility[j].overrides, matInfo, product, data, scale)
                                 return settings = {
                                     name: dump.name,

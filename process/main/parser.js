@@ -151,6 +151,7 @@ runParser = function(s, job){
                 scale: "",
                 oversize: false,
                 thing: null,
+                printer: null,
                 rip: {
                     device: null,
                     hotfolder: null
@@ -170,8 +171,8 @@ runParser = function(s, job){
                     cutExport: "Auto_SaltLakeCity",
                     gangLabel: []
                 },
-                //subprocess: [],
-                subprocess: null,
+                subprocess: [],
+                //subprocess: null,
                 mixed: null,
                 prodMatFileName: null,
                 cropGang: null,
@@ -288,10 +289,23 @@ runParser = function(s, job){
                     orderSpecs.facilityId = submit.facilityId;
                 }
 
+                // Material overrides
+                // -----------------------------------------------------------------------------------------
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
-                if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.id != "3,4" && orderSpecs.item.id != "4" && orderSpecs.item.value != "X-Stand Banners"){
+                if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
                     matInfoCheck = true;
                     orderSpecs.paper.map.wix = 51;
+                }
+
+                // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
+                if(orderSpecs.paper.map.wix == 73 && orderSpecs.material.value == "Adhesive Fabric"){
+                    matInfoCheck = true;
+                    orderSpecs.paper.map.wix = 68;
+                }
+
+                // 4mil with laminate need to print on Floor Decal
+                if(orderSpecs.paper.map.wix == 73 && orderSpecs.laminate.active == true){
+                    orderSpecs.paper.map.wix = 74;
                 }
                 
                 // Pull the material information if it hasn't been pulled yet.
@@ -300,7 +314,7 @@ runParser = function(s, job){
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.projectID + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material v1", null, orderSpecs, data, userInfo, null), userInfo);
-                        job.sendToNull(job.getPath());
+                        job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         return;
                     }
                     if(matInfo == "Paper Data Missing"){
@@ -314,6 +328,16 @@ runParser = function(s, job){
                 // Enable the force laminate override
                 if(matInfo.forceLam){
                     orderSpecs.laminate.active = true
+                }
+
+                if(data.facility.destination == "Arlington"){
+                    if(matInfo.prodName == "13oz-Matte"){
+                        if(orderSpecs.width > 59 && orderSpecs.height > 59){
+                            matInfo.width = 126;
+                            matInfo.printer.name = "3200";
+                            matInfo.phoenixStock = "Roll_126";
+                        }
+                    }
                 }
                 
                 // Set the processes and subprocesses values and check if following items match it.
@@ -336,6 +360,9 @@ runParser = function(s, job){
                     data.impositionProfile = matInfo.impositionProfile;
                     data.cropGang = matInfo.cropGang;
                     data.finishingType = orderSpecs.finishingType;
+
+                    data.printer = matInfo.printer.name;
+                    data.phoenixStock = matInfo.phoenixStock;
                     
                     // Data overrides and array pushes.
                     if(data.coating.active || data.laminate.active){
@@ -353,6 +380,16 @@ runParser = function(s, job){
                         data.phoenix.cutExport = "Auto_Solon";
                     }
                 }
+
+                if(data.printer != matInfo.printer.name){
+                    data.notes.push(orderSpecs.jobItemId + ": Different printer " + matInfo.printer.name + ", removed from gang.");
+                    continue;
+                }
+
+                if(!orderSpecs.ship.exists){
+                    data.notes.push(orderSpecs.jobItemId + ": Shipping data is missing, removed from gang.");
+                    continue;
+                }
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
@@ -367,10 +404,12 @@ runParser = function(s, job){
                 }
                 
                 // If finishing type is different, remove them from the gang.
-                if(!submit.override.mixedFinishing){
-                    if(data.finishingType != orderSpecs.finishingType){
-                        data.notes.push(orderSpecs.jobItemId + ": Different finishing type (" + orderSpecs.finishingType + "), removed from gang.");
-                        continue;
+                if(data.facility.destination != "Arlington"){
+                    if(!submit.override.mixedFinishing){
+                        if(data.finishingType != orderSpecs.finishingType){
+                            data.notes.push(orderSpecs.jobItemId + ": Different finishing type (" + orderSpecs.finishingType + "), removed from gang.");
+                            continue;
+                        }
                     }
                 }
                 
@@ -447,6 +486,13 @@ runParser = function(s, job){
                 // Once compiled, push to working array.
                 orderArray.push(orderSpecs);
             }
+
+            if(orderArray.length == 0){
+                // Send the gang summary email.
+                data.notes.push("All files removed from gang!");
+                sendEmail_db(s, data, matInfo, getEmailResponse("Gang Notes", null, matInfo, data, userInfo, email), userInfo);
+                return
+            }
             
             data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
             data.sku = skuGenerator(3, "numeric", data, dbConn);
@@ -483,7 +529,7 @@ runParser = function(s, job){
                     coating: orderArray[i].coating.active ? true : orderArray[i].laminate.active ? true : false,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
-                    stock: matInfo.phoenixStock,
+                    stock: data.phoenixStock,
                     spacingBase: matInfo.spacing.base,
                     spacingTop: matInfo.spacing.top == undefined ? matInfo.spacing.base : matInfo.spacing.top,
                     spacingBottom: matInfo.spacing.bottom == undefined ? matInfo.spacing.base : matInfo.spacing.bottom,
@@ -568,7 +614,7 @@ runParser = function(s, job){
                 }
                 
                 // Check for butt-weld processing
-                if(orderArray[i].hem.method == "Weld"){
+                if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
                     if(!orderArray[i].doubleSided){
                         product.query = "butt-weld";
                     }
@@ -600,23 +646,28 @@ runParser = function(s, job){
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
-                            s.log(3, orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang " + data.projectID + ".");
-                            data.notes.push(orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang.");
-                            sendEmail_db(s, data, matInfo, getEmailResponse("Oversized Weld", orderArray[i], matInfo, data, userInfo, null), userInfo);
-                            continue;
+                            if(orderArray[i].width >= 168 || orderArray[i].height >= 168){
+                                data.notes.push(orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang.");
+                                sendEmail_db(s, data, matInfo, getEmailResponse("Oversized Weld", orderArray[i], matInfo, data, userInfo, null), userInfo);
+                                continue;
+                            }
                         }
                     }
                 }
 
                 // Add the subprocess to the data level array if it's missing.
-                if(data.subprocess == null){
-                    data.subprocess = product.subprocess.name;
+                if(data.subprocess.length == 0){
+                    data.subprocess.push(product.subprocess.name);
+                    data.mixed = product.subprocess.mixed;
                 }
                 
                 // If the subprocess can't be mixed with the parent subprocess, continue on.
-                if(product.subprocess.name != data.subprocess){
-                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
-                    continue
+                if(!contains(data.subprocess, product.subprocess.name)){
+                    if(!data.mixed || !product.subprocess.mixed){
+                        data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
+                        continue
+                    }
+                    data.subprocess.push(product.subprocess.name);
                 }
                 
                 // Check for side deviation.
@@ -749,7 +800,11 @@ runParser = function(s, job){
                 if(product.width == 24 && product.height == 6){
                     product.subprocess.undersize = false;
                 }
+
+                scale.widthModifier = Math.round(product.width/file.width);
+                scale.heightModifier = Math.round(product.height/file.height);
                 
+                /*
                 // Material specific adjustments and settings.
                 if(matInfo.type == "roll"){
                     if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
@@ -782,6 +837,7 @@ runParser = function(s, job){
                         }
                     }
                 }
+                */
                 
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
@@ -908,6 +964,18 @@ runParser = function(s, job){
                         product.allowedRotations = 0;
                     }
                 }
+
+                // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
+                if(data.facility.destination == "Wixom"){
+                    if(product.doubleSided){
+                        if(orderArray[i].pocket.active){
+                            if(product.width*(scale.width/100) < usableArea.width){
+                                product.rotation = "None";
+                                product.allowedRotations = 0;
+                            }
+                        }
+                    }
+                }
                 
                 // Cut Vinyl adjustments (These should be moved to the database in the future)
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
@@ -1000,8 +1068,8 @@ runParser = function(s, job){
                 }
                 
                 // Set the Phoenix printer (thing).
-                data.thing = data.facility.destination + "/" + matInfo.printer.name;
-                if(matInfo.printer.name != "None"){		 
+                data.thing = data.facility.destination + "/" + data.printer;
+                if(data.printer != "None"){		 
                     if(matInfo.type == "roll"){
                         if(data.scaled){
                             data.thing += "_10pct";
@@ -1214,7 +1282,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		handoffNode.appendChild(settingsNode);	
 	
 		addNode_db(theXML, settingsNode, "things", data.thing);
-		addNode_db(theXML, settingsNode, "printer", matInfo.printer.name);
+		addNode_db(theXML, settingsNode, "printer", data.printer);
 		addNode_db(theXML, settingsNode, "whiteink", matInfo.whiteElements);
 		addNode_db(theXML, settingsNode, "doublesided", data.doubleSided);
 		addNode_db(theXML, settingsNode, "secondsurf", data.secondSurface);

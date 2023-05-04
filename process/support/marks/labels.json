@@ -510,8 +510,7 @@
                 "requirements":[
                     "Retractable",
                     "TableTop",
-                    "UV-Greyback",
-                    "MiniBannerStand"
+                    "UV-Greyback"
                 ],
                 "rejections":[]
             },
@@ -613,7 +612,10 @@
                     "A-Frame",
                     "Breakaway",
                     "None",
-                    "Busmark"
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable"
                 ],
                 "rejections":[
                     "XY",
@@ -657,7 +659,8 @@
                     "A-Frame",
                     "Breakaway",
                     "None",
-                    "Busmark"
+                    "Busmark",
+                    "FloorDecal"
                 ],
                 "rejections":[
                     "13oz-Matte",

@@ -8,7 +8,6 @@ runProcessor = function(s, job){
             // Read in any support directories
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/general-functions.js"));
-            eval(File.read(dir.support + "/info-user.js"));
             eval(File.read(dir.support + "/email-responses.js"));
             
             var environment = s.getPropertyValue("environment");

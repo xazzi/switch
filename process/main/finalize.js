@@ -77,6 +77,11 @@ runFinalize = function(s, job){
                         name.subprocess = "Backdrop";
                     }
                 }
+
+                // FloorDecal
+                if(handoffData.process == "FloorDecal"){
+                    handoffData.laminate = ""
+                }
             
                 // Date and side information
                 data.dateID = date.getMonth() + "-" + date.getDate();

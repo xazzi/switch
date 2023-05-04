@@ -1,0 +1,29 @@
+{
+    "subprocess": "floordecal",
+    "name": "FloorDecal",
+    "id": "13",
+    "facility": [
+        {
+            "name": "Salt Lake City",
+            "id": "28",
+            "enabled": true,
+            "mixed": false,
+            "undersize": "Default",
+            "processes": [
+                "4milWall",
+                "Busmark",
+                "FloorDecal"
+            ],
+            "overrides": {
+                "matInfo": {
+                    "prodName": "FloorDecal"
+                },
+                "product": {
+                },
+                "data": {
+                    "prodMatFileName": "FloorDecal"
+                }
+            }
+        }
+    ]
+}
