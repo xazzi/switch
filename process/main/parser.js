@@ -54,7 +54,8 @@ runParser = function(s, job){
                     priority: 0,
                     date: false,
                     redownload: false,
-                    forceFullsize: false
+                    forceFullsize: false,
+                    gangMethod: null
                 }
             }
                 
@@ -74,6 +75,11 @@ runParser = function(s, job){
                 // Finishing separation field.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Redownload file?"){
                     submit.override.redownload = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                }
+
+                // Finishing separation field.
+                if(submit.nodes.getItem(i).evalToString('tag') == "Gang Method"){
+                    submit.override.gangMethod = submit.nodes.getItem(i).evalToString('value')
                 }
                 
                 // Due date override
@@ -172,7 +178,6 @@ runParser = function(s, job){
                     gangLabel: []
                 },
                 subprocess: [],
-                //subprocess: null,
                 mixed: null,
                 prodMatFileName: null,
                 cropGang: null,
@@ -493,6 +498,10 @@ runParser = function(s, job){
                 sendEmail_db(s, data, matInfo, getEmailResponse("Gang Notes", null, matInfo, data, userInfo, email), userInfo);
                 return
             }
+
+            if(data.impositionProfile == "Sheet"){
+                data.impositionProfile += "_" + submit.override.gangMethod
+            }
             
             data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
             data.sku = skuGenerator(3, "numeric", data, dbConn);
@@ -709,7 +718,8 @@ runParser = function(s, job){
                 // Gather the source file options
                 var file = {
                     source: new File(watermarkDrive + "/" + product.contentFile),
-                    depository: new File("//10.21.71.213/Storage/pdfDepository/" + product.contentFile)
+                    depository: new File("//10.21.71.213/Storage/pdfDepository/" + product.contentFile),
+                    data: false
                 }
                     
                 // Do we need to transfer the file from the depository?
@@ -726,7 +736,7 @@ runParser = function(s, job){
                         continue;
                     }
                 }
-                
+
                 // Check if the sizes need to be flipped to standard WxH format.
                 if(product.subprocess.name != "A-Frame" && data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     try{
@@ -767,6 +777,8 @@ runParser = function(s, job){
                             product.height = temp.width;
                         }
 
+                        file.data = true;
+
                     }catch(e){
                         data.notes.push(product.itemNumber + ": File statistics do not exist, can't confirm orientation, please verify in gang.");
                     }
@@ -801,43 +813,44 @@ runParser = function(s, job){
                     product.subprocess.undersize = false;
                 }
 
-                scale.widthModifier = Math.round(product.width/file.width);
-                scale.heightModifier = Math.round(product.height/file.height);
-                
-                /*
-                // Material specific adjustments and settings.
-                if(matInfo.type == "roll"){
-                    if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
-                        if(product.width >= 198 || product.height >= 198){
-                            scale.widthModifier = 2;
-                            scale.heightModifier = 2;
+                // If the file data exists then determine the scale of the file by using smart scale.
+                if(file.data){
+                    scale.widthModifier = Math.round(product.width/file.width);
+                    scale.heightModifier = Math.round(product.height/file.height);
+
+                // Otherwise determine the scale of the file by using the logic Prepress should be following as well.
+                }else{
+                    if(matInfo.type == "roll"){
+                        if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
+                            if(product.width >= 198 || product.height >= 198){
+                                scale.widthModifier = 2;
+                                scale.heightModifier = 2;
+                            }
+                            if(product.width >= 398 || product.height >= 398){
+                                scale.widthModifier = 4;
+                                scale.heightModifier = 4;
+                            }
+                            if(product.width >= 797 || product.height >= 797){
+                                scale.widthModifier = 10;
+                                scale.heightModifier = 10;
+                            }
                         }
-                        if(product.width >= 398 || product.height >= 398){
-                            scale.widthModifier = 4;
-                            scale.heightModifier = 4;
-                        }
-                        if(product.width >= 797 || product.height >= 797){
-                            scale.widthModifier = 10;
-                            scale.heightModifier = 10;
-                        }
-                    }
-                        
-                    if(data.facility.destination == "Van Nuys" || data.facility.destination == "Arlington"){
-                        if(product.width >= 144 || product.height >= 144){
-                            scale.widthModifier = 2;
-                            scale.heightModifier = 2;
-                        }
-                        if(product.width >= 287 || product.height >= 287){
-                            scale.widthModifier = 4;
-                            scale.heightModifier = 4;
-                        }
-                        if(product.width >= 573 || product.height >= 573){
-                            scale.widthModifier = 10;
-                            scale.heightModifier = 10;
+                        if(data.facility.destination == "Van Nuys" || data.facility.destination == "Arlington"){
+                            if(product.width >= 144 || product.height >= 144){
+                                scale.widthModifier = 2;
+                                scale.heightModifier = 2;
+                            }
+                            if(product.width >= 287 || product.height >= 287){
+                                scale.widthModifier = 4;
+                                scale.heightModifier = 4;
+                            }
+                            if(product.width >= 573 || product.height >= 573){
+                                scale.widthModifier = 10;
+                                scale.heightModifier = 10;
+                            }
                         }
                     }
                 }
-                */
                 
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
