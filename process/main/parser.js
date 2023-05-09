@@ -786,6 +786,7 @@ runParser = function(s, job){
                 
                 if(product.subprocess.name == "Breakaway"){
                     // Read stats from the file...
+                    file.data = false;
                     file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
                     file.pages = file.stats.getNumber("NumberOfPages");
                     if(file.pages != 2){
@@ -1095,6 +1096,11 @@ runParser = function(s, job){
                     if(product.subprocess.name == "ButtCut"){
                         data.thing += "_ButtCut";
                     }
+                }
+
+                // REMOVE ME
+                if(data.thing == "Agfa"){
+                    data.thing = data.thing + "_New"
                 }
 
                 if(product.width > usableArea.width && product.height > usableArea.width){
