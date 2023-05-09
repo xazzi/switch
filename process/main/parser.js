@@ -498,10 +498,6 @@ runParser = function(s, job){
                 sendEmail_db(s, data, matInfo, getEmailResponse("Gang Notes", null, matInfo, data, userInfo, email), userInfo);
                 return
             }
-
-            if(data.impositionProfile == "Sheet"){
-                data.impositionProfile += "_" + submit.override.gangMethod
-            }
             
             data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
             data.sku = skuGenerator(3, "numeric", data, dbConn);
@@ -1176,6 +1172,10 @@ runParser = function(s, job){
                 if(!dbQuery.isRowAvailable()){
                     dbQuery.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
                 }
+            }
+
+            if(data.impositionProfile == "Sheet" || data.impositionProfile == "Roll"){
+                data.impositionProfile += "_" + submit.override.gangMethod
             }
             
             // Send the gang summary email.
