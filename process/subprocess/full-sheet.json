@@ -25,7 +25,9 @@
                     "rotation": "Orthogonal"
                 },
                 "data": {
-                    "impositionProfile": "Sheet"
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    }
                 },
                 "scale": {
                     "locked": true

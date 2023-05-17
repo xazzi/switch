@@ -23,7 +23,9 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "impositionProfile": "Sheet",
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
                     "prodMatFileName": "A-Frame-DE"
                 }   
             }
