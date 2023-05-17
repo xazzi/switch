@@ -25,7 +25,9 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "impositionProfile": "Sheet",
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
                     "prodMatFileName": "A-Frame"
                 }   
             }
@@ -52,7 +54,9 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "impositionProfile": "Sheet",
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
                     "prodMatFileName": "A-Frame-Cor"
                 }  
             }
@@ -79,7 +83,9 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "impositionProfile": "Sheet",
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
                     "prodMatFileName": "A-Frame-Cor"
                 }  
             }

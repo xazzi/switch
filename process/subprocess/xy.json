@@ -24,7 +24,9 @@
                 },
                 "data": {
                     "cropGang": true,
-                    "impositionProfile": "XY"
+                    "impositionProfile": {
+                        "name": "XY"
+                    }
                 }
             }
         }

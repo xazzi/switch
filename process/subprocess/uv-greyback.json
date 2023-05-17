@@ -41,7 +41,9 @@
                     }
                 },
                 "data": {
-                    "impositionProfile": "Sheet",
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
                     "prodMatFileName": "UV-Greyback",
                     "printer": "512"
                 }
