@@ -59,7 +59,8 @@
             "undersize": "Default",
             "processes": [
                 "13oz-Matte",
-                "13oz-Smooth"
+                "13oz-Smooth",
+                "UV-Fabric"
             ],
             "overrides": {
                 "matInfo": {
