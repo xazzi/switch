@@ -54,7 +54,10 @@ runParser = function(s, job){
                     priority: 0,
                     date: false,
                     redownload: false,
-                    forceFullsize: false,
+                    fullsize: {
+                        gang: false,
+                        items: []
+                    },
                     gangMethod: null
                 }
             }
@@ -66,7 +69,7 @@ runParser = function(s, job){
                         submit.rotation = submit.nodes.getItem(i).evalToString("field-list/field/value").split(',');
                     }
                 }
-                
+
                 // Finishing separation field.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix finishing?"){
                     submit.override.mixedFinishing = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
@@ -87,9 +90,14 @@ runParser = function(s, job){
                     submit.override.date = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
-                // Undersize override
+                // Fullsize override
                 if(submit.nodes.getItem(i).evalToString('tag') == "Force fullsize?"){
-                    submit.override.forceFullsize = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                    if(submit.nodes.getItem(i).evalToString('value') == "All items"){
+                        submit.override.fullsize.gang = true;
+                    }
+                    if(submit.nodes.getItem(i).evalToString('value') == "Specific items"){
+                        submit.override.fullsize.items = submit.nodes.getItem(i).evalToString("field-list/field/value").split(',');
+                    }
                 }
 
                 // Finishing separation field.
@@ -343,6 +351,14 @@ runParser = function(s, job){
                             matInfo.phoenixStock = "Roll_126";
                         }
                     }
+                    /*
+                    if(matInfo.prodName == "13oz-PolyFilm"){
+                        if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
+                            matInfo.width = 53;
+                            matInfo.phoenixStock = "Roll_53";
+                        }
+                    }
+                    */
                 }
                 
                 // Set the processes and subprocesses values and check if following items match it.
@@ -362,7 +378,11 @@ runParser = function(s, job){
                     data.rip.device = matInfo.rip.device;
                     data.rip.hotfolder = data.secondSurface ? matInfo.rip.hotfolder + "-2ndSurf" : matInfo.rip.hotfolder;
                     
-                    data.impositionProfile = matInfo.impositionProfile;
+                    data.impositionProfile = {
+                        name: matInfo.impositionProfile,
+                        method: "Default (" + matInfo.phoenixMethodUserFriendly + ")"
+                    }
+
                     data.cropGang = matInfo.cropGang;
                     data.finishingType = orderSpecs.finishingType;
 
@@ -853,7 +873,7 @@ runParser = function(s, job){
                 // General automated scaling for when approaching material dims.
                 // Not for undersizing to force better yield.
                 if(!scale.locked){
-                    if(!submit.override.forceFullsize){
+                    if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(!data.oversize && !data.scaled){
                             if(product.width > product.height){
                                 if(product.width >= usableArea.height){
@@ -893,25 +913,28 @@ runParser = function(s, job){
                 }
                 
                 // If the product can be undersized...
-                if(product.subprocess.undersize && matInfo.forceUndersize == true && !submit.override.forceFullsize){
-                        dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
-                    if(dbQuery.isRowAvailable()){
-                        dbQuery.fetchRow();
-                        scale.width = dbQuery.getString(3)/dbQuery.getString(2)*100;
-                        scale.adjusted = true;
-                    }
-                    
-                        dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
-                    if(dbQuery.isRowAvailable()){
-                        dbQuery.fetchRow();
-                        scale.height = dbQuery.getString(3)/dbQuery.getString(2)*100;
-                        scale.adjusted = true;
+                // This checks if the material info database is asking to undersize.
+                if(product.subprocess.undersize && matInfo.forceUndersize == true){
+                    if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+                            dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
+                        if(dbQuery.isRowAvailable()){
+                            dbQuery.fetchRow();
+                            scale.width = dbQuery.getString(3)/dbQuery.getString(2)*100;
+                            scale.adjusted = true;
+                        }
+                        
+                            dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
+                        if(dbQuery.isRowAvailable()){
+                            dbQuery.fetchRow();
+                            scale.height = dbQuery.getString(3)/dbQuery.getString(2)*100;
+                            scale.adjusted = true;
+                        }
                     }
                 }
                 
                 // Retractable undersizing so it fits in the stand easier.
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
-                    if(!submit.override.forceFullsize){
+                    if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
                             scale.width = 23.5/product.width*100;
                             data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
@@ -925,18 +948,20 @@ runParser = function(s, job){
                 
                 // Backdrop undersizing for shipping purposes
                 if(product.subprocess.name == "Backdrop"){
-                    if(product.subprocess.undersize && !submit.override.forceFullsize){
-                        if(file.width == product.width){
-                            // Width == 96
-                            if(product.width == "96"){
-                                scale.width = 94/product.width*100;
-                                data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
-                            }
-                            // Height == 96
-                            if(product.width != product.height){
-                                if(product.height == "96"){
-                                    scale.height = 94/product.height*100;
-                                    data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                    if(product.subprocess.undersize){
+                        if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+                            if(file.width == product.width){
+                                // Width == 96
+                                if(product.width == "96"){
+                                    scale.width = 94/product.width*100;
+                                    data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
+                                }
+                                // Height == 96
+                                if(product.width != product.height){
+                                    if(product.height == "96"){
+                                        scale.height = 94/product.height*100;
+                                        data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                                    }
                                 }
                             }
                         }
@@ -1015,11 +1040,9 @@ runParser = function(s, job){
                 // Tension Stands
                 if(product.subprocess.name == "TensionStand"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
-                    //product.dieDesignSource = "DieDesignLibrary";
                     product.dieDesignName = product.width + "x" + product.height;
-                    //product.subprocess.name = "Tension Stand";
                     product.customLabel.value = (i+1)+"-F";
-                    data.impositionProfile = "TensionStands";
+                    data.impositionProfile.name = "TensionStands";
                     marksArray.push(data.facility.destination + "/Misc/TensionStand-Label");
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
@@ -1041,11 +1064,11 @@ runParser = function(s, job){
                 if(data.scaled){
                     scale.width = scale.width/10;
                     scale.height = scale.height/10;
-                    product.spacingBase = matInfo.spacing.base/10;
-                    product.spacingTop = matInfo.spacing.top/10;
-                    product.spacingBottom = matInfo.spacing.bottom/10;
-                    product.spacingLeft = matInfo.spacing.left/10;
-                    product.spacingRight = matInfo.spacing.right/10;
+                    product.spacingBase = product.spacingBase/10;
+                    product.spacingTop = product.spacingTop/10;
+                    product.spacingBottom = product.spacingBottom/10;
+                    product.spacingLeft = product.spacingLeft/10;
+                    product.spacingRight = product.spacingRight/10;
                     product.bleed = matInfo.bleed/10;
                     data.notes.push(product.itemNumber + ': Scaled file, please verify accuracy in report. (' + Math.round(scale.height) + '%)');
                 }
@@ -1092,11 +1115,6 @@ runParser = function(s, job){
                     if(product.subprocess.name == "ButtCut"){
                         data.thing += "_ButtCut";
                     }
-                }
-
-                // REMOVE ME
-                if(data.thing == "Agfa"){
-                    data.thing = data.thing + "_New"
                 }
 
                 if(product.width > usableArea.width && product.height > usableArea.width){
@@ -1174,8 +1192,23 @@ runParser = function(s, job){
                 }
             }
 
-            if(data.impositionProfile == "Sheet" || data.impositionProfile == "Roll"){
-                data.impositionProfile += "_" + submit.override.gangMethod
+            // Adjust the imposition profile based on overrides from the user.
+            if(data.impositionProfile.name == "Sheet" || data.impositionProfile.name == "Roll"){
+                if(submit.override.gangMethod == "Default"){
+                    data.impositionProfile.name += "_" + matInfo.phoenixMethod;
+                }
+                if(submit.override.gangMethod == "Production Efficiency"){
+                    data.impositionProfile.name += "_Standard";
+                    data.impositionProfile.method = "Production Efficiency";
+                }
+                if(submit.override.gangMethod == "Material Usage"){
+                    data.impositionProfile.name += "_Layout by Layout";
+                    data.impositionProfile.method = "Material Usage";
+                }
+                if(submit.override.gangMethod == "User Defined"){
+                    data.impositionProfile.name += "_Sequential"
+                    data.impositionProfile.method = "User Defined";
+                }
             }
             
             // Send the gang summary email.
@@ -1307,7 +1340,8 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		addNode_db(theXML, settingsNode, "secondsurf", data.secondSurface);
 		addNode_db(theXML, settingsNode, "laminate", data.coating.active ? true : data.laminate.active ? true : false);
 		addNode_db(theXML, settingsNode, "mount", data.mount.active);
-		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile);
+		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
+        addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
 		addNode_db(theXML, settingsNode, "scaled", data.scaled);
 	
 	var mountNode = theXML.createElement("mount", null);
