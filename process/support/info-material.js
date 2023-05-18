@@ -48,7 +48,7 @@ getMatInfo = function(orderSpecs, dbConn_material){
         allowedRotations: db_material.getString(14),
         impositionProfile: db_material.getString(15),
         phoenixMethod: db_material.getString(35),
-        phoenixMethodUserFriendly: db_material.getString(35),
+        phoenixMethodUserFriendly: db_material.getString(36),
         grade: db_material.getString(16),
         bleedType: db_material.getString(17),
 
