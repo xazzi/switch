@@ -1,4 +1,4 @@
-getMatInfo = function(orderSpecs, dbConn){
+getMatInfo = function(orderSpecs, dbConn_material){
 
     // Get the paper mapping ID for the specific facility.
     var paperMapId
@@ -17,7 +17,7 @@ getMatInfo = function(orderSpecs, dbConn){
     }
     
     // Pull the material defaults based on the facility mapping ID.
-    var db_material = new Statement(dbConn);
+    var db_material = new Statement(dbConn_material);
         db_material.execute('CALL digital_room.getMaterial(' + paperMapId + ')');
     if(!db_material.isRowAvailable()){
         return "Material Data Missing";

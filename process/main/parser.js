@@ -19,8 +19,11 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/get-phoenix-scripts.js"));
             eval(File.read(dir.support + "/add-to-table.js"));
             
-            var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
+            var dbConn = connectToDatabase_db(s.getPropertyValue("databaseGeneral"));
                 dbQuery = new Statement(dbConn);
+
+            var dbConn_material = connectToDatabase_db(s.getPropertyValue("databaseMaterial"));
+                dbQuery_material = new Statement(dbConn_material);
                 
             var localTime = new Date();
             var hourOffset = s.getPropertyValue("timezone") == "AWS" ? 7 : 0;
@@ -323,7 +326,7 @@ runParser = function(s, job){
                 
                 // Pull the material information if it hasn't been pulled yet.
                 if(matInfo == null || matInfoCheck){
-                    matInfo = getMatInfo(orderSpecs, dbConn);
+                    matInfo = getMatInfo(orderSpecs, dbConn_material);
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.projectID + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material v1", null, orderSpecs, data, userInfo, null), userInfo);
@@ -822,6 +825,7 @@ runParser = function(s, job){
                 if(orderArray[i].yardframe.active){
                     if(!orderArray[i].yardframe.undersize){
                         product.subprocess.undersize = false
+                        data.notes.push(product.itemNumber + ": Requires hardware. Automated undersizing has been disabled.");
                     }
                 }
 
@@ -1111,9 +1115,6 @@ runParser = function(s, job){
                         }else{
                             data.thing += "_" + matInfo.height + "in";
                         }
-                    }
-                    if(product.subprocess.name == "ButtCut"){
-                        data.thing += "_ButtCut";
                     }
                 }
 
