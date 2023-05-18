@@ -184,8 +184,8 @@ runParser = function(s, job){
                     due: null
                 },
                 phoenix: {
-                    printExport: "Auto_SaltLakeCity",
-                    cutExport: "Auto_SaltLakeCity",
+                    printExport: "Auto",
+                    cutExport: "Auto",
                     gangLabel: []
                 },
                 subprocess: [],
@@ -398,14 +398,6 @@ runParser = function(s, job){
                     }
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
-                    }
-                    if(data.facility.destination == "Brighton" || data.facility.destination == "Louisville" || data.facility.destination == "Wixom" || data.facility.destination == "Arlington"){
-                        if(matInfo.prodName != "13ozBanner"){
-                            data.phoenix.cutExport = "Auto_Brighton";
-                        }
-                    }
-                    if(data.facility.destination == "Solon"){
-                        data.phoenix.cutExport = "Auto_Solon";
                     }
                 }
 
