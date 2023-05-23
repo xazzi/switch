@@ -346,7 +346,9 @@ runParser = function(s, job){
                     orderSpecs.laminate.active = true
                 }
 
+                // Reassign printers and associated data based on various criteria.
                 if(data.facility.destination == "Arlington"){
+                    /*
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderSpecs.width > 59 && orderSpecs.height > 59){
                             matInfo.width = 126;
@@ -354,6 +356,7 @@ runParser = function(s, job){
                             matInfo.phoenixStock = "Roll_126";
                         }
                     }
+                    */
                     /*
                     if(matInfo.prodName == "13oz-PolyFilm"){
                         if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
@@ -362,6 +365,14 @@ runParser = function(s, job){
                         }
                     }
                     */
+                }
+
+                if(data.facility.destination == "Salt Lake City"){
+                    if(matInfo.printer.name == "P10"){
+                        if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
+                            matInfo.printer.name = "P5-350-HS";
+                        }
+                    }
                 }
                 
                 // Set the processes and subprocesses values and check if following items match it.
@@ -1101,11 +1112,11 @@ runParser = function(s, job){
                 if(data.printer != "None"){		 
                     if(matInfo.type == "roll"){
                         if(data.scaled){
-                            data.thing += "_10pct";
+                            data.thing += " (Scaled)";
                         }else if(data.oversize){
                             // Send the base printer name
                         }else{
-                            data.thing += "_" + matInfo.height + "in";
+                            data.thing += " (" + matInfo.height + ")";
                         }
                     }
                 }
