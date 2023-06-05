@@ -69,6 +69,8 @@ getMatInfo = function(orderSpecs, dbConn_material){
         overrun: db_material.getString(27),
         forceUndersize: db_material.getString(28) == "0" ? false : true,
         sideMix: db_material.getString(29) == "0" ? false : true,
+        rotateFront: db_material.getString(37) == 'y' ? true : false,
+        rotateBack: db_material.getString(38) == 'y' ? true : false,
 
         rip: {
             device: db_material.getString(30),

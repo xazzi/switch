@@ -1,0 +1,30 @@
+{
+    "subprocess": "max-width-perf",
+    "name": "Max Width Perf",
+    "id": null,
+    "facility": [
+        {
+            "name": "Salt Lake City",
+            "id": "28",
+            "enabled": true,
+            "mixed": false,
+            "undersize": false,
+            "processes": [
+                "Perf"
+            ],
+            "overrides": {
+                "matInfo":{
+                    "printer":{
+                        "margin":{
+                            "left": ".25",
+                            "right": ".25"
+                        }
+                    }
+                },
+                "product":{
+                    "stock": "Mat_Perf_MaxWidth"
+                }
+            }
+        }
+    ]
+}
