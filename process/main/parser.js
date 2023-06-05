@@ -192,6 +192,8 @@ runParser = function(s, job){
                 mixed: null,
                 prodMatFileName: null,
                 cropGang: null,
+                rotateFront: null,
+                rotateBack: null,
                 rush: submit.override.rush
             }
             
@@ -348,23 +350,23 @@ runParser = function(s, job){
 
                 // Reassign printers and associated data based on various criteria.
                 if(data.facility.destination == "Arlington"){
-                    /*
+                    
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderSpecs.width > 59 && orderSpecs.height > 59){
-                            matInfo.width = 126;
+                            matInfo.width = 125;
                             matInfo.printer.name = "3200";
-                            matInfo.phoenixStock = "Roll_126";
+                            matInfo.phoenixStock = "Roll_125";
                         }
                     }
-                    */
-                    /*
+                    
+                    
                     if(matInfo.prodName == "13oz-PolyFilm"){
                         if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
                             matInfo.width = 53;
                             matInfo.phoenixStock = "Roll_53";
                         }
                     }
-                    */
+                    
                 }
 
                 if(data.facility.destination == "Salt Lake City"){
@@ -399,6 +401,8 @@ runParser = function(s, job){
 
                     data.cropGang = matInfo.cropGang;
                     data.finishingType = orderSpecs.finishingType;
+                    data.rotateFront = matInfo.rotateFront;
+                    data.rotateBack = matInfo.rotateBack;
 
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
@@ -643,6 +647,12 @@ runParser = function(s, job){
                         }
                     }
                 }
+
+                if(matInfo.prodName == "Perf"){
+                    if(product.width >= 53 && product.height >= 53){
+                        product.query = "max-width-perf"
+                    }
+                }
                 
                 // Check for butt-weld processing
                 if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
@@ -760,7 +770,7 @@ runParser = function(s, job){
                 }
 
                 // Check if the sizes need to be flipped to standard WxH format.
-                if(product.subprocess.name != "A-Frame" && data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+                if(product.subprocess.name != "A-Frame" && product.subprocess.name != "Dry Erase A-Frame" && data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     try{
                         // Read stats from the file...
                         file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
@@ -1029,6 +1039,8 @@ runParser = function(s, job){
                         }
                     }
                 }
+
+
                 
                 if(orderArray[i].width <= 12 || orderArray[i].height <= 12){
                     orderArray[i].disable.label.hem = true;
@@ -1119,10 +1131,6 @@ runParser = function(s, job){
                             data.thing += " (" + matInfo.height + ")";
                         }
                     }
-                }
-
-                if(product.width > usableArea.width && product.height > usableArea.width){
-                    //product.stock += "_MaxWidth"
                 }
                 
                 // Compile the data into an array.
@@ -1372,6 +1380,8 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		
 		addNode_db(theXML, miscNode, "environment", data.environment);
 		addNode_db(theXML, miscNode, "cropGang", data.cropGang);
+        addNode_db(theXML, miscNode, "rotateFront", data.rotateFront);
+        addNode_db(theXML, miscNode, "rotateBack", data.rotateBack);
 		addNode_db(theXML, miscNode, "printExport", data.phoenix.printExport);
 		addNode_db(theXML, miscNode, "cutExport", data.phoenix.cutExport);
 		addNode_db(theXML, miscNode, "fileSource", data.fileSource);
