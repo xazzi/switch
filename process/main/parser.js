@@ -599,7 +599,8 @@ runParser = function(s, job){
                         name: null,
                         exists: false,
                         mixed: false,
-                        undersize: false
+                        undersize: false,
+                        orientationCheck: true
                     },
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
@@ -770,49 +771,51 @@ runParser = function(s, job){
                 }
 
                 // Check if the sizes need to be flipped to standard WxH format.
-                if(product.subprocess.name != "A-Frame" && product.subprocess.name != "Dry Erase A-Frame" && data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
-                    try{
-                        // Read stats from the file...
-                        file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
-                        file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
-                        file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
-                        file.pages = file.stats.getNumber("NumberOfPages");
-                        
-                        if(file.pages == 1 && product.doubleSided){
-                            data.notes.push(product.itemNumber + ": File missing 2nd page for DS printing.");
-                            continue;
-                        }
-                        
-                        var variance = {
-                            square: product.width - product.height,
-                            standard: Math.abs(file.width-product.width) + Math.abs(file.height-product.height),
-                            flipped: Math.abs(file.width-product.height) + Math.abs(file.height-product.width)
-                        }
+                if(product.subprocess.orientationCheck){
+                    if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+                        try{
+                            // Read stats from the file...
+                            file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
+                            file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
+                            file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
+                            file.pages = file.stats.getNumber("NumberOfPages");
+                            
+                            if(file.pages == 1 && product.doubleSided){
+                                data.notes.push(product.itemNumber + ": File missing 2nd page for DS printing.");
+                                continue;
+                            }
+                            
+                            var variance = {
+                                square: product.width - product.height,
+                                standard: Math.abs(file.width-product.width) + Math.abs(file.height-product.height),
+                                flipped: Math.abs(file.width-product.height) + Math.abs(file.height-product.width)
+                            }
 
-                        if(variance.square == 0){
-                            product.orientation = "Square";
-                        }else{
-                            if(product.finishingType == "TB" || product.finishingType == "T" || product.finishingType == "B"){
-                                product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
+                            if(variance.square == 0){
+                                product.orientation = "Square";
                             }else{
-                                product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard"
+                                if(product.finishingType == "TB" || product.finishingType == "T" || product.finishingType == "B"){
+                                    product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
+                                }else{
+                                    product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard"
+                                }
                             }
-                        }
 
-                        if(product.orientation == "Flipped"){
-                            data.notes.push(product.itemNumber + ": Flipped sizes to standard format.");
-                            var temp = {
-                                width: product.width,
-                                height: product.height
+                            if(product.orientation == "Flipped"){
+                                data.notes.push(product.itemNumber + ": Flipped sizes to standard format.");
+                                var temp = {
+                                    width: product.width,
+                                    height: product.height
+                                }
+                                product.width = temp.height;
+                                product.height = temp.width;
                             }
-                            product.width = temp.height;
-                            product.height = temp.width;
+
+                            file.data = true;
+
+                        }catch(e){
+                            data.notes.push(product.itemNumber + ": File statistics do not exist, can't confirm orientation, please verify in gang.");
                         }
-
-                        file.data = true;
-
-                    }catch(e){
-                        data.notes.push(product.itemNumber + ": File statistics do not exist, can't confirm orientation, please verify in gang.");
                     }
                 }
                 
@@ -1039,8 +1042,6 @@ runParser = function(s, job){
                         }
                     }
                 }
-
-
                 
                 if(orderArray[i].width <= 12 || orderArray[i].height <= 12){
                     orderArray[i].disable.label.hem = true;
@@ -1217,9 +1218,9 @@ runParser = function(s, job){
                     data.impositionProfile.name += "_Layout by Layout";
                     data.impositionProfile.method = "Material Usage";
                 }
-                if(submit.override.gangMethod == "User Defined"){
+                if(submit.override.gangMethod == "Sequential"){
                     data.impositionProfile.name += "_Sequential"
-                    data.impositionProfile.method = "User Defined";
+                    data.impositionProfile.method = "Sequential";
                 }
             }
             

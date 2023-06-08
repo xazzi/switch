@@ -2,16 +2,21 @@
     "subprocess": "butt-cut",
     "name": "ButtCut",
     "id": null,
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "Coroplast"
             ],
+            "properties": {
+                "mixed": false,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
                 },

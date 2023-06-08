@@ -2,16 +2,21 @@
     "subprocess": "max-width-perf",
     "name": "Max Width Perf",
     "id": null,
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": false,
-            "undersize": false,
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "Perf"
             ],
+            "properties": {
+                "mixed": false,
+                "undersize": false,
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo":{
                     "printer":{

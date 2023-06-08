@@ -2,17 +2,22 @@
     "subprocess": "uv-greyback",
     "name": "UV-Greyback",
     "id": 3,
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "Celtec",
                 "UV-Greyback"
             ],
+            "properties": {
+                "mixed": false,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
                     "prodName": "UV-Greyback",

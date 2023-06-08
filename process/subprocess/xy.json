@@ -2,17 +2,22 @@
     "subprocess": "xy",
     "name": "XY",
     "id": null,
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "PhotoMatte",
                 "PhotoGloss"
             ],
+            "properties": {
+                "mixed": false,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
                     "sideMix": 1
