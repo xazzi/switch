@@ -63,7 +63,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                                     name: dump.name,
                                     exists: true,
                                     mixed: dump.parameters[j].properties.mixed,
-                                    undersize: dump.parameters[j].properties.undersize ? true : !dump.parameters[j].undersize ? false : db_mapItem.getString(5) == 'y' ? true : false,
+                                    undersize: dump.parameters[j].properties.undersize ? true : !dump.parameters[j].properties.undersize ? false : db_mapItem.getString(5) == 'y' ? true : false,
                                     orientationCheck: dump.parameters[j].properties.orientationCheck
                                 }
                             }

@@ -177,6 +177,7 @@ runParser = function(s, job){
                 notes: [],
                 tolerance: 0,
                 paper: null,
+                prismStock: null,
                 facility: {
                     original: null
                 },
@@ -194,6 +195,7 @@ runParser = function(s, job){
                 cropGang: null,
                 rotateFront: null,
                 rotateBack: null,
+                rotate90: null,
                 rush: submit.override.rush
             }
             
@@ -313,6 +315,7 @@ runParser = function(s, job){
                 if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
                     matInfoCheck = true;
                     orderSpecs.paper.map.wix = 51;
+                    data.prismStock = "13 oz. Smooth Matte"
                 }
 
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
@@ -383,6 +386,9 @@ runParser = function(s, job){
                     data.prodMatFileName = matInfo.prodMatFileName != null ? matInfo.prodMatFileName : matInfo.prodName;
                     
                     data.paper = orderSpecs.paper.value;
+                    if(data.prismStock == null){
+                        data.prismStock = orderSpecs.paper.value;
+                    }
                     data.date.due = orderSpecs.date.due;
                     
                     data.doubleSided = orderSpecs.doubleSided;
@@ -403,6 +409,7 @@ runParser = function(s, job){
                     data.finishingType = orderSpecs.finishingType;
                     data.rotateFront = matInfo.rotateFront;
                     data.rotateBack = matInfo.rotateBack;
+                    data.rotate90 = matInfo.rotate90;
 
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
@@ -1133,6 +1140,8 @@ runParser = function(s, job){
                         }
                     }
                 }
+
+                //data.thing += " (New)"
                 
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -1203,6 +1212,13 @@ runParser = function(s, job){
                 if(!dbQuery.isRowAvailable()){
                     dbQuery.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
                 }
+
+                /*
+                if(i>=49){
+                   break;
+                }
+                */
+
             }
 
             // Adjust the imposition profile based on overrides from the user.
@@ -1338,6 +1354,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		addNode_db(theXML, baseNode, "subprocess", data.subprocess);
 		addNode_db(theXML, baseNode, "prodMatFileName", data.prodMatFileName);
 		addNode_db(theXML, baseNode, "paper", data.paper);
+        addNode_db(theXML, baseNode, "prismStock", data.prismStock);
 		addNode_db(theXML, baseNode, "type", matInfo.type);
 		addNode_db(theXML, baseNode, "rush", data.rush);
 		addNode_db(theXML, baseNode, "processed-time", now.time);
@@ -1383,6 +1400,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		addNode_db(theXML, miscNode, "cropGang", data.cropGang);
         addNode_db(theXML, miscNode, "rotateFront", data.rotateFront);
         addNode_db(theXML, miscNode, "rotateBack", data.rotateBack);
+        addNode_db(theXML, miscNode, "rotate90", data.rotate90);
 		addNode_db(theXML, miscNode, "printExport", data.phoenix.printExport);
 		addNode_db(theXML, miscNode, "cutExport", data.phoenix.cutExport);
 		addNode_db(theXML, miscNode, "fileSource", data.fileSource);
