@@ -183,7 +183,7 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, data,
 								writeXmlString(xmlFile, "name", handoffDataDS.evalToString("//settings/printer"));
 							writeXmlNode(xmlFile, "/press");
 							writeXmlNode(xmlFile, "stock");
-								writeXmlString(xmlFile, "name", handoffDataDS.evalToString("//base/paper").replace(/\"/g,"&quot;"));
+								writeXmlString(xmlFile, "name", handoffDataDS.evalToString("//base/prismStock").replace(/\"/g,"&quot;"));
 								writeXmlString(xmlFile, "id", layoutNodes.at(i).evalToString('//surfaces/surface/stock/id'));
 							writeXmlNode(xmlFile, "/stock");
 							writeXmlNode(xmlFile, "grade");

@@ -71,6 +71,7 @@ getMatInfo = function(orderSpecs, dbConn_material){
         sideMix: db_material.getString(29) == "0" ? false : true,
         rotateFront: db_material.getString(37) == 'y' ? true : false,
         rotateBack: db_material.getString(38) == 'y' ? true : false,
+        rotate90: db_material.getString(39) == 'y' ? true : false,
 
         rip: {
             device: db_material.getString(30),
