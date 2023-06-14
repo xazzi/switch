@@ -14,13 +14,11 @@
             ],
             "properties": {
                 "mixed": false,
-                "undersize": "Default",
+                "undersize": false,
                 "orientationCheck": true
             },
             "overrides": {
                 "matInfo": {
-                    "forceUndersize": false,
-                    "sideMix": 1
                 },
                 "product": {
                     "rotation": "Custom",
@@ -33,6 +31,7 @@
                     "impositionProfile": {
                         "name": "Sheet"
                     },
+                    "sideMix": 1,
                     "prodMatFileName": "A-Frame-DS"
                 }  
             }
@@ -47,14 +46,12 @@
                 "Coroplast"
             ],
             "properties": {
-                "mixed": false,
-                "undersize": "Default",
+                "mixed": true,
+                "undersize": false,
                 "orientationCheck": true
             },
             "overrides": {
                 "matInfo": {
-                    "forceUndersize": false,
-                    "sideMix": 1
                 },
                 "product": {
                     "rotation": "Custom",
@@ -67,7 +64,7 @@
                     "impositionProfile": {
                         "name": "Sheet"
                     },
-                    "prodMatFileName": "A-Frame-Cor"
+                    "sideMix": 1
                 }
             }
         }

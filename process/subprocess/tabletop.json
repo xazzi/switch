@@ -19,7 +19,6 @@
             },
             "overrides": {
                 "matInfo": {
-                    "sideMix": 1
                 },
                 "product": {
                     "pageHandling": "OnePerPage",
@@ -28,6 +27,7 @@
                     }
                 },
                 "data": {
+                    "sideMix": 1
                 }
             }
         }

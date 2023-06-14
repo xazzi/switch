@@ -17,13 +17,13 @@
             },
             "overrides": {
                 "matInfo": {
-                    "sideMix": 1
                 },
                 "product": {
                     "pageHandling": "OnePerPage"
                 },
                 "data": {
-                    "prodMatFileName": "Breakaway"
+                    "prodMatFileName": "Breakaway",
+                    "sideMix": 1
                 }
             }
         },
@@ -39,18 +39,18 @@
             ],
             "properties": {
                 "mixed": false,
-                "undersize": "Default",
+                "undersize": false,
                 "orientationCheck": true
             },
             "overrides": {
                 "matInfo": {
-                    "sideMix": 1
                 },
                 "product": {
                     "pageHandling": "OnePerPage"
                 },
                 "data": {
-                    "prodMatFileName": "Breakaway"
+                    "prodMatFileName": "Breakaway",
+                    "sideMix": 1
                 }
             }
         }
