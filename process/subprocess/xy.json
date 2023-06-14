@@ -20,7 +20,6 @@
             },
             "overrides": {
                 "matInfo": {
-                    "sideMix": 1
                 },
                 "product": {
                     "grade": "251",
@@ -31,7 +30,8 @@
                     "cropGang": true,
                     "impositionProfile": {
                         "name": "XY"
-                    }
+                    },
+                    "sideMix": 1
                 }
             }
         }

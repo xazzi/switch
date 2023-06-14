@@ -63,7 +63,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                                     name: dump.name,
                                     exists: true,
                                     mixed: dump.parameters[j].properties.mixed,
-                                    undersize: dump.parameters[j].properties.undersize ? true : !dump.parameters[j].properties.undersize ? false : db_mapItem.getString(5) == 'y' ? true : false,
+                                    undersize: dump.parameters[j].properties.undersize == true ? true : dump.parameters[j].properties.undersize == false ? false : db_mapItem.getString(5) == 'y' ? true : false,
                                     orientationCheck: dump.parameters[j].properties.orientationCheck
                                 }
                             }
@@ -73,11 +73,12 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             }
         }
 
+        // If no subprocess was found, set it as "none".
         return settings = {
             name: "None",
             exists: false,
             mixed: true,
-            undersize: db_mapItem.getString(5) == 0 ? false : true,
+            undersize: db_mapItem.getString(5) == 'y' ? true : false,
             orientationCheck: true
         }
     }

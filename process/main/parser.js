@@ -33,18 +33,18 @@ runParser = function(s, job){
             var now = {
                 date: adjustedTime.split("T")[0],
                 time: adjustedTime.split("T")[1],
-                day: adjustedTime.split("T")[0].split("-")[1],
-                month: adjustedTime.split("T")[0].split("-")[2],
+                day: adjustedTime.split("T")[0].split("-")[2],
+                month: adjustedTime.split("T")[0].split("-")[1],
                 year: adjustedTime.split("T")[0].split("-")[0]
             }
                 
             var submitDS
-            if(s.getPropertyValue("devMode") == "No"){
+            if(s.getPropertyValue("ignoreSubmit") == "No"){
                 submitDS = loadDataset_db("Submit");
             }
             
             var submit = {
-                nodes: s.getPropertyValue("devMode") == "No" ? submitDS.evalToNodes("//field-list/field") : [],
+                nodes: s.getPropertyValue("ignoreSubmit") == "No" ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
                 route: false,
@@ -196,7 +196,8 @@ runParser = function(s, job){
                 rotateFront: null,
                 rotateBack: null,
                 rotate90: null,
-                rush: submit.override.rush
+                rush: submit.override.rush,
+                sideMix: null
             }
             
             var theNewToken = getNewToken(s, data.environment);
@@ -248,7 +249,7 @@ runParser = function(s, job){
                 }
             }
             
-            if(s.getPropertyValue("devMode") == "Yes"){
+            if(s.getPropertyValue("forceUser") == "Bret Combe"){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
                 job.setUserEmail("bret.c@digitalroominc.com");
@@ -410,7 +411,7 @@ runParser = function(s, job){
                     data.rotateFront = matInfo.rotateFront;
                     data.rotateBack = matInfo.rotateBack;
                     data.rotate90 = matInfo.rotate90;
-
+                    data.sideMix = matInfo.sideMix;
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
                     
@@ -616,7 +617,8 @@ runParser = function(s, job){
                     reprint: orderArray[i].reprint,
                     finishingType: orderArray[i].pocket.method,
                     orientation: "Standard",
-                    shipType: getShipType(orderArray[i].ship.serviceCode)
+                    shipType: getShipType(orderArray[i].ship.serviceCode),
+                    forceUndersize: matInfo.forceUndersize
                 }
                 
                 var scale = {
@@ -704,24 +706,25 @@ runParser = function(s, job){
                     }
                 }
 
-                // Add the subprocess to the data level array if it's missing.
-                if(data.subprocess.length == 0){
-                    data.subprocess.push(product.subprocess.name);
+                // Set the gang mixing value on the data object from the first subprocess pulled.
+                if(data.mixed == null){
                     data.mixed = product.subprocess.mixed;
                 }
-                
-                // If the subprocess can't be mixed with the parent subprocess, continue on.
+
+                // If the subprocess can't be mixed with other subprocesses, reject it.
+                if(data.mixed != product.subprocess.mixed){
+                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
+                    continue
+                }
+
+                // If the subprocess name isn't in the array yet, add it.
                 if(!contains(data.subprocess, product.subprocess.name)){
-                    if(!data.mixed || !product.subprocess.mixed){
-                        data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
-                        continue
-                    }
                     data.subprocess.push(product.subprocess.name);
                 }
                 
                 // Check for side deviation.
                 if(data.doubleSided != product.doubleSided){
-                    if(matInfo.sideMix || submit.override.sideMix){
+                    if(data.sideMix || submit.override.sideMix){
                         data.doubleSided = true;
                     }else{
                         var type = product.doubleSided ? "(Double Sided)" : "(Single Sided)"
@@ -741,6 +744,7 @@ runParser = function(s, job){
                 // If the order is a late.
                 if(product.late){
                     data.notes.push(orderArray[i].jobItemId + ": Late! This item is late and is being labeled accordingly for production.");
+                    data.dateID = now.month + "-" + now.day
                 }
                 
                 // If the order is a replacement, send an email to the user.
@@ -941,7 +945,7 @@ runParser = function(s, job){
                 
                 // If the product can be undersized...
                 // This checks if the material info database is asking to undersize.
-                if(product.subprocess.undersize && matInfo.forceUndersize == true){
+                if(product.subprocess.undersize && product.forceUndersize == true){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                             dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
                         if(dbQuery.isRowAvailable()){

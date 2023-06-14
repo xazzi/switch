@@ -14,13 +14,11 @@
             ],
             "properties": {
                 "mixed": false,
-                "undersize": "Default",
+                "undersize": false,
                 "orientationCheck": false
             },
             "overrides": {
                 "matInfo": {
-                    "forceUndersize": false,
-                    "sideMix": 1
                 },
                 "product": {
                     "rotation": "Custom",
@@ -33,6 +31,7 @@
                     "impositionProfile": {
                         "name": "Sheet"
                     },
+                    "sideMix": 1,
                     "prodMatFileName": "A-Frame"
                 }   
             }
@@ -48,13 +47,11 @@
             ],
             "properties": {
                 "mixed": false,
-                "undersize": "Default",
+                "undersize": false,
                 "orientationCheck": false
             },
             "overrides": {
                 "matInfo": {
-                    "forceUndersize": false,
-                    "sideMix": 1
                 },
                 "product": {
                     "rotation": "Custom",
@@ -66,7 +63,8 @@
                 "data": {
                     "impositionProfile": {
                         "name": "Sheet"
-                    }
+                    },
+                    "sideMix": 1
                 }  
             }
         }
