@@ -50,7 +50,15 @@ runParser = function(s, job){
                 route: false,
                 facilityName: "Default",
                 facilityId: "Default",
-                override: {
+                material:{
+                    active: false,
+                    name: null,
+                    width: null,
+                    height: null,
+                    stock: null,
+                    facility: null
+                },
+                override:{
                     mixedFinishing: null,
                     sideMix: null,
                     rush: false,
@@ -117,6 +125,22 @@ runParser = function(s, job){
                         dbQuery.execute("SELECT * FROM digital_room.facility WHERE facility = '" + submit.facilityName + "';");
                         dbQuery.fetchRow();
                         submit.facilityId = dbQuery.getString(3);
+                    }
+                }
+
+                // Custom material width.
+                if(submit.nodes.getItem(i).evalToString('tag') == "Custom material size?"){
+                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
+                        submit.material.active = true;				
+                        submit.material.name = submit.nodes.getItem(i).evalToString("field-list/field/field-list/field/value");
+                        submit.material.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
+
+                        dbQuery.execute("SELECT * FROM `digital_room.override_material-size` WHERE name = '" + submit.material.name + "';");
+                        dbQuery.fetchRow();
+
+                        submit.material.width = dbQuery.getString(2);
+                        submit.material.height = dbQuery.getString(3);
+                        submit.material.stock = dbQuery.getString(4);
                     }
                 }
                 
@@ -358,7 +382,6 @@ runParser = function(s, job){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderSpecs.width > 59 && orderSpecs.height > 59){
                             matInfo.width = 125;
-                            matInfo.printer.name = "3200";
                             matInfo.phoenixStock = "Roll_125";
                         }
                     }
@@ -373,6 +396,16 @@ runParser = function(s, job){
                     
                 }
 
+                // Override all of the above
+                if(submit.material.active){
+                    matInfo.width = submit.material.width;
+                    if(submit.material.height != null){
+                        matInfo.height = submit.material.height;
+                    }
+                    matInfo.phoenixStock = submit.material.stock;
+                }
+
+                // Move large rolled product from the P10 to the 350.
                 if(data.facility.destination == "Salt Lake City"){
                     if(matInfo.printer.name == "P10"){
                         if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
@@ -998,11 +1031,25 @@ runParser = function(s, job){
                         }
                     }
                 }
+
+                // Establish the difference in expected vs actual product width due to undersizing.
+                var difference = {
+                    width: product.width-(product.width*(scale.width/100)),
+                    height: product.height-(product.height*(scale.height/100))
+                }
                 
-                // Send an email if the undersizing will be too extreme.
-                if((product.width-(product.width*(scale.width/100)) > 1) ||
-                (product.height-(product.height*(scale.height/100)) > 1)){
-                    data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                // Remove the file from the gang if the undersizing is too extreme.
+                if((difference.width > 5) || (difference.height > 5)){
+                    data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
+                    continue;
+                // If the undersizing is greater than 1" ut less than 5", remove it if a custom width was selected, otherwise just notify the user.
+                }else if((difference.width > 1) || (difference.height > 1)){
+                    if(submit.material.active){
+                        data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
+                        continue;
+                    }else{
+                        data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                    }
                 }
                 
                 // Rotation adjustments ----------------------------------------------------------
