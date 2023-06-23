@@ -135,7 +135,7 @@ runParser = function(s, job){
                         submit.material.name = submit.nodes.getItem(i).evalToString("field-list/field/field-list/field/value");
                         submit.material.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
 
-                        dbQuery.execute("SELECT * FROM `digital_room.override_material-size` WHERE name = '" + submit.material.name + "';");
+                        dbQuery.execute("SELECT * FROM digital_room.`override_material-size` WHERE name = '" + submit.material.name + "';");
                         dbQuery.fetchRow();
 
                         submit.material.width = dbQuery.getString(2);
@@ -1288,6 +1288,10 @@ runParser = function(s, job){
                 if(submit.override.gangMethod == "Sequential"){
                     data.impositionProfile.name += "_Sequential"
                     data.impositionProfile.method = "Sequential";
+                }
+                if(submit.override.gangMethod == "Single Item Layout"){
+                    data.impositionProfile.name += "_SingleItemLayout"
+                    data.impositionProfile.method = "Single Item Layout";
                 }
             }
             

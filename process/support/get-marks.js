@@ -6,7 +6,7 @@ setMarks = function(s, folder, matInfo, data, orderArray, product, marksArray){
 
         // Create an array of the json files that need to be searched.
         var markFiles = [
-            "color-id.json",
+            //"color-id.json",
             "grommets.json",
             "labels.json",
             "misc.json",

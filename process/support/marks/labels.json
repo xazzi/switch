@@ -11,13 +11,15 @@
                 "requirements":[
                     "Mesh",
                     "8oz-Mesh",
+                    "9oz-Mesh",
                     "12oz-Mesh"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -199,7 +201,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
