@@ -2,20 +2,23 @@
     "subprocess": "a-frames-dry-erase",
     "name": "Dry Erase A-Frame",
     "id": "14",
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "3mm-Sintra"
             ],
+            "properties": {
+                "mixed": false,
+                "undersize": false,
+                "orientationCheck": false
+            },
             "overrides": {
                 "matInfo": {
-                    "forceUndersize": false,
-                    "sideMix": 1
                 },
                 "product": {
                     "pageHandling": "OnePerPage",
@@ -23,7 +26,10 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "impositionProfile": "Sheet",
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
+                    "sideMix": 1,
                     "prodMatFileName": "A-Frame-DE"
                 }   
             }

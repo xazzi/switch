@@ -11,13 +11,15 @@
                 "requirements":[
                     "Mesh",
                     "8oz-Mesh",
+                    "9oz-Mesh",
                     "12oz-Mesh"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -69,7 +71,8 @@
                     "13oz-Matte",
                     "13oz-Gloss",
                     "13oz-Smooth",
-                    "DSS"
+                    "DSS",
+                    "18oz-Matte"
                 ],
                 "rejections":[]
             },
@@ -198,7 +201,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -283,8 +287,8 @@
             ]
         },
         {
-            "description":"Backdrop labels w/ top pocket.",
-            "type":"Backdrop Label",
+            "description":"Labels w/ top pocket.",
+            "type":"Pocket Label",
             "key":"None",
             "facility":[
                 "All"
@@ -297,6 +301,7 @@
             },
             "subprocess":{
                 "requirements":[
+                    "None",
                     "Backdrop"
                 ],
                 "rejections":[]
@@ -317,21 +322,21 @@
             "settings":[
                 {
                     "name":"TextLabel-Prefix",
-                    "dir":"/Hem Labels/Backdrop/Top/"
+                    "dir":"/Hem Labels/Pocket/Top/"
                 },
                 {
                     "name":"TextLabel-Suffix",
-                    "dir":"/Hem Labels/Backdrop/Top/"
+                    "dir":"/Hem Labels/Pocket/Top/"
                 },
                 {
                     "name":"Barcode",
-                    "dir":"/Hem Labels/Backdrop/Top/"
+                    "dir":"/Hem Labels/Pocket/Top/"
                 }
             ]
         },
         {
-            "description":"Backdrop labels w/ bottom pocket.",
-            "type":"Backdrop Label",
+            "description":"Labels w/ bottom pocket.",
+            "type":"Pocket Label",
             "key":"None",
             "facility":[
                 "All"
@@ -344,6 +349,7 @@
             },
             "subprocess":{
                 "requirements":[
+                    "None",
                     "Backdrop"
                 ],
                 "rejections":[]
@@ -364,15 +370,15 @@
             "settings":[
                 {
                     "name":"TextLabel-Prefix",
-                    "dir":"/Hem Labels/Backdrop/Bottom/"
+                    "dir":"/Hem Labels/Pocket/Bottom/"
                 },
                 {
                     "name":"TextLabel-Suffix",
-                    "dir":"/Hem Labels/Backdrop/Bottom/"
+                    "dir":"/Hem Labels/Pocket/Bottom/"
                 },
                 {
                     "name":"Barcode",
-                    "dir":"/Hem Labels/Backdrop/Bottom/"
+                    "dir":"/Hem Labels/Pocket/Bottom/"
                 }
             ]
         },

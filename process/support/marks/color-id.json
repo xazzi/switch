@@ -1,7 +1,7 @@
 {
     "marks":[
         {
-            "description":"Color ID for finishing style w/ sewn hems or pockets.",
+            "description":"Color ID for finishing style w/ sewn hems.",
             "type":"Color ID",
             "key":"None",
             "facility":[
@@ -44,6 +44,96 @@
                 {
                     "name":"Triangle-Green",
                     "dir":"/Color Marks/Finishing/"
+                }
+            ]
+        },
+        {
+            "description":"Color ID for finishing style w/ top pockets.",
+            "type":"Color ID",
+            "key":"None",
+            "facility":[
+                "Wixom"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "pocket":{
+                            "method":["TB","T"]
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Triangle-Green-Top",
+                    "dir":"/Color Marks/Finishing/Pocket/"
+                }
+            ]
+        },
+        {
+            "description":"Color ID for finishing style w/ bottom pockets.",
+            "type":"Color ID",
+            "key":"None",
+            "facility":[
+                "Wixom"
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "pocket":{
+                            "method":["TB","B"]
+                        }
+                    },
+                    "data":{
+                        "doubleSided":false
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Triangle-Green-Bottom",
+                    "dir":"/Color Marks/Finishing/Pocket/"
                 }
             ]
         },
@@ -110,7 +200,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "13oz-Matte"
+                    "13oz-Matte",
+                    "18oz-Matte"
                 ],
                 "rejections":[]
             },
@@ -165,7 +256,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "13oz-Matte"
+                    "13oz-Matte",
+                    "18oz-Matte"
                 ],
                 "rejections":[]
             },
@@ -220,7 +312,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "13oz-Matte"
+                    "13oz-Matte",
+                    "18oz-Matte"
                 ],
                 "rejections":[]
             },

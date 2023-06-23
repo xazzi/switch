@@ -2,16 +2,21 @@
     "subprocess": "full-sheet",
     "name": "FullSheet",
     "id": null,
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "MDO"
             ],
+            "properties": {
+                "mixed": false,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
                 },
@@ -25,7 +30,9 @@
                     "rotation": "Orthogonal"
                 },
                 "data": {
-                    "impositionProfile": "Sheet"
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    }
                 },
                 "scale": {
                     "locked": true

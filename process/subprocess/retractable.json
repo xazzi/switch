@@ -2,20 +2,24 @@
     "subprocess": "retractable",
     "name": "Retractable",
     "id": 4,
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "13ozBanner",
                 "DSS"
             ],
+            "properties": {
+                "mixed": false,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
-                    "sideMix": 1
                 },
                 "product": {
                     "pageHandling": "OnePerPage",
@@ -24,22 +28,29 @@
                     }
                 },
                 "data": {
+                    "sideMix": 1
                 }
             }
         },
         {
-            "name": "Brighton",
-            "id": "18",
-            "enabled": true,
-            "mixed": true,
-            "undersize": "Default",
+            "facility": {
+                "name": "Wixom",
+                "id": "37",
+                "enabled": true
+            },
             "processes": [
                 "13oz-Matte",
-                "13oz-Smooth"
+                "13oz-Smooth",
+                "UV-Fabric",
+                "13oz-PolyFilm"
             ],
+            "properties": {
+                "mixed": true,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
-                    "sideMix": 1
                 },
                 "product": {
                     "pageHandling": "OnePerPage",
@@ -48,30 +59,7 @@
                     }
                 },
                 "data": {
-                }
-            }
-        },
-        {
-            "name": "Wixom",
-            "id": "37",
-            "enabled": true,
-            "mixed": true,
-            "undersize": "Default",
-            "processes": [
-                "13oz-Matte",
-                "13oz-Smooth"
-            ],
-            "overrides": {
-                "matInfo": {
                     "sideMix": 1
-                },
-                "product": {
-                    "pageHandling": "OnePerPage",
-                    "customLabel": {
-                        "apply": true
-                    }
-                },
-                "data": {
                 }
             }
         }

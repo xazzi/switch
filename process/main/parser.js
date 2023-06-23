@@ -19,8 +19,11 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/get-phoenix-scripts.js"));
             eval(File.read(dir.support + "/add-to-table.js"));
             
-            var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
+            var dbConn = connectToDatabase_db(s.getPropertyValue("databaseGeneral"));
                 dbQuery = new Statement(dbConn);
+
+            var dbConn_material = connectToDatabase_db(s.getPropertyValue("databaseMaterial"));
+                dbQuery_material = new Statement(dbConn_material);
                 
             var localTime = new Date();
             var hourOffset = s.getPropertyValue("timezone") == "AWS" ? 7 : 0;
@@ -30,31 +33,43 @@ runParser = function(s, job){
             var now = {
                 date: adjustedTime.split("T")[0],
                 time: adjustedTime.split("T")[1],
-                day: adjustedTime.split("T")[0].split("-")[1],
-                month: adjustedTime.split("T")[0].split("-")[2],
+                day: adjustedTime.split("T")[0].split("-")[2],
+                month: adjustedTime.split("T")[0].split("-")[1],
                 year: adjustedTime.split("T")[0].split("-")[0]
             }
                 
             var submitDS
-            if(s.getPropertyValue("devMode") == "No"){
+            if(s.getPropertyValue("ignoreSubmit") == "No"){
                 submitDS = loadDataset_db("Submit");
             }
             
             var submit = {
-                nodes: s.getPropertyValue("devMode") == "No" ? submitDS.evalToNodes("//field-list/field") : [],
+                nodes: s.getPropertyValue("ignoreSubmit") == "No" ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
                 route: false,
                 facilityName: "Default",
                 facilityId: "Default",
-                override: {
+                material:{
+                    active: false,
+                    name: null,
+                    width: null,
+                    height: null,
+                    stock: null,
+                    facility: null
+                },
+                override:{
                     mixedFinishing: null,
                     sideMix: null,
                     rush: false,
                     priority: 0,
                     date: false,
                     redownload: false,
-                    forceFullsize: false
+                    fullsize: {
+                        gang: false,
+                        items: []
+                    },
+                    gangMethod: null
                 }
             }
                 
@@ -65,7 +80,7 @@ runParser = function(s, job){
                         submit.rotation = submit.nodes.getItem(i).evalToString("field-list/field/value").split(',');
                     }
                 }
-                
+
                 // Finishing separation field.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix finishing?"){
                     submit.override.mixedFinishing = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
@@ -75,15 +90,25 @@ runParser = function(s, job){
                 if(submit.nodes.getItem(i).evalToString('tag') == "Redownload file?"){
                     submit.override.redownload = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
+
+                // Finishing separation field.
+                if(submit.nodes.getItem(i).evalToString('tag') == "Gang Method"){
+                    submit.override.gangMethod = submit.nodes.getItem(i).evalToString('value')
+                }
                 
                 // Due date override
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix due dates?"){
                     submit.override.date = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
-                // Undersize override
+                // Fullsize override
                 if(submit.nodes.getItem(i).evalToString('tag') == "Force fullsize?"){
-                    submit.override.forceFullsize = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                    if(submit.nodes.getItem(i).evalToString('value') == "All items"){
+                        submit.override.fullsize.gang = true;
+                    }
+                    if(submit.nodes.getItem(i).evalToString('value') == "Specific items"){
+                        submit.override.fullsize.items = submit.nodes.getItem(i).evalToString("field-list/field/value").split(',');
+                    }
                 }
 
                 // Finishing separation field.
@@ -100,6 +125,22 @@ runParser = function(s, job){
                         dbQuery.execute("SELECT * FROM digital_room.facility WHERE facility = '" + submit.facilityName + "';");
                         dbQuery.fetchRow();
                         submit.facilityId = dbQuery.getString(3);
+                    }
+                }
+
+                // Custom material width.
+                if(submit.nodes.getItem(i).evalToString('tag') == "Custom material size?"){
+                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
+                        submit.material.active = true;				
+                        submit.material.name = submit.nodes.getItem(i).evalToString("field-list/field/field-list/field/value");
+                        submit.material.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
+
+                        dbQuery.execute("SELECT * FROM digital_room.`override_material-size` WHERE name = '" + submit.material.name + "';");
+                        dbQuery.fetchRow();
+
+                        submit.material.width = dbQuery.getString(2);
+                        submit.material.height = dbQuery.getString(3);
+                        submit.material.stock = dbQuery.getString(4);
                     }
                 }
                 
@@ -160,6 +201,7 @@ runParser = function(s, job){
                 notes: [],
                 tolerance: 0,
                 paper: null,
+                prismStock: null,
                 facility: {
                     original: null
                 },
@@ -167,16 +209,19 @@ runParser = function(s, job){
                     due: null
                 },
                 phoenix: {
-                    printExport: "Auto_SaltLakeCity",
-                    cutExport: "Auto_SaltLakeCity",
+                    printExport: "Auto",
+                    cutExport: "Auto",
                     gangLabel: []
                 },
                 subprocess: [],
-                //subprocess: null,
                 mixed: null,
                 prodMatFileName: null,
                 cropGang: null,
-                rush: submit.override.rush
+                rotateFront: null,
+                rotateBack: null,
+                rotate90: null,
+                rush: submit.override.rush,
+                sideMix: null
             }
             
             var theNewToken = getNewToken(s, data.environment);
@@ -228,7 +273,7 @@ runParser = function(s, job){
                 }
             }
             
-            if(s.getPropertyValue("devMode") == "Yes"){
+            if(s.getPropertyValue("forceUser") == "Bret Combe"){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
                 job.setUserEmail("bret.c@digitalroominc.com");
@@ -295,6 +340,7 @@ runParser = function(s, job){
                 if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
                     matInfoCheck = true;
                     orderSpecs.paper.map.wix = 51;
+                    data.prismStock = "13 oz. Smooth Matte"
                 }
 
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
@@ -310,7 +356,7 @@ runParser = function(s, job){
                 
                 // Pull the material information if it hasn't been pulled yet.
                 if(matInfo == null || matInfoCheck){
-                    matInfo = getMatInfo(orderSpecs, dbConn);
+                    matInfo = getMatInfo(orderSpecs, dbConn_material);
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.projectID + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material v1", null, orderSpecs, data, userInfo, null), userInfo);
@@ -330,12 +376,40 @@ runParser = function(s, job){
                     orderSpecs.laminate.active = true
                 }
 
+                // Reassign printers and associated data based on various criteria.
                 if(data.facility.destination == "Arlington"){
+                    
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderSpecs.width > 59 && orderSpecs.height > 59){
-                            matInfo.width = 126;
-                            matInfo.printer.name = "3200";
-                            matInfo.phoenixStock = "Roll_126";
+                            matInfo.width = 125;
+                            matInfo.phoenixStock = "Roll_125";
+                        }
+                    }
+                    
+                    
+                    if(matInfo.prodName == "13oz-PolyFilm"){
+                        if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
+                            matInfo.width = 53;
+                            matInfo.phoenixStock = "Roll_53";
+                        }
+                    }
+                    
+                }
+
+                // Override all of the above
+                if(submit.material.active){
+                    matInfo.width = submit.material.width;
+                    if(submit.material.height != null){
+                        matInfo.height = submit.material.height;
+                    }
+                    matInfo.phoenixStock = submit.material.stock;
+                }
+
+                // Move large rolled product from the P10 to the 350.
+                if(data.facility.destination == "Salt Lake City"){
+                    if(matInfo.printer.name == "P10"){
+                        if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
+                            matInfo.printer.name = "P5-350-HS";
                         }
                     }
                 }
@@ -346,6 +420,9 @@ runParser = function(s, job){
                     data.prodMatFileName = matInfo.prodMatFileName != null ? matInfo.prodMatFileName : matInfo.prodName;
                     
                     data.paper = orderSpecs.paper.value;
+                    if(data.prismStock == null){
+                        data.prismStock = orderSpecs.paper.value;
+                    }
                     data.date.due = orderSpecs.date.due;
                     
                     data.doubleSided = orderSpecs.doubleSided;
@@ -357,10 +434,17 @@ runParser = function(s, job){
                     data.rip.device = matInfo.rip.device;
                     data.rip.hotfolder = data.secondSurface ? matInfo.rip.hotfolder + "-2ndSurf" : matInfo.rip.hotfolder;
                     
-                    data.impositionProfile = matInfo.impositionProfile;
+                    data.impositionProfile = {
+                        name: matInfo.impositionProfile,
+                        method: "Default (" + matInfo.phoenixMethodUserFriendly + ")"
+                    }
+
                     data.cropGang = matInfo.cropGang;
                     data.finishingType = orderSpecs.finishingType;
-
+                    data.rotateFront = matInfo.rotateFront;
+                    data.rotateBack = matInfo.rotateBack;
+                    data.rotate90 = matInfo.rotate90;
+                    data.sideMix = matInfo.sideMix;
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
                     
@@ -370,14 +454,6 @@ runParser = function(s, job){
                     }
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
-                    }
-                    if(data.facility.destination == "Brighton" || data.facility.destination == "Louisville" || data.facility.destination == "Wixom" || data.facility.destination == "Arlington"){
-                        if(matInfo.prodName != "13ozBanner"){
-                            data.phoenix.cutExport = "Auto_Brighton";
-                        }
-                    }
-                    if(data.facility.destination == "Solon"){
-                        data.phoenix.cutExport = "Auto_Solon";
                     }
                 }
 
@@ -564,7 +640,8 @@ runParser = function(s, job){
                         name: null,
                         exists: false,
                         mixed: false,
-                        undersize: false
+                        undersize: false,
+                        orientationCheck: true
                     },
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
@@ -573,7 +650,8 @@ runParser = function(s, job){
                     reprint: orderArray[i].reprint,
                     finishingType: orderArray[i].pocket.method,
                     orientation: "Standard",
-                    shipType: getShipType(orderArray[i].ship.serviceCode)
+                    shipType: getShipType(orderArray[i].ship.serviceCode),
+                    forceUndersize: matInfo.forceUndersize
                 }
                 
                 var scale = {
@@ -610,6 +688,12 @@ runParser = function(s, job){
                                 }
                             }
                         }
+                    }
+                }
+
+                if(matInfo.prodName == "Perf"){
+                    if(product.width >= 53 && product.height >= 53){
+                        product.query = "max-width-perf"
                     }
                 }
                 
@@ -655,24 +739,25 @@ runParser = function(s, job){
                     }
                 }
 
-                // Add the subprocess to the data level array if it's missing.
-                if(data.subprocess.length == 0){
-                    data.subprocess.push(product.subprocess.name);
+                // Set the gang mixing value on the data object from the first subprocess pulled.
+                if(data.mixed == null){
                     data.mixed = product.subprocess.mixed;
                 }
-                
-                // If the subprocess can't be mixed with the parent subprocess, continue on.
+
+                // If the subprocess can't be mixed with other subprocesses, reject it.
+                if(data.mixed != product.subprocess.mixed){
+                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
+                    continue
+                }
+
+                // If the subprocess name isn't in the array yet, add it.
                 if(!contains(data.subprocess, product.subprocess.name)){
-                    if(!data.mixed || !product.subprocess.mixed){
-                        data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
-                        continue
-                    }
                     data.subprocess.push(product.subprocess.name);
                 }
                 
                 // Check for side deviation.
                 if(data.doubleSided != product.doubleSided){
-                    if(matInfo.sideMix || submit.override.sideMix){
+                    if(data.sideMix || submit.override.sideMix){
                         data.doubleSided = true;
                     }else{
                         var type = product.doubleSided ? "(Double Sided)" : "(Single Sided)"
@@ -692,6 +777,7 @@ runParser = function(s, job){
                 // If the order is a late.
                 if(product.late){
                     data.notes.push(orderArray[i].jobItemId + ": Late! This item is late and is being labeled accordingly for production.");
+                    data.dateID = now.month + "-" + now.day
                 }
                 
                 // If the order is a replacement, send an email to the user.
@@ -709,7 +795,8 @@ runParser = function(s, job){
                 // Gather the source file options
                 var file = {
                     source: new File(watermarkDrive + "/" + product.contentFile),
-                    depository: new File("//10.21.71.213/Storage/pdfDepository/" + product.contentFile)
+                    depository: new File("//10.21.71.213/Storage/pdfDepository/" + product.contentFile),
+                    data: false
                 }
                     
                 // Do we need to transfer the file from the depository?
@@ -726,54 +813,59 @@ runParser = function(s, job){
                         continue;
                     }
                 }
-                
+
                 // Check if the sizes need to be flipped to standard WxH format.
-                if(product.subprocess.name != "A-Frame" && data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
-                    try{
-                        // Read stats from the file...
-                        file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
-                        file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
-                        file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
-                        file.pages = file.stats.getNumber("NumberOfPages");
-                        
-                        if(file.pages == 1 && product.doubleSided){
-                            data.notes.push(product.itemNumber + ": File missing 2nd page for DS printing.");
-                            continue;
-                        }
-                        
-                        var variance = {
-                            square: product.width - product.height,
-                            standard: Math.abs(file.width-product.width) + Math.abs(file.height-product.height),
-                            flipped: Math.abs(file.width-product.height) + Math.abs(file.height-product.width)
-                        }
+                if(product.subprocess.orientationCheck){
+                    if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+                        try{
+                            // Read stats from the file...
+                            file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
+                            file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
+                            file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
+                            file.pages = file.stats.getNumber("NumberOfPages");
+                            
+                            if(file.pages == 1 && product.doubleSided){
+                                data.notes.push(product.itemNumber + ": File missing 2nd page for DS printing.");
+                                continue;
+                            }
+                            
+                            var variance = {
+                                square: product.width - product.height,
+                                standard: Math.abs(file.width-product.width) + Math.abs(file.height-product.height),
+                                flipped: Math.abs(file.width-product.height) + Math.abs(file.height-product.width)
+                            }
 
-                        if(variance.square == 0){
-                            product.orientation = "Square";
-                        }else{
-                            if(product.finishingType == "TB" || product.finishingType == "T" || product.finishingType == "B"){
-                                product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
+                            if(variance.square == 0){
+                                product.orientation = "Square";
                             }else{
-                                product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard"
+                                if(product.finishingType == "TB" || product.finishingType == "T" || product.finishingType == "B"){
+                                    product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
+                                }else{
+                                    product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard"
+                                }
                             }
-                        }
 
-                        if(product.orientation == "Flipped"){
-                            data.notes.push(product.itemNumber + ": Flipped sizes to standard format.");
-                            var temp = {
-                                width: product.width,
-                                height: product.height
+                            if(product.orientation == "Flipped"){
+                                data.notes.push(product.itemNumber + ": Flipped sizes to standard format.");
+                                var temp = {
+                                    width: product.width,
+                                    height: product.height
+                                }
+                                product.width = temp.height;
+                                product.height = temp.width;
                             }
-                            product.width = temp.height;
-                            product.height = temp.width;
-                        }
 
-                    }catch(e){
-                        data.notes.push(product.itemNumber + ": File statistics do not exist, can't confirm orientation, please verify in gang.");
+                            file.data = true;
+
+                        }catch(e){
+                            data.notes.push(product.itemNumber + ": File statistics do not exist, can't confirm orientation, please verify in gang.");
+                        }
                     }
                 }
                 
                 if(product.subprocess.name == "Breakaway"){
                     // Read stats from the file...
+                    file.data = false;
                     file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
                     file.pages = file.stats.getNumber("NumberOfPages");
                     if(file.pages != 2){
@@ -793,6 +885,7 @@ runParser = function(s, job){
                 if(orderArray[i].yardframe.active){
                     if(!orderArray[i].yardframe.undersize){
                         product.subprocess.undersize = false
+                        data.notes.push(product.itemNumber + ": Requires hardware. Automated undersizing has been disabled.");
                     }
                 }
 
@@ -801,49 +894,50 @@ runParser = function(s, job){
                     product.subprocess.undersize = false;
                 }
 
-                scale.widthModifier = Math.round(product.width/file.width);
-                scale.heightModifier = Math.round(product.height/file.height);
-                
-                /*
-                // Material specific adjustments and settings.
-                if(matInfo.type == "roll"){
-                    if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
-                        if(product.width >= 198 || product.height >= 198){
-                            scale.widthModifier = 2;
-                            scale.heightModifier = 2;
+                // If the file data exists then determine the scale of the file by using smart scale.
+                if(file.data){
+                    scale.widthModifier = Math.round(product.width/file.width);
+                    scale.heightModifier = Math.round(product.height/file.height);
+
+                // Otherwise determine the scale of the file by using the logic Prepress should be following as well.
+                }else{
+                    if(matInfo.type == "roll"){
+                        if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
+                            if(product.width >= 198 || product.height >= 198){
+                                scale.widthModifier = 2;
+                                scale.heightModifier = 2;
+                            }
+                            if(product.width >= 398 || product.height >= 398){
+                                scale.widthModifier = 4;
+                                scale.heightModifier = 4;
+                            }
+                            if(product.width >= 797 || product.height >= 797){
+                                scale.widthModifier = 10;
+                                scale.heightModifier = 10;
+                            }
                         }
-                        if(product.width >= 398 || product.height >= 398){
-                            scale.widthModifier = 4;
-                            scale.heightModifier = 4;
-                        }
-                        if(product.width >= 797 || product.height >= 797){
-                            scale.widthModifier = 10;
-                            scale.heightModifier = 10;
-                        }
-                    }
-                        
-                    if(data.facility.destination == "Van Nuys" || data.facility.destination == "Arlington"){
-                        if(product.width >= 144 || product.height >= 144){
-                            scale.widthModifier = 2;
-                            scale.heightModifier = 2;
-                        }
-                        if(product.width >= 287 || product.height >= 287){
-                            scale.widthModifier = 4;
-                            scale.heightModifier = 4;
-                        }
-                        if(product.width >= 573 || product.height >= 573){
-                            scale.widthModifier = 10;
-                            scale.heightModifier = 10;
+                        if(data.facility.destination == "Van Nuys" || data.facility.destination == "Arlington"){
+                            if(product.width >= 144 || product.height >= 144){
+                                scale.widthModifier = 2;
+                                scale.heightModifier = 2;
+                            }
+                            if(product.width >= 287 || product.height >= 287){
+                                scale.widthModifier = 4;
+                                scale.heightModifier = 4;
+                            }
+                            if(product.width >= 573 || product.height >= 573){
+                                scale.widthModifier = 10;
+                                scale.heightModifier = 10;
+                            }
                         }
                     }
                 }
-                */
                 
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
                 // Not for undersizing to force better yield.
                 if(!scale.locked){
-                    if(!submit.override.forceFullsize){
+                    if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(!data.oversize && !data.scaled){
                             if(product.width > product.height){
                                 if(product.width >= usableArea.height){
@@ -883,25 +977,28 @@ runParser = function(s, job){
                 }
                 
                 // If the product can be undersized...
-                if(product.subprocess.undersize && matInfo.forceUndersize == true && !submit.override.forceFullsize){
-                        dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
-                    if(dbQuery.isRowAvailable()){
-                        dbQuery.fetchRow();
-                        scale.width = dbQuery.getString(3)/dbQuery.getString(2)*100;
-                        scale.adjusted = true;
-                    }
-                    
-                        dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
-                    if(dbQuery.isRowAvailable()){
-                        dbQuery.fetchRow();
-                        scale.height = dbQuery.getString(3)/dbQuery.getString(2)*100;
-                        scale.adjusted = true;
+                // This checks if the material info database is asking to undersize.
+                if(product.subprocess.undersize && product.forceUndersize == true){
+                    if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+                            dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
+                        if(dbQuery.isRowAvailable()){
+                            dbQuery.fetchRow();
+                            scale.width = dbQuery.getString(3)/dbQuery.getString(2)*100;
+                            scale.adjusted = true;
+                        }
+                        
+                            dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
+                        if(dbQuery.isRowAvailable()){
+                            dbQuery.fetchRow();
+                            scale.height = dbQuery.getString(3)/dbQuery.getString(2)*100;
+                            scale.adjusted = true;
+                        }
                     }
                 }
                 
                 // Retractable undersizing so it fits in the stand easier.
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
-                    if(!submit.override.forceFullsize){
+                    if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
                             scale.width = 23.5/product.width*100;
                             data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
@@ -915,28 +1012,44 @@ runParser = function(s, job){
                 
                 // Backdrop undersizing for shipping purposes
                 if(product.subprocess.name == "Backdrop"){
-                    if(product.subprocess.undersize && !submit.override.forceFullsize){
-                        if(file.width == product.width){
-                            // Width == 96
-                            if(product.width == "96"){
-                                scale.width = 94/product.width*100;
-                                data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
-                            }
-                            // Height == 96
-                            if(product.width != product.height){
-                                if(product.height == "96"){
-                                    scale.height = 94/product.height*100;
-                                    data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                    if(product.subprocess.undersize){
+                        if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+                            if(file.width == product.width){
+                                // Width == 96
+                                if(product.width == "96"){
+                                    scale.width = 94/product.width*100;
+                                    data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
+                                }
+                                // Height == 96
+                                if(product.width != product.height){
+                                    if(product.height == "96"){
+                                        scale.height = 94/product.height*100;
+                                        data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                // Establish the difference in expected vs actual product width due to undersizing.
+                var difference = {
+                    width: product.width-(product.width*(scale.width/100)),
+                    height: product.height-(product.height*(scale.height/100))
+                }
                 
-                // Send an email if the undersizing will be too extreme.
-                if((product.width-(product.width*(scale.width/100)) > 1) ||
-                (product.height-(product.height*(scale.height/100)) > 1)){
-                    data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                // Remove the file from the gang if the undersizing is too extreme.
+                if((difference.width > 5) || (difference.height > 5)){
+                    data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
+                    continue;
+                // If the undersizing is greater than 1" ut less than 5", remove it if a custom width was selected, otherwise just notify the user.
+                }else if((difference.width > 1) || (difference.height > 1)){
+                    if(submit.material.active){
+                        data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
+                        continue;
+                    }else{
+                        data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                    }
                 }
                 
                 // Rotation adjustments ----------------------------------------------------------
@@ -1005,11 +1118,9 @@ runParser = function(s, job){
                 // Tension Stands
                 if(product.subprocess.name == "TensionStand"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
-                    //product.dieDesignSource = "DieDesignLibrary";
                     product.dieDesignName = product.width + "x" + product.height;
-                    //product.subprocess.name = "Tension Stand";
                     product.customLabel.value = (i+1)+"-F";
-                    data.impositionProfile = "TensionStands";
+                    data.impositionProfile.name = "TensionStands";
                     marksArray.push(data.facility.destination + "/Misc/TensionStand-Label");
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
@@ -1031,11 +1142,11 @@ runParser = function(s, job){
                 if(data.scaled){
                     scale.width = scale.width/10;
                     scale.height = scale.height/10;
-                    product.spacingBase = matInfo.spacing.base/10;
-                    product.spacingTop = matInfo.spacing.top/10;
-                    product.spacingBottom = matInfo.spacing.bottom/10;
-                    product.spacingLeft = matInfo.spacing.left/10;
-                    product.spacingRight = matInfo.spacing.right/10;
+                    product.spacingBase = product.spacingBase/10;
+                    product.spacingTop = product.spacingTop/10;
+                    product.spacingBottom = product.spacingBottom/10;
+                    product.spacingLeft = product.spacingLeft/10;
+                    product.spacingRight = product.spacingRight/10;
                     product.bleed = matInfo.bleed/10;
                     data.notes.push(product.itemNumber + ': Scaled file, please verify accuracy in report. (' + Math.round(scale.height) + '%)');
                 }
@@ -1072,21 +1183,16 @@ runParser = function(s, job){
                 if(data.printer != "None"){		 
                     if(matInfo.type == "roll"){
                         if(data.scaled){
-                            data.thing += "_10pct";
+                            data.thing += " (Scaled)";
                         }else if(data.oversize){
                             // Send the base printer name
                         }else{
-                            data.thing += "_" + matInfo.height + "in";
+                            data.thing += " (" + matInfo.height + ")";
                         }
-                    }
-                    if(product.subprocess.name == "ButtCut"){
-                        data.thing += "_ButtCut";
                     }
                 }
 
-                if(product.width > usableArea.width && product.height > usableArea.width){
-                    //product.stock += "_MaxWidth"
-                }
+                //data.thing += " (New)"
                 
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -1156,6 +1262,36 @@ runParser = function(s, job){
                 dbQuery.execute("SELECT * FROM digital_room.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
                 if(!dbQuery.isRowAvailable()){
                     dbQuery.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
+                }
+
+                /*
+                if(i>=49){
+                   break;
+                }
+                */
+
+            }
+
+            // Adjust the imposition profile based on overrides from the user.
+            if(data.impositionProfile.name == "Sheet" || data.impositionProfile.name == "Roll"){
+                if(submit.override.gangMethod == "Default"){
+                    data.impositionProfile.name += "_" + matInfo.phoenixMethod;
+                }
+                if(submit.override.gangMethod == "Production Efficiency"){
+                    data.impositionProfile.name += "_Standard";
+                    data.impositionProfile.method = "Production Efficiency";
+                }
+                if(submit.override.gangMethod == "Material Usage"){
+                    data.impositionProfile.name += "_Layout by Layout";
+                    data.impositionProfile.method = "Material Usage";
+                }
+                if(submit.override.gangMethod == "Sequential"){
+                    data.impositionProfile.name += "_Sequential"
+                    data.impositionProfile.method = "Sequential";
+                }
+                if(submit.override.gangMethod == "Single Item Layout"){
+                    data.impositionProfile.name += "_SingleItemLayout"
+                    data.impositionProfile.method = "Single Item Layout";
                 }
             }
             
@@ -1273,6 +1409,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		addNode_db(theXML, baseNode, "subprocess", data.subprocess);
 		addNode_db(theXML, baseNode, "prodMatFileName", data.prodMatFileName);
 		addNode_db(theXML, baseNode, "paper", data.paper);
+        addNode_db(theXML, baseNode, "prismStock", data.prismStock);
 		addNode_db(theXML, baseNode, "type", matInfo.type);
 		addNode_db(theXML, baseNode, "rush", data.rush);
 		addNode_db(theXML, baseNode, "processed-time", now.time);
@@ -1288,7 +1425,8 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		addNode_db(theXML, settingsNode, "secondsurf", data.secondSurface);
 		addNode_db(theXML, settingsNode, "laminate", data.coating.active ? true : data.laminate.active ? true : false);
 		addNode_db(theXML, settingsNode, "mount", data.mount.active);
-		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile);
+		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
+        addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
 		addNode_db(theXML, settingsNode, "scaled", data.scaled);
 	
 	var mountNode = theXML.createElement("mount", null);
@@ -1315,6 +1453,9 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		
 		addNode_db(theXML, miscNode, "environment", data.environment);
 		addNode_db(theXML, miscNode, "cropGang", data.cropGang);
+        addNode_db(theXML, miscNode, "rotateFront", data.rotateFront);
+        addNode_db(theXML, miscNode, "rotateBack", data.rotateBack);
+        addNode_db(theXML, miscNode, "rotate90", data.rotate90);
 		addNode_db(theXML, miscNode, "printExport", data.phoenix.printExport);
 		addNode_db(theXML, miscNode, "cutExport", data.phoenix.cutExport);
 		addNode_db(theXML, miscNode, "fileSource", data.fileSource);

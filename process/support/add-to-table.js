@@ -102,7 +102,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         // Hem options
         if(table == "options_hems"){
             return specs = {
-                active: true,
+                active: db_options.getString(1) != "None",
                 method: db_options.getString(4),
                 webbing: db_options.getString(5) == "y" ? true : false,
                 value: db_options.getString(1)
@@ -112,7 +112,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         // Pocket options
         if(table == "options_pockets"){
             return specs = {
-                active: true,
+                active: db_options.getString(1) != "None",
                 method: db_options.getString(4),
                 size: db_options.getString(5),
                 value: db_options.getString(1)

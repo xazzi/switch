@@ -31,7 +31,11 @@
                         }
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "product":{
+                        "itemName": "Stretch Table Covers"
+                    }
+                }
             },
             "settings":{
                 "product": {

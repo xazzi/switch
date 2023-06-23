@@ -8,14 +8,16 @@ runPost = function(s, job){
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/get-token.js"));
+
+            var environment = s.getPropertyValue("environment")
             
-            var bearerToken = getNewToken_phoenixProject(s);
+            var bearerToken = getNewToken_phoenixProject(s, environment);
             if(!bearerToken){
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
-            
-            var server = s.getPropertyValue("environment") == "QA" ? "https://digital-room-gang.digitalroomapi-qa.io/v1/project/" : "https://digital-room-gang.digitalroomapi.io/v1/project/";
+
+            var server = environment == "QA" ? "https://gang.digitalroomapi-qa.io/v1/project/" : "https://digital-room-gang.digitalroomapi.io/v1/project/";
         
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffObj = {

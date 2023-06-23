@@ -6,7 +6,8 @@
             "key":"TopCorners",
             "facility":[
                 "Salt Lake City",
-                "Arlington"
+                "Arlington",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -23,7 +24,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -50,7 +52,8 @@
             "key":"AllCorners",
             "facility":[
                 "Salt Lake City",
-                "Arlington"
+                "Arlington",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -67,7 +70,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -94,7 +98,8 @@
             "key":"LeftCorners",
             "facility":[
                 "Salt Lake City",
-                "Arlington"
+                "Arlington",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -111,7 +116,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -138,7 +144,8 @@
             "key":"TopCorners",
             "facility":[
                 "Salt Lake City",
-                "Arlington"
+                "Arlington",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -155,7 +162,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -183,7 +191,8 @@
             "key":"AllCorners",
             "facility":[
                 "Salt Lake City",
-                "Arlington"
+                "Arlington",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -200,7 +209,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -228,7 +238,8 @@
             "key":"LeftCorners",
             "facility":[
                 "Salt Lake City",
-                "Arlington"
+                "Arlington",
+                "Wixom"
             ],
             "process":{
                 "requirements":[
@@ -245,7 +256,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },

@@ -2,20 +2,23 @@
     "subprocess": "a-frames",
     "name": "A-Frame",
     "id": "5",
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "Coroplast"
             ],
+            "properties": {
+                "mixed": false,
+                "undersize": false,
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
-                    "forceUndersize": false,
-                    "sideMix": 1
                 },
                 "product": {
                     "rotation": "Custom",
@@ -25,24 +28,30 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "impositionProfile": "Sheet",
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
+                    "sideMix": 1,
                     "prodMatFileName": "A-Frame-DS"
                 }  
             }
         },
         {
-            "name": "Brighton",
-            "id": "18",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
+            "facility": {
+                "name": "Wixom",
+                "id": "37",
+                "enabled": true
+            },
             "processes": [
                 "Coroplast"
             ],
+            "properties": {
+                "mixed": true,
+                "undersize": false,
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
-                    "forceUndersize": false,
-                    "sideMix": 1
                 },
                 "product": {
                     "rotation": "Custom",
@@ -52,35 +61,10 @@
                     "shapeSearch": "Multiple"
                 },
                 "data": {
-                    "impositionProfile": "Sheet",
-                    "prodMatFileName": "A-Frame-Cor"
-                }
-            }
-        },
-        {
-            "name": "Wixom",
-            "id": "37",
-            "enabled": true,
-            "mixed": false,
-            "undersize": "Default",
-            "processes": [
-                "Coroplast"
-            ],
-            "overrides": {
-                "matInfo": {
-                    "forceUndersize": false,
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
                     "sideMix": 1
-                },
-                "product": {
-                    "rotation": "Custom",
-                    "allowedRotations": 90,
-                    "pageHandling": "OnePerTwoPages",
-                    "overrun": 20,
-                    "shapeSearch": "Multiple"
-                },
-                "data": {
-                    "impositionProfile": "Sheet",
-                    "prodMatFileName": "A-Frame-Cor"
                 }
             }
         }

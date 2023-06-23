@@ -1,4 +1,4 @@
-getMatInfo = function(orderSpecs, dbConn){
+getMatInfo = function(orderSpecs, dbConn_material){
 
     // Get the paper mapping ID for the specific facility.
     var paperMapId
@@ -17,7 +17,7 @@ getMatInfo = function(orderSpecs, dbConn){
     }
     
     // Pull the material defaults based on the facility mapping ID.
-    var db_material = new Statement(dbConn);
+    var db_material = new Statement(dbConn_material);
         db_material.execute('CALL digital_room.getMaterial(' + paperMapId + ')');
     if(!db_material.isRowAvailable()){
         return "Material Data Missing";
@@ -47,6 +47,8 @@ getMatInfo = function(orderSpecs, dbConn){
         rotation: db_material.getString(6),
         allowedRotations: db_material.getString(14),
         impositionProfile: db_material.getString(15),
+        phoenixMethod: db_material.getString(35),
+        phoenixMethodUserFriendly: db_material.getString(36),
         grade: db_material.getString(16),
         bleedType: db_material.getString(17),
 
@@ -67,6 +69,9 @@ getMatInfo = function(orderSpecs, dbConn){
         overrun: db_material.getString(27),
         forceUndersize: db_material.getString(28) == "0" ? false : true,
         sideMix: db_material.getString(29) == "0" ? false : true,
+        rotateFront: db_material.getString(37) == 'y' ? true : false,
+        rotateBack: db_material.getString(38) == 'y' ? true : false,
+        rotate90: db_material.getString(39) == 'y' ? true : false,
 
         rip: {
             device: db_material.getString(30),

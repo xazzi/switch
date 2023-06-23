@@ -20,7 +20,8 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                 name: "None",
                 exists: false,
                 mixed: true,
-                undersize: db_mapItem.getString(5) == 'n' ? false : true
+                undersize: db_mapItem.getString(5) == 'n' ? false : true,
+                orientationCheck: true
             }
         }
 
@@ -38,30 +39,32 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             // Find the correct subprocess support file.
             if(contains(subprocess, dump.id)){
                 // Loop through all of the facilities in the subprocess.
-                for(var j in dump.facility){
+                for(var j in dump.parameters){
                     // The facility has to have a subprocess assigned to it to advance.
-                    if(dump.facility[j].id == query.facilityId){
+                    if(dump.parameters[j].facility.id == query.facilityId){
                         // If the facility is enabled, advance.
-                        if(dump.facility[j].enabled){
+                        if(dump.parameters[j].facility.enabled){
                             // Check that the process is a possible process for the subprocess.
-                            if(contains(dump.facility[j].processes, matInfo.prodName) || contains(dump.facility[j].processes, "All")){
+                            if(contains(dump.parameters[j].processes, matInfo.prodName) || contains(dump.parameters[j].processes, "All")){
                                 // If the subprocess does not allow mixed, not the first run through the array, and subprocess doesn't not match
-                                if(!dump.facility[j].mixed && data.mixed != null && !contains(data.subprocess, dump.name)){
+                                if(!dump.parameters[j].properties.mixed && data.mixed != null && !contains(data.subprocess, dump.name)){
                                     return settings = {
                                         name: dump.name,
                                         exists: null,
                                         mixed: null,
-                                        undersize: null
+                                        undersize: null,
+                                        orientationCheck: null
                                     }
                                 }
 
                                 // Apply the subprocess overrides
-                                checkObject(s, dump.facility[j].overrides, matInfo, product, data, scale)
+                                checkObject(s, dump.parameters[j].overrides, matInfo, product, data, scale)
                                 return settings = {
                                     name: dump.name,
                                     exists: true,
-                                    mixed: dump.facility[j].mixed,
-                                    undersize: dump.facility[j].undersize ? true : !dump.facility[j].undersize ? false : db_mapItem.getString(5) == 'y' ? true : false
+                                    mixed: dump.parameters[j].properties.mixed,
+                                    undersize: dump.parameters[j].properties.undersize == true ? true : dump.parameters[j].properties.undersize == false ? false : db_mapItem.getString(5) == 'y' ? true : false,
+                                    orientationCheck: dump.parameters[j].properties.orientationCheck
                                 }
                             }
                         }
@@ -70,11 +73,13 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             }
         }
 
+        // If no subprocess was found, set it as "none".
         return settings = {
             name: "None",
             exists: false,
             mixed: true,
-            undersize: db_mapItem.getString(5) == 0 ? false : true
+            undersize: db_mapItem.getString(5) == 'y' ? true : false,
+            orientationCheck: true
         }
     }
     return readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess);

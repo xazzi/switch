@@ -46,10 +46,10 @@ getNewToken_phoenixProject = function(s, environment){
 		var theHTTP = new HTTP( HTTP.SSL );
 			if(environment == "QA"){
 				theHTTP.addParameter( "client_secret", "1aenjvp9j89r8hl3hlljm55e9eda559jfij1hui8rq00lkg3ha6n" );
-				theHTTP.url = "https://auth.digitalroomapi-qa.io/oauth2/token";
+				theHTTP.url = "https://auth.digitalroomapi-qa.io/token";
 			}else{
 				theHTTP.addParameter( "client_secret", "1aenjvp9j89r8hl3hlljm55e9eda559jfij1hui8rq00lkg3ha6n" );
-				theHTTP.url = "https://auth.digitalroomapi-qa.io/oauth2/token"
+				theHTTP.url = "https://auth.digitalroomapi-qa.io/token"
 			}
 			theHTTP.addParameter( "client_id", "5k718o5ifnhsftm96r4btvh2m0" );
 			theHTTP.addParameter( "grant_type", "client_credentials" );

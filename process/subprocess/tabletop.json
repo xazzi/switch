@@ -2,19 +2,23 @@
     "subprocess": "table-top",
     "name": "TableTop",
     "id": 7,
-    "facility": [
+    "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
-            "mixed": true,
-            "undersize": "Default",
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "DSS"
             ],
+            "properties": {
+                "mixed": true,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
             "overrides": {
                 "matInfo": {
-                    "sideMix": 1
                 },
                 "product": {
                     "pageHandling": "OnePerPage",
@@ -23,6 +27,7 @@
                     }
                 },
                 "data": {
+                    "sideMix": 1
                 }
             }
         }
