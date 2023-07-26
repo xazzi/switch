@@ -12,13 +12,24 @@ runRelease = function(s){
                 s.setTimerInterval(secondInterval);
                 
             var environment = s.getPropertyValue("environment");
-            var phoenix = s.getPropertyValue("phoenixServer");
+            var server = s.getPropertyValue("phoenixServer");
             
             var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
                     
             var pdfDepository = new Dir("//10.21.71.213/Storage/pdfDepository");
             var csvDepository = new Dir("C:/Switch/Depository/csvHold/" + environment);
-            var csvDestination = new Dir("C:/Switch/Depository/csvRunning/" + environment + "/" + phoenix);
+
+            var toPhoenix = getDirectory("C:/Switch/Depository/toPhoenix/" + environment + "/" + server);
+
+            /*
+            var toPhoenix = {}
+                toPhoenix.path = "C:/Switch/Depository/toPhoenix/" + environment + "/" + server
+                toPhoenix.dir = new Dir(toPhoenix.path)
+
+            if(!toPhoenix.dir.exists){
+                toPhoenix.dir.mkdir(toPhoenix.path)
+            }
+            */
             
             var threshold = 5 * 60000; //5 mins
             var now = new Date();
@@ -66,14 +77,14 @@ runRelease = function(s){
                     csvFile.close();
                 
                 if(pdfReady == true){
-                    s.move(csvDepository.absPath + "/" + csvFiles[i], csvDestination.absPath + "/" + csvFiles[i], true);
+                    s.move(csvDepository.absPath + "/" + csvFiles[i], toPhoenix.dir.absPath + "/" + csvFiles[i], true);
                     break;
                 }
                 
                 var modified = new Date(csvFile.lastModified);
         
                 if(now.getTime() - modified.getTime() > threshold){
-                    s.move(csvDepository.absPath + "/" + csvFiles[i], csvDestination.absPath + "/" + csvFiles[i], true);
+                    s.move(csvDepository.absPath + "/" + csvFiles[i], toPhoenix.dir.absPath + "/" + csvFiles[i], true);
                     s.log(2, "Time limit reached, sent to Phoenix.");
                     break;
                 }

@@ -17,7 +17,21 @@ runPost = function(s, job){
                 return;
             }
 
-            var server = environment == "QA" ? "https://gang.digitalroomapi-qa.io/v1/project/" : "https://digital-room-gang.digitalroomapi.io/v1/project/";
+            var server
+
+            switch(environment){
+                case "QA":
+                    server = "https://gang.digitalroomapi-qa.io/v1/project/";
+                break;
+                case "Stage":
+                    server = "https://gang.digitalroomapi-stage.io/v1/project/";
+                break;
+                case "Production":
+                    server = "https://digital-room-gang.digitalroomapi.io/v1/project/";
+                break;
+                default:
+                    server = "Oops"
+            }
         
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffObj = {

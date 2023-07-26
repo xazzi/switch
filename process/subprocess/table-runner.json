@@ -40,9 +40,6 @@
                     "allowedRotations": "0,90"
                 },
                 "data": {
-                    "phoenix": {
-                        "cutExport": "Auto_SaltLakeCity_Scripts"
-                    }
                 }
             }
         }
