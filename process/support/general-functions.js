@@ -14,6 +14,26 @@ connectToDatabase_db = function(database){
 	}
 }
 
+getDirectory = function(path){
+	var directory = {}	
+	var sample = path.split("/").reverse()
+	var segment = sample.length
+	var newPath = []
+
+	while(segment>0){
+		newPath.push(sample[segment-1])
+		directory.path = newPath.join('/');
+		directory.dir = new Dir(directory.path);
+
+		if(!directory.dir.exists){
+			directory.dir.mkdir(directory.path)
+		}
+		segment--
+	}
+
+	return directory
+}
+
 loadDataset_db = function(dataset){
     var datasetJob = job.getDataset(dataset);
 	if (datasetJob === undefined || !datasetJob.hasValidData()) {

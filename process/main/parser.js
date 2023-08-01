@@ -249,10 +249,6 @@ runParser = function(s, job){
                     email.errors.push(submit.rotation[i].split(':')[0] + ": Does not match standard item number format, rejecting adjustment. (8 digit item number)");
                     continue;
                 }
-                if(submit.rotation[i].split(':')[1] != (0||90||180||270||"default")){
-                    email.errors.push(submit.rotation[i].split(':')[0] + ": " + submit.rotation[i].split(':')[1] + " degrees is not an approved rotation, rejecting adjustment. (0, 90, 180, 270, and default)");
-                    continue;
-                }
                 
                 var temp = {
                     item: submit.rotation[i].split(':')[0],
@@ -698,9 +694,11 @@ runParser = function(s, job){
                 }
                 
                 // Check for butt-weld processing
-                if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
-                    if(!orderArray[i].doubleSided){
-                        product.query = "butt-weld";
+                if(data.facility.destination == "Wixom"){
+                    if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
+                        if(!orderArray[i].doubleSided){
+                            product.query = "butt-weld";
+                        }
                     }
                 }
                 
@@ -823,7 +821,7 @@ runParser = function(s, job){
                             file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
                             file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
                             file.pages = file.stats.getNumber("NumberOfPages");
-                            
+
                             if(file.pages == 1 && product.doubleSided){
                                 data.notes.push(product.itemNumber + ": File missing 2nd page for DS printing.");
                                 continue;
@@ -841,8 +839,13 @@ runParser = function(s, job){
                                 if(product.finishingType == "TB" || product.finishingType == "T" || product.finishingType == "B"){
                                     product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
                                 }else{
-                                    product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard"
+                                    product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard";
                                 }
+                            }
+
+                            if(Math.round((file.width/product.width)*100) == 10 && Math.round((file.height/product.height)*100) == 10){
+                                data.notes.push(product.itemNumber + ": Please carefully check for correct size.");
+                                product.orientation = "Standard"
                             }
 
                             if(product.orientation == "Flipped"){
@@ -862,7 +865,7 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
+
                 if(product.subprocess.name == "Breakaway"){
                     // Read stats from the file...
                     file.data = false;
@@ -1039,16 +1042,18 @@ runParser = function(s, job){
                 }
                 
                 // Remove the file from the gang if the undersizing is too extreme.
-                if((difference.width > 5) || (difference.height > 5)){
-                    data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
-                    continue;
-                // If the undersizing is greater than 1" ut less than 5", remove it if a custom width was selected, otherwise just notify the user.
-                }else if((difference.width > 1) || (difference.height > 1)){
-                    if(submit.material.active){
+                if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+                    if((difference.width > 5) || (difference.height > 5)){
                         data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
                         continue;
-                    }else{
-                        data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                    // If the undersizing is greater than 1" but less than 5", remove it if a custom width was selected, otherwise just notify the user.
+                    }else if((difference.width > 1) || (difference.height > 1)){
+                        if(submit.material.active){
+                            data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
+                            continue;
+                        }else{
+                            data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                        }
                     }
                 }
                 
@@ -1081,7 +1086,7 @@ runParser = function(s, job){
                 // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
                 if(data.facility.destination == "Wixom"){
                     if(product.doubleSided){
-                        if(orderArray[i].pocket.active){
+                        if(orderArray[i].pocket.active || orderArray[i].itemName == "Pole Banners" || orderArray[i].itemName == "Replacement Pole Banners"){
                             if(product.width*(scale.width/100) < usableArea.width){
                                 product.rotation = "None";
                                 product.allowedRotations = 0;
@@ -1191,8 +1196,6 @@ runParser = function(s, job){
                         }
                     }
                 }
-
-                //data.thing += " (New)"
                 
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -1236,7 +1239,7 @@ runParser = function(s, job){
                     
                     writeInjectJSON(injectFile, orderArray[i], product);
                     
-                    injectXML.setHierarchyPath([userInfo.dir]);
+                    injectXML.setHierarchyPath([data.environment,userInfo.dir]);
                     injectXML.setPriority(submit.override.priority)
                     injectXML.sendTo(findConnectionByName_db(s, "Inject XML"), injectPath);
                 }
@@ -1303,8 +1306,7 @@ runParser = function(s, job){
             csvFile.close();
         
             createDataset(newCSV, data, matInfo, false, null, null, userInfo, true, now);
-            //createReport(s, newCSV, data)
-            newCSV.setHierarchyPath([data.environment,data.sku]);	
+            newCSV.setHierarchyPath([data.environment,data.sku]);
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
             newCSV.setUserFullName(job.getUserFullName());
@@ -1383,7 +1385,10 @@ function compileCSV(product, matInfo, scale, orderArray, data){
 		["Late", product.late],
 		["Reprint", product.reprint],
         ["Enable Scripts", product.scripts.enabled],
+        //["Enable Scripts", "true"],
         ["Script Name", product.scripts.name],
+        //["Script Name", "DS-Indicators"],
+        //["Script Parameters", "DS-I:TB"],
         ["Sewn Hem Offset", product.scripts.offset]
 	];
 	return infoArray

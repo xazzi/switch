@@ -67,6 +67,70 @@
                     "sideMix": 1
                 }  
             }
+        },
+        {
+            "facility": {
+                "name": "Arlington",
+                "id": "5",
+                "enabled": true
+            },
+            "processes": [
+                "Coroplast"
+            ],
+            "properties": {
+                "mixed": false,
+                "undersize": false,
+                "orientationCheck": false
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "rotation": "Custom",
+                    "allowedRotations": 90,
+                    "pageHandling": "OnePerPage",
+                    "overrun": 20,
+                    "shapeSearch": "Multiple"
+                },
+                "data": {
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
+                    "sideMix": 1
+                }  
+            }
+        },
+        {
+            "facility": {
+                "name": "Wixom",
+                "id": "37",
+                "enabled": true
+            },
+            "processes": [
+                "3mm-PVC"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": false,
+                "orientationCheck": false
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "rotation": "Custom",
+                    "allowedRotations": 90,
+                    "pageHandling": "OnePerPage",
+                    "overrun": 20,
+                    "shapeSearch": "Multiple"
+                },
+                "data": {
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
+                    "sideMix": 1
+                }  
+            }
         }
     ]
 }

@@ -4,9 +4,11 @@
     "id": "2",
     "parameters": [
         {
-            "name": "Salt Lake City",
-            "id": "28",
-            "enabled": true,
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "processes": [
                 "13ozBanner"
             ],

@@ -75,7 +75,6 @@ runProcessor = function(s, job){
             }
             
             var phoenixOutput = new Dir("C:/Switch/Depository/phoenixOutput/" + environment + "/" + data.sku);
-            var phoenixApproved = new Dir("C:/Switch/Depository/phoenixApproved/" + environment);
             var phoenixRejected = new Dir("C:/Switch/Depository/phoenixRejected/" + environment);
             
             var newXML = s.createNewJob();
@@ -106,8 +105,14 @@ runProcessor = function(s, job){
                         newXML.setHierarchyPath([userInfo.dir])
                         newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
                     }
+
+					var phoenixApproved = getFileType(files[i], environment)
+
+					// Move the file to the toPostProcessing directory.
                     s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
                 }else{
+
+					// Move the file to the rejected directory
                     s.move(phoenixOutput.path + "/" + files[i], phoenixRejected.path + "/" + files[i], true);
                 }
             }
@@ -135,6 +140,27 @@ runProcessor = function(s, job){
         }
     }
     processor(s, job)
+}
+
+function getFileType(name, environment){
+
+	if(name.match(/die/) == "die"){
+		return getDirectory("C:/Switch/Depository/toPostProcessing/" + environment + "/Cut")
+	}
+
+	if(name.match(/report/) == "report"){
+		return getDirectory("C:/Switch/Depository/toFileDistribution/" + environment + "/Report")
+	}
+
+	if(name.match(/xml/) == "xml"){
+		return getDirectory("C:/Switch/Depository/toFileDistribution/" + environment + "/Data")
+	}
+
+	if(name.match(/phx/) == "phx"){
+		return getDirectory("C:/Switch/Depository/toFileDistribution/" + environment + "/Phoenix")
+	}
+
+	return getDirectory("C:/Switch/Depository/toPostProcessing/" + environment + "/Print")
 }
 
 function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, data, endPoint, validation){
