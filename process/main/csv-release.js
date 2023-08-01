@@ -20,16 +20,6 @@ runRelease = function(s){
             var csvDepository = new Dir("C:/Switch/Depository/csvHold/" + environment);
 
             var toPhoenix = getDirectory("C:/Switch/Depository/toPhoenix/" + environment + "/" + server);
-
-            /*
-            var toPhoenix = {}
-                toPhoenix.path = "C:/Switch/Depository/toPhoenix/" + environment + "/" + server
-                toPhoenix.dir = new Dir(toPhoenix.path)
-
-            if(!toPhoenix.dir.exists){
-                toPhoenix.dir.mkdir(toPhoenix.path)
-            }
-            */
             
             var threshold = 5 * 60000; //5 mins
             var now = new Date();

@@ -5,8 +5,6 @@ runParser = function(s, job){
                 support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
                 subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/")
             }
-
-            "Test"
                                 
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/get-itemdata.js"));
