@@ -18,6 +18,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/get-marks.js"));
             eval(File.read(dir.support + "/get-phoenix-scripts.js"));
             eval(File.read(dir.support + "/add-to-table.js"));
+            eval(File.read(dir.support + "/compile-csv.js"));
             
             var dbConn = connectToDatabase_db(s.getPropertyValue("databaseGeneral"));
                 dbQuery = new Statement(dbConn);
@@ -385,8 +386,8 @@ runParser = function(s, job){
                     
                     if(matInfo.prodName == "13oz-PolyFilm"){
                         if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
-                            matInfo.width = 53;
-                            matInfo.phoenixStock = "Roll_53";
+                            //matInfo.width = 53;
+                            //matInfo.phoenixStock = "Roll_53";
                         }
                     }
                     
@@ -1235,7 +1236,7 @@ runParser = function(s, job){
                     
                     injectXML.setUserEmail(userInfo.email);
                     
-                    createDataset(injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
+                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
                     
                     writeInjectJSON(injectFile, orderArray[i], product);
                     
@@ -1250,7 +1251,7 @@ runParser = function(s, job){
                     var cvPath = cvXML.createPathWithName(product.itemNumber + ".xml", false);
                     var cvFile = new File(cvPath);
                     
-                    createDataset(cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
+                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
                     
                     writeInjectXML(cvFile, product);
                     
@@ -1305,7 +1306,7 @@ runParser = function(s, job){
             
             csvFile.close();
         
-            createDataset(newCSV, data, matInfo, false, null, null, userInfo, true, now);
+            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now);
             newCSV.setHierarchyPath([data.environment,data.sku]);
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
@@ -1313,7 +1314,7 @@ runParser = function(s, job){
             newCSV.setPriority(submit.override.priority);
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
             
-            createDataset(job, data, matInfo, false, null, null, userInfo, false, now);
+            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now);
             job.setHierarchyPath([data.projectID]);
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
@@ -1331,70 +1332,7 @@ runParser = function(s, job){
 
 // -------------------------------------------------------
 
-function compileCSV(product, matInfo, scale, orderArray, data){
-	// Compile the CSV information.	
-	var infoArray = [
-		["Name",product.contentFile],
-		["Artwork File",product.artworkFile],
-		["Ordered",product.quantity],
-		["Stock",product.stock],
-		["Grade",product.grade + " gsm"],
-		["Spacing",product.spacingBase],
-		["Spacing Top",product.spacingTop],
-		["Spacing Bottom",product.spacingBottom],
-		["Spacing Left",product.spacingLeft],
-		["Spacing Right",product.spacingRight],
-		["Spacing Type",matInfo.spacing.type],
-        ["Offcut Top",product.offcut.top],
-        ["Offcut Bottom",product.offcut.bottom],
-        ["Offcut Left",product.offcut.left],
-        ["Offcut Right",product.offcut.right],
-		["Bleed",product.bleed],
-		["Rotation",product.rotation],
-		["Allowed Rotations",product.allowedRotations],
-		["Width",scale.width + "%"],
-		["Height",scale.height + "%"],
-        ["Scale Width",scale.width],
-		["Scale Height",scale.height],
-		["View Width",product.width],
-		["View Height",product.height],
-		["Description","Description"],
-		["Shape Search",product.shapeSearch],
-		["Notes","SheetLevelData"], //wtf is this?
-		["Page Handling",product.pageHandling],
-		["Marks",marksArray],
-		["METRIX_NAME",product.orderNumber],
-		["Item Number",product.itemNumber],
-		["Product Notes",orderArray.productNotes], //If you add something above this you have to update the xml updater as well. (this might be outdated)
-		["Bleed Type",matInfo.bleedType],
-		["A-Frame Type",orderArray.frame.value],
-		["Mount Info",orderArray.mount.value],
-		["Base Type",orderArray.base.active ? orderArray.base.value : orderArray.display.active ? orderArray.display.value : "Unknown Hardware"],
-		["Die Design Source",product.dieDesignSource],
-		["Die Design Name",product.dieDesignName],
-		["Max Overruns",product.overruns],
-		["Ship Date",orderArray.date.due],
-        ["Ship Type",product.shipType],
-		["Due Date",data.date.due],
-		["Gang Info", data.phoenix.gangLabel],
-		["Group Number", product.groupNumber],
-		["Custom Label", product.customLabel.value],
-		["Hem Value", product.hemValue],
-		["Finishing Type", product.finishingType],
-		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
-		["Late", product.late],
-		["Reprint", product.reprint],
-        ["Enable Scripts", product.scripts.enabled],
-        //["Enable Scripts", "true"],
-        ["Script Name", product.scripts.name],
-        //["Script Name", "DS-Indicators"],
-        //["Script Parameters", "DS-I:TB"],
-        ["Sewn Hem Offset", product.scripts.offset]
-	];
-	return infoArray
-}
-
-function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now){
+function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now){
 	
 	var theXML = new Document();
 
@@ -1465,6 +1403,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		addNode_db(theXML, miscNode, "cutExport", data.phoenix.cutExport);
 		addNode_db(theXML, miscNode, "fileSource", data.fileSource);
 		addNode_db(theXML, miscNode, "facility", data.facility.destination);
+        addNode_db(theXML, miscNode, "server", s.getServerName());
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
