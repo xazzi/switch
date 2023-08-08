@@ -1,12 +1,14 @@
 {
-    "marks":[
+    "description":"Dashed lines for pole pocket.",
+    "name": "Pole Pocket Hem",
+    "key":"None",
+    "parameters":[
         {
-            "description":"Dashed lines, pole pocket.",
-            "type":"Pole Pocket",
-            "key":"None",
-            "facility":[
-                "Salt Lake City"
-            ],
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "process":{
                 "requirements":[
                     "All"
@@ -32,9 +34,15 @@
             },
             "settings":{
                 "product": {
-                    "scripts":{
-                        "enabled":false,
-                        "name":"PolePocket"
+                    "script":{
+                        "name":"PolePocket",
+                        "parameters":"orderArray.pocket.method",
+                        "pockets": [
+                            "T:orderArray.pocket.size.top",
+                            "B:orderArray.pocket.size.bottom",
+                            "L:orderArray.pocket.size.left",
+                            "R:orderArray.pocket.size.right"
+                        ]
                     }
                 }
             }

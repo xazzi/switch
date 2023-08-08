@@ -35,7 +35,12 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			pocket: {
 				active: false,
                 method: null,
-                size: null,
+                size: {
+					top: null,
+					bottom: null,
+					left: null,
+					right: null
+				},
                 value: null
 			},
 			mount: {

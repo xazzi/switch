@@ -53,16 +53,10 @@ runFinalize = function(s, job){
             // Salt Lake City ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Salt Lake City"){
                 
-                // Subprocess name changes.
-                // XY cut
-                if(handoffData.subprocess == "XY"){
-                    phoenixPlan.itemNumber = phoenixPlanDS.evalToString("//products/product/properties/property[4]/value");
-                    name.subprocess = "-XY-" + phoenixPlan.itemNumber;
-                }
-                
+                // Subprocess name changes.             
                 // Buttcuts
                 if(handoffData.subprocess == "ButtCut"){
-                    phoenixPlan.itemNumber = phoenixPlanDS.evalToString("//products/product/properties/property[4]/value");
+                    phoenixPlan.itemNumber = phoenixPlanDS.evalToString("//products/product/properties/property[6]/value");
                     name.subprocess = "-ButtCut-" + phoenixPlan.itemNumber;
                 }
                 
@@ -104,7 +98,7 @@ runFinalize = function(s, job){
             }
             
             // Brighton ------------------------------------------------------------------------------------------------
-            if(handoffData.facility == "Brighton" || handoffData.facility == "Louisville" || handoffData.facility == "Wixom"){
+            if(handoffData.facility == "Wixom"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
                 data.side = numberOfPages == 1 ? "_SS" : "_DS";
                 

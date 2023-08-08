@@ -3,7 +3,8 @@ runParser = function(s, job){
         try{
             var dir = {
                 support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
-                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/")
+                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/"),
+                phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
             }
                                 
             eval(File.read(dir.support + "/get-token.js"));
@@ -628,10 +629,11 @@ runParser = function(s, job){
                         apply: false,
                         value: ""
                     },
-                    scripts: {
-                        enabled: false,
+                    script: {
                         name: null,
-                        offset: null
+                        parameters: null,
+                        dynamic: null,
+                        pockets: null
                     },
                     subprocess: {
                         name: null,
@@ -1114,7 +1116,7 @@ runParser = function(s, job){
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
                 setMarks(s, dir.support, matInfo, data, orderArray[i], product, marksArray);	
-                setPhoenixScripts(s, dir.support, matInfo, data, orderArray[i], product);
+                getPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
                     
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){

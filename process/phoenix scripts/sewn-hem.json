@@ -1,12 +1,14 @@
 {
-    "marks":[
+    "description":"Dashed line for sewn hem",
+    "name": "Sewn Hem Dash",
+    "key":"None",
+    "parameters":[
         {
-            "description":"Dashed lines, sewn hem.",
-            "type":"Sewn Hem",
-            "key":"None",
-            "facility":[
-                "Salt Lake City"
-            ],
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
             "process":{
                 "requirements":[
                     "Celtec",
@@ -39,10 +41,12 @@
             },
             "settings":{
                 "product": {
-                    "scripts":{
-                        "enabled":true,
+                    "script":{
                         "name":"SewnHem",
-                        "offset":1.125
+                        "parameters": null,
+                        "dynamic":[
+                            "Offset:1.125"
+                        ]
                     }
                 }
             }
