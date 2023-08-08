@@ -52,11 +52,9 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Late", product.late],
 		["Reprint", product.reprint],
         ["Script Name", product.script.name],
-        //["Script Name", "DS-Indicators"],
 		["Script Parameters", product.script.parameters],
 		["Script Dynamic", product.script.dynamic],
 		["Script Pockets", product.script.pockets]
-        //["Script Parameters", "DS-I:TB"]
 	];
 	return infoArray
 }

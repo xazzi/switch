@@ -16,8 +16,8 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/email-responses.js"));
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/get-subprocess.js"));
-            eval(File.read(dir.support + "/get-marks.js"));
-            eval(File.read(dir.support + "/get-phoenix-scripts.js"));
+            eval(File.read(dir.support + "/set-phoenix-marks.js"));
+            eval(File.read(dir.support + "/set-phoenix-scripts.js"));
             eval(File.read(dir.support + "/add-to-table.js"));
             eval(File.read(dir.support + "/compile-csv.js"));
             
@@ -630,8 +630,8 @@ runParser = function(s, job){
                         value: ""
                     },
                     script: {
-                        name: null,
-                        parameters: null,
+                        name: [],
+                        parameters: [],
                         dynamic: null,
                         pockets: null
                     },
@@ -1115,8 +1115,8 @@ runParser = function(s, job){
                 
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
-                setMarks(s, dir.support, matInfo, data, orderArray[i], product, marksArray);	
-                getPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
+                setPhoenixMarks(s, dir.support, matInfo, data, orderArray[i], product, marksArray);	
+                setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
                     
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){

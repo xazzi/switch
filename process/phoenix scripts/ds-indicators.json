@@ -1,0 +1,43 @@
+{
+    "description":"Marks that indicate a product is DS for production.",
+    "name":"DS Indicators",
+    "key":"None",
+    "parameters":[
+        {
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+
+                },
+                "rejections":{}
+            },
+            "settings":{
+                "product": {
+                    "script":{
+                        "name":"DS-Indicators",
+                        "parameters":null,
+                        "dynamic":[
+                            "DS-I:TB"
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

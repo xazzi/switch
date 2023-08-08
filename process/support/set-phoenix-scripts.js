@@ -1,8 +1,7 @@
-var parent = []
-var parameterArray = []
-var apply
+var parent = [];
+var apply;
 
-getPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
+setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
     function readFiles(s, folder, matInfo, data, orderArray, product){
 
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);
@@ -141,7 +140,13 @@ function checkObject(s, parameter, product, orderArray){
             for(var j in parameter[l]){
                 var prop = parameter[l][j].split(':')[0]
                 var value = parameter[l][j].split(':')[1]
-                tempArray.push(prop + ":" + eval(value))
+                var temp
+                try{
+                    temp = eval(value)
+                }catch(e){
+                    temp = value
+                }
+                tempArray.push(prop + ":" + temp)
             }
             eval(thing + l + " = '" + tempArray.join(',') + "'")
 
@@ -159,7 +164,7 @@ function checkObject(s, parameter, product, orderArray){
             }catch(e){
                 temp = parameter[l]
             }
-            eval(thing + l + " = '" + temp + "'");
+            product.script[l].push(temp)
         }
     }
 
