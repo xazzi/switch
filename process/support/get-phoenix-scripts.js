@@ -1,65 +1,57 @@
 var parent = []
+var parameterArray = []
 var apply
 
-setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
+getPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
     function readFiles(s, folder, matInfo, data, orderArray, product){
 
-        // Create an array of the json files that need to be searched.
-        var markFiles = [
-            "sewn-hem.json",
-            "pockets.json"
-        ]
+        var files = folder.entryList("*.json", Dir.Files, Dir.Name);
 
-        // Loop through that array to find any applicable marks.
-        for(var y in markFiles){
-
-            // Target the specific file, 1 at a time.
-            var str = File.read(folder + "/phoenix script/" + markFiles[y], "UTF-8");
-            var dump = JSON.parse(str);
+        for(var i=0; i<files.length; i++){
+            var str = File.read(folder.path + "/" + files[i], "UTF-8");
+            var dump = JSON.parse(str)
 
             // Loop through the marks in that file.
-            for(var j in dump.marks){
+            for(var j in dump.parameters){
 
                 // Check the mark key.
-                if(dump.marks[j].key != orderArray.grommet.key){
-                    if(dump.marks[j].key != "None"){
+                if(dump.key != orderArray.grommet.key){
+                    if(dump.key != "None"){
                         continue;
                     }
                 }
 
-                // Check for approved facilities
-                if(!contains(dump.marks[j].facility, data.facility.destination)){
-                    if(!contains(dump.marks[j].facility, "All")){
-                        continue;
-                    }
+                // The facility has to have a subprocess assigned to it to advance.
+                if(dump.parameters[j].facility.id != orderArray.facilityId){
+                    continue
+                }
+
+                // If the facility is enabled, advance.
+                if(!dump.parameters[j].facility.enabled){
+                    continue
                 }
 
                 // Check for required products
-                if(!contains(dump.marks[j].process.requirements, data.prodName)){
-                    if(!contains(dump.marks[j].process.requirements, "All")){
+                if(!contains(dump.parameters[j].process.requirements, data.prodName)){
+                    if(!contains(dump.parameters[j].process.requirements, "All")){
                         continue;
                     }
                 }
 
                 // Check for rejected products
-                if(contains(dump.marks[j].process.rejections, data.prodName)){
+                if(contains(dump.parameters[j].process.rejections, data.prodName)){
                     continue;
                 }
                 
                 // Check for required subprocesses
-                if(!contains(dump.marks[j].subprocess.requirements, product.subprocess.name)){
-                    if(!contains(dump.marks[j].subprocess.requirements, "All")){
+                if(!contains(dump.parameters[j].subprocess.requirements, product.subprocess.name)){
+                    if(!contains(dump.parameters[j].subprocess.requirements, "All")){
                         continue;
                     }
                 }
 
                 // Check for rejected subprocesses
-                if(contains(dump.marks[j].subprocess.rejections, product.subprocess.name)){
-                    continue;
-                }
-
-                // If it's the C500, continue through the array.
-                if(matInfo.printer.name == "C500"){
+                if(contains(dump.parameters[j].subprocess.rejections, product.subprocess.name)){
                     continue;
                 }
 
@@ -67,10 +59,10 @@ setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
                 apply = true;
 
                 // Check the requirements.
-                checkParameters(s, "requirements", dump.marks[j].specs.requirements, matInfo, product, data, orderArray);
+                checkParameters(s, "requirements", dump.parameters[j].specs.requirements, matInfo, product, data, orderArray);
 
                 // Check for any rejections.
-                checkParameters(s, "rejections", dump.marks[j].specs.rejections, matInfo, product, data, orderArray);
+                checkParameters(s, "rejections", dump.parameters[j].specs.rejections, matInfo, product, data, orderArray);
 
                 // If any of the above checks failed, continue through the array.
                 if(!apply){
@@ -78,7 +70,7 @@ setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
                 }
 
                 // If all of the above criteria are met, add the associated marks to the array.
-                checkObject(s, dump.marks[j].settings, product, orderArray)
+                checkObject(s, dump.parameters[j].settings, product, orderArray)
             }
         }
     }
@@ -142,18 +134,35 @@ function checkParameters(s, type, parameter, matInfo, product, data, orderArray)
 
 function checkObject(s, parameter, product, orderArray){
     for(var l in parameter){
+        // If the parameter is an array, setup the eval and assign the object.
+        if(parameter[l] instanceof Array){
+            var thing = parent.join('');
+            var tempArray = []
+            for(var j in parameter[l]){
+                var prop = parameter[l][j].split(':')[0]
+                var value = parameter[l][j].split(':')[1]
+                tempArray.push(prop + ":" + eval(value))
+            }
+            eval(thing + l + " = '" + tempArray.join(',') + "'")
 
         // If the parameter is an nested object, dig further.
-        if(typeof parameter[l] === 'object'){
+        }else if(typeof parameter[l] === 'object'){
             parent.push(l + ".");
             checkObject(s, parameter[l], product, orderArray);
 
         // Eval the new parameter.
         }else{
             var thing = parent.join('');
-            eval(thing + l + " = '" + parameter[l] + "'");
+            var temp
+            try{
+                temp = eval(parameter[l])
+            }catch(e){
+                temp = parameter[l]
+            }
+            eval(thing + l + " = '" + temp + "'");
         }
     }
+
     // Remove the last entry of the array when that level of nest is completed.
     parent = parent.slice(0,-1)
 }

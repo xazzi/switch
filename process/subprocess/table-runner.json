@@ -21,10 +21,6 @@
                 "matInfo": {
                 },
                 "product": {
-                    "scripts": {
-                        "enabled": true,
-                        "name": "TableRunner"
-                    },
                     "stock": "Proc_TableRunner_126",
                     "spacingTop": 1,
                     "spacingBottom": 1,

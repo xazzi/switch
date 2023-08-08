@@ -51,12 +51,12 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
 		["Late", product.late],
 		["Reprint", product.reprint],
-        ["Enable Scripts", product.scripts.enabled],
-        //["Enable Scripts", "true"],
-        ["Script Name", product.scripts.name],
+        ["Script Name", product.script.name],
         //["Script Name", "DS-Indicators"],
-        //["Script Parameters", "DS-I:TB"],
-        ["Sewn Hem Offset", product.scripts.offset]
+		["Script Parameters", product.script.parameters],
+		["Script Dynamic", product.script.dynamic],
+		["Script Pockets", product.script.pockets]
+        //["Script Parameters", "DS-I:TB"]
 	];
 	return infoArray
 }

@@ -114,7 +114,12 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: db_options.getString(1) != "None",
                 method: db_options.getString(4),
-                size: db_options.getString(5),
+                size: {
+                    top: db_options.getString(6),
+                    bottom: db_options.getString(7),
+                    left: db_options.getString(8),
+                    right: db_options.getString(9)
+                },
                 value: db_options.getString(1)
             }
         }

@@ -1,0 +1,41 @@
+{
+    "description":"Table runner cut path adjustments",
+    "name": "Table Runner",
+    "key":"None",
+    "parameters":[
+        {
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
+            "process":{
+                "requirements":[
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "TableRunner"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":{
+                "product": {
+                    "script":{
+                        "name":"TableRunner",
+                        "parameters":null,
+                        "dynamic":[
+                            "Offset:1.125"
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}
