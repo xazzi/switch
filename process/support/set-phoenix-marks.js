@@ -1,17 +1,14 @@
 var parent = []
 var apply
 
-setMarks = function(s, folder, matInfo, data, orderArray, product, marksArray){
+setPhoenixMarks = function(s, folder, matInfo, data, orderArray, product, marksArray){
     function readFiles(s, folder, matInfo, data, orderArray, product, marksArray){
 
         // Create an array of the json files that need to be searched.
         var markFiles = [
-            //"color-id.json",
             "grommets.json",
             "labels.json",
-            "misc.json",
-            "dashed-lines.json",
-            "color-day.json"
+            "misc.json"
         ]
 
         // Loop through that array to find any applicable marks.

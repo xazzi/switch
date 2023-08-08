@@ -1,0 +1,38 @@
+{
+    "description":"Color ID for the day of the week.",
+    "name":"Color of the Day",
+    "key":"None",
+    "parameters":[
+        {
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":{
+                "product": {
+                    "script":{
+                        "name":"ColorOfTheDay",
+                        "parameters":null
+                    }
+                }
+            }
+        }
+    ]
+}
