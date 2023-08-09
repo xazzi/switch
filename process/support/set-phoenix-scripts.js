@@ -69,7 +69,7 @@ setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
                 }
 
                 // If all of the above criteria are met, add the associated marks to the array.
-                checkObject(s, dump.parameters[j].settings, product, orderArray)
+                checkObject(s, dump.parameters[j].settings, product, orderArray, matInfo)
             }
         }
     }
@@ -131,7 +131,7 @@ function checkParameters(s, type, parameter, matInfo, product, data, orderArray)
     parent = parent.slice(0,-1);
 }
 
-function checkObject(s, parameter, product, orderArray){
+function checkObject(s, parameter, product, orderArray, matInfo){
     for(var l in parameter){
         // If the parameter is an array, setup the eval and assign the object.
         if(parameter[l] instanceof Array){
@@ -153,7 +153,7 @@ function checkObject(s, parameter, product, orderArray){
         // If the parameter is an nested object, dig further.
         }else if(typeof parameter[l] === 'object'){
             parent.push(l + ".");
-            checkObject(s, parameter[l], product, orderArray);
+            checkObject(s, parameter[l], product, orderArray, matInfo);
 
         // Eval the new parameter.
         }else{

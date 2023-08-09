@@ -159,6 +159,9 @@ runParser = function(s, job){
             var adjustmentArray = [];
             var matInfo = null;
             var matInfoCheck = false;
+            var misc = {
+                rejectPress: true
+            }
             
             var validate = {
                 prodName: null
@@ -408,6 +411,8 @@ runParser = function(s, job){
                     if(matInfo.printer.name == "P10"){
                         if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
                             matInfo.printer.name = "P5-350-HS";
+                            data.printer = "P5-350-HS";
+                            misc.rejectPress = false;
                         }
                     }
                 }
@@ -456,8 +461,10 @@ runParser = function(s, job){
                 }
 
                 if(data.printer != matInfo.printer.name){
-                    data.notes.push(orderSpecs.jobItemId + ": Different printer " + matInfo.printer.name + ", removed from gang.");
-                    continue;
+                    if(misc.rejectPress){
+                        data.notes.push(orderSpecs.jobItemId + ": Different printer " + matInfo.printer.name + ", removed from gang.");
+                        continue;
+                    }
                 }
 
                 if(!orderSpecs.ship.exists){

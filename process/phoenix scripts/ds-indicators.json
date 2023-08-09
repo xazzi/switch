@@ -33,7 +33,8 @@
                         "name":"DS-Indicators",
                         "parameters":null,
                         "dynamic":[
-                            "DS-I:TB"
+                            "DSI-T:matInfo.dsIndicator.top",
+                            "DSI-B:matInfo.dsIndicator.bottom"
                         ]
                     }
                 }
