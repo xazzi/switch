@@ -1,11 +1,28 @@
 {
-    "marks":[
+    "description":"Various types of label indicators.",
+    "name":"Labels",
+    "key":"None",
+    "parameters":[
         {
             "description":"Hem labels for mesh banners.",
             "type":"Hem Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -38,6 +55,11 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "disable":{
+                            "label": {
+                                "hem":true
+                            }
                         }
                     }
                 }
@@ -62,7 +84,21 @@
             "type":"Hem Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -89,6 +125,14 @@
             "specs":{
                 "requirements":{
                     "orderArray":{
+                        "pocket":{
+                            "method":["TB","T"]
+                        },
+                        "disable":{
+                            "label": {
+                                "hem":true
+                            }
+                        },
                         "hem":{
                             "active":true
                         }
@@ -101,6 +145,11 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "disable":{
+                            "label": {
+                                "hem":true
+                            }
                         }
                     }
                 }
@@ -125,7 +174,21 @@
             "type":"Hem Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -188,7 +251,21 @@
             "type":"Webbing Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -222,6 +299,11 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "disable":{
+                            "label": {
+                                "hem":true
+                            }
                         }
                     }
                 }
@@ -238,7 +320,21 @@
             "type":"Webbing Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -275,6 +371,11 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "disable":{
+                            "label": {
+                                "hem":true
+                            }
                         }
                     }
                 }
@@ -291,7 +392,21 @@
             "type":"Pocket Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -311,6 +426,11 @@
                     "orderArray":{
                         "pocket":{
                             "method":["TB","T"]
+                        },
+                        "disable":{
+                            "label": {
+                                "hem":true
+                            }
                         }
                     },
                     "data":{
@@ -339,7 +459,21 @@
             "type":"Pocket Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -359,6 +493,11 @@
                     "orderArray":{
                         "pocket":{
                             "method":["TB","B"]
+                        },
+                        "disable":{
+                            "label": {
+                                "hem":true
+                            }
                         }
                     },
                     "data":{
@@ -387,7 +526,21 @@
             "type":"Hem Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -426,7 +579,21 @@
             "type":"Hem Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -465,7 +632,21 @@
             "type":"Hem Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -504,7 +685,21 @@
             "type":"Custom Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
             ],
             "process":{
                 "requirements":[
@@ -540,7 +735,21 @@
             "type":"Custom Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
             ],
             "process":{
                 "requirements":[
@@ -575,7 +784,21 @@
             "type":"Custom Label",
             "key":"None",
             "facility":[
-                "All"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -605,7 +828,21 @@
             "type": "Product Label",
             "key":"None",
             "facility": [
-                "Salt Lake City"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
             ],
             "process":{
                 "requirements":[
@@ -651,8 +888,21 @@
             "type": "Product Label",
             "key":"None",
             "facility": [
-                "Brighton",
-                "Wixom"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[

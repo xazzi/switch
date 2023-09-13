@@ -4,6 +4,7 @@ runParser = function(s, job){
             var dir = {
                 support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
                 subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/"),
+                phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
                 phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
             }
                                 
@@ -20,6 +21,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/set-phoenix-scripts.js"));
             eval(File.read(dir.support + "/add-to-table.js"));
             eval(File.read(dir.support + "/compile-csv.js"));
+            eval(File.read(dir.support + "/set-labels.js"));
             
             var dbConn = connectToDatabase_db(s.getPropertyValue("databaseGeneral"));
                 dbQuery = new Statement(dbConn);
@@ -506,8 +508,8 @@ runParser = function(s, job){
                 // Check if coating deviation
                 if(data.coating.active != orderSpecs.coating.active){
                     var type = orderSpecs.coating.active ? "(Coated)" : "(Uncoated)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
-                    continue;
+                    //data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                    //continue;
                 }
                 
                 // Check if laminate deviation
@@ -523,13 +525,7 @@ runParser = function(s, job){
                     data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
                     continue;
                 }
-                
-                // Adjust the due date.
-                // Commenting out this code for now, going to remove the ability for multiple due dates to be gangable.
-                //if(orderSpecs.date.due < data.date.due){
-                //	data.date.due = orderSpecs.date.due;
-                //}
-                
+
                 // Separate out the due dates so they can't gang together.
                 if(!submit.override.date){
                     if(orderSpecs.date.due != data.date.due){
@@ -654,7 +650,12 @@ runParser = function(s, job){
                     query: null,
                     late: now.date >= orderArray[i].date.due,
                     reprint: orderArray[i].reprint,
-                    finishingType: orderArray[i].pocket.method,
+                    pocket: {
+                        top: orderArray[i].pocket.side.top,
+                        bottom: orderArray[i].pocket.side.bottom,
+                        left: orderArray[i].pocket.side.left,
+                        right: orderArray[i].pocket.side.right
+                    },
                     orientation: "Standard",
                     shipType: getShipType(orderArray[i].ship.serviceCode),
                     forceUndersize: matInfo.forceUndersize
@@ -716,6 +717,8 @@ runParser = function(s, job){
                 if((product.width == 48 && product.height == 96) || (product.height == 48 && product.width == 96)){
                     if(matInfo.width == 48 && matInfo.height == 96){
                         product.query = "full-sheet";
+                        product.subprocess.undersize = false;
+                        scale.locked = true;
                     }
                 }
                 
@@ -803,7 +806,7 @@ runParser = function(s, job){
                 // Gather the source file options
                 var file = {
                     source: new File(watermarkDrive + "/" + product.contentFile),
-                    depository: new File("//10.21.71.213/Storage/pdfDepository/" + product.contentFile),
+                    depository: new File("//10.21.71.213/pdfDepository/" + product.contentFile),
                     data: false
                 }
                     
@@ -846,7 +849,7 @@ runParser = function(s, job){
                             if(variance.square == 0){
                                 product.orientation = "Square";
                             }else{
-                                if(product.finishingType == "TB" || product.finishingType == "T" || product.finishingType == "B"){
+                                if(product.pocket.top || product.pocket.bottom){
                                     product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
                                 }else{
                                     product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard";
@@ -1115,14 +1118,13 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
-                if(orderArray[i].width <= 12 || orderArray[i].height <= 12){
-                    orderArray[i].disable.label.hem = true;
-                }
+
+                // Set the sides that will use the labels.
+                var labels = setLabels(s, orderArray[i]);
                 
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
-                setPhoenixMarks(s, dir.support, matInfo, data, orderArray[i], product, marksArray);	
+                setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
                     
                 // If the product requires a custom label, apply it.

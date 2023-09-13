@@ -16,7 +16,7 @@ runRelease = function(s){
             
             var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
                     
-            var pdfDepository = new Dir("//10.21.71.213/Storage/pdfDepository");
+            var pdfDepository = new Dir("//AMZ-PHOENIX-P02/pdfDepository");
             var csvDepository = new Dir("C:/Switch/Depository/csvHold/" + environment);
 
             var toPhoenix = getDirectory("C:/Switch/Depository/toPhoenix/" + environment + "/" + server);

@@ -1,13 +1,28 @@
 {
-    "marks":[
+    "description":"Various grommet indicators.",
+    "name":"Grommet Mark",
+    "key":"None",
+    "parameters":[
         {
             "description":"Grommets marks for flush cut in top corners only.",
             "type":"Grommet Mark",
             "key":"TopCorners",
             "facility":[
-                "Salt Lake City",
-                "Arlington",
-                "Wixom"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -18,7 +33,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "DSS"
+                    "DSS",
+                    "13oz-Smooth"
                 ],
                 "rejections":[]
             },
@@ -33,7 +49,7 @@
                 "requirements":{
                     "orderArray":{
                         "hem":{
-                            "active":false
+                            "method":"None"
                         }
                     }
                 },
@@ -51,9 +67,21 @@
             "type":"Grommet Mark",
             "key":"AllCorners",
             "facility":[
-                "Salt Lake City",
-                "Arlington",
-                "Wixom"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -64,7 +92,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "DSS"
+                    "DSS",
+                    "13oz-Smooth"
                 ],
                 "rejections":[]
             },
@@ -79,7 +108,7 @@
                 "requirements":{
                     "orderArray":{
                         "hem":{
-                            "active":false
+                            "method":"None"
                         }
                     }
                 },
@@ -97,9 +126,21 @@
             "type":"Grommet Mark",
             "key":"LeftCorners",
             "facility":[
-                "Salt Lake City",
-                "Arlington",
-                "Wixom"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -110,7 +151,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "DSS"
+                    "DSS",
+                    "13oz-Smooth"
                 ],
                 "rejections":[]
             },
@@ -125,7 +167,7 @@
                 "requirements":{
                     "orderArray":{
                         "hem":{
-                            "active":false
+                            "method":"None"
                         }
                     }
                 },
@@ -143,9 +185,21 @@
             "type":"Grommet Mark",
             "key":"TopCorners",
             "facility":[
-                "Salt Lake City",
-                "Arlington",
-                "Wixom"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -156,7 +210,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "DSS"
+                    "DSS",
+                    "13oz-Smooth"
                 ],
                 "rejections":[]
             },
@@ -171,7 +226,7 @@
                 "requirements":{
                     "orderArray":{
                         "hem":{
-                            "active":true,
+                            "method":["Sewn","Weld"],
                             "webbing":false
                         }
                     }
@@ -190,9 +245,21 @@
             "type":"Grommet Mark",
             "key":"AllCorners",
             "facility":[
-                "Salt Lake City",
-                "Arlington",
-                "Wixom"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -203,7 +270,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "DSS"
+                    "DSS",
+                    "13oz-Smooth"
                 ],
                 "rejections":[]
             },
@@ -218,7 +286,7 @@
                 "requirements":{
                     "orderArray":{
                         "hem":{
-                            "active":true,
+                            "method":["Sewn","Weld"],
                             "webbing":false
                         }
                     }
@@ -237,9 +305,21 @@
             "type":"Grommet Mark",
             "key":"LeftCorners",
             "facility":[
-                "Salt Lake City",
-                "Arlington",
-                "Wixom"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -250,7 +330,8 @@
                     "Mesh",
                     "CeltecBanner",
                     "Celtec",
-                    "DSS"
+                    "DSS",
+                    "13oz-Smooth"
                 ],
                 "rejections":[]
             },
@@ -265,7 +346,7 @@
                 "requirements":{
                     "orderArray":{
                         "hem":{
-                            "active":true,
+                            "method":["Sewn","Weld"],
                             "webbing":false
                         }
                     }
@@ -284,7 +365,11 @@
             "type":"Grommet Mark",
             "key":"TopCorners",
             "facility":[
-                "Salt Lake City"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -303,7 +388,7 @@
                 "requirements":{
                     "orderArray":{
                         "hem":{
-                            "active":true,
+                            "method":["Sewn","Weld"],
                             "webbing":true
                         }
                     }
@@ -322,7 +407,11 @@
             "type":"Grommet Mark",
             "key":"AllCorners",
             "facility":[
-                "Salt Lake City"
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                }
             ],
             "process":{
                 "requirements":[
@@ -341,7 +430,7 @@
                 "requirements":{
                     "orderArray":{
                         "hem":{
-                            "active":true,
+                            "method":["Sewn","Weld"],
                             "webbing":true
                         }
                     }

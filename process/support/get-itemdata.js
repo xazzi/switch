@@ -27,21 +27,32 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
                 key: null
 			},
 			hem: {
-				active: false,
+				value: null,
+				enable: false,
                 method: null,
-                webbing: false,
-                value: null
-			},
-			pocket: {
-				active: false,
-                method: null,
-                size: {
+				side: {
 					top: null,
 					bottom: null,
 					left: null,
 					right: null
 				},
-                value: null
+				webbing: false
+			},
+			pocket: {
+				value: null,
+                enable: false,
+				side: {
+					top: null,
+					bottom: null,
+					left: null,
+					right: null
+				},
+                size: {
+					top: null,
+					bottom: null,
+					left: null,
+					right: null
+				}
 			},
 			mount: {
 				active: false,
