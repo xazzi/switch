@@ -102,25 +102,36 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         // Hem options
         if(table == "options_hems"){
             return specs = {
-                active: db_options.getString(1) != "None",
-                method: db_options.getString(4),
-                webbing: db_options.getString(5) == "y" ? true : false,
-                value: db_options.getString(1)
+                value: db_options.getString(1),
+                enable: db_options.getString(4) == "y" ? true : false,
+                method: db_options.getString(5),
+                side: {
+                    top: db_options.getString(6) == "y" ? true : false,
+                    bottom: db_options.getString(7) == "y" ? true : false,
+                    left: db_options.getString(8) == "y" ? true : false,
+                    right: db_options.getString(9) == "y" ? true : false
+                },
+                webbing: db_options.getString(10) == "y" ? true : false
             }
         }
 
         // Pocket options
         if(table == "options_pockets"){
             return specs = {
-                active: db_options.getString(1) != "None",
-                method: db_options.getString(4),
-                size: {
-                    top: db_options.getString(6),
-                    bottom: db_options.getString(7),
-                    left: db_options.getString(8),
-                    right: db_options.getString(9)
+                value: db_options.getString(1),
+                enable: db_options.getString(4),
+                side: {
+                    top: db_options.getString(5) == "y" ? true : false,
+                    bottom: db_options.getString(6) == "y" ? true : false,
+                    left: db_options.getString(7) == "y" ? true : false,
+                    right: db_options.getString(8) == "y" ? true : false
                 },
-                value: db_options.getString(1)
+                size: {
+                    top: db_options.getString(9),
+                    bottom: db_options.getString(10),
+                    left: db_options.getString(11),
+                    right: db_options.getString(12)
+                }
             }
         }
 

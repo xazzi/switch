@@ -1,5 +1,5 @@
 var parent = [];
-var apply;
+var apply, facilityCheck;
 
 setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
     function readFiles(s, folder, matInfo, data, orderArray, product){
@@ -13,21 +13,20 @@ setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
             // Loop through the marks in that file.
             for(var j in dump.parameters){
 
-                // Check the mark key.
-                if(dump.key != orderArray.grommet.key){
-                    if(dump.key != "None"){
-                        continue;
+                // Check if the facility is enabled.
+                facilityCheck = false;
+                for(var w in dump.parameters[j].facility){
+                    if(dump.parameters[j].facility[w].id == orderArray.facilityId){
+                        if(dump.parameters[j].facility[w].enabled){
+                            facilityCheck = true;
+                            break;
+                        }
                     }
                 }
 
-                // The facility has to have a subprocess assigned to it to advance.
-                if(dump.parameters[j].facility.id != orderArray.facilityId){
-                    continue
-                }
-
-                // If the facility is enabled, advance.
-                if(!dump.parameters[j].facility.enabled){
-                    continue
+                // If the facility is not enabled, continue through the parent loop.
+                if(!facilityCheck){
+                    continue;
                 }
 
                 // Check for required products
@@ -54,7 +53,7 @@ setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
                     continue;
                 }
 
-                // Reset apply back to true for the checkObject function
+                // Reset apply back to true for the checkParameters function
                 apply = true;
 
                 // Check the requirements.

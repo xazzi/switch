@@ -4,11 +4,26 @@
     "key":"None",
     "parameters":[
         {
-            "facility": {
-                "name": "Salt Lake City",
-                "id": "28",
-                "enabled": true
-            },
+            "description":"",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
             "process":{
                 "requirements":[
                     "Celtec"

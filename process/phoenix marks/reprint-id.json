@@ -1,10 +1,10 @@
 {
-    "description":"Dashed lines for pole pocket.",
-    "name": "Pole Pocket Hem",
+    "description":"REPRINT product identifier.",
+    "name":"Reprint",
     "key":"None",
     "parameters":[
         {
-            "description":"",
+            "description": "",
             "type": "Custom Mark",
             "key":"None",
             "facility": [
@@ -33,39 +33,31 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "UV-Greyback"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "ButtCut"
+                ]
             },
             "specs":{
                 "requirements":{
+                    "product":{
+                        "reprint":true
+                    },
                     "orderArray":{
-                        "pocket":{
-                            "enable":true
+                        "shape":{
+                            "method":"Rect"
                         }
                     }
                 },
                 "rejections":{}
             },
-            "settings":{
-                "product": {
-                    "script":{
-                        "name":"PolePocket",
-                        "parameters":[
-                            "T:orderArray.pocket.side.top",
-                            "B:orderArray.pocket.side.bottom",
-                            "L:orderArray.pocket.side.left",
-                            "R:orderArray.pocket.side.right"
-                        ],
-                        "pockets": [
-                            "T:orderArray.pocket.size.top",
-                            "B:orderArray.pocket.size.bottom",
-                            "L:orderArray.pocket.size.left",
-                            "R:orderArray.pocket.size.right"
-                        ]
-                    }
+            "settings": [
+                {
+                    "name": "REPRINT-Product",
+                    "dir": "/Misc/"
                 }
-            }
+            ]
         }
     ]
 }

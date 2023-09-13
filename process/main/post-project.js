@@ -27,7 +27,7 @@ runPost = function(s, job){
                     server = "https://gang.digitalroomapi-stage.io/v1/project/";
                 break;
                 case "Production":
-                    server = "https://digital-room-gang.digitalroomapi.io/v1/project/";
+                    server = "https://gang.digitalroomapi.io/v1/project/";
                 break;
                 default:
                     server = "Oops"
@@ -35,6 +35,7 @@ runPost = function(s, job){
         
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffObj = {
+                projectID: handoffDataDS.evalToString("//base/projectID"),
                 material: handoffDataDS.evalToString("//base/process"),
                 doublesided: handoffDataDS.evalToString("//settings/doublesided") == "true",
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true",
@@ -54,7 +55,7 @@ runPost = function(s, job){
                 xmlF.open(File.Append);
                 xmlF.writeLine('{');
                 
-                xmlF.writeLine('"Description": "' + 'Description' + '",');
+                xmlF.writeLine('"Description": "' + handoffObj.projectID + '",');
                 xmlF.writeLine('"Workspace": "' + handoffObj.printer + '",');
                 xmlF.writeLine('"Material": "' + handoffObj.material + '",');
                 xmlF.writeLine('"Status": ' + '1' + ',');

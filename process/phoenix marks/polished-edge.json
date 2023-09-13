@@ -1,10 +1,10 @@
 {
-    "description":"Dashed line for sewn hem",
-    "name": "Sewn Hem Dash",
+    "description":"Polished edge identifier",
+    "name":"Polished edge",
     "key":"None",
     "parameters":[
         {
-            "description":"",
+            "description": "",
             "type": "Custom Mark",
             "key":"None",
             "facility": [
@@ -16,18 +16,18 @@
                 {
                     "name": "Arlington",
                     "id": "5",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Wixom",
                     "id": "37",
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
                 "requirements":[
-                    "Celtec",
-                    "CeltecBanner"
+                    "125-Acrylic",
+                    "25-Acrylic"
                 ],
                 "rejections":[]
             },
@@ -40,31 +40,19 @@
             "specs":{
                 "requirements":{
                     "orderArray":{
-                        "hem":{
-                            "method":"Sewn"
-                        },
-                        "pocket":{
-                            "enable":false
+                        "edge":{
+                            "method":"Polished"
                         }
                     }
                 },
-                "rejections":{
-                    "product":{
-                        "itemName": "Stretch Table Covers"
-                    }
-                }
+                "rejections":{}
             },
-            "settings":{
-                "product": {
-                    "script":{
-                        "name":"SewnHem",
-                        "parameters": null,
-                        "dynamic":[
-                            "Offset:1.125"
-                        ]
-                    }
+            "settings": [
+                {
+                    "name": "Polished-Edge",
+                    "dir": "/Misc/"
                 }
-            }
+            ]
         }
     ]
 }

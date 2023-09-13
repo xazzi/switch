@@ -47,7 +47,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Group Number", product.groupNumber],
 		["Custom Label", product.customLabel.value],
 		["Hem Value", product.hemValue],
-		["Finishing Type", product.finishingType],
+		["Finishing Type", orderArray.finishingType],
 		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
 		["Late", product.late],
 		["Reprint", product.reprint],
