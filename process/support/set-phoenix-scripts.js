@@ -137,16 +137,22 @@ function checkObject(s, parameter, product, orderArray, matInfo){
             var thing = parent.join('');
             var tempArray = []
             for(var j in parameter[l]){
-                var prop = parameter[l][j].split(':')[0]
-                var value = parameter[l][j].split(':')[1]
-                var temp
-                try{
-                    temp = eval(value)
-                }catch(e){
-                    temp = value
+                var parameters = parameter[l][j].split(':');
+                var tempVar
+                var tempSubArray = []
+
+                for(var k in parameters){
+                    try{
+                        tempVar = eval(parameters[k])
+                    }catch(e){
+                        tempVar = parameters[k]
+                    }
+                    tempSubArray.push(tempVar)
                 }
-                tempArray.push(prop + ":" + temp)
+                tempSubArray = tempSubArray.join(':')
+                tempArray.push(tempSubArray)
             }
+
             eval(thing + l + " = '" + tempArray.join(',') + "'")
 
         // If the parameter is an nested object, dig further.

@@ -22,6 +22,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/add-to-table.js"));
             eval(File.read(dir.support + "/compile-csv.js"));
             eval(File.read(dir.support + "/set-labels.js"));
+            //eval(File.read(dir.support + "/create-dataset.js"));
             
             var dbConn = connectToDatabase_db(s.getPropertyValue("databaseGeneral"));
                 dbQuery = new Statement(dbConn);
@@ -381,15 +382,12 @@ runParser = function(s, job){
 
                 // Reassign printers and associated data based on various criteria.
                 if(data.facility.destination == "Arlington"){
-                    
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderSpecs.width > 59 && orderSpecs.height > 59){
                             matInfo.width = 125;
                             matInfo.phoenixStock = "Roll_125";
                         }
                     }
-                    
-                    
                     if(matInfo.prodName == "13oz-PolyFilm"){
                         if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
                             //matInfo.width = 53;
@@ -658,7 +656,8 @@ runParser = function(s, job){
                     },
                     orientation: "Standard",
                     shipType: getShipType(orderArray[i].ship.serviceCode),
-                    forceUndersize: matInfo.forceUndersize
+                    forceUndersize: matInfo.forceUndersize,
+                    cutLayerName: "Default"
                 }
                 
                 var scale = {
@@ -709,6 +708,15 @@ runParser = function(s, job){
                     if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
                         if(!orderArray[i].doubleSided){
                             product.query = "butt-weld";
+                        }
+                    }
+                }
+
+                // If it's a DS banner, reduce the max length of the gang.
+                if(data.facility.destination == "Wixom"){
+                    if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
+                        if(orderArray[i].doubleSided){
+                            matInfo.height = 180;
                         }
                     }
                 }
@@ -914,9 +922,13 @@ runParser = function(s, job){
                 if(file.data){
                     scale.widthModifier = Math.round(product.width/file.width);
                     scale.heightModifier = Math.round(product.height/file.height);
+                    if(scale.widthModifier != scale.heightModifier){
+                        file.data = false;
+                    }
+                }
 
                 // Otherwise determine the scale of the file by using the logic Prepress should be following as well.
-                }else{
+                if(!file.data){
                     if(matInfo.type == "roll"){
                         if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
                             if(product.width >= 198 || product.height >= 198){
@@ -1099,7 +1111,7 @@ runParser = function(s, job){
                 // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
                 if(data.facility.destination == "Wixom"){
                     if(product.doubleSided){
-                        if(orderArray[i].pocket.active || orderArray[i].itemName == "Pole Banners" || orderArray[i].itemName == "Replacement Pole Banners"){
+                        if(orderArray[i].pocket.enable || orderArray[i].itemName == "Pole Banners" || orderArray[i].itemName == "Replacement Pole Banners"){
                             if(product.width*(scale.width/100) < usableArea.width){
                                 product.rotation = "None";
                                 product.allowedRotations = 0;
@@ -1121,7 +1133,7 @@ runParser = function(s, job){
 
                 // Set the sides that will use the labels.
                 var labels = setLabels(s, orderArray[i]);
-                
+
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
@@ -1138,7 +1150,6 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height;
                     product.customLabel.value = (i+1)+"-F";
                     data.impositionProfile.name = "TensionStands";
-                    marksArray.push(data.facility.destination + "/Misc/TensionStand-Label");
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
                         product.allowedRotations = 0;
@@ -1208,6 +1219,14 @@ runParser = function(s, job){
                         }
                     }
                 }
+
+                /*
+                if(matInfo.cutter.device == "Router"){
+                    if(product.width * product.height <= 100){
+                        product.cutLayerName = matInfo.
+                    }
+                }
+                */
                 
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -1222,7 +1241,6 @@ runParser = function(s, job){
                 // If it's breakaway, write it again for the 2nd page.
                 if(product.subprocess.name == "Breakaway"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf";
-                    marksArray.push(data.facility.destination + "/Hem Labels/Breakaway/Velcro" + data.scale);
                     infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                         
                     writeCSV(csvFile, infoArray, 1);
@@ -1441,6 +1459,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 			addNode_db(theXML, productNode, "cvColors", orderArray.cvColors);
 			addNode_db(theXML, productNode, "nametag", product.nametag);
             addNode_db(theXML, productNode, "subprocess", product.subprocess.name);
+            addNode_db(theXML, productNode, "cutLayerName", "Acrylic Small");
 	}
 	
 	if(writeProducts){
@@ -1467,8 +1486,6 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 	
 		newCSV.setDataset("Handoff Data", theDataset);
 }
-
-// -------------------------------------------------------
 
 function createReport(s, newCSV, data){
 	

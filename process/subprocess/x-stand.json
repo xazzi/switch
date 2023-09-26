@@ -1,0 +1,39 @@
+{
+    "subprocess": "x-stand",
+    "name": "X-Stand",
+    "id": 17,
+    "parameters": [
+        {
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
+            "processes": [
+                "13ozBanner",
+                "DSS"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                },
+                "data": {
+                },
+                "orderArray": {
+                    "hem":{
+                        "method":"None"
+                    },
+                    "grommet":{
+                        "key":"AllCorners"
+                    }
+                }
+            }
+        }
+    ]
+}

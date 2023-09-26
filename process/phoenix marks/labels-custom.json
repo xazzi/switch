@@ -4,77 +4,6 @@
     "key":"None",
     "parameters":[
         {
-            "description":"Webbing label.",
-            "type":"Webbing Label",
-            "key":"None",
-            "facility":[
-                {
-                    "name": "Salt Lake City",
-                    "id": "28",
-                    "enabled": true
-                },
-                {
-                    "name": "Arlington",
-                    "id": "5",
-                    "enabled": true
-                },
-                {
-                    "name": "Wixom",
-                    "id": "37",
-                    "enabled": true
-                }
-            ],
-            "process":{
-                "requirements":[
-                    "Mesh",
-                    "8oz-Mesh",
-                    "9oz-Mesh",
-                    "12oz-Mesh",
-                    "13ozBanner",
-                    "18ozBanner",
-                    "13oz-Matte",
-                    "13oz-Gloss",
-                    "13oz-Smooth",
-                    "DSS"
-                ],
-                "rejections":[]
-            },
-            "subprocess":{
-                "requirements":[
-                    "None",
-                    "ButtWeld"
-                ],
-                "rejections":[]
-            },
-            "specs":{
-                "requirements":{
-                    "orderArray":{
-                        "hem":{
-                            "enable":true,
-                            "method":["Sewn","Weld"],
-                            "webbing":true
-                        }
-                    },
-                    "data":{
-                        "doubleSided":false
-                    }
-                },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        }
-                    }
-                }
-            },
-            "settings":[
-                {
-                    "name":"Webbing",
-                    "dir":"/Hem Labels/Mesh/"
-                }
-            ]
-        },
-        {
             "description":"Stretched table cover hem labels.",
             "type":"Hem Label",
             "key":"None",
@@ -114,16 +43,56 @@
             },
             "settings":[
                 {
-                    "name":"TextLabel-Prefix",
-                    "dir":"/Hem Labels/Stretched Table Cloths/"
-                },
-                {
-                    "name":"TextLabel-Suffix",
-                    "dir":"/Hem Labels/Stretched Table Cloths/"
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Stretched Table Cloths/"
                 },
                 {
                     "name":"Barcode",
-                    "dir":"/Hem Labels/Stretched Table Cloths/"
+                    "dir":"/Master Labels/Custom/Stretched Table Cloths/"
+                }
+            ]
+        },
+        {
+            "description":"Breakaway velcro labels.",
+            "type":"Breakaway",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "BreakawayBanner"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Velcro",
+                    "dir":"/Master Labels/Custom/Breakaway/"
                 }
             ]
         },
@@ -167,16 +136,12 @@
             },
             "settings":[
                 {
-                    "name":"TextLabel-Prefix",
-                    "dir":"/Hem Labels/Table Cloths/"
-                },
-                {
-                    "name":"TextLabel-Suffix",
-                    "dir":"/Hem Labels/Table Cloths/"
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Table Cloths/"
                 },
                 {
                     "name":"Barcode",
-                    "dir":"/Hem Labels/Table Cloths/"
+                    "dir":"/Master Labels/Custom/Table Cloths/"
                 }
             ]
         },
@@ -210,7 +175,7 @@
             },
             "subprocess":{
                 "requirements":[
-                    "Tension Stand"
+                    "TensionStand"
                 ],
                 "rejections":[]
             },
@@ -220,16 +185,8 @@
             },
             "settings":[
                 {
-                    "name":"TextLabel-Prefix",
-                    "dir":"/Hem Labels/Tension Stand/"
-                },
-                {
-                    "name":"TextLabel-Suffix",
-                    "dir":"/Hem Labels/Tension Stand/"
-                },
-                {
-                    "name":"Barcode",
-                    "dir":"/Hem Labels/Tension Stand/"
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Tension Stands/"
                 }
             ]
         },
@@ -274,12 +231,12 @@
             },
             "settings":[
                 {
-                    "name":"Retractable-Labels",
-                    "dir":"/Misc/"
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Retractables/"
                 },
                 {
-                    "name":"Retractable-Barcode",
-                    "dir":"/Misc/"
+                    "name":"Barcode",
+                    "dir":"/Master Labels/Custom/Retractables/"
                 }
             ]
         },
@@ -327,8 +284,8 @@
             },
             "settings":[
                 {
-                    "name":"Retractable-DoubleSided",
-                    "dir":"/Misc/"
+                    "name":"DoubleSided",
+                    "dir":"/Master Labels/Custom/Retractables/"
                 }
             ]
         },

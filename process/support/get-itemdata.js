@@ -29,7 +29,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			hem: {
 				value: null,
 				enable: false,
-                method: null,
+                method: "None",
 				side: {
 					top: null,
 					bottom: null,
