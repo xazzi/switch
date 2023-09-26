@@ -11,7 +11,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Arlington",

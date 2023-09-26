@@ -59,7 +59,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
-                value: db_options.getString(1)
+                value: db_options.getString(1).replace(/"/g,'')
             }
         }
 
@@ -102,7 +102,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         // Hem options
         if(table == "options_hems"){
             return specs = {
-                value: db_options.getString(1),
+                value: db_options.getString(1).replace(/"/g,''),
                 enable: db_options.getString(4) == "y" ? true : false,
                 method: db_options.getString(5),
                 side: {
@@ -119,7 +119,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_pockets"){
             return specs = {
                 value: db_options.getString(1),
-                enable: db_options.getString(4),
+                enable: db_options.getString(4) == "y" ? true : false,
                 side: {
                     top: db_options.getString(5) == "y" ? true : false,
                     bottom: db_options.getString(6) == "y" ? true : false,

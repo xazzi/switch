@@ -1,56 +1,60 @@
 {
-    "description":"Various types of label indicators for hems.",
-    "name":"Hem Labels",
+    "description":"Webbing labels.",
+    "name":"Labels",
     "key":"None",
     "parameters":[
         {
-            "description":"Top",
-            "type":"Label",
+            "description":"Webbing label.",
+            "type":"Webbing Label",
             "key":"None",
             "facility":[
                 {
-                    "name":"Salt Lake City",
-                    "id":"28",
+                    "name": "Salt Lake City",
+                    "id": "28",
                     "enabled": true
                 },
                 {
-                    "name":"Arlington",
-                    "id":"5",
+                    "name": "Arlington",
+                    "id": "5",
                     "enabled": true
                 },
                 {
-                    "name":"Wixom",
-                    "id":"37",
+                    "name": "Wixom",
+                    "id": "37",
                     "enabled": true
                 }
             ],
             "process":{
                 "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "13ozBanner",
                     "18ozBanner",
                     "13oz-Matte",
                     "13oz-Gloss",
                     "13oz-Smooth",
-                    "DSS",
-                    "18oz-Matte"
+                    "DSS"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "ButtWeld"
                 ],
-                "rejections":[
-                    "StretchTableCover",
-                    "TableCloth",
-                    "TableRunner"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
                     "labels":{
                         "top":true
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "webbing":true
+                        }
                     }
                 },
                 "rejections":{
@@ -64,63 +68,63 @@
             },
             "settings":[
                 {
-                    "name":"Barcode-T",
-                    "dir":"/Master Labels/Stacked/Barcode/"
-                },
-                {
-                    "name":"OrderItemInfo-T",
-                    "dir":"/Master Labels/Stacked/Text/"
+                    "name":"Webbing-T",
+                    "dir":"/Master Labels/Custom/Webbing/"
                 }
             ]
         },
         {
-            "description":"Bottom",
-            "type":"Label",
+            "description":"Webbing label.",
+            "type":"Webbing Label",
             "key":"None",
             "facility":[
                 {
-                    "name":"Salt Lake City",
-                    "id":"28",
+                    "name": "Salt Lake City",
+                    "id": "28",
                     "enabled": true
                 },
                 {
-                    "name":"Arlington",
-                    "id":"5",
+                    "name": "Arlington",
+                    "id": "5",
                     "enabled": true
                 },
                 {
-                    "name":"Wixom",
-                    "id":"37",
+                    "name": "Wixom",
+                    "id": "37",
                     "enabled": true
                 }
             ],
             "process":{
                 "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "13ozBanner",
                     "18ozBanner",
                     "13oz-Matte",
                     "13oz-Gloss",
                     "13oz-Smooth",
-                    "DSS",
-                    "18oz-Matte"
+                    "DSS"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "ButtWeld"
                 ],
-                "rejections":[
-                    "StretchTableCover",
-                    "TableCloth",
-                    "TableRunner"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
                     "labels":{
                         "bottom":true
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "webbing":true
+                        }
                     }
                 },
                 "rejections":{
@@ -134,63 +138,63 @@
             },
             "settings":[
                 {
-                    "name":"Barcode-B",
-                    "dir":"/Master Labels/Stacked/Barcode/"
-                },
-                {
-                    "name":"OrderItemInfo-B",
-                    "dir":"/Master Labels/Stacked/Text/"
+                    "name":"Webbing-B",
+                    "dir":"/Master Labels/Custom/Webbing/"
                 }
             ]
         },
         {
-            "description":"Left",
-            "type":"Label",
+            "description":"Webbing label.",
+            "type":"Webbing Label",
             "key":"None",
             "facility":[
                 {
-                    "name":"Salt Lake City",
-                    "id":"28",
+                    "name": "Salt Lake City",
+                    "id": "28",
                     "enabled": true
                 },
                 {
-                    "name":"Arlington",
-                    "id":"5",
+                    "name": "Arlington",
+                    "id": "5",
                     "enabled": true
                 },
                 {
-                    "name":"Wixom",
-                    "id":"37",
+                    "name": "Wixom",
+                    "id": "37",
                     "enabled": true
                 }
             ],
             "process":{
                 "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "13ozBanner",
                     "18ozBanner",
                     "13oz-Matte",
                     "13oz-Gloss",
                     "13oz-Smooth",
-                    "DSS",
-                    "18oz-Matte"
+                    "DSS"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "ButtWeld"
                 ],
-                "rejections":[
-                    "StretchTableCover",
-                    "TableCloth",
-                    "TableRunner"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
                     "labels":{
                         "left":true
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "webbing":true
+                        }
                     }
                 },
                 "rejections":{
@@ -204,63 +208,63 @@
             },
             "settings":[
                 {
-                    "name":"Barcode-L",
-                    "dir":"/Master Labels/Stacked/Barcode/"
-                },
-                {
-                    "name":"OrderItemInfo-L",
-                    "dir":"/Master Labels/Stacked/Text/"
+                    "name":"Webbing-L",
+                    "dir":"/Master Labels/Custom/Webbing/"
                 }
             ]
         },
         {
-            "description":"Right",
-            "type":"Label",
+            "description":"Webbing label.",
+            "type":"Webbing Label",
             "key":"None",
             "facility":[
                 {
-                    "name":"Salt Lake City",
-                    "id":"28",
+                    "name": "Salt Lake City",
+                    "id": "28",
                     "enabled": true
                 },
                 {
-                    "name":"Arlington",
-                    "id":"5",
+                    "name": "Arlington",
+                    "id": "5",
                     "enabled": true
                 },
                 {
-                    "name":"Wixom",
-                    "id":"37",
+                    "name": "Wixom",
+                    "id": "37",
                     "enabled": true
                 }
             ],
             "process":{
                 "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "13ozBanner",
                     "18ozBanner",
                     "13oz-Matte",
                     "13oz-Gloss",
                     "13oz-Smooth",
-                    "DSS",
-                    "18oz-Matte"
+                    "DSS"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "ButtWeld"
                 ],
-                "rejections":[
-                    "StretchTableCover",
-                    "TableCloth",
-                    "TableRunner"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
                     "labels":{
                         "right":true
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "webbing":true
+                        }
                     }
                 },
                 "rejections":{
@@ -274,12 +278,8 @@
             },
             "settings":[
                 {
-                    "name":"Barcode-R",
-                    "dir":"/Master Labels/Stacked/Barcode/"
-                },
-                {
-                    "name":"OrderItemInfo-R",
-                    "dir":"/Master Labels/Stacked/Text/"
+                    "name":"Webbing-R",
+                    "dir":"/Master Labels/Custom/Webbing/"
                 }
             ]
         }

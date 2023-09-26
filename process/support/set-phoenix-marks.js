@@ -13,7 +13,7 @@ setPhoenixMarks = function(s, folder, matInfo, data, orderArray, product, marksA
             // Loop through the marks in that file.
             for(var j in dump.parameters){
 
-                // Check the mark key.
+                // Check the mark key, skip if the mark key doesn't match or isn't "None".
                 if(dump.parameters[j].key != orderArray.grommet.key){
                     if(dump.parameters[j].key != "None"){
                         continue;
