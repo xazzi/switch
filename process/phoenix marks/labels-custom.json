@@ -81,7 +81,7 @@
             },
             "subprocess":{
                 "requirements":[
-                    "BreakawayBanner"
+                    "Breakaway"
                 ],
                 "rejections":[]
             },

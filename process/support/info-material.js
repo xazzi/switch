@@ -85,7 +85,12 @@ getMatInfo = function(orderSpecs, dbConn_material){
 
         cutter: {
             device: db_material.getString(32),
-            hotfolder: db_material.getString(33)
+            hotfolder: db_material.getString(33),
+            layerName: db_material.getString(42)
+        },
+
+        phoenix:{
+            cutExport: db_material.getString(43)
         }
     }
     

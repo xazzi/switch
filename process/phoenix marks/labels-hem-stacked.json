@@ -39,7 +39,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "Backdrop",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -57,6 +58,9 @@
                     "orderArray":{
                         "doubleSided":true,
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -109,7 +113,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "Backdrop",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -127,6 +132,9 @@
                     "orderArray":{
                         "doubleSided":true,
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -179,7 +187,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "Backdrop",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -197,6 +206,9 @@
                     "orderArray":{
                         "doubleSided":true,
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -249,7 +261,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "Backdrop",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -267,6 +280,9 @@
                     "orderArray":{
                         "doubleSided":true,
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }

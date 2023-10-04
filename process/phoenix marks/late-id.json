@@ -36,7 +36,8 @@
                     "UV-Greyback"
                 ],
                 "rejections":[
-                    "ButtCut"
+                    "ButtCut",
+                    "ButtWeld"
                 ]
             },
             "specs":{
