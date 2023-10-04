@@ -1245,12 +1245,13 @@ runParser = function(s, job){
                 // If it's breakaway, write it again for the 2nd page.
                 if(product.subprocess.name == "Breakaway"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf";
+                    marksArray.push(data.facility.destination + "/Master Labels/Custom/Breakaway/Velcro" + data.scale);
                     infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                         
                     writeCSV(csvFile, infoArray, 1);
                 }
 
-                // If it's breakaway, write it again for the 2nd page.
+                // If it's tension stand, write it again for the 2nd page.
                 if(product.subprocess.name == "TensionStand"){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf";

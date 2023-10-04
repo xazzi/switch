@@ -60,17 +60,17 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name": "Arlington",
                     "id": "5",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name": "Wixom",
                     "id": "37",
-                    "enabled": true
+                    "enabled": false
                 }
             ],
             "process":{
