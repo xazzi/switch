@@ -16,12 +16,12 @@
                 {
                     "name":"Arlington",
                     "id":"5",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name":"Wixom",
                     "id":"37",
-                    "enabled": true
+                    "enabled": false
                 }
             ],
             "process":{
@@ -34,7 +34,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "Backdrop",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -52,6 +53,9 @@
                     "orderArray":{
                         "doubleSided":true,
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -81,12 +85,12 @@
                 {
                     "name":"Arlington",
                     "id":"5",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name":"Wixom",
                     "id":"37",
-                    "enabled": true
+                    "enabled": false
                 }
             ],
             "process":{
@@ -99,7 +103,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "Backdrop",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -117,6 +122,9 @@
                     "orderArray":{
                         "doubleSided":true,
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -146,12 +154,12 @@
                 {
                     "name":"Arlington",
                     "id":"5",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name":"Wixom",
                     "id":"37",
-                    "enabled": true
+                    "enabled": false
                 }
             ],
             "process":{
@@ -164,7 +172,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "Backdrop",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -182,6 +191,9 @@
                     "orderArray":{
                         "doubleSided":true,
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -211,12 +223,12 @@
                 {
                     "name":"Arlington",
                     "id":"5",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name":"Wixom",
                     "id":"37",
-                    "enabled": true
+                    "enabled": false
                 }
             ],
             "process":{
@@ -229,7 +241,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "Backdrop"
+                    "Backdrop",
+                    "ButtWeld"
                 ],
                 "rejections":[
                     "StretchTableCover",
@@ -247,6 +260,9 @@
                     "orderArray":{
                         "doubleSided":true,
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }

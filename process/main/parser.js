@@ -450,6 +450,7 @@ runParser = function(s, job){
                     data.sideMix = matInfo.sideMix;
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
+                    data.phoenix.cutExport = matInfo.phoenix.cutExport;
                     
                     // Data overrides and array pushes.
                     if(data.coating.active || data.laminate.active){
@@ -621,7 +622,7 @@ runParser = function(s, job){
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
                     dieDesignName: null,
-                    overruns: matInfo.overrun,
+                    overrun: matInfo.overrun,
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
@@ -657,7 +658,7 @@ runParser = function(s, job){
                     orientation: "Standard",
                     shipType: getShipType(orderArray[i].ship.serviceCode),
                     forceUndersize: matInfo.forceUndersize,
-                    cutLayerName: "Default"
+                    cutLayerName: matInfo.cutter.layerName
                 }
                 
                 var scale = {
@@ -1028,11 +1029,11 @@ runParser = function(s, job){
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
-                            scale.width = 23.5/product.width*100;
+                            scale.width = 23.25/product.width*100;
                             data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
                         }
                         if(product.width == 33){
-                            scale.width = 33.25/product.width*100;
+                            scale.width = 33/product.width*100;
                             data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
                         }
                     }
@@ -1220,13 +1221,16 @@ runParser = function(s, job){
                     }
                 }
 
-                /*
-                if(matInfo.cutter.device == "Router"){
-                    if(product.width * product.height <= 100){
-                        product.cutLayerName = matInfo.
+                // For small product on the router(s), reassign the layer name.
+                if(matInfo.cutter.device == "router"){
+                    if(matInfo.cutter.layerName != "Default"){
+                        if(product.width * product.height <= 100){
+                            product.cutLayerName += " Small"
+                        }else if(product.width <= 6 || product.height <= 6){
+                            product.cutLayerName += " Small"
+                        }
                     }
                 }
-                */
                 
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -1459,7 +1463,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 			addNode_db(theXML, productNode, "cvColors", orderArray.cvColors);
 			addNode_db(theXML, productNode, "nametag", product.nametag);
             addNode_db(theXML, productNode, "subprocess", product.subprocess.name);
-            addNode_db(theXML, productNode, "cutLayerName", "Acrylic Small");
+            addNode_db(theXML, productNode, "cutLayerName", product.cutLayerName);
 	}
 	
 	if(writeProducts){

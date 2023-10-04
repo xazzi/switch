@@ -51,6 +51,9 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
                         }
                     }
                 }

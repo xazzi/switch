@@ -82,6 +82,15 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
             }
         }
 
+        // Diecut options
+        if(table == "options_diecut"){
+            return specs = {
+                active: true,
+                method: db_options.getString(4),
+                value: db_options.getString(1)
+            }
+        }
+
         // Side options
         if(table == "options_side"){
             return specs = {

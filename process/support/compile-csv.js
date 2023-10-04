@@ -39,7 +39,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Base Type",orderArray.base.active ? orderArray.base.value : orderArray.display.active ? orderArray.display.value : "Unknown Hardware"],
 		["Die Design Source",product.dieDesignSource],
 		["Die Design Name",product.dieDesignName],
-		["Max Overruns",product.overruns],
+		["Max Overruns",product.overrun],
 		["Ship Date",orderArray.date.due],
         ["Ship Type",product.shipType],
 		["Due Date",data.date.due],
