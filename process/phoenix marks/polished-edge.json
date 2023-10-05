@@ -1,0 +1,58 @@
+{
+    "description":"Polished edge identifier",
+    "name":"Polished edge",
+    "key":"None",
+    "parameters":[
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "125-Acrylic",
+                    "25-Acrylic"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "edge":{
+                            "method":"Polished"
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "name": "Polished-Edge",
+                    "dir": "/Misc/"
+                }
+            ]
+        }
+    ]
+}

@@ -47,25 +47,6 @@ runProcessor = function(s, job){
                 notes: "",
                 press: ""
             }
-            
-            if(data.facility == "Louisville"){
-                var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
-                var db = new Statement(dbConn);
-                    db.execute("SELECT * FROM digital_room.settings WHERE variable = 'lou-press';");
-                if(!db.isRowAvailable()){
-                    data.press = "A";
-                }else{
-                    db.fetchRow();
-                    data.press = db.getString(2);
-                }
-                
-                var nextPress
-                    if(data.press == "A"){nextPress = "B"}
-                    if(data.press == "B"){nextPress = "A"}
-                    
-                    db.execute("UPDATE digital_room.settings SET parameter = '" + nextPress + "' WHERE variable = 'lou-press';");
-                    db.execute("UPDATE digital_room.history_gang SET press = '" + data.press + "' WHERE `gang-number` = '" + data.projectID + "';");
-            }
                                 
             var userInfo = {
                 first: handoffDataDS.evalToString("//user/first"),
@@ -75,8 +56,6 @@ runProcessor = function(s, job){
             }
             
             var phoenixOutput = new Dir("C:/Switch/Depository/phoenixOutput/" + environment + "/" + data.sku);
-            var phoenixApproved = new Dir("C:/Switch/Depository/phoenixApproved/" + environment);
-            var phoenixRejected = new Dir("C:/Switch/Depository/phoenixRejected/" + environment);
             
             var newXML = s.createNewJob();
             var xmlPath = newXML.createPathWithName(data.projectID + ".xml", false);
@@ -106,8 +85,19 @@ runProcessor = function(s, job){
                         newXML.setHierarchyPath([userInfo.dir])
                         newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
                     }
+
+					// Create or get the destination path.
+					var phoenixApproved = getFileType(files[i], environment)
+
+					// Move the file to the toPostProcessing directory.
                     s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
+
                 }else{
+
+					// Create or get the destination path.
+					var phoenixRejected = getDirectory("C:/Switch/Depository/phoenixRejected/" + environment)
+
+					// Move the file to the rejected directory
                     s.move(phoenixOutput.path + "/" + files[i], phoenixRejected.path + "/" + files[i], true);
                 }
             }
@@ -135,6 +125,27 @@ runProcessor = function(s, job){
         }
     }
     processor(s, job)
+}
+
+function getFileType(name, environment){
+
+	if(name.match(/die/) == "die"){
+		return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/Cut")
+	}
+
+	if(name.match(/report/) == "report"){
+		return getDirectory("C:/Switch/Depository/fileDistribution/" + environment + "/Report")
+	}
+
+	if(name.match(/xml/) == "xml"){
+		return getDirectory("C:/Switch/Depository/fileDistribution/" + environment + "/Data")
+	}
+
+	if(name.match(/phx/) == "phx"){
+		return getDirectory("C:/Switch/Depository/fileDistribution/" + environment + "/Phoenix")
+	}
+
+	return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/Print")
 }
 
 function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, data, endPoint, validation){

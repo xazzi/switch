@@ -1,0 +1,337 @@
+{
+    "description":"Various types of label indicators for subprocesses.",
+    "name":"Labels",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"Stretched table cover hem labels.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "StretchTableCover"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Stretched Table Cloths/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Master Labels/Custom/Stretched Table Cloths/"
+                }
+            ]
+        },
+        {
+            "description":"Breakaway velcro labels.",
+            "type":"Breakaway",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "Breakaway"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Velcro",
+                    "dir":"/Master Labels/Custom/Breakaway/"
+                }
+            ]
+        },
+        {
+            "description":"Table Cloths.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "TableCloth"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Table Cloths/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Master Labels/Custom/Table Cloths/"
+                }
+            ]
+        },
+        {
+            "description":"Tension Stands.",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "TensionStand"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Tension Stands/"
+                }
+            ]
+        },
+        {
+            "description":"Retractable banner labels and barcode.",
+            "type":"Custom Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "Retractable",
+                    "TableTop",
+                    "UV-Greyback"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Retractables/"
+                },
+                {
+                    "name":"Barcode",
+                    "dir":"/Master Labels/Custom/Retractables/"
+                }
+            ]
+        },
+        {
+            "description":"Retractable banner doublesided indicator.",
+            "type":"Custom Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "Retractable",
+                    "UV-Greyback"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "doubleSided":true
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"DoubleSided",
+                    "dir":"/Master Labels/Custom/Retractables/"
+                }
+            ]
+        },
+        {
+            "description":"A-frame labels.",
+            "type":"Custom Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"A-Frame-Type",
+                    "dir":"/Misc/"
+                }
+            ]
+        }
+    ]
+}

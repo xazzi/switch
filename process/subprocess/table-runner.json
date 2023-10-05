@@ -21,10 +21,6 @@
                 "matInfo": {
                 },
                 "product": {
-                    "scripts": {
-                        "enabled": true,
-                        "name": "TableRunner"
-                    },
                     "stock": "Proc_TableRunner_126",
                     "spacingTop": 1,
                     "spacingBottom": 1,
@@ -40,9 +36,6 @@
                     "allowedRotations": "0,90"
                 },
                 "data": {
-                    "phoenix": {
-                        "cutExport": "Auto_SaltLakeCity_Scripts"
-                    }
                 }
             }
         }

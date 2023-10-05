@@ -32,7 +32,7 @@
             ],
             "properties": {
                 "mixed": true,
-                "undersize": false,
+                "undersize": true,
                 "orientationCheck": true
             },
             "overrides": {

@@ -1,0 +1,568 @@
+{
+    "description":"Various grommet indicators.",
+    "name":"Grommet Mark",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"Grommets marks for flush cut in top corners only.",
+            "type":"Grommet Mark",
+            "key":"TopCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "Coroplast",
+                    "Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":"None"
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Flush-Top",
+                    "dir":"/Grommets/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for flush cut in bottom corners only.",
+            "type":"Grommet Mark",
+            "key":"BottomCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "Coroplast",
+                    "Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":"None"
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Flush-Bottom",
+                    "dir":"/Grommets/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for flush cut in all corners.",
+            "type":"Grommet Mark",
+            "key":"AllCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "Coroplast",
+                    "Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld",
+                    "X-Stand"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":"None"
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Flush-AllCorners",
+                    "dir":"/Grommets/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for flush cut in left corners.",
+            "type":"Grommet Mark",
+            "key":"LeftCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "Coroplast",
+                    "Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":"None"
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Flush-LeftCorners",
+                    "dir":"/Grommets/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for hems in top corners only.",
+            "type":"Grommet Mark",
+            "key":"TopCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "Coroplast",
+                    "Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":["Sewn","Weld"],
+                            "webbing":false
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Weld-Top",
+                    "dir":"/Grommets/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for hems in bottom corners only.",
+            "type":"Grommet Mark",
+            "key":"BottomCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "Coroplast",
+                    "Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":["Sewn","Weld"],
+                            "webbing":false
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Weld-Bottom",
+                    "dir":"/Grommets/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for hems in all corners.",
+            "type":"Grommet Mark",
+            "key":"AllCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "Coroplast",
+                    "Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":["Sewn","Weld"],
+                            "webbing":false
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Weld-AllCorners",
+                    "dir":"/Grommets/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for hems in left corners.",
+            "type":"Grommet Mark",
+            "key":"LeftCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "Coroplast",
+                    "Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":["Sewn","Weld"],
+                            "webbing":false
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Weld-LeftCorners",
+                    "dir":"/Grommets/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for hems w/ webbing, grommets in top corners only.",
+            "type":"Grommet Mark",
+            "key":"TopCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "Mesh"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":["Sewn","Weld"],
+                            "webbing":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Weld-Top",
+                    "dir":"/Grommets/Webbing/"
+                }
+            ]
+        },
+        {
+            "description":"Grommets marks for hems w/ webbing, grommets in all corners.",
+            "type":"Grommet Mark",
+            "key":"AllCorners",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "13ozBanner",
+                    "Mesh"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "hem":{
+                            "method":["Sewn","Weld"],
+                            "webbing":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "name":"Grommets-Weld-AllCorners",
+                    "dir":"/Grommets/Webbing/"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,69 @@
+{
+    "description":"Product labels, beneath the print.",
+    "name":"Labels",
+    "key":"None",
+    "parameters":[
+        {
+            "description": "Product labels.",
+            "type": "Product Label",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld"
+                ]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "name": "ProductLabel",
+                    "dir": "/Product Labels/"
+                }
+            ]
+        }
+    ]
+}

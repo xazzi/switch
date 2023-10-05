@@ -3,7 +3,9 @@ runParser = function(s, job){
         try{
             var dir = {
                 support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
-                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/")
+                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/"),
+                phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
+                phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
             }
                                 
             eval(File.read(dir.support + "/get-token.js"));
@@ -15,9 +17,12 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/email-responses.js"));
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/get-subprocess.js"));
-            eval(File.read(dir.support + "/get-marks.js"));
-            eval(File.read(dir.support + "/get-phoenix-scripts.js"));
+            eval(File.read(dir.support + "/set-phoenix-marks.js"));
+            eval(File.read(dir.support + "/set-phoenix-scripts.js"));
             eval(File.read(dir.support + "/add-to-table.js"));
+            eval(File.read(dir.support + "/compile-csv.js"));
+            eval(File.read(dir.support + "/set-labels.js"));
+            //eval(File.read(dir.support + "/create-dataset.js"));
             
             var dbConn = connectToDatabase_db(s.getPropertyValue("databaseGeneral"));
                 dbQuery = new Statement(dbConn);
@@ -157,6 +162,9 @@ runParser = function(s, job){
             var adjustmentArray = [];
             var matInfo = null;
             var matInfoCheck = false;
+            var misc = {
+                rejectPress: true
+            }
             
             var validate = {
                 prodName: null
@@ -247,10 +255,6 @@ runParser = function(s, job){
                 }
                 if(submit.rotation[i].split(':')[0].length != 8){
                     email.errors.push(submit.rotation[i].split(':')[0] + ": Does not match standard item number format, rejecting adjustment. (8 digit item number)");
-                    continue;
-                }
-                if(submit.rotation[i].split(':')[1] != (0||90||180||270||"default")){
-                    email.errors.push(submit.rotation[i].split(':')[0] + ": " + submit.rotation[i].split(':')[1] + " degrees is not an approved rotation, rejecting adjustment. (0, 90, 180, 270, and default)");
                     continue;
                 }
                 
@@ -378,19 +382,16 @@ runParser = function(s, job){
 
                 // Reassign printers and associated data based on various criteria.
                 if(data.facility.destination == "Arlington"){
-                    
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderSpecs.width > 59 && orderSpecs.height > 59){
                             matInfo.width = 125;
                             matInfo.phoenixStock = "Roll_125";
                         }
                     }
-                    
-                    
                     if(matInfo.prodName == "13oz-PolyFilm"){
                         if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
-                            matInfo.width = 53;
-                            matInfo.phoenixStock = "Roll_53";
+                            //matInfo.width = 53;
+                            //matInfo.phoenixStock = "Roll_53";
                         }
                     }
                     
@@ -410,6 +411,8 @@ runParser = function(s, job){
                     if(matInfo.printer.name == "P10"){
                         if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
                             matInfo.printer.name = "P5-350-HS";
+                            data.printer = "P5-350-HS";
+                            misc.rejectPress = false;
                         }
                     }
                 }
@@ -447,6 +450,7 @@ runParser = function(s, job){
                     data.sideMix = matInfo.sideMix;
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
+                    data.phoenix.cutExport = matInfo.phoenix.cutExport;
                     
                     // Data overrides and array pushes.
                     if(data.coating.active || data.laminate.active){
@@ -458,8 +462,10 @@ runParser = function(s, job){
                 }
 
                 if(data.printer != matInfo.printer.name){
-                    data.notes.push(orderSpecs.jobItemId + ": Different printer " + matInfo.printer.name + ", removed from gang.");
-                    continue;
+                    if(misc.rejectPress){
+                        data.notes.push(orderSpecs.jobItemId + ": Different printer " + matInfo.printer.name + ", removed from gang.");
+                        continue;
+                    }
                 }
 
                 if(!orderSpecs.ship.exists){
@@ -501,8 +507,8 @@ runParser = function(s, job){
                 // Check if coating deviation
                 if(data.coating.active != orderSpecs.coating.active){
                     var type = orderSpecs.coating.active ? "(Coated)" : "(Uncoated)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
-                    continue;
+                    //data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                    //continue;
                 }
                 
                 // Check if laminate deviation
@@ -518,13 +524,7 @@ runParser = function(s, job){
                     data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
                     continue;
                 }
-                
-                // Adjust the due date.
-                // Commenting out this code for now, going to remove the ability for multiple due dates to be gangable.
-                //if(orderSpecs.date.due < data.date.due){
-                //	data.date.due = orderSpecs.date.due;
-                //}
-                
+
                 // Separate out the due dates so they can't gang together.
                 if(!submit.override.date){
                     if(orderSpecs.date.due != data.date.due){
@@ -622,7 +622,7 @@ runParser = function(s, job){
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
                     dieDesignName: null,
-                    overruns: matInfo.overrun,
+                    overrun: matInfo.overrun,
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
@@ -631,10 +631,11 @@ runParser = function(s, job){
                         apply: false,
                         value: ""
                     },
-                    scripts: {
-                        enabled: false,
-                        name: null,
-                        offset: null
+                    script: {
+                        name: [],
+                        parameters: [],
+                        dynamic: null,
+                        pockets: null
                     },
                     subprocess: {
                         name: null,
@@ -648,10 +649,16 @@ runParser = function(s, job){
                     query: null,
                     late: now.date >= orderArray[i].date.due,
                     reprint: orderArray[i].reprint,
-                    finishingType: orderArray[i].pocket.method,
+                    pocket: {
+                        top: orderArray[i].pocket.side.top,
+                        bottom: orderArray[i].pocket.side.bottom,
+                        left: orderArray[i].pocket.side.left,
+                        right: orderArray[i].pocket.side.right
+                    },
                     orientation: "Standard",
                     shipType: getShipType(orderArray[i].ship.serviceCode),
-                    forceUndersize: matInfo.forceUndersize
+                    forceUndersize: matInfo.forceUndersize,
+                    cutLayerName: matInfo.cutter.layerName
                 }
                 
                 var scale = {
@@ -698,9 +705,20 @@ runParser = function(s, job){
                 }
                 
                 // Check for butt-weld processing
-                if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
-                    if(!orderArray[i].doubleSided){
-                        product.query = "butt-weld";
+                if(data.facility.destination == "Wixom"){
+                    if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
+                        if(!orderArray[i].doubleSided){
+                            product.query = "butt-weld";
+                        }
+                    }
+                }
+
+                // If it's a DS banner, reduce the max length of the gang.
+                if(data.facility.destination == "Wixom"){
+                    if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
+                        if(orderArray[i].doubleSided){
+                            matInfo.height = 180;
+                        }
                     }
                 }
                 
@@ -708,6 +726,8 @@ runParser = function(s, job){
                 if((product.width == 48 && product.height == 96) || (product.height == 48 && product.width == 96)){
                     if(matInfo.width == 48 && matInfo.height == 96){
                         product.query = "full-sheet";
+                        product.subprocess.undersize = false;
+                        scale.locked = true;
                     }
                 }
                 
@@ -795,7 +815,7 @@ runParser = function(s, job){
                 // Gather the source file options
                 var file = {
                     source: new File(watermarkDrive + "/" + product.contentFile),
-                    depository: new File("//10.21.71.213/Storage/pdfDepository/" + product.contentFile),
+                    depository: new File("//10.21.71.213/pdfDepository/" + product.contentFile),
                     data: false
                 }
                     
@@ -823,7 +843,7 @@ runParser = function(s, job){
                             file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
                             file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
                             file.pages = file.stats.getNumber("NumberOfPages");
-                            
+
                             if(file.pages == 1 && product.doubleSided){
                                 data.notes.push(product.itemNumber + ": File missing 2nd page for DS printing.");
                                 continue;
@@ -838,11 +858,16 @@ runParser = function(s, job){
                             if(variance.square == 0){
                                 product.orientation = "Square";
                             }else{
-                                if(product.finishingType == "TB" || product.finishingType == "T" || product.finishingType == "B"){
+                                if(product.pocket.top || product.pocket.bottom){
                                     product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
                                 }else{
-                                    product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard"
+                                    product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard";
                                 }
+                            }
+
+                            if(Math.round((file.width/product.width)*100) == 10 && Math.round((file.height/product.height)*100) == 10){
+                                data.notes.push(product.itemNumber + ": Please carefully check for correct size.");
+                                product.orientation = "Standard"
                             }
 
                             if(product.orientation == "Flipped"){
@@ -862,7 +887,7 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
+
                 if(product.subprocess.name == "Breakaway"){
                     // Read stats from the file...
                     file.data = false;
@@ -898,9 +923,13 @@ runParser = function(s, job){
                 if(file.data){
                     scale.widthModifier = Math.round(product.width/file.width);
                     scale.heightModifier = Math.round(product.height/file.height);
+                    if(scale.widthModifier != scale.heightModifier){
+                        file.data = false;
+                    }
+                }
 
                 // Otherwise determine the scale of the file by using the logic Prepress should be following as well.
-                }else{
+                if(!file.data){
                     if(matInfo.type == "roll"){
                         if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
                             if(product.width >= 198 || product.height >= 198){
@@ -1000,11 +1029,11 @@ runParser = function(s, job){
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
-                            scale.width = 23.5/product.width*100;
+                            scale.width = 23.25/product.width*100;
                             data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
                         }
                         if(product.width == 33){
-                            scale.width = 33.25/product.width*100;
+                            scale.width = 33/product.width*100;
                             data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
                         }
                     }
@@ -1039,16 +1068,18 @@ runParser = function(s, job){
                 }
                 
                 // Remove the file from the gang if the undersizing is too extreme.
-                if((difference.width > 5) || (difference.height > 5)){
-                    data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
-                    continue;
-                // If the undersizing is greater than 1" ut less than 5", remove it if a custom width was selected, otherwise just notify the user.
-                }else if((difference.width > 1) || (difference.height > 1)){
-                    if(submit.material.active){
+                if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+                    if((difference.width > 5) || (difference.height > 5)){
                         data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
                         continue;
-                    }else{
-                        data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                    // If the undersizing is greater than 1" but less than 5", remove it if a custom width was selected, otherwise just notify the user.
+                    }else if((difference.width > 1) || (difference.height > 1)){
+                        if(submit.material.active){
+                            data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
+                            continue;
+                        }else{
+                            data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                        }
                     }
                 }
                 
@@ -1081,7 +1112,7 @@ runParser = function(s, job){
                 // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
                 if(data.facility.destination == "Wixom"){
                     if(product.doubleSided){
-                        if(orderArray[i].pocket.active){
+                        if(orderArray[i].pocket.enable || orderArray[i].itemName == "Pole Banners" || orderArray[i].itemName == "Replacement Pole Banners"){
                             if(product.width*(scale.width/100) < usableArea.width){
                                 product.rotation = "None";
                                 product.allowedRotations = 0;
@@ -1100,15 +1131,14 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
-                if(orderArray[i].width <= 12 || orderArray[i].height <= 12){
-                    orderArray[i].disable.label.hem = true;
-                }
-                
+
+                // Set the sides that will use the labels.
+                var labels = setLabels(s, orderArray[i]);
+
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
-                setMarks(s, dir.support, matInfo, data, orderArray[i], product, marksArray);	
-                setPhoenixScripts(s, dir.support, matInfo, data, orderArray[i], product);
+                setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
+                setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
                     
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
@@ -1121,7 +1151,6 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height;
                     product.customLabel.value = (i+1)+"-F";
                     data.impositionProfile.name = "TensionStands";
-                    marksArray.push(data.facility.destination + "/Misc/TensionStand-Label");
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
                         product.allowedRotations = 0;
@@ -1192,7 +1221,16 @@ runParser = function(s, job){
                     }
                 }
 
-                //data.thing += " (New)"
+                // For small product on the router(s), reassign the layer name.
+                if(matInfo.cutter.device == "router"){
+                    if(matInfo.cutter.layerName != "Default"){
+                        if(product.width * product.height <= 100){
+                            product.cutLayerName += " Small"
+                        }else if(product.width <= 6 || product.height <= 6){
+                            product.cutLayerName += " Small"
+                        }
+                    }
+                }
                 
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
@@ -1207,13 +1245,13 @@ runParser = function(s, job){
                 // If it's breakaway, write it again for the 2nd page.
                 if(product.subprocess.name == "Breakaway"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf";
-                    marksArray.push(data.facility.destination + "/Hem Labels/Breakaway/Velcro" + data.scale);
+                    marksArray.push(data.facility.destination + "/Master Labels/Custom/Breakaway/Velcro" + data.scale);
                     infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                         
                     writeCSV(csvFile, infoArray, 1);
                 }
 
-                // If it's breakaway, write it again for the 2nd page.
+                // If it's tension stand, write it again for the 2nd page.
                 if(product.subprocess.name == "TensionStand"){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf";
@@ -1232,11 +1270,11 @@ runParser = function(s, job){
                     
                     injectXML.setUserEmail(userInfo.email);
                     
-                    createDataset(injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
+                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
                     
                     writeInjectJSON(injectFile, orderArray[i], product);
                     
-                    injectXML.setHierarchyPath([userInfo.dir]);
+                    injectXML.setHierarchyPath([data.environment,userInfo.dir]);
                     injectXML.setPriority(submit.override.priority)
                     injectXML.sendTo(findConnectionByName_db(s, "Inject XML"), injectPath);
                 }
@@ -1247,7 +1285,7 @@ runParser = function(s, job){
                     var cvPath = cvXML.createPathWithName(product.itemNumber + ".xml", false);
                     var cvFile = new File(cvPath);
                     
-                    createDataset(cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
+                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
                     
                     writeInjectXML(cvFile, product);
                     
@@ -1302,16 +1340,15 @@ runParser = function(s, job){
             
             csvFile.close();
         
-            createDataset(newCSV, data, matInfo, false, null, null, userInfo, true, now);
-            //createReport(s, newCSV, data)
-            newCSV.setHierarchyPath([data.environment,data.sku]);	
+            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now);
+            newCSV.setHierarchyPath([data.environment,data.sku]);
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
             newCSV.setUserFullName(job.getUserFullName());
             newCSV.setPriority(submit.override.priority);
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
             
-            createDataset(job, data, matInfo, false, null, null, userInfo, false, now);
+            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now);
             job.setHierarchyPath([data.projectID]);
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
@@ -1329,67 +1366,7 @@ runParser = function(s, job){
 
 // -------------------------------------------------------
 
-function compileCSV(product, matInfo, scale, orderArray, data){
-	// Compile the CSV information.	
-	var infoArray = [
-		["Name",product.contentFile],
-		["Artwork File",product.artworkFile],
-		["Ordered",product.quantity],
-		["Stock",product.stock],
-		["Grade",product.grade + " gsm"],
-		["Spacing",product.spacingBase],
-		["Spacing Top",product.spacingTop],
-		["Spacing Bottom",product.spacingBottom],
-		["Spacing Left",product.spacingLeft],
-		["Spacing Right",product.spacingRight],
-		["Spacing Type",matInfo.spacing.type],
-        ["Offcut Top",product.offcut.top],
-        ["Offcut Bottom",product.offcut.bottom],
-        ["Offcut Left",product.offcut.left],
-        ["Offcut Right",product.offcut.right],
-		["Bleed",product.bleed],
-		["Rotation",product.rotation],
-		["Allowed Rotations",product.allowedRotations],
-		["Width",scale.width + "%"],
-		["Height",scale.height + "%"],
-        ["Scale Width",scale.width],
-		["Scale Height",scale.height],
-		["View Width",product.width],
-		["View Height",product.height],
-		["Description","Description"],
-		["Shape Search",product.shapeSearch],
-		["Notes","SheetLevelData"], //wtf is this?
-		["Page Handling",product.pageHandling],
-		["Marks",marksArray],
-		["METRIX_NAME",product.orderNumber],
-		["Item Number",product.itemNumber],
-		["Product Notes",orderArray.productNotes], //If you add something above this you have to update the xml updater as well. (this might be outdated)
-		["Bleed Type",matInfo.bleedType],
-		["A-Frame Type",orderArray.frame.value],
-		["Mount Info",orderArray.mount.value],
-		["Base Type",orderArray.base.active ? orderArray.base.value : orderArray.display.active ? orderArray.display.value : "Unknown Hardware"],
-		["Die Design Source",product.dieDesignSource],
-		["Die Design Name",product.dieDesignName],
-		["Max Overruns",product.overruns],
-		["Ship Date",orderArray.date.due],
-        ["Ship Type",product.shipType],
-		["Due Date",data.date.due],
-		["Gang Info", data.phoenix.gangLabel],
-		["Group Number", product.groupNumber],
-		["Custom Label", product.customLabel.value],
-		["Hem Value", product.hemValue],
-		["Finishing Type", product.finishingType],
-		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
-		["Late", product.late],
-		["Reprint", product.reprint],
-        ["Enable Scripts", product.scripts.enabled],
-        ["Script Name", product.scripts.name],
-        ["Sewn Hem Offset", product.scripts.offset]
-	];
-	return infoArray
-}
-
-function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now){
+function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now){
 	
 	var theXML = new Document();
 
@@ -1460,6 +1437,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 		addNode_db(theXML, miscNode, "cutExport", data.phoenix.cutExport);
 		addNode_db(theXML, miscNode, "fileSource", data.fileSource);
 		addNode_db(theXML, miscNode, "facility", data.facility.destination);
+        addNode_db(theXML, miscNode, "server", s.getServerName());
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -1486,6 +1464,7 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 			addNode_db(theXML, productNode, "cvColors", orderArray.cvColors);
 			addNode_db(theXML, productNode, "nametag", product.nametag);
             addNode_db(theXML, productNode, "subprocess", product.subprocess.name);
+            addNode_db(theXML, productNode, "cutLayerName", product.cutLayerName);
 	}
 	
 	if(writeProducts){
@@ -1512,8 +1491,6 @@ function createDataset(newCSV, data, matInfo, writeProduct, product, orderArray,
 	
 		newCSV.setDataset("Handoff Data", theDataset);
 }
-
-// -------------------------------------------------------
 
 function createReport(s, newCSV, data){
 	

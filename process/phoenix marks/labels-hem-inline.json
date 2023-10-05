@@ -1,0 +1,283 @@
+{
+    "description":"Various types of label indicators for hems.",
+    "name":"Hem Labels",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"Top",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":"28",
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":"5",
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":"37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "Backdrop",
+                    "ButtWeld"
+                ],
+                "rejections":[
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "labels":{
+                        "top":true
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "doubleSided":true,
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Barcode-T",
+                    "dir":"/Master Labels/In-Line/Barcode/"
+                },
+                {
+                    "name":"OrderItemInfo-T",
+                    "dir":"/Master Labels/In-Line/Text/"
+                }
+            ]
+        },
+        {
+            "description":"Bottom",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":"28",
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":"5",
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":"37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "Backdrop",
+                    "ButtWeld"
+                ],
+                "rejections":[
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "labels":{
+                        "bottom":true
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "doubleSided":true,
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Barcode-B",
+                    "dir":"/Master Labels/In-Line/Barcode/"
+                },
+                {
+                    "name":"OrderItemInfo-B",
+                    "dir":"/Master Labels/In-Line/Text/"
+                }
+            ]
+        },
+        {
+            "description":"Left",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":"28",
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":"5",
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":"37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "Backdrop",
+                    "ButtWeld"
+                ],
+                "rejections":[
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "labels":{
+                        "left":true
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "doubleSided":true,
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Barcode-L",
+                    "dir":"/Master Labels/In-Line/Barcode/"
+                },
+                {
+                    "name":"OrderItemInfo-L",
+                    "dir":"/Master Labels/In-Line/Text/"
+                }
+            ]
+        },
+        {
+            "description":"Right",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":"28",
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":"5",
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":"37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "Backdrop",
+                    "ButtWeld"
+                ],
+                "rejections":[
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "labels":{
+                        "right":true
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "doubleSided":true,
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Barcode-R",
+                    "dir":"/Master Labels/In-Line/Barcode/"
+                },
+                {
+                    "name":"OrderItemInfo-R",
+                    "dir":"/Master Labels/In-Line/Text/"
+                }
+            ]
+        }
+    ]
+}

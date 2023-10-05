@@ -10,7 +10,44 @@
                 "enabled": true
             },
             "processes": [
-                "All"
+                "13oz-Smooth"
+            ],
+            "properties": {
+                "mixed": false,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                    "width": 54,
+                    "height": 96,
+                    "printer": {
+                        "name": "Epson"
+                    },
+                    "sideMix": 1
+                },
+                "product": {
+                    "stock": "Roll_52",
+                    "pageHandling": "OnePerPage",
+                    "customLabel": {
+                        "apply": true
+                    }
+                },
+                "data": {
+                    "prodMatFileName": "MBS",
+                    "printer": "Epson"
+                },
+                "scale": {}
+            }
+        },
+        {
+            "facility": {
+                "name": "Wixom",
+                "id": "37",
+                "enabled": true
+            },
+            "processes": [
+                "13oz-PolyFilm"
             ],
             "properties": {
                 "mixed": false,
@@ -26,14 +63,14 @@
                     "sideMix": 1
                 },
                 "product": {
-                    "stock": "Roll_52",
+                    "stock": "Roll_124",
                     "pageHandling": "OnePerPage",
                     "customLabel": {
                         "apply": true
                     }
                 },
                 "data": {
-                    "prodMatFileName": "10xMBS",
+                    "prodMatFileName": "MBS-PF",
                     "printer": "Epson"
                 },
                 "scale": {}

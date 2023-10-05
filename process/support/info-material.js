@@ -73,6 +73,11 @@ getMatInfo = function(orderSpecs, dbConn_material){
         rotateBack: db_material.getString(38) == 'y' ? true : false,
         rotate90: db_material.getString(39) == 'y' ? true : false,
 
+        dsIndicator:{
+            top: db_material.getString(40) == 'y' ? true : false,
+            bottom: db_material.getString(41) == 'y' ? true : false
+        },
+
         rip: {
             device: db_material.getString(30),
             hotfolder: db_material.getString(31)
@@ -80,7 +85,12 @@ getMatInfo = function(orderSpecs, dbConn_material){
 
         cutter: {
             device: db_material.getString(32),
-            hotfolder: db_material.getString(33)
+            hotfolder: db_material.getString(33),
+            layerName: db_material.getString(42)
+        },
+
+        phoenix:{
+            cutExport: db_material.getString(43)
         }
     }
     

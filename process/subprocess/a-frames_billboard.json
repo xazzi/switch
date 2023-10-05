@@ -1,0 +1,39 @@
+{
+    "subprocess": "a-frames-billboard",
+    "name": " Billboard A-Frame",
+    "id": "16",
+    "parameters": [
+        {
+            "facility": {
+                "name": "Wixom",
+                "id": "37",
+                "enabled": true
+            },
+            "processes": [
+                "Coroplast"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": false,
+                "orientationCheck": false
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "rotation": "Custom",
+                    "allowedRotations": 0,
+                    "pageHandling": "OnePerPage",
+                    "overrun": 20,
+                    "shapeSearch": "Multiple"
+                },
+                "data": {
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
+                    "sideMix": 1
+                }  
+            }
+        }
+    ]
+}

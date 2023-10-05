@@ -1,14 +1,14 @@
 var parent = []
 
-getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, subprocess){
-    function readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess){
+getSubprocess = function(folder, dbConn, orderArray, matInfo, product, data, scale, subprocess){
+    function readFiles(folder, dbConn, orderArray, matInfo, product, data, scale, subprocess){
 
-        query.itemName = query.itemName.replace(/"/g,'\\"');
-        query.itemName = query.itemName.replace(/'/g,"\\'");
-        query.itemName = query.itemName.replace(/,/g,'\\,');
+        orderArray.itemName = orderArray.itemName.replace(/"/g,'\\"');
+        orderArray.itemName = orderArray.itemName.replace(/'/g,"\\'");
+        orderArray.itemName = orderArray.itemName.replace(/,/g,'\\,');
 
         var db_mapItem = new Statement(dbConn);
-            db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
+            db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + orderArray.itemName + "';");
             db_mapItem.fetchRow();
 
         if(subprocess == null){
@@ -41,7 +41,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                 // Loop through all of the facilities in the subprocess.
                 for(var j in dump.parameters){
                     // The facility has to have a subprocess assigned to it to advance.
-                    if(dump.parameters[j].facility.id == query.facilityId){
+                    if(dump.parameters[j].facility.id == orderArray.facilityId){
                         // If the facility is enabled, advance.
                         if(dump.parameters[j].facility.enabled){
                             // Check that the process is a possible process for the subprocess.
@@ -58,7 +58,7 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
                                 }
 
                                 // Apply the subprocess overrides
-                                checkObject(s, dump.parameters[j].overrides, matInfo, product, data, scale)
+                                checkObject(s, dump.parameters[j].overrides, matInfo, product, data, scale, orderArray)
                                 return settings = {
                                     name: dump.name,
                                     exists: true,
@@ -82,16 +82,16 @@ getSubprocess = function(folder, dbConn, query, matInfo, product, data, scale, s
             orientationCheck: true
         }
     }
-    return readFiles(folder, dbConn, query, matInfo, product, data, scale, subprocess);
+    return readFiles(folder, dbConn, orderArray, matInfo, product, data, scale, subprocess);
 }
 
-function checkObject(s, parameter, matInfo, product, data, scale){
+function checkObject(s, parameter, matInfo, product, data, scale, orderArray){
     for(var l in parameter){
 
         // If the parameter is an nested object, dig further.
         if(typeof parameter[l] === 'object'){
             parent.push(l + ".");
-            checkObject(s, parameter[l], matInfo, product, data, scale);
+            checkObject(s, parameter[l], matInfo, product, data, scale, orderArray);
 
         // Eval the new parameter.
         }else{

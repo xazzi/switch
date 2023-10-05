@@ -1,0 +1,65 @@
+{
+    "description":"Dashed lines for pole pocket.",
+    "name": "Pole Pocket Hem",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "Backdrop"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":{
+                "product": {
+                    "script":{
+                        "name":"PolePocket",
+                        "pockets":[
+                            "T:orderArray.pocket.side.top:orderArray.pocket.size.top",
+                            "B:orderArray.pocket.side.bottom:orderArray.pocket.size.bottom",
+                            "L:orderArray.pocket.side.left:orderArray.pocket.size.left",
+                            "R:orderArray.pocket.side.right:orderArray.pocket.size.right"
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -17,10 +17,25 @@ runPost = function(s, job){
                 return;
             }
 
-            var server = environment == "QA" ? "https://gang.digitalroomapi-qa.io/v1/project/" : "https://digital-room-gang.digitalroomapi.io/v1/project/";
+            var server
+
+            switch(environment){
+                case "QA":
+                    server = "https://gang.digitalroomapi-qa.io/v1/project/";
+                break;
+                case "Stage":
+                    server = "https://gang.digitalroomapi-stage.io/v1/project/";
+                break;
+                case "Production":
+                    server = "https://gang.digitalroomapi.io/v1/project/";
+                break;
+                default:
+                    server = "Oops"
+            }
         
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffObj = {
+                projectID: handoffDataDS.evalToString("//base/projectID"),
                 material: handoffDataDS.evalToString("//base/process"),
                 doublesided: handoffDataDS.evalToString("//settings/doublesided") == "true",
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true",
@@ -40,7 +55,7 @@ runPost = function(s, job){
                 xmlF.open(File.Append);
                 xmlF.writeLine('{');
                 
-                xmlF.writeLine('"Description": "' + 'Description' + '",');
+                xmlF.writeLine('"Description": "' + handoffObj.projectID + '",');
                 xmlF.writeLine('"Workspace": "' + handoffObj.printer + '",');
                 xmlF.writeLine('"Material": "' + handoffObj.material + '",');
                 xmlF.writeLine('"Status": ' + '1' + ',');

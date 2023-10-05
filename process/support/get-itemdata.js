@@ -22,21 +22,42 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				method: null,
 				value: null
 			},
+			diecut: {
+				active: false,
+				method: null,
+				value: null
+			},
 			grommet: {
 				active: false,
                 key: null
 			},
 			hem: {
-				active: false,
-                method: null,
-                webbing: false,
-                value: null
+				value: null,
+				enable: false,
+                method: "None",
+				side: {
+					top: null,
+					bottom: null,
+					left: null,
+					right: null
+				},
+				webbing: false
 			},
 			pocket: {
-				active: false,
-                method: null,
-                size: null,
-                value: null
+				value: null,
+                enable: false,
+				side: {
+					top: null,
+					bottom: null,
+					left: null,
+					right: null
+				},
+                size: {
+					top: null,
+					bottom: null,
+					left: null,
+					right: null
+				}
 			},
 			mount: {
 				active: false,
@@ -214,6 +235,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			}
 			if(dataDump.order_specs[k].code == "SHAPE"){
 				specs.shape = addToTable(s, dbConn, "options_shape", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+			}
+			if(dataDump.order_specs[k].code == "DIECUT"){
+				specs.diecut = addToTable(s, dbConn, "options_diecut", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "SIDE"){
 				specs.side = addToTable(s, dbConn, "options_side", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);

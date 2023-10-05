@@ -1,0 +1,61 @@
+{
+    "description":"Marks that indicate a product is DS for production.",
+    "name":"DS Indicators",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "doubleSided":true
+                    }
+                },
+                "rejections":{}
+            },
+            "settings":{
+                "product": {
+                    "script":{
+                        "name":"DS-Indicators",
+                        "parameters":null,
+                        "dynamic":[
+                            "DSI-T:matInfo.dsIndicator.top",
+                            "DSI-B:matInfo.dsIndicator.bottom"
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

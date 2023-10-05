@@ -38,6 +38,45 @@
                     "locked": true
                 }
             }
+        },
+        {
+            "facility": {
+                "name": "Wixom",
+                "id": "37",
+                "enabled": true
+            },
+            "processes": [
+                "Coroplast"
+            ],
+            "properties": {
+                "mixed": false,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "stock": "Proc_FullSheet_48x96",
+                    "spacingTop": 0,
+                    "spacingBottom": 0,
+                    "spacingLeft": 0,
+                    "spacingRight": 0,
+                    "bleed": 0,
+                    "rotation": "Orthogonal",
+                    "subprocess":{
+                        "undersize":false
+                    }
+                },
+                "data": {
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    }
+                },
+                "scale": {
+                    "locked": true
+                }
+            }
         }
     ]
 }

@@ -1,0 +1,299 @@
+{
+    "description":"Webbing labels.",
+    "name":"Labels",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"Webbing label.",
+            "type":"Webbing Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "labels":{
+                        "top":true
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "webbing":true
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "doubleSided":true,
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Webbing-T",
+                    "dir":"/Master Labels/Custom/Webbing/"
+                }
+            ]
+        },
+        {
+            "description":"Webbing label.",
+            "type":"Webbing Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "labels":{
+                        "bottom":true
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "webbing":true
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "doubleSided":true,
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Webbing-B",
+                    "dir":"/Master Labels/Custom/Webbing/"
+                }
+            ]
+        },
+        {
+            "description":"Webbing label.",
+            "type":"Webbing Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "labels":{
+                        "left":true
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "webbing":true
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "doubleSided":true,
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Webbing-L",
+                    "dir":"/Master Labels/Custom/Webbing/"
+                }
+            ]
+        },
+        {
+            "description":"Webbing label.",
+            "type":"Webbing Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "ButtWeld"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "labels":{
+                        "right":true
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "webbing":true
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "doubleSided":true,
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "name":"Webbing-R",
+                    "dir":"/Master Labels/Custom/Webbing/"
+                }
+            ]
+        }
+    ]
+}
