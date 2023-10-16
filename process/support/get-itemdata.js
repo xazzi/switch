@@ -22,6 +22,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				method: null,
 				value: null
 			},
+			corner: {
+				active: false,
+				method: null,
+				value: null
+			},
 			diecut: {
 				active: false,
 				method: null,
@@ -188,8 +193,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 				specs.grommet = addToTable(s, dbConn, "options_grommets", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "HEMMING"){
-				specs.finishingType = "Hem"
-				specs.hem = addToTable(s, dbConn, "options_hems", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				if(dataDump.order_specs[k].value != "None"){
+					specs.finishingType = "Hem"
+					specs.hem = addToTable(s, dbConn, "options_hems", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				}
 			}
 			if(dataDump.order_specs[k].code == "PPR"){
 				specs.paper = addToTable(s, dbConn, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
@@ -235,6 +242,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, dbConn, d
 			}
 			if(dataDump.order_specs[k].code == "SHAPE"){
 				specs.shape = addToTable(s, dbConn, "options_shape", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+			}
+			if(dataDump.order_specs[k].code == "CORNER"){
+				specs.corner = addToTable(s, dbConn, "options_corner", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "DIECUT"){
 				specs.diecut = addToTable(s, dbConn, "options_diecut", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);

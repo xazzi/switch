@@ -626,7 +626,7 @@ runParser = function(s, job){
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
-                    groupNumber: 10000,
+                    groupNumber: 10000 + [i],
                     customLabel: {
                         apply: false,
                         value: ""
@@ -1179,6 +1179,15 @@ runParser = function(s, job){
                     product.bleed = matInfo.bleed/10;
                     data.notes.push(product.itemNumber + ': Scaled file, please verify accuracy in report. (' + Math.round(scale.height) + '%)');
                 }
+
+                // Reassign ClearStaticCling in ARL to a different rip hotfolder when it's 2nd surface.
+                if(data.facility.destination == "Arlington"){
+                    if(matInfo.id == 85){ // 85 == Clear Static Cling
+                        if(data.secondSurface){
+                            data.rip.hotfolder = "CSC-MIR"
+                        }
+                    }
+                }    
                 
                 // Check for custom rotations assigned in the database.
                 // This overrides any defaults assigned to the product or subprocess.
@@ -1294,7 +1303,7 @@ runParser = function(s, job){
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation,product.itemName]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
                 
                 // Write the gang number to the database.
                 dbQuery.execute("SELECT * FROM digital_room.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
@@ -1302,12 +1311,11 @@ runParser = function(s, job){
                     dbQuery.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
                 }
 
-                /*
-                if(i>=49){
-                   break;
-                }
-                */
-
+                //if(s.getServerName() == 'Switch-Dev'){
+                    if(i>=49){
+                        break;
+                    }
+                //}
             }
 
             // Adjust the imposition profile based on overrides from the user.
@@ -1438,6 +1446,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, miscNode, "fileSource", data.fileSource);
 		addNode_db(theXML, miscNode, "facility", data.facility.destination);
         addNode_db(theXML, miscNode, "server", s.getServerName());
+        addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -1482,6 +1491,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 				addNode_db(theXML, subProductsNode, "due-date", productArray[i][4]);
                 addNode_db(theXML, subProductsNode, "orientation", productArray[i][5]);
                 addNode_db(theXML, subProductsNode, "item-name", productArray[i][6]);
+                addNode_db(theXML, subProductsNode, "shape-method", productArray[i][7]);
+                addNode_db(theXML, subProductsNode, "corner-method", productArray[i][8]);
 		}
 	}
 	

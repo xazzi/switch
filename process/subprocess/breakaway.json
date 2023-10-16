@@ -24,6 +24,9 @@
                     "pageHandling": "OnePerPage"
                 },
                 "data": {
+                    "impositionProfile": {
+                        "name": "Proc_Breakaway"
+                    },
                     "prodMatFileName": "Breakaway",
                     "sideMix": 1
                 }
@@ -51,6 +54,9 @@
                     "pageHandling": "OnePerPage"
                 },
                 "data": {
+                    "impositionProfile": {
+                        "name": "Proc_Breakaway"
+                    },
                     "prodMatFileName": "Breakaway",
                     "sideMix": 1
                 }
