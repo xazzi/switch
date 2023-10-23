@@ -2,7 +2,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 	// Compile the CSV information.	
 	var infoArray = [
 		["Name",product.contentFile],
-		["Artwork File",product.artworkFile],
+		["Artwork File","//10.21.71.213/pdfDepository/" + product.artworkFile],
 		["Ordered",product.quantity],
 		["Stock",product.stock],
 		["Grade",product.grade + " gsm"],
@@ -46,7 +46,10 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Gang Info", data.phoenix.gangLabel],
 		["Group Number", product.groupNumber],
 		["Custom Label", product.customLabel.value],
-		["Hem Value", product.hemValue],
+		["Edge Top", product.pocket.top == true ? "Pocket" : product.hemValue],
+		["Edge Bottom", product.pocket.bottom == true ? "Pocket" : product.hemValue],
+		["Edge Left", product.pocket.left == true ? "Pocket" : product.hemValue],
+		["Edge Right", product.pocket.right == true ? "Pocket" : product.hemValue],
 		["Finishing Type", orderArray.finishingType],
 		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
 		["Late", product.late],

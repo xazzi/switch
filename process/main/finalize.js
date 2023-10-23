@@ -138,14 +138,15 @@ runFinalize = function(s, job){
             
             // Arlington ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Arlington"){
-                data.side = data.filename.match(new RegExp("S1","g")) ? "_F" : data.filename.match(new RegExp("S2","g")) ? "_B" : '';
+                data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
+                data.side = numberOfPages == 1 ? "_SS" : "_DS";
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "_" + name.process + "_Layout-" + phoenixPlan.index + data.side + ".pdf";
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.projectID + "_CUT_Layout-" + phoenixPlan.index + ".pdf";
+                    savename = handoffData.projectID + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
                 }
                 
                 if(data.processType == "Summary"){				

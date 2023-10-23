@@ -5,20 +5,24 @@ runHierarchy = function(s, job){
                 support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
             }
 
-            // Read in any support directories
-            eval(File.read(dir.support + "/general-functions.js"));
+            var enabled = s.getPropertyValue("enabled") == "Yes"
 
-            var handoffDataDS = loadDataset_db("Handoff Data");
-            var handoffData = {
-                products: handoffDataDS.evalToNodes("//products/product")
+            if(enabled){
+                // Read in any support directories
+                eval(File.read(dir.support + "/general-functions.js"));
+
+                var handoffDataDS = loadDataset_db("Handoff Data");
+                var handoffData = {
+                    products: handoffDataDS.evalToNodes("//products/product")
+                }
+
+                var phoenixPlanDS = loadDataset_db("Phoenix Plan");
+                var phoenixPlan = {
+                    products: phoenixPlanDS.evalToNodes("//products/product")
+                }
+
+                checkHierarchy(s, job, handoffData, phoenixPlan)
             }
-
-            var phoenixPlanDS = loadDataset_db("Phoenix Plan");
-            var phoenixPlan = {
-                products: phoenixPlanDS.evalToNodes("//products/product")
-            }
-
-            checkHierarchy(s, job, handoffData, phoenixPlan)
 
 	        job.sendToSingle(job.getPath(), job.getName());
             
