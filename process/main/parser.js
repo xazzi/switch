@@ -22,7 +22,6 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/add-to-table.js"));
             eval(File.read(dir.support + "/compile-csv.js"));
             eval(File.read(dir.support + "/set-labels.js"));
-            //eval(File.read(dir.support + "/create-dataset.js"));
             
             var dbConn = connectToDatabase_db(s.getPropertyValue("databaseGeneral"));
                 dbQuery = new Statement(dbConn);
@@ -394,13 +393,12 @@ runParser = function(s, job){
                             //matInfo.phoenixStock = "Roll_53";
                         }
                     }
-                    
                 }
 
                 // Override all of the above
                 if(submit.material.active){
                     matInfo.width = submit.material.width;
-                    if(submit.material.height != null){
+                    if(submit.material.height != null && submit.material.height != 0){
                         matInfo.height = submit.material.height;
                     }
                     matInfo.phoenixStock = submit.material.stock;
@@ -458,6 +456,26 @@ runParser = function(s, job){
                     }
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
+                    }
+                }
+
+                // Check for side deviation.
+                if(data.doubleSided != orderSpecs.doubleSided){
+                    if(data.sideMix || submit.override.sideMix){
+                        data.doubleSided = true;
+                    }else{
+                        var type = orderSpecs.doubleSided ? "(Double Sided)" : "(Single Sided)"
+                        data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                        continue;
+                    }
+                }
+
+                // If it's a DS banner, reduce the max length of the gang.
+                if(data.facility.destination == "Wixom"){
+                    if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
+                        if(data.doubleSided || orderSpecs.doubleSided){
+                            matInfo.height = 190;
+                        }
                     }
                 }
 
@@ -567,6 +585,7 @@ runParser = function(s, job){
                 // Send the gang summary email.
                 data.notes.push("All files removed from gang!");
                 sendEmail_db(s, data, matInfo, getEmailResponse("Gang Notes", null, matInfo, data, userInfo, email), userInfo);
+                job.sendToNull(job.getPath());
                 return
             }
             
@@ -577,6 +596,7 @@ runParser = function(s, job){
             var newCSV = s.createNewJob();
             var csvPath = newCSV.createPathWithName(data.projectID + ".csv", false);
             var csvFile = new File(csvPath);
+            //var csvFile = new File("C://Switch//Development//" + data.projectID + ".csv");
                 csvFile.open(File.Append);
                 
             var writeHeader = true;
@@ -612,21 +632,21 @@ runParser = function(s, job){
                     spacingLeft: matInfo.spacing.left == undefined ? matInfo.spacing.base : matInfo.spacing.left,
                     spacingRight: matInfo.spacing.right == undefined ? matInfo.spacing.base : matInfo.spacing.right,
                     offcut:{
-                        top: "None",
-                        bottom: "None",
-                        left: "None",
-                        right: "None"
+                        top: "",
+                        bottom: "",
+                        left: "",
+                        right: ""
                     },
                     bleed: matInfo.bleed,
                     grade: matInfo.grade,
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
-                    dieDesignName: null,
+                    dieDesignName: "",
                     overrun: matInfo.overrun,
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
-                    groupNumber: 10000,
+                    groupNumber: 10000 + [i],
                     customLabel: {
                         apply: false,
                         value: ""
@@ -712,15 +732,6 @@ runParser = function(s, job){
                         }
                     }
                 }
-
-                // If it's a DS banner, reduce the max length of the gang.
-                if(data.facility.destination == "Wixom"){
-                    if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
-                        if(orderArray[i].doubleSided){
-                            matInfo.height = 180;
-                        }
-                    }
-                }
                 
                 // Full-Sheet subprocessing
                 if((product.width == 48 && product.height == 96) || (product.height == 48 && product.width == 96)){
@@ -730,6 +741,10 @@ runParser = function(s, job){
                         scale.locked = true;
                     }
                 }
+
+                //product.query = "full-sheet";
+                //product.subprocess.undersize = false;
+                //scale.locked = true;
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, dbConn, orderArray[i], matInfo, product, data, scale, product.query);
@@ -773,17 +788,6 @@ runParser = function(s, job){
                 // If the subprocess name isn't in the array yet, add it.
                 if(!contains(data.subprocess, product.subprocess.name)){
                     data.subprocess.push(product.subprocess.name);
-                }
-                
-                // Check for side deviation.
-                if(data.doubleSided != product.doubleSided){
-                    if(data.sideMix || submit.override.sideMix){
-                        data.doubleSided = true;
-                    }else{
-                        var type = product.doubleSided ? "(Double Sided)" : "(Single Sided)"
-                        data.notes.push(orderArray[i].jobItemId + ": Different process " + type + ", removed from gang.");
-                        continue;
-                    }
                 }
                 
                 // If the order is a reprint, send an email to the user.
@@ -1061,6 +1065,7 @@ runParser = function(s, job){
                     }
                 }
 
+                /*
                 // Establish the difference in expected vs actual product width due to undersizing.
                 var difference = {
                     width: product.width-(product.width*(scale.width/100)),
@@ -1082,6 +1087,7 @@ runParser = function(s, job){
                         }
                     }
                 }
+                */
                 
                 // Rotation adjustments ----------------------------------------------------------
                 // Coroplast rotation
@@ -1179,6 +1185,15 @@ runParser = function(s, job){
                     product.bleed = matInfo.bleed/10;
                     data.notes.push(product.itemNumber + ': Scaled file, please verify accuracy in report. (' + Math.round(scale.height) + '%)');
                 }
+
+                // Reassign ClearStaticCling in ARL to a different rip hotfolder when it's 2nd surface.
+                if(data.facility.destination == "Arlington"){
+                    if(matInfo.id == 85){ // 85 == Clear Static Cling
+                        if(data.secondSurface){
+                            data.rip.hotfolder = "CSC-MIR"
+                        }
+                    }
+                }    
                 
                 // Check for custom rotations assigned in the database.
                 // This overrides any defaults assigned to the product or subprocess.
@@ -1234,13 +1249,13 @@ runParser = function(s, job){
                 
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
-                
+
                 // Write the compiled data into the CSV.
                 if(writeHeader){
-                    writeCSV(csvFile, infoArray, 0);
+                    writeCSV(s, csvFile, infoArray, 0);
                     writeHeader = false;
                 }
-                    writeCSV(csvFile, infoArray, 1);
+                    writeCSV(s, csvFile, infoArray, 1);
                     
                 // If it's breakaway, write it again for the 2nd page.
                 if(product.subprocess.name == "Breakaway"){
@@ -1248,7 +1263,7 @@ runParser = function(s, job){
                     marksArray.push(data.facility.destination + "/Master Labels/Custom/Breakaway/Velcro" + data.scale);
                     infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                         
-                    writeCSV(csvFile, infoArray, 1);
+                    writeCSV(s, csvFile, infoArray, 1);
                 }
 
                 // If it's tension stand, write it again for the 2nd page.
@@ -1258,7 +1273,7 @@ runParser = function(s, job){
                         product.customLabel.value = (i+1)+"-B";
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
-                        writeCSV(csvFile, infoArray, 1);
+                        writeCSV(s, csvFile, infoArray, 1);
                     }
                 }
                 
@@ -1294,7 +1309,7 @@ runParser = function(s, job){
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation,product.itemName]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
                 
                 // Write the gang number to the database.
                 dbQuery.execute("SELECT * FROM digital_room.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
@@ -1302,12 +1317,11 @@ runParser = function(s, job){
                     dbQuery.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
                 }
 
-                /*
-                if(i>=49){
-                   break;
+                if(s.getServerName() == 'Switch-Dev'){
+                    if(i>=49){
+                        break;
+                    }
                 }
-                */
-
             }
 
             // Adjust the imposition profile based on overrides from the user.
@@ -1438,6 +1452,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, miscNode, "fileSource", data.fileSource);
 		addNode_db(theXML, miscNode, "facility", data.facility.destination);
         addNode_db(theXML, miscNode, "server", s.getServerName());
+        addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -1482,6 +1497,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 				addNode_db(theXML, subProductsNode, "due-date", productArray[i][4]);
                 addNode_db(theXML, subProductsNode, "orientation", productArray[i][5]);
                 addNode_db(theXML, subProductsNode, "item-name", productArray[i][6]);
+                addNode_db(theXML, subProductsNode, "shape-method", productArray[i][7]);
+                addNode_db(theXML, subProductsNode, "corner-method", productArray[i][8]);
 		}
 	}
 	
@@ -1512,7 +1529,7 @@ function createReport(s, newCSV, data){
 
 // -------------------------------------------------------
 
-function writeCSV(file, array, index){
+function writeCSV(s, file, array, index){
 	for(var n=0; n<array.length; n++){
 		file.write(array[n][index]);
 		if(n != array.length-1){

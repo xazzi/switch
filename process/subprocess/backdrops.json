@@ -28,7 +28,8 @@
                 "enabled": true
             },
             "processes": [
-                "13oz-Matte"
+                "13oz-Matte",
+                "All"
             ],
             "properties": {
                 "mixed": true,

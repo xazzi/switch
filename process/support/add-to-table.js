@@ -1,6 +1,7 @@
 addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
     var original = parameter
 
+        //parameter = parameter.replace(/\\\"/,'\\"');
         parameter = parameter.replace(/"/g,'\\"');
         parameter = parameter.replace(/'/g,"\\'");
         parameter = parameter.replace(/,/g,'\\,');
@@ -75,6 +76,15 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
 
         // Shape options
         if(table == "options_shape"){
+            return specs = {
+                active: true,
+                method: db_options.getString(4),
+                value: db_options.getString(1)
+            }
+        }
+
+        // Shape options
+        if(table == "options_corner"){
             return specs = {
                 active: true,
                 method: db_options.getString(4),
