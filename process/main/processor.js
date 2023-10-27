@@ -9,6 +9,7 @@ runProcessor = function(s, job){
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/email-responses.js"));
+			eval(File.read(dir.support + "/connect-to-db.js"));
             
             var environment = s.getPropertyValue("environment");
             var prismPost = s.getPropertyValue("prismPost");
@@ -71,7 +72,7 @@ runProcessor = function(s, job){
                             if(response == "Success"){
                                 // Email the success of the prism post.
                                 s.log(2, data.projectID + " posted to PRISM successfully!");
-                                sendEmail_db(s, data, null, getEmailResponse("Prism Post Success", null, null, data, userInfo), userInfo);
+                                //sendEmail_db(s, data, null, getEmailResponse("Prism Post Success", null, null, data, userInfo), userInfo);
                                 newXML.setPrivateData("Status","Pass");
                             }else{
                                 // Email the failure of the prism post.

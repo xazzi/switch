@@ -1,4 +1,4 @@
-addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
+addToTable = function(s, db, table, parameter, example, data, userInfo){
     var original = parameter
 
         //parameter = parameter.replace(/\\\"/,'\\"');
@@ -6,34 +6,32 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         parameter = parameter.replace(/'/g,"\\'");
         parameter = parameter.replace(/,/g,'\\,');
 
-    var db_options = new Statement(dbConn);
-
     // This logic is temporary, it's just to update existing entries in the tables to include the " and ' symbols
     if(parameter.length != original.length){
-        db_options.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + original.replace(/"|'/g,'') + "';");
-        if(db_options.isRowAvailable()){
+        db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + original.replace(/"|'/g,'') + "';");
+        if(db.general.isRowAvailable()){
             dbQuery.execute("UPDATE digital_room.`" + table + "` SET `parameter` = '" + parameter + "' WHERE (`parameter` = '" + original.replace(/"|'/g,'') + "');");
         }
     }
 
-        db_options.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
+        db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
 
     // If the parameter is found in the tables, return out of the function.
-    if(db_options.isRowAvailable()){
-        db_options.fetchRow();
+    if(db.general.isRowAvailable()){
+        db.general.fetchRow();
 
         // Paper mapping
         if(table == "specs_paper"){
             return specs = {
                 active: true,
-                value: db_options.getString(1),
+                value: db.general.getString(1),
                 map: {
-                    slc: Number(db_options.getString(4)),
-                    bri: Number(db_options.getString(5)),
-                    sln: Number(db_options.getString(6)),
-                    lou: Number(db_options.getString(7)),
-                    arl: Number(db_options.getString(8)),
-                    wix: Number(db_options.getString(9))
+                    slc: Number(db.general.getString(4)),
+                    bri: Number(db.general.getString(5)),
+                    sln: Number(db.general.getString(6)),
+                    lou: Number(db.general.getString(7)),
+                    arl: Number(db.general.getString(8)),
+                    wix: Number(db.general.getString(9))
                 }
             }
         }
@@ -42,8 +40,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "specs_item-name"){
             return specs = {
                 active: true,
-                value: db_options.getString(1),
-                subprocess: db_options.getString(4)
+                value: db.general.getString(1),
+                subprocess: db.general.getString(4)
             }
         }
 
@@ -51,7 +49,7 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_material"){
             return specs = {
                 active: true,
-                value: db_options.getString(1)
+                value: db.general.getString(1)
             }
         }
 
@@ -59,8 +57,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_a-frame"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1).replace(/"/g,'')
+                method: db.general.getString(4),
+                value: db.general.getString(1).replace(/"/g,'')
             }
         }
 
@@ -68,9 +66,9 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_yard-frame"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1),
-                undersize: db_options.getString(5) == 1
+                method: db.general.getString(4),
+                value: db.general.getString(1),
+                undersize: db.general.getString(5) == 1
             }
         }
 
@@ -78,8 +76,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_shape"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -87,8 +85,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_corner"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -96,8 +94,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_diecut"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -105,8 +103,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_side"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -114,42 +112,42 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_grommets"){
             return specs = {
 				active: true,
-				key: db_options.getString(4)
+				key: db.general.getString(4)
             }
         }
 
         // Hem options
         if(table == "options_hems"){
             return specs = {
-                value: db_options.getString(1).replace(/"/g,''),
-                enable: db_options.getString(4) == "y" ? true : false,
-                method: db_options.getString(5),
+                value: db.general.getString(1).replace(/"/g,''),
+                enable: db.general.getString(4) == "y" ? true : false,
+                method: db.general.getString(5),
                 side: {
-                    top: db_options.getString(6) == "y" ? true : false,
-                    bottom: db_options.getString(7) == "y" ? true : false,
-                    left: db_options.getString(8) == "y" ? true : false,
-                    right: db_options.getString(9) == "y" ? true : false
+                    top: db.general.getString(6) == "y" ? true : false,
+                    bottom: db.general.getString(7) == "y" ? true : false,
+                    left: db.general.getString(8) == "y" ? true : false,
+                    right: db.general.getString(9) == "y" ? true : false
                 },
-                webbing: db_options.getString(10) == "y" ? true : false
+                webbing: db.general.getString(10) == "y" ? true : false
             }
         }
 
         // Pocket options
         if(table == "options_pockets"){
             return specs = {
-                value: db_options.getString(1),
-                enable: db_options.getString(4) == "y" ? true : false,
+                value: db.general.getString(1),
+                enable: db.general.getString(4) == "y" ? true : false,
                 side: {
-                    top: db_options.getString(5) == "y" ? true : false,
-                    bottom: db_options.getString(6) == "y" ? true : false,
-                    left: db_options.getString(7) == "y" ? true : false,
-                    right: db_options.getString(8) == "y" ? true : false
+                    top: db.general.getString(5) == "y" ? true : false,
+                    bottom: db.general.getString(6) == "y" ? true : false,
+                    left: db.general.getString(7) == "y" ? true : false,
+                    right: db.general.getString(8) == "y" ? true : false
                 },
                 size: {
-                    top: db_options.getString(9),
-                    bottom: db_options.getString(10),
-                    left: db_options.getString(11),
-                    right: db_options.getString(12)
+                    top: db.general.getString(9),
+                    bottom: db.general.getString(10),
+                    left: db.general.getString(11),
+                    right: db.general.getString(12)
                 }
             }
         }
@@ -157,18 +155,18 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         // Coating options
         if(table == "options_coating"){
             return specs = {
-                active: db_options.getString(4) == "None" ? false : true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                active: db.general.getString(4) == "None" ? false : true,
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
         // Mount options
         if(table == "options_mount"){
             return specs = {
-                active: db_options.getString(4) == "None" ? false : true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                active: db.general.getString(4) == "None" ? false : true,
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -176,8 +174,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_base"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -185,8 +183,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_display"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -194,8 +192,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_view-direction"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -203,8 +201,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_laminate"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -212,8 +210,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_edge"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -221,8 +219,8 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
         if(table == "options_cut"){
             return specs = {
                 active: true,
-                method: db_options.getString(4),
-                value: db_options.getString(1)
+                method: db.general.getString(4),
+                value: db.general.getString(1)
             }
         }
 
@@ -233,10 +231,10 @@ addToTable = function(s, dbConn, table, parameter, example, data, userInfo){
     }
 
         // If the parameter is not on the table, add it to the able and send an email.
-        db_options.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
+        db.general.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
         
-        db_options.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
-        if(db_options.isRowAvailable()){
+        db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
+        if(db.general.isRowAvailable()){
             sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, null, parameter), userInfo);
         }else{
             sendEmail_db(s, data, null, getEmailResponse("New Entry Failed", null, table, data, userInfo, null, parameter), userInfo);

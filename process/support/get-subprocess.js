@@ -1,18 +1,17 @@
 var parent = []
 
-getSubprocess = function(folder, dbConn, orderArray, matInfo, product, data, scale, subprocess){
-    function readFiles(folder, dbConn, orderArray, matInfo, product, data, scale, subprocess){
+getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, subprocess){
+    function readFiles(folder, db, orderArray, matInfo, product, data, scale, subprocess){
 
         orderArray.itemName = orderArray.itemName.replace(/"/g,'\\"');
         orderArray.itemName = orderArray.itemName.replace(/'/g,"\\'");
         orderArray.itemName = orderArray.itemName.replace(/,/g,'\\,');
 
-        var db_mapItem = new Statement(dbConn);
-            db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + orderArray.itemName + "';");
-            db_mapItem.fetchRow();
+        db.general.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + orderArray.itemName + "';");
+        db.general.fetchRow();
 
         if(subprocess == null){
-            subprocess = db_mapItem.getString(4);
+            subprocess = db.general.getString(4);
         }
 
         if(subprocess == undefined){
@@ -20,7 +19,7 @@ getSubprocess = function(folder, dbConn, orderArray, matInfo, product, data, sca
                 name: "None",
                 exists: false,
                 mixed: true,
-                undersize: db_mapItem.getString(5) == 'n' ? false : true,
+                undersize: db.general.getString(5) == 'n' ? false : true,
                 orientationCheck: true
             }
         }
@@ -63,7 +62,7 @@ getSubprocess = function(folder, dbConn, orderArray, matInfo, product, data, sca
                                     name: dump.name,
                                     exists: true,
                                     mixed: dump.parameters[j].properties.mixed,
-                                    undersize: dump.parameters[j].properties.undersize == true ? true : dump.parameters[j].properties.undersize == false ? false : db_mapItem.getString(5) == 'y' ? true : false,
+                                    undersize: dump.parameters[j].properties.undersize == true ? true : dump.parameters[j].properties.undersize == false ? false : db.general.getString(5) == 'y' ? true : false,
                                     orientationCheck: dump.parameters[j].properties.orientationCheck
                                 }
                             }
@@ -78,11 +77,11 @@ getSubprocess = function(folder, dbConn, orderArray, matInfo, product, data, sca
             name: "None",
             exists: false,
             mixed: true,
-            undersize: db_mapItem.getString(5) == 'y' ? true : false,
+            undersize: db.general.getString(5) == 'y' ? true : false,
             orientationCheck: true
         }
     }
-    return readFiles(folder, dbConn, orderArray, matInfo, product, data, scale, subprocess);
+    return readFiles(folder, db, orderArray, matInfo, product, data, scale, subprocess);
 }
 
 function checkObject(s, parameter, matInfo, product, data, scale, orderArray){

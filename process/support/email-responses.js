@@ -1,8 +1,7 @@
 getEmailResponse = function(query, product, matInfo, data, userInfo, email, parameter_1){
 
     var subject, body, to, cc, bcc;
-    var itemNotes = "";
-    var gangNotes = "";
+    var active = false;
     var escalate = "To escalate an issue, please forward this email to Chelsea McVay and Bret Combe."
 
     var sendTo = {
@@ -10,81 +9,26 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email, para
         chelsea: "chelsea.mv@digitalroominc.com"
     }
 
-    if(data != null){
-        gangNotes += "\nItem Notes:\n"
-        if(data.notes.length == 0){
-            gangNotes += "None" + "\n";
-        }else{
-            for(var i in data.notes){
-                gangNotes += data.notes[i] + "\n";
-            }
-        }
-    }
-
-    if(email != null){
-        gangNotes += "\nRotation Adjustments:\n"
-        if(email.rotations.length == 0){
-            gangNotes += "None" + "\n";
-        }else{
-            for(var i in email.rotations){
-                gangNotes += email.rotations[i] + "\n";
-            }
-        }
-        gangNotes += "\nSubmit Errors:\n"
-        if(email.errors.length == 0){
-            gangNotes += "None" + "\n";
-        }else{
-            for(var i in email.errors){
-                gangNotes += email.errors[i] + "\n";
-            }
-        }
-    }
-
-    if(product != null){
-        for(var i in product.notes){
-            itemNotes += product.notes[i] + "\n";
-        }
-    }
-
     switch(query){
-        case "Butt Cut":
-            subject = "Missing Template: " + product.width + "x" + product.height;
-            body = "The following item is missing the required template for the butt-cut process: " + "\n\n" + "Item: " + product.itemNumber + "\n" + "Width: " + product.width + "\n" + "Height: " + product.height;
-            to = [userInfo.email];
-            cc = [sendTo.bret];
-            bcc = [];
-        break;
-        case "Butt Cut v1":
-            subject = "Missing Cut File for Butt Cut: " + product.width + "x" + product.height;
-            body = "The following item is missing the required template for the butt-cut process: " + "\n\n" + "Item: " + product.itemNumber + "\n" + "Width: " + product.width + "\n" + "Height: " + product.height + ".\n" + "Please create it via the launcher after processing.";
-            to = [userInfo.email];
-            cc = [sendTo.bret];
-            bcc = [];
-        break;
         case "Undefined User":
+            active = true;
             subject = "Undefined User!";
             body = "Email: " + userInfo;
             to = [sendTo.bret]
             cc = [sendTo.chelsea]
             bcc = [];
         break;
-        case "Undefined Material v1":
+        case "Undefined Material":
             //paper, material, itemName do not exist in matInfo, these are being pulled from orderSpecs pass in.
+            active = true;
             subject = "Undefined Material: " + data.projectID;
             body = "The following material specs are undefined:" + "\n\n" + "Paper: " + matInfo.paper.value + "\n" + "Material: " + matInfo.material.value + "\n" + "ItemName: " +  matInfo.itemName + "\n" + "Facility: " +  matInfo.facility  + "\n\n" + "ItemName is not required to be defined, but Paper must be in the database for production.";
             to = [sendTo.chelsea,sendTo.bret]
             cc = [userInfo.email]
             bcc = [];
         break;
-        case "Unmapped Paper":
-            //paper, material, itemName do not exist in matInfo, these are being pulled from orderSpecs pass in.
-            subject = "Undefined Paper Mapping: " + data.projectID;
-            body = "The following paper specs are not mapped:" + "\n\n" + "Paper: " + matInfo.paper + "\n" + "Material: " + matInfo.material + "\n" + "ItemName: " +  matInfo.itemName + "\n" + "Facility: " +  matInfo.facility  + "\n\n" + "ItemName is not required to be defined, but Paper must be in the database for production.";
-            to = [sendTo.chelsea,sendTo.bret]
-            cc = [userInfo.email]
-            bcc = [];
-        break;
         case "New Entry":
+            active = true;
             subject = "New Table Entry!";
             body = "A new entry has been added to the " + matInfo + " table!" + "\n\n" + parameter_1;
             to = [sendTo.bret,sendTo.chelsea]
@@ -92,20 +36,23 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email, para
             bcc = [];
         break;
         case "New Entry Failed":
+            active = true;
             subject = "New Table Entry Failed!";
             body = "A new entry has failed when adding to the " + matInfo + " table!" + "\n\n" + parameter_1;
             to = [sendTo.bret,sendTo.chelsea]
             cc = []
             bcc = [];
         break;
-        case "Item Notes":
-            subject = "Item Notes: " + product.itemNumber;
-            body = "These things happened to your gang:" + "\n\n" + itemNotes;
-            to = [userInfo.email]
+        case "Empty Gang":
+            active = true;
+            subject = "Empty Gang: " + data.projectID;
+            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due + "\n" + "All files removed from gang due to errors." + "\n" + escalate;
+            to = [userInfo.email];
             cc = []
-            bcc = [];
+            bcc = [sendTo.bret];
         break;
         case "Gang Notes":
+            active = false;
             subject = "Gang Summary: " + data.projectID;
             body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due + "\n" + gangNotes + "\n" + escalate;
             to = [userInfo.email];
@@ -113,6 +60,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email, para
             bcc = [];
         break;
         case "Reprint":
+            active = false;
             subject = "Item is a Reprint: " + product.jobItemId;
             body =  "Gang: " + data.projectID + "\n" + "Order: " + product.jobOrderId + "\n" + "Item: " + product.jobItemId + "\n" + "Reason: " + product.reprintReason + "\n\n" + "This item is a reprint from a previous order. Please check the reason in IMS and the accuracy of the file on the approval report in Switch.";
             to = [userInfo.email];
@@ -120,6 +68,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email, para
             bcc = [];
         break;
         case "Replacement":
+            active = false;
             subject = "Item is a Replacement: " + product.jobItemId;
             body =  "Gang: " + data.projectID + "\n" + "Order: " + product.jobOrderId + "\n" + "Item: " + product.jobItemId + "\n\n" + "Undersizing has been disabled." + "\n\n" + "This is assumed to be a replacement product for an a-frame.";
             to = [sendTo.bret, sendTo.chelsea];
@@ -127,28 +76,15 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email, para
             bcc = [];
         break;
         case "API GET Failed":
+            active = false;
             subject = "API GET Failed: " + data.projectID;
             body = "This job failed to gather the extra information required for processing, likely due to network problems. Please try again.\n\n" + escalate;
             to = [userInfo.email]
             cc = []
             bcc = [sendTo.bret];
         break;
-        case "No Facility Assigned":
-            //jobItemId does not exist in matInfo, these are being pulled from orderSpecs pass in.
-            subject = "No Facility Assigned: " + matInfo.jobItemId;
-            body = "No facility is assigned to " + matInfo.jobItemId + ", it has been rejected from gang " + data.projectID + ".\n\n" + escalate;
-            to = [userInfo.email]
-            cc = []
-            bcc = [sendTo.bret];
-        break;
-        case "Missing File":
-            subject = "Missing File: " + product.itemNumber;
-            body = "The following file was missing: " + "\n\n" + "Name: " + product.contentFile + "\n" + "Gang: " + data.projectID;
-            to = [userInfo.email]
-            cc = []
-            bcc = [sendTo.bret];
-        break;
         case "Prism Post Success":
+            active = false;
             subject = "Prism Post Success: " + data.projectID;
             body = "The following gang successfully posted to Prism: " + "\n\n" + "Gang: " + data.projectID + "\n" + "No further action is needed.";
             to = [userInfo.email]
@@ -156,6 +92,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email, para
             bcc = [];
         break;
         case "Prism Post Fail":
+            active = true;
             subject = "Prism Post Fail: " + data.projectID;
             body = "The following gang failed to post to Prism: " + "\n\n" + "Gang: " + data.projectID + "\n" + "Please manually finalize the gang on the dashboard.\n\n" + escalate;
             to = [userInfo.email]
@@ -163,24 +100,11 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, email, para
             bcc = [sendTo.bret];
         break;
         case "Usage Rejection":
+            active = true;
             subject = "Usage Rejected: " + data.projectID;
             body = "The following gang was rejected by the user: " + "\n\n" + "Gang: " + data.projectID + "\n" + "Material: " + data.process + "\n" + "User: " + userInfo.first + " " + userInfo.last + "\n\n" + escalate;
             to = [userInfo.email]
             cc = []
-            bcc = [];
-        break;
-        case "DS 13ozBanner":
-            subject = "DS 13ozBanner: " + product.jobItemId;
-            body = "The following item is a doublesided 13ozBanner assigned to SLC and needs to be re-routed: " + "\n\n" + "Item: " + product.jobItemId + "\n" + "Material: " + matInfo.prodName + "\n\n" + "It was rejected by the imposition process and was not ganged in Phoenix.";
-            to = [userInfo.email]
-            cc = [sendTo.chelsea]
-            bcc = [];
-        break;
-        case "Oversized Weld":
-            subject = "Oversided Weld: " + product.jobItemId;
-            body = "The following item is a welded banner over 168\" assigned to ARL and needs to be re-routed: " + "\n\n" + "Item: " + product.jobItemId + "\n" + "Material: " + matInfo.prodName + "\n\n" + "It was rejected by the imposition process and was not ganged in Phoenix.";
-            to = [userInfo.email]
-            cc = [sendTo.bret]
             bcc = [];
         break;
         default:
