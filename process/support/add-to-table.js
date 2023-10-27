@@ -10,7 +10,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
     if(parameter.length != original.length){
         db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + original.replace(/"|'/g,'') + "';");
         if(db.general.isRowAvailable()){
-            dbQuery.execute("UPDATE digital_room.`" + table + "` SET `parameter` = '" + parameter + "' WHERE (`parameter` = '" + original.replace(/"|'/g,'') + "');");
+            db.general.execute("UPDATE digital_room.`" + table + "` SET `parameter` = '" + parameter + "' WHERE (`parameter` = '" + original.replace(/"|'/g,'') + "');");
         }
     }
 

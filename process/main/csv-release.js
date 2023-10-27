@@ -49,7 +49,7 @@ runRelease = function(s){
                     
                         pdfReady = false;
                     
-                    var existCheck = new File(pdfDepository.absPath + "/" + line[1]);
+                    var existCheck = new File(pdfDepository.absPath + "/" + line[0]);
                     if(existCheck.exists){
                         pdfReady = true;
                         continue;

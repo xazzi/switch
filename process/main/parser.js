@@ -478,8 +478,6 @@ runParser = function(s, job){
                     }
                 }
 
-                data.notes.push([orderSpecs.jobItemId,"Sample data, guaranteed to be there."]);
-
                 if(!orderSpecs.ship.exists){
                     data.notes.push([orderSpecs.jobItemId,"Shipping data is missing, removed from gang."]);
                     continue;
@@ -920,7 +918,7 @@ runParser = function(s, job){
                                 product.orientation.status = "Failed"
                                 file.usableData = false;
                                 data.notes.push([product.itemNumber,"Failed to determine file orientation and scale, check gang carefully."]);
-                                data.notes.push([product.itemNumber,"Code45","Please show this file to Chelsea or Bret asap!"]);
+                                data.notes.push([product.itemNumber,"Please show this file to Chelsea or Bret asap!"]);
                             }
 
                             // I have no idea what this does.
