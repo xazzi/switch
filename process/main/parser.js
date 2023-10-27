@@ -22,12 +22,16 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/add-to-table.js"));
             eval(File.read(dir.support + "/compile-csv.js"));
             eval(File.read(dir.support + "/set-labels.js"));
-            
-            var dbConn = connectToDatabase_db(s.getPropertyValue("databaseGeneral"));
-                dbQuery = new Statement(dbConn);
+            eval(File.read(dir.support + "/write-to-email-db.js"));
+            eval(File.read(dir.support + "/get-edge-finishing.js"));
+            eval(File.read(dir.support + "/connect-to-db.js"));
 
-            var dbConn_material = connectToDatabase_db(s.getPropertyValue("databaseMaterial"));
-                dbQuery_material = new Statement(dbConn_material);
+            // Establist connection to the databases
+            var connections = establishDatabases(s)
+            var db = {
+                general: new Statement(connections.general),
+                email: new Statement(connections.email)
+            }
                 
             var localTime = new Date();
             var hourOffset = s.getPropertyValue("timezone") == "AWS" ? 7 : 0;
@@ -126,9 +130,9 @@ runParser = function(s, job){
                         submit.route = true;				
                         submit.facilityName = submit.nodes.getItem(i).evalToString("field-list/field/value");
 
-                        dbQuery.execute("SELECT * FROM digital_room.facility WHERE facility = '" + submit.facilityName + "';");
-                        dbQuery.fetchRow();
-                        submit.facilityId = dbQuery.getString(3);
+                        db.general.execute("SELECT * FROM digital_room.facility WHERE facility = '" + submit.facilityName + "';");
+                        db.general.fetchRow();
+                        submit.facilityId = db.general.getString(3);
                     }
                 }
 
@@ -139,12 +143,12 @@ runParser = function(s, job){
                         submit.material.name = submit.nodes.getItem(i).evalToString("field-list/field/field-list/field/value");
                         submit.material.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
 
-                        dbQuery.execute("SELECT * FROM digital_room.`override_material-size` WHERE name = '" + submit.material.name + "';");
-                        dbQuery.fetchRow();
+                        db.general.execute("SELECT * FROM digital_room.`override_material-size` WHERE name = '" + submit.material.name + "';");
+                        db.general.fetchRow();
 
-                        submit.material.width = dbQuery.getString(2);
-                        submit.material.height = dbQuery.getString(3);
-                        submit.material.stock = dbQuery.getString(4);
+                        submit.material.width = db.general.getString(2);
+                        submit.material.height = db.general.getString(3);
+                        submit.material.stock = db.general.getString(4);
                     }
                 }
                 
@@ -262,17 +266,17 @@ runParser = function(s, job){
                     rotation: submit.rotation[i].split(':')[1]
                 }
                 
-                dbQuery.execute("SELECT * FROM digital_room.rotate WHERE item_number = '" + temp.item + "';");
-                if(dbQuery.isRowAvailable()){
+                db.general.execute("SELECT * FROM digital_room.rotate WHERE item_number = '" + temp.item + "';");
+                if(db.general.isRowAvailable()){
                     if(temp.rotation == "default"){
                         email.rotations.push(temp.item + ": Updating database to the default rotation.");
                     }else{
                         email.rotations.push(temp.item + ": Updating database to " + temp.rotation + " degrees.");
                     }
-                    dbQuery.execute("UPDATE digital_room.rotate SET rotation = '" + temp.rotation + "' WHERE item_number = '" + temp.item + "';")
+                    db.general.execute("UPDATE digital_room.rotate SET rotation = '" + temp.rotation + "' WHERE item_number = '" + temp.item + "';")
                 }else{
                     email.rotations.push(temp.item + ": Adding to rotation database at " + temp.rotation + " degrees.");
-                    dbQuery.execute("INSERT INTO digital_room.rotate (item_number, rotation) VALUES ('" + temp.item + "','" + temp.rotation + "');");
+                    db.general.execute("INSERT INTO digital_room.rotate (item_number, rotation) VALUES ('" + temp.item + "','" + temp.rotation + "');");
                 }
             }
             
@@ -283,18 +287,18 @@ runParser = function(s, job){
             }
                 
             // Pull the user information.
-            dbQuery.execute("SELECT * FROM digital_room.users WHERE email = '" + job.getUserEmail() + "';");
-            if(!dbQuery.isRowAvailable()){
+            db.general.execute("SELECT * FROM digital_room.users WHERE email = '" + job.getUserEmail() + "';");
+            if(!db.general.isRowAvailable()){
                 sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
                 return;
             }
-                dbQuery.fetchRow();
+                db.general.fetchRow();
                 
             var userInfo = {
-                first: dbQuery.getString(1),
-                last:	dbQuery.getString(2),
-                email: dbQuery.getString(3),
-                dir: dbQuery.getString(4) == null ? "Unknown User" : dbQuery.getString(1) + " " + dbQuery.getString(2) + " - " + dbQuery.getString(4)
+                first: db.general.getString(1),
+                last: db.general.getString(2),
+                email: db.general.getString(3),
+                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4)
             }
                 
             // Loop through the items, pull the data from the API, then post it to the array.
@@ -304,25 +308,17 @@ runParser = function(s, job){
                 var node = productList.getItem(i);
                 
                 // Pull the item information from the API.
-                var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, dbConn, data, userInfo);
+                var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
+
+                // API pull failed.
                 if(!orderSpecs.complete){
-                    s.log(3, node.getAttributeValue('ID') + " on " + data.projectID + " :: API pull failed, job rejected.");
-                    sendEmail_db(s, data, null, getEmailResponse("API GET Failed", null, null, data, userInfo, null), userInfo);
-                    job.sendToNull(job.getPath());
-                    return;
-                }
-                if(!orderSpecs.paper.active){
-                    //s.log(3, data.projectID + " :: Paper mapping doesn't exist, job rejected.");
-                    //sendEmail_db(s, data, matInfo, getEmailResponse("Unmapped Paper", null, orderSpecs, data, userInfo, null), userInfo);
-                    job.sendToNull(job.getPath());
-                    return;
+                    data.notes.push([node.getAttributeValue('ID'),"API pull failed, item removed from gang."])
+                    continue;
                 }
                             
                 // Check if facility information exists
                 if(orderSpecs.facility == undefined || orderSpecs.facilityId == undefined){
-                    s.log(3, orderSpecs.jobItemId + ": No facility assigned, removed from gang " + data.projectID + ".");
-                    data.notes.push(orderSpecs.jobItemId + ": No facility assigned, removed from gang.");
-                    sendEmail_db(s, data, null, getEmailResponse("No Facility Assigned", null, orderSpecs, data, userInfo, null), userInfo);
+                    data.notes.push([orderSpecs.jobItemId,"No facility assigned, removed from gang."]);
                     continue;
                 }
                 
@@ -359,17 +355,13 @@ runParser = function(s, job){
                 
                 // Pull the material information if it hasn't been pulled yet.
                 if(matInfo == null || matInfoCheck){
-                    matInfo = getMatInfo(orderSpecs, dbConn_material);
+                    matInfo = getMatInfo(orderSpecs, db);
+
+                    // Material data is missing from the material table, might be a paper mapping issue.
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.projectID + " :: Material entry doesn't exist, job rejected.");
-                        sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material v1", null, orderSpecs, data, userInfo, null), userInfo);
+                        sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
                         job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
-                        return;
-                    }
-                    if(matInfo == "Paper Data Missing"){
-                        s.log(3, data.projectID + " :: Paper mapping doesn't exist, job rejected.");
-                        sendEmail_db(s, data, matInfo, getEmailResponse("Unmapped Paper", null, orderSpecs, data, userInfo, null), userInfo);
-                        job.sendToNull(job.getPath());
                         return;
                     }
                 }
@@ -464,8 +456,8 @@ runParser = function(s, job){
                     if(data.sideMix || submit.override.sideMix){
                         data.doubleSided = true;
                     }else{
-                        var type = orderSpecs.doubleSided ? "(Double Sided)" : "(Single Sided)"
-                        data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                        var temp = orderSpecs.doubleSided ? "(Double Sided)" : "(Single Sided)"
+                        data.notes.push([orderSpecs.jobItemId,"Different process " + temp + ", removed from gang."]);
                         continue;
                     }
                 }
@@ -481,25 +473,27 @@ runParser = function(s, job){
 
                 if(data.printer != matInfo.printer.name){
                     if(misc.rejectPress){
-                        data.notes.push(orderSpecs.jobItemId + ": Different printer " + matInfo.printer.name + ", removed from gang.");
+                        data.notes.push([orderSpecs.jobItemId,"Different printer " + matInfo.printer.name + ", removed from gang."]);
                         continue;
                     }
                 }
 
+                data.notes.push([orderSpecs.jobItemId,"Sample data, guaranteed to be there."]);
+
                 if(!orderSpecs.ship.exists){
-                    data.notes.push(orderSpecs.jobItemId + ": Shipping data is missing, removed from gang.");
+                    data.notes.push([orderSpecs.jobItemId,"Shipping data is missing, removed from gang."]);
                     continue;
                 }
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
-                    data.notes.push(orderSpecs.jobItemId + ": Different process (" + matInfo.prodName + "), removed from gang.");
+                    data.notes.push([orderSpecs.jobItemId,"Different process (" + matInfo.prodName + "), removed from gang."]);
                     continue;
                 }
                 
                 // Check for paper deviation
                 if(data.paper != orderSpecs.paper.value){
-                    data.notes.push(orderSpecs.jobItemId + ": Different IMS material (" + orderSpecs.paper.value + "), removed from gang. Please notify Chelsea McVay.");
+                    data.notes.push([orderSpecs.jobItemId,"Different IMS material (" + orderSpecs.paper.value + "), removed from gang. Please notify Chelsea McVay."]);
                     continue;
                 }
                 
@@ -507,7 +501,7 @@ runParser = function(s, job){
                 if(data.facility.destination != "Arlington"){
                     if(!submit.override.mixedFinishing){
                         if(data.finishingType != orderSpecs.finishingType){
-                            data.notes.push(orderSpecs.jobItemId + ": Different finishing type (" + orderSpecs.finishingType + "), removed from gang.");
+                            data.notes.push([orderSpecs.jobItemId,"Different finishing type (" + orderSpecs.finishingType + "), removed from gang."]);
                             continue;
                         }
                     }
@@ -517,7 +511,7 @@ runParser = function(s, job){
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     if(data.secondSurface != orderSpecs.secondSurface){
                         var type = orderSpecs.secondSurface ? "(2nd Surface)" : "(1st Surface)"
-                        data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                        data.notes.push([orderSpecs.jobItemId,"Different process " + type + ", removed from gang."]);
                         continue;
                     }
                 }
@@ -525,28 +519,28 @@ runParser = function(s, job){
                 // Check if coating deviation
                 if(data.coating.active != orderSpecs.coating.active){
                     var type = orderSpecs.coating.active ? "(Coated)" : "(Uncoated)"
-                    //data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
-                    //continue;
+                    data.notes.push([orderSpecs.jobItemId,"Different process " + type + ", removed from gang."]);
+                    continue;
                 }
                 
                 // Check if laminate deviation
                 if(data.laminate.active != orderSpecs.laminate.active){
                     var type = orderSpecs.laminate.active ? "(laminate)" : "(Unlaminated)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                    data.notes.push([orderSpecs.jobItemId,"Different process " + type + ", removed from gang."]);
                     continue;
                 }
                 
                 // Check if mount deviation
                 if(data.mount.active != orderSpecs.mount.active){
                     var type = orderSpecs.mount.active ? "(Mounted)" : "(Not Mounted)"
-                    data.notes.push(orderSpecs.jobItemId + ": Different process " + type + ", removed from gang.");
+                    data.notes.push([orderSpecs.jobItemId,"Different process " + type + ", removed from gang."]);
                     continue;
                 }
 
                 // Separate out the due dates so they can't gang together.
                 if(!submit.override.date){
                     if(orderSpecs.date.due != data.date.due){
-                        data.notes.push(orderSpecs.jobItemId + ": Different due date (" + orderSpecs.date.due + "), removed from gang.");
+                        data.notes.push([orderSpecs.jobItemId,"Different due date (" + orderSpecs.date.due + "), removed from gang."]);
                         continue;
                     }
                 }
@@ -581,16 +575,15 @@ runParser = function(s, job){
                 orderArray.push(orderSpecs);
             }
 
+            // Safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
-                // Send the gang summary email.
-                data.notes.push("All files removed from gang!");
-                sendEmail_db(s, data, matInfo, getEmailResponse("Gang Notes", null, matInfo, data, userInfo, email), userInfo);
+                sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, email), userInfo);
                 job.sendToNull(job.getPath());
                 return
             }
             
             data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
-            data.sku = skuGenerator(3, "numeric", data, dbConn);
+            data.sku = skuGenerator(3, "numeric", data, db);
                 
             // Create the CSV and the new Job() for the project.
             var newCSV = s.createNewJob();
@@ -618,8 +611,8 @@ runParser = function(s, job){
                     itemNumber: orderArray[i].jobItemId,
                     itemName: orderArray[i].itemName,
                     quantity: orderArray[i].qty,
-                    width: Number(orderArray[i].width),
-                    height: Number(orderArray[i].height),
+                    width: round(Number(orderArray[i].width)),
+                    height: round(Number(orderArray[i].height)),
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
                     coating: orderArray[i].coating.active ? true : orderArray[i].laminate.active ? true : false,
@@ -669,13 +662,28 @@ runParser = function(s, job){
                     query: null,
                     late: now.date >= orderArray[i].date.due,
                     reprint: orderArray[i].reprint,
+                    edge: getEdgeFinishing(orderArray[i]),
                     pocket: {
                         top: orderArray[i].pocket.side.top,
                         bottom: orderArray[i].pocket.side.bottom,
                         left: orderArray[i].pocket.side.left,
                         right: orderArray[i].pocket.side.right
                     },
-                    orientation: "Standard",
+                    orientation:{
+                        status: null,
+                        result:{
+                            standard: null,
+                            flipped: null
+                        },
+                        width:{
+                            standard: null,
+                            flipped: null
+                        },
+                        height:{
+                            standard: null,
+                            flipped: null
+                        }
+                    },
                     shipType: getShipType(orderArray[i].ship.serviceCode),
                     forceUndersize: matInfo.forceUndersize,
                     cutLayerName: matInfo.cutter.layerName
@@ -684,10 +692,23 @@ runParser = function(s, job){
                 var scale = {
                     width: 100,
                     height: 100,
-                    widthModifier: 1,
-                    heightModifier: 1,
+                    modifier: 1,
                     adjusted: false,
-                    locked: false
+                    locked: false,
+                    check:{
+                        result:{
+                            standard: null,
+                            flipped: null
+                        },
+                        width:{
+                            standard: null,
+                            flipped: null
+                        },
+                        height:{
+                            standard: null,
+                            flipped: null
+                        }
+                    }
                 }
                 
                 // Check if it should use buttCut processing
@@ -695,9 +716,9 @@ runParser = function(s, job){
                     if(data.facility.destination == "Salt Lake City"){
                         if(orderArray[i].shape.method == "Rect"){
                             // Turn buttcut off if required.
-                            dbQuery.execute("SELECT * FROM digital_room.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
-                            if(dbQuery.isRowAvailable()){
-                                data.notes.push(orderArray[i].jobItemId + ": Butt cut disabled per database entry.");
+                            db.general.execute("SELECT * FROM digital_room.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
+                            if(db.general.isRowAvailable()){
+                                data.notes.push([oproduct.itemNumber,"Butt cut disabled per database entry."]);
 
                             // Otherwise check the scenarios...
                             }else{
@@ -747,15 +768,13 @@ runParser = function(s, job){
                 //scale.locked = true;
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
-                product.subprocess = getSubprocess(dir.subprocess, dbConn, orderArray[i], matInfo, product, data, scale, product.query);
+                product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query);
 
                 // If it's DS 13ozBanner for SLC, skip it and send an email.
                 if(data.facility.destination == "Salt Lake City"){
                     if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
                         if(product.subprocess.name != "Retractable"){
-                            s.log(3, orderArray[i].jobItemId + ": DS 13oz banner assigned to SLC, removed from gang " + data.projectID + ".");
-                            data.notes.push(orderArray[i].jobItemId + ": DS 13oz banner assigned to SLC, removed from gang.");
-                            sendEmail_db(s, data, matInfo, getEmailResponse("DS 13ozBanner", orderArray[i], matInfo, data, userInfo, null), userInfo);
+                            data.notes.push([product.itemNumber,"DS 13oz banner assigned to SLC, removed from gang."]);
                             continue;
                         }
                     }
@@ -766,8 +785,7 @@ runParser = function(s, job){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
                             if(orderArray[i].width >= 168 || orderArray[i].height >= 168){
-                                data.notes.push(orderArray[i].jobItemId + ": Welded banner over 168\" assigned to ARL, removed from gang.");
-                                sendEmail_db(s, data, matInfo, getEmailResponse("Oversized Weld", orderArray[i], matInfo, data, userInfo, null), userInfo);
+                                data.notes.push([product.itemNumber,"Welded banner over 168\" assigned to ARL, removed from gang."]);
                                 continue;
                             }
                         }
@@ -781,7 +799,7 @@ runParser = function(s, job){
 
                 // If the subprocess can't be mixed with other subprocesses, reject it.
                 if(data.mixed != product.subprocess.mixed){
-                    data.notes.push(orderArray[i].jobItemId + ": Different process (" + product.subprocess.name + "), removed from gang.");
+                    data.notes.push([product.itemNumber,"Different process (" + product.subprocess.name + "), removed from gang."]);
                     continue
                 }
 
@@ -792,22 +810,18 @@ runParser = function(s, job){
                 
                 // If the order is a reprint, send an email to the user.
                 if(product.reprint){
-                    if(s.getPropertyValue("email_reprint") == "Send"){
-                        sendEmail_db(s, data, matInfo, getEmailResponse("Reprint", orderArray[i], matInfo, data, userInfo, null), userInfo);
-                    }
-                    data.notes.push(orderArray[i].jobItemId + ": Reprint! Please check IMS and approval report for reason and accuracy.");
+                    data.notes.push([product.itemNumber,"Reprint! Please check IMS and approval report for reason and accuracy."]);
                 }
                 
                 // If the order is a late.
                 if(product.late){
-                    data.notes.push(orderArray[i].jobItemId + ": Late! This item is late and is being labeled accordingly for production.");
+                    data.notes.push([product.itemNumber,"Late! This item is late and is being labeled accordingly for production."]);
                     data.dateID = now.month + "-" + now.day
                 }
                 
                 // If the order is a replacement, send an email to the user.
                 if(orderArray[i].replacement){
-                    sendEmail_db(s, data, matInfo, getEmailResponse("Replacement", orderArray[i], matInfo, data, userInfo, null), userInfo);
-                    data.notes.push(orderArray[i].jobItemId + ": Replacement. Automated undersizing has been disabled.");
+                    data.notes.push([product.itemNumber,"Replacement. Automated undersizing has been disabled."]);
                     product.subprocess.undersize = false;
                 }
                 
@@ -820,7 +834,7 @@ runParser = function(s, job){
                 var file = {
                     source: new File(watermarkDrive + "/" + product.contentFile),
                     depository: new File("//10.21.71.213/pdfDepository/" + product.contentFile),
-                    data: false
+                    usableData: false
                 }
                     
                 // Do we need to transfer the file from the depository?
@@ -833,137 +847,147 @@ runParser = function(s, job){
                         product.transfer = true;
                     }else{
                         // this logic is flawed because with AWS we aren't transferring the file from the watermarked destination anymore. but this does let us check if a file exists.
-                        data.notes.push(product.itemNumber + ": File missing: " + product.contentFile);
+                        data.notes.push([product.itemNumber,"File missing: " + product.contentFile]);
                         continue;
                     }
                 }
 
-                // Check if the sizes need to be flipped to standard WxH format.
-                if(product.subprocess.orientationCheck){
-                    if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
-                        try{
-                            // Read stats from the file...
-                            file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
-                            file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
-                            file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
-                            file.pages = file.stats.getNumber("NumberOfPages");
+                // Read some data from the file.
+                try{
+                    file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
+                    file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
+                    file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
+                    file.pages = file.stats.getNumber("NumberOfPages");
+                    file.usableData = true;
 
-                            if(file.pages == 1 && product.doubleSided){
-                                data.notes.push(product.itemNumber + ": File missing 2nd page for DS printing.");
-                                continue;
-                            }
+                }catch(e){
+                    data.notes.push([product.itemNumber,"File statistics do not exist, can't confirm file properties, including orientation, please verify in gang."]);
+                }
+
+                // Check if the 2nd page exists for DS product.
+                if(file.usableData){
+                    if(file.pages == 1 && product.doubleSided){
+                        data.notes.push([product.itemNumber,"File missing 2nd page for DS printing."]);
+                        continue;
+                    }
+                }
+
+                if(file.usableData){
+                    if(product.subprocess.orientationCheck){
+                        if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                             
-                            var variance = {
-                                square: product.width - product.height,
-                                standard: Math.abs(file.width-product.width) + Math.abs(file.height-product.height),
-                                flipped: Math.abs(file.width-product.height) + Math.abs(file.height-product.width)
-                            }
+                            // Check for standard orientation of the file.
+                            compareToFile(s, round(product.height + product.edge.top.allowance + product.edge.bottom.allowance), file.height, product, scale, "height", "standard")
+                            compareToFile(s, round(product.width + product.edge.left.allowance + product.edge.right.allowance), file.width, product, scale, "width", "standard")
 
-                            if(variance.square == 0){
-                                product.orientation = "Square";
+                            // Check for flipped orientation of the file.
+                            compareToFile(s, round(product.width + product.edge.top.allowance + product.edge.bottom.allowance), file.height, product, scale, "height", "flipped")
+                            compareToFile(s, round(product.height + product.edge.left.allowance + product.edge.right.allowance), file.width, product, scale, "width", "flipped")
+
+                            // Compile the orientation results
+                            product.orientation.result.standard = (product.orientation.height.standard && product.orientation.width.standard);
+                            product.orientation.result.flipped = (product.orientation.height.flipped && product.orientation.width.flipped);
+
+                            // Compile the orientation results
+                            scale.check.result.standard = (scale.check.height.standard == scale.check.width.standard);
+                            scale.check.result.flipped = (scale.check.height.flipped == scale.check.width.flipped);
+
+                            // If the file is square.
+                            if(product.height == product.width){
+                                product.orientation.status = "Square";
+                                if(scale.check.result.standard){
+                                    scale.modifier = scale.check.height.standard;
+                                }
+
+                            // If the file is in WxH orientation.
+                            }else if(product.orientation.result.standard && !product.orientation.result.flipped){
+                                product.orientation.status = "Standard";
+                                if(scale.check.result.standard){
+                                    scale.modifier = scale.check.height.standard;
+                                }
+
+                            // If the file is in HxW orientation.
+                            }else if(!product.orientation.result.standard && product.orientation.result.flipped){
+                                product.orientation.status = "Flipped";
+                                product.height = [product.width, product.width = product.height][0]; // Flips the WxH data.
+                                data.notes.push([product.itemNumber,"Flipped sizes to standard format."]);
+                                if(scale.check.result.flipped){
+                                    scale.modifier = scale.check.height.flipped;
+                                }
+
+                            // If neither is true then we have an issue.
                             }else{
-                                if(product.pocket.top || product.pocket.bottom){
-                                    product.orientation = variance.standard >= variance.flipped ? "Flipped" : "Standard";
-                                }else{
-                                    product.orientation = variance.standard > variance.flipped ? "Flipped" : "Standard";
-                                }
+                                product.orientation.status = "Failed"
+                                file.usableData = false;
+                                data.notes.push([product.itemNumber,"Failed to determine file orientation and scale, check gang carefully."]);
+                                data.notes.push([product.itemNumber,"Code45","Please show this file to Chelsea or Bret asap!"]);
                             }
 
+                            // I have no idea what this does.
+                            /*
                             if(Math.round((file.width/product.width)*100) == 10 && Math.round((file.height/product.height)*100) == 10){
-                                data.notes.push(product.itemNumber + ": Please carefully check for correct size.");
-                                product.orientation = "Standard"
+                                data.notes.push([product.itemNumber,"Please carefully check for correct size."]);
+                                product.orientation.status = "Standard"
                             }
-
-                            if(product.orientation == "Flipped"){
-                                data.notes.push(product.itemNumber + ": Flipped sizes to standard format.");
-                                var temp = {
-                                    width: product.width,
-                                    height: product.height
-                                }
-                                product.width = temp.height;
-                                product.height = temp.width;
-                            }
-
-                            file.data = true;
-
-                        }catch(e){
-                            data.notes.push(product.itemNumber + ": File statistics do not exist, can't confirm orientation, please verify in gang.");
+                            */
                         }
                     }
                 }
 
+                // Otherwise determine the scale of the file by using the logic Prepress should be following as well.
+                if(!file.usableData){
+                    if(matInfo.type == "roll"){
+                        if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
+                            if(product.width >= 198 || product.height >= 198){
+                                scale.modifier = 2;
+                            }
+                            if(product.width >= 398 || product.height >= 398){
+                                scale.modifier = 4;
+                            }
+                            if(product.width >= 797 || product.height >= 797){
+                                scale.modifier = 10;
+                            }
+                        }
+                        if(data.facility.destination == "Van Nuys" || data.facility.destination == "Arlington"){
+                            if(product.width >= 144 || product.height >= 144){
+                                scale.modifier = 2;
+                            }
+                            if(product.width >= 287 || product.height >= 287){
+                                scale.modifier = 4;
+                            }
+                            if(product.width >= 573 || product.height >= 573){
+                                scale.modifier = 10;
+                            }
+                        }
+                    }
+                }
+
+                // If it's a breakaway banner then adjust some parameters
                 if(product.subprocess.name == "Breakaway"){
-                    // Read stats from the file...
-                    file.data = false;
-                    file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
-                    file.pages = file.stats.getNumber("NumberOfPages");
                     if(file.pages != 2){
-                        data.notes.push(product.itemNumber + ": This breakaway banner isn't split into 2, removed from gang.");
+                        data.notes.push([product.itemNumber,"This breakaway banner isn't split into 2, removed from gang."]);
                         continue;
                     }
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                 }
                 
                 // Check if the item_number can be undersized.
-                dbQuery.execute("SELECT * FROM digital_room.item_number_fullsize WHERE item_number = '" + product.itemNumber + "';");
-                if(dbQuery.isRowAvailable()){
+                db.general.execute("SELECT * FROM digital_room.item_number_fullsize WHERE item_number = '" + product.itemNumber + "';");
+                if(db.general.isRowAvailable()){
                     product.subprocess.undersize = false;
-                }                
-                
+                }
+
                 // Check the yard frame table for any hardware that would require full size product.
                 if(orderArray[i].yardframe.active){
                     if(!orderArray[i].yardframe.undersize){
                         product.subprocess.undersize = false
-                        data.notes.push(product.itemNumber + ": Requires hardware. Automated undersizing has been disabled.");
+                        data.notes.push([product.itemNumber,"Requires hardware. Automated undersizing has been disabled."]);
                     }
                 }
 
                 // Disable undersizing for a size that is assumed to be riders.
                 if(product.width == 24 && product.height == 6){
                     product.subprocess.undersize = false;
-                }
-
-                // If the file data exists then determine the scale of the file by using smart scale.
-                if(file.data){
-                    scale.widthModifier = Math.round(product.width/file.width);
-                    scale.heightModifier = Math.round(product.height/file.height);
-                    if(scale.widthModifier != scale.heightModifier){
-                        file.data = false;
-                    }
-                }
-
-                // Otherwise determine the scale of the file by using the logic Prepress should be following as well.
-                if(!file.data){
-                    if(matInfo.type == "roll"){
-                        if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
-                            if(product.width >= 198 || product.height >= 198){
-                                scale.widthModifier = 2;
-                                scale.heightModifier = 2;
-                            }
-                            if(product.width >= 398 || product.height >= 398){
-                                scale.widthModifier = 4;
-                                scale.heightModifier = 4;
-                            }
-                            if(product.width >= 797 || product.height >= 797){
-                                scale.widthModifier = 10;
-                                scale.heightModifier = 10;
-                            }
-                        }
-                        if(data.facility.destination == "Van Nuys" || data.facility.destination == "Arlington"){
-                            if(product.width >= 144 || product.height >= 144){
-                                scale.widthModifier = 2;
-                                scale.heightModifier = 2;
-                            }
-                            if(product.width >= 287 || product.height >= 287){
-                                scale.widthModifier = 4;
-                                scale.heightModifier = 4;
-                            }
-                            if(product.width >= 573 || product.height >= 573){
-                                scale.widthModifier = 10;
-                                scale.heightModifier = 10;
-                            }
-                        }
-                    }
                 }
                 
                 // Size adjustments ----------------------------------------------------------
@@ -1013,17 +1037,17 @@ runParser = function(s, job){
                 // This checks if the material info database is asking to undersize.
                 if(product.subprocess.undersize && product.forceUndersize == true){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
-                            dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
-                        if(dbQuery.isRowAvailable()){
-                            dbQuery.fetchRow();
-                            scale.width = dbQuery.getString(3)/dbQuery.getString(2)*100;
+                            db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
+                        if(db.general.isRowAvailable()){
+                            db.general.fetchRow();
+                            scale.width = db.general.getString(3)/db.general.getString(2)*100;
                             scale.adjusted = true;
                         }
                         
-                            dbQuery.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
-                        if(dbQuery.isRowAvailable()){
-                            dbQuery.fetchRow();
-                            scale.height = dbQuery.getString(3)/dbQuery.getString(2)*100;
+                            db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
+                        if(db.general.isRowAvailable()){
+                            db.general.fetchRow();
+                            scale.height = db.general.getString(3)/db.general.getString(2)*100;
                             scale.adjusted = true;
                         }
                     }
@@ -1034,11 +1058,11 @@ runParser = function(s, job){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
                             scale.width = 23.25/product.width*100;
-                            data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
+                            data.notes.push([product.itemNumber,'Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)']);
                         }
                         if(product.width == 33){
                             scale.width = 33/product.width*100;
-                            data.notes.push(product.itemNumber + ': Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)');
+                            data.notes.push([product.itemNumber,'Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)']);
                         }
                     }
                 }
@@ -1051,13 +1075,13 @@ runParser = function(s, job){
                                 // Width == 96
                                 if(product.width == "96"){
                                     scale.width = 94/product.width*100;
-                                    data.notes.push(product.itemNumber + ': Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)');
+                                    data.notes.push([product.itemNumber,'Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)']);
                                 }
                                 // Height == 96
                                 if(product.width != product.height){
                                     if(product.height == "96"){
                                         scale.height = 94/product.height*100;
-                                        data.notes.push(product.itemNumber + ': Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)');
+                                        data.notes.push([product.itemNumber,'Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)']);
                                     }
                                 }
                             }
@@ -1075,15 +1099,15 @@ runParser = function(s, job){
                 // Remove the file from the gang if the undersizing is too extreme.
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     if((difference.width > 5) || (difference.height > 5)){
-                        data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
+                        data.notes.push([product.itemNumber,'File size is too different from expected size, removed from gang.']);
                         continue;
                     // If the undersizing is greater than 1" but less than 5", remove it if a custom width was selected, otherwise just notify the user.
                     }else if((difference.width > 1) || (difference.height > 1)){
                         if(submit.material.active){
-                            data.notes.push(product.itemNumber + ': File size is too different from expected size, removed from gang.');
+                            data.notes.push([product.itemNumber,'File size is too different from expected size, removed from gang.']);
                             continue;
                         }else{
-                            data.notes.push(product.itemNumber + ': Undersizing was greater than 1", please confirm accuracy in Phoenix report.');
+                            data.notes.push([product.itemNumber,'Undersizing was greater than 1", please confirm accuracy in Phoenix report.']);
                         }
                     }
                 }
@@ -1183,7 +1207,7 @@ runParser = function(s, job){
                     product.spacingLeft = product.spacingLeft/10;
                     product.spacingRight = product.spacingRight/10;
                     product.bleed = matInfo.bleed/10;
-                    data.notes.push(product.itemNumber + ': Scaled file, please verify accuracy in report. (' + Math.round(scale.height) + '%)');
+                    data.notes.push([product.itemNumber,'Scaled file, please verify accuracy in report. (' + Math.round(scale.height) + '%)']);
                 }
 
                 // Reassign ClearStaticCling in ARL to a different rip hotfolder when it's 2nd surface.
@@ -1197,20 +1221,20 @@ runParser = function(s, job){
                 
                 // Check for custom rotations assigned in the database.
                 // This overrides any defaults assigned to the product or subprocess.
-                dbQuery.execute("SELECT * FROM digital_room.rotate WHERE item_number = " + product.itemNumber + ";");
-                if(dbQuery.isRowAvailable()){
-                    dbQuery.fetchRow();
-                    if(dbQuery.getString(2) != "default"){
+                db.general.execute("SELECT * FROM digital_room.rotate WHERE item_number = " + product.itemNumber + ";");
+                if(db.general.isRowAvailable()){
+                    db.general.fetchRow();
+                    if(db.general.getString(2) != "default"){
                         product.rotation = "Custom";
-                        product.allowedRotations = dbQuery.getString(2);
-                        email.rotations.push(product.itemNumber + ": Rotation pulled from database, " + dbQuery.getString(2) + " degrees.");
+                        product.allowedRotations = db.general.getString(2);
+                        email.rotations.push(product.itemNumber + ": Rotation pulled from database, " + db.general.getString(2) + " degrees.");
                     }
                 }
             
                 // Misc variables and final logic ----------------------------------------------------------
                 // Apply the scale modifier now that all of the scaling logic is done.
-                scale.width = scale.width*scale.widthModifier;
-                scale.height = scale.height*scale.heightModifier;
+                scale.width = scale.width*scale.modifier;
+                scale.height = scale.height*scale.modifier;
                 
                 // GSM option to determine which paper size to use. 250 is usually default.
                 if(data.oversize){product.grade = "251"}
@@ -1309,12 +1333,12 @@ runParser = function(s, job){
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
                 
                 // Write the gang number to the database.
-                dbQuery.execute("SELECT * FROM digital_room.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
-                if(!dbQuery.isRowAvailable()){
-                    dbQuery.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
+                db.general.execute("SELECT * FROM digital_room.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
+                if(!db.general.isRowAvailable()){
+                    db.general.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
                 }
 
                 if(s.getServerName() == 'Switch-Dev'){
@@ -1346,11 +1370,8 @@ runParser = function(s, job){
                     data.impositionProfile.method = "Single Item Layout";
                 }
             }
-            
-            // Send the gang summary email.
-            if(s.getPropertyValue("email_gangSummary") == "Send"){
-                sendEmail_db(s, data, matInfo, getEmailResponse("Gang Notes", null, matInfo, data, userInfo, email), userInfo);
-            }
+
+            emailDatabase_write(s, db, "parsed_data", "Parser", data, data.notes)
             
             csvFile.close();
         
@@ -1367,7 +1388,7 @@ runParser = function(s, job){
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
             
-            dbQuery.execute("INSERT INTO digital_room.history_gang (`gang-number`,`processed-time`,`processed-date`,`due-date`,process,subprocess,sku,facility,`save-location`,rush,email) VALUES ('" + data.projectID + "','" + now.time + "','" + now.date + "','" + data.date.due + "','" + data.prodName + "','" + data.subprocess + "','" + data.sku + "','" + data.facility.destination + "','" + data.dateID + "','" + data.rush + "','" + userInfo.email + "');");
+            db.general.execute("INSERT INTO digital_room.history_gang (`gang-number`,`processed-time`,`processed-date`,`due-date`,process,subprocess,sku,facility,`save-location`,rush,email) VALUES ('" + data.projectID + "','" + now.time + "','" + now.date + "','" + data.date.due + "','" + data.prodName + "','" + data.subprocess + "','" + data.sku + "','" + data.facility.destination + "','" + data.dateID + "','" + data.rush + "','" + userInfo.email + "');");
             
         }catch(e){
             s.log(3, "Critical Error!: " + e);
@@ -1509,22 +1530,16 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		newCSV.setDataset("Handoff Data", theDataset);
 }
 
-function createReport(s, newCSV, data){
-	
-	var theXML = new Document();		
-		
-	var notesNode = theXML.createElement("notes", null);
-		theXML.appendChild(notesNode);
-		
-	for(var b in data.notes){
-		addNode_db(theXML, notesNode, "item", data.notes[b]);
-	}
-	
-	var theDataset = newCSV.createDataset("XML");
-	var theXMLFilename = theDataset.getPath();
-		theXML.save(theXMLFilename);
-	
-		newCSV.setDataset("Gang Notes", theDataset);
+function compareToFile(s, expected, actual, product, scale, axis, type){
+    var scales = [1,2,4,10]
+    for(var k in scales){
+        if(expected == round(actual*scales[k])){
+            scale.check[axis][type] = scales[k]
+            product.orientation[axis][type] = true
+            return
+        }
+    }
+    return false
 }
 
 // -------------------------------------------------------
@@ -1550,6 +1565,10 @@ function writeInjectXML(file, product){
 		
 	file.writeLine ("</inject>");
 	file.close();
+}
+
+function round(x){
+    return Math.round((x) * 100) / 100;
 }
 
 // -------------------------------------------------------
