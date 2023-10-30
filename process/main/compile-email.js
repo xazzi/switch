@@ -8,6 +8,7 @@ compileEmail = function(s, job){
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
+            eval(File.read(dir.support + "/write-to-email-db.js"));
 
             // Establist connection to the databases
             var connections = establishDatabases(s)
@@ -28,25 +29,46 @@ compileEmail = function(s, job){
                 user: {
                     first: handoffDataDS.evalToString("//user/first"),
                     email: handoffDataDS.evalToString("//user/email")
-                }
+                },
+                products: handoffDataDS.evalToNodes("//handoff/products/product")
             }
             
             // Collect the phoenix plan data.
             var phoenixPlanDS = loadDataset_db("Phoenix Plan");
             var phoenixPlan = {
                 id: phoenixPlanDS.evalToString("//job/id"),
-                averageUsage: Math.round(phoenixPlanDS.evalToString("//job/sheet-usage",null) * 100)
+                averageUsage: Math.round(phoenixPlanDS.evalToString("//job/sheet-usage",null) * 100),
+                products: phoenixPlanDS.evalToNodes("//job/products/product")
             }
 
             // Create the email object and set some of the known parameters.
             var email = {
                 subject: "Gang Summary: " + handoffData.projectID,
                 header: "",
-                body: "",
+                removed: "",
+                submit: "",
+                notes: "",
                 to: handoffData.user.email,
                 cc: "",
                 bcc: "bret.c@digitalroominc.com"
             }
+
+            var entry = []
+
+            for(var i=0; i<handoffData.products.length; i++){
+                var match = false;
+                for(var j=0; j<phoenixPlan.products.length; j++){
+                    if(handoffData.products.getItem(i).evalToString('contentFile') == phoenixPlan.products.getItem(j).evalToString('name')){
+                        match = true;
+                        break;
+                    }
+                }
+                if(!match){
+                    entry.push([handoffData.products.getItem(i).evalToString('itemNumber'),"Removed","This file was not ganged by Phoenix."])
+                }
+            }
+
+            emailDatabase_write(s, db, "parsed_data", "Phoenix", handoffData, entry)
 
             // Assign the header proerties.
             email.header += "Process: " + handoffData.process + "\n";
@@ -56,23 +78,29 @@ compileEmail = function(s, job){
 
             // Pull any notes from the email table.
             db.email.execute("SELECT * FROM emails.`parsed_data` WHERE sku = '" + handoffData.sku + "' and `gang-number` = '" + handoffData.projectID + "';");
+
+            // If the database pull fails, send an email to notify.
             if(!db.email.isRowAvailable()){
-                s.log(2, "Unavailable")
-            }
+                email.notes += "Failed to get gang summary info from database.";
+                createEmail(s, email, handoffData);
 
-            // Loop through those notes and add them to the body string.
-            while(db.email.isRowAvailable()){
-                db.email.fetchRow();
-                var result = {
-                    itemNumber: db.email.getString(3),
-                    source: db.email.getString(5),
-                    message: db.email.getString(6)
+            }else{
+                // Loop through those notes and add them to the body string.
+                while(db.email.isRowAvailable()){
+                    db.email.fetchRow();
+                    var result = {
+                        itemNumber: db.email.getString(3),
+                        source: db.email.getString(5),
+                        message: db.email.getString(6),
+                        type: db.email.getString(7).toLowerCase()
+                    }
+
+                    email[result.type] += result.itemNumber + ": " + result.message + "\n"
                 }
-                email.body += result.itemNumber + ": " + result.message + "\n"
-            }
 
-            // Send the compiled email.
-            sendEmail(s, email)
+                // Send the compiled email.
+                createEmail(s, email, handoffData)
+            }
 
             // Send the job to be approved.
             job.sendToNull(job.getPath())
@@ -85,9 +113,9 @@ compileEmail = function(s, job){
     email(s, job)
 }
 
-sendEmail = function(s,  email){
+createEmail = function(s,  email, handoffData){
 	var emailXml = s.createNewJob();
-	var emailXmlPath = emailXml.createPathWithName("Email.txt", false);
+	var emailXmlPath = emailXml.createPathWithName(handoffData.projectID + ".txt", false);
 	var emailXmlFile = new File(emailXmlPath);
     //var emailXmlFile = new File("C://Switch//Development//test.txt");
 	
@@ -111,22 +139,12 @@ createDataset = function(newXML, email){
 		
 		addNode_db(theXML, messageNode, "subject", email.subject);
         addNode_db(theXML, messageNode, "header", email.header);
-		addNode_db(theXML, messageNode, "body", email.body);
+        addNode_db(theXML, messageNode, "notes", email.notes);
+		addNode_db(theXML, messageNode, "removed", email.removed);
+        addNode_db(theXML, messageNode, "submit", email.submit);
 		addNode_db(theXML, messageNode, "to", email.to);
 		addNode_db(theXML, messageNode, "cc", email.cc);
         addNode_db(theXML, messageNode, "bcc", email.bcc);
-		
-        /*
-	if(userInfo != null){
-		var userNode = theXML.createElement("user", null);
-			baseNode.appendChild(userNode);
-			
-			addNode_db(theXML, userNode, "first", userInfo.first);
-			addNode_db(theXML, userNode, "last", userInfo.last);
-			addNode_db(theXML, userNode, "email", userInfo.email);
-			addNode_db(theXML, userNode, "folder", userInfo.dir);
-	}
-    */
 	
 	var theDataset = newXML.createDataset("XML");
 	

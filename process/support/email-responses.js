@@ -1,4 +1,4 @@
-getEmailResponse = function(query, product, matInfo, data, userInfo, email, parameter_1){
+getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1){
 
     var subject, body, to, cc, bcc;
     var active = false;

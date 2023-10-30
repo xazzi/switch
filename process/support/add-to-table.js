@@ -235,9 +235,9 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         
         db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
         if(db.general.isRowAvailable()){
-            sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, null, parameter), userInfo);
+            sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
         }else{
-            sendEmail_db(s, data, null, getEmailResponse("New Entry Failed", null, table, data, userInfo, null, parameter), userInfo);
+            sendEmail_db(s, data, null, getEmailResponse("New Entry Failed", null, table, data, userInfo, parameter), userInfo);
         }
 
     return specs = {
