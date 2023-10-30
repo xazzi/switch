@@ -241,11 +241,6 @@ runParser = function(s, job){
             if(data.environment == "QA"){
                 watermarkDrive = "Q://watermarked-files";
             }
-            
-            var email = {
-                rotations: [],
-                errors: []
-            }
                     
             // Handle any custom rotation from the user.
             for(var i=0; i<submit.rotation.length; i++){
@@ -253,11 +248,11 @@ runParser = function(s, job){
                     continue;
                 }
                 if(submit.rotation[i].match(/\d+:\d+/) == undefined){
-                    email.errors.push(submit.rotation[i] + ": Does not match required format, rejecting adjustment. (itemnumber:rotation)");
+                    data.notes.push([submit.rotation[i],"Submit","Does not match required format, rejecting adjustment. (itemnumber:rotation)"]);
                     continue;
                 }
                 if(submit.rotation[i].split(':')[0].length != 8){
-                    email.errors.push(submit.rotation[i].split(':')[0] + ": Does not match standard item number format, rejecting adjustment. (8 digit item number)");
+                    data.notes.push([submit.rotation[i].split(':')[0],"Submit","Does not match standard item number format, rejecting adjustment. (8 digit item number)"]);
                     continue;
                 }
                 
@@ -269,13 +264,13 @@ runParser = function(s, job){
                 db.general.execute("SELECT * FROM digital_room.rotate WHERE item_number = '" + temp.item + "';");
                 if(db.general.isRowAvailable()){
                     if(temp.rotation == "default"){
-                        email.rotations.push(temp.item + ": Updating database to the default rotation.");
+                        data.notes.push([temp.item,"Submit","Updating database to the default rotation."]);
                     }else{
-                        email.rotations.push(temp.item + ": Updating database to " + temp.rotation + " degrees.");
+                        data.notes.push([temp.item,"Submit","Updating database to " + temp.rotation + " degrees."]);
                     }
                     db.general.execute("UPDATE digital_room.rotate SET rotation = '" + temp.rotation + "' WHERE item_number = '" + temp.item + "';")
                 }else{
-                    email.rotations.push(temp.item + ": Adding to rotation database at " + temp.rotation + " degrees.");
+                    data.notes.push([temp.item,"Submit","Adding to rotation database at " + temp.rotation + " degrees."]);
                     db.general.execute("INSERT INTO digital_room.rotate (item_number, rotation) VALUES ('" + temp.item + "','" + temp.rotation + "');");
                 }
             }
@@ -312,13 +307,13 @@ runParser = function(s, job){
 
                 // API pull failed.
                 if(!orderSpecs.complete){
-                    data.notes.push([node.getAttributeValue('ID'),"API pull failed, item removed from gang."])
+                    data.notes.push([node.getAttributeValue('ID'),"Removed","API pull failed, item removed from gang."])
                     continue;
                 }
                             
                 // Check if facility information exists
                 if(orderSpecs.facility == undefined || orderSpecs.facilityId == undefined){
-                    data.notes.push([orderSpecs.jobItemId,"No facility assigned, removed from gang."]);
+                    data.notes.push([orderSpecs.jobItemId,"Removed","No facility assigned, removed from gang."]);
                     continue;
                 }
                 
@@ -457,7 +452,7 @@ runParser = function(s, job){
                         data.doubleSided = true;
                     }else{
                         var temp = orderSpecs.doubleSided ? "(Double Sided)" : "(Single Sided)"
-                        data.notes.push([orderSpecs.jobItemId,"Different process " + temp + ", removed from gang."]);
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process " + temp + ", removed from gang."]);
                         continue;
                     }
                 }
@@ -473,25 +468,25 @@ runParser = function(s, job){
 
                 if(data.printer != matInfo.printer.name){
                     if(misc.rejectPress){
-                        data.notes.push([orderSpecs.jobItemId,"Different printer " + matInfo.printer.name + ", removed from gang."]);
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different printer " + matInfo.printer.name + ", removed from gang."]);
                         continue;
                     }
                 }
 
                 if(!orderSpecs.ship.exists){
-                    data.notes.push([orderSpecs.jobItemId,"Shipping data is missing, removed from gang."]);
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing, removed from gang."]);
                     continue;
                 }
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
-                    data.notes.push([orderSpecs.jobItemId,"Different process (" + matInfo.prodName + "), removed from gang."]);
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different process (" + matInfo.prodName + "), removed from gang."]);
                     continue;
                 }
                 
                 // Check for paper deviation
                 if(data.paper != orderSpecs.paper.value){
-                    data.notes.push([orderSpecs.jobItemId,"Different IMS material (" + orderSpecs.paper.value + "), removed from gang. Please notify Chelsea McVay."]);
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material (" + orderSpecs.paper.value + "), removed from gang. Please notify Chelsea McVay."]);
                     continue;
                 }
                 
@@ -499,7 +494,7 @@ runParser = function(s, job){
                 if(data.facility.destination != "Arlington"){
                     if(!submit.override.mixedFinishing){
                         if(data.finishingType != orderSpecs.finishingType){
-                            data.notes.push([orderSpecs.jobItemId,"Different finishing type (" + orderSpecs.finishingType + "), removed from gang."]);
+                            data.notes.push([orderSpecs.jobItemId,"Removed","Different finishing type (" + orderSpecs.finishingType + "), removed from gang."]);
                             continue;
                         }
                     }
@@ -509,7 +504,7 @@ runParser = function(s, job){
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     if(data.secondSurface != orderSpecs.secondSurface){
                         var type = orderSpecs.secondSurface ? "(2nd Surface)" : "(1st Surface)"
-                        data.notes.push([orderSpecs.jobItemId,"Different process " + type + ", removed from gang."]);
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process " + type + ", removed from gang."]);
                         continue;
                     }
                 }
@@ -517,28 +512,28 @@ runParser = function(s, job){
                 // Check if coating deviation
                 if(data.coating.active != orderSpecs.coating.active){
                     var type = orderSpecs.coating.active ? "(Coated)" : "(Uncoated)"
-                    data.notes.push([orderSpecs.jobItemId,"Different process " + type + ", removed from gang."]);
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different process " + type + ", removed from gang."]);
                     continue;
                 }
                 
                 // Check if laminate deviation
                 if(data.laminate.active != orderSpecs.laminate.active){
                     var type = orderSpecs.laminate.active ? "(laminate)" : "(Unlaminated)"
-                    data.notes.push([orderSpecs.jobItemId,"Different process " + type + ", removed from gang."]);
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different process " + type + ", removed from gang."]);
                     continue;
                 }
                 
                 // Check if mount deviation
                 if(data.mount.active != orderSpecs.mount.active){
                     var type = orderSpecs.mount.active ? "(Mounted)" : "(Not Mounted)"
-                    data.notes.push([orderSpecs.jobItemId,"Different process " + type + ", removed from gang."]);
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different process " + type + ", removed from gang."]);
                     continue;
                 }
 
                 // Separate out the due dates so they can't gang together.
                 if(!submit.override.date){
                     if(orderSpecs.date.due != data.date.due){
-                        data.notes.push([orderSpecs.jobItemId,"Different due date (" + orderSpecs.date.due + "), removed from gang."]);
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different due date (" + orderSpecs.date.due + "), removed from gang."]);
                         continue;
                     }
                 }
@@ -575,7 +570,7 @@ runParser = function(s, job){
 
             // Safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
-                sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, email), userInfo);
+                sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
                 job.sendToNull(job.getPath());
                 return
             }
@@ -659,7 +654,10 @@ runParser = function(s, job){
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
                     late: now.date >= orderArray[i].date.due,
-                    reprint: orderArray[i].reprint,
+                    reprint:{
+                        status: orderArray[i].reprint.status,
+                        reason: orderArray[i].reprint.reason
+                    },
                     edge: getEdgeFinishing(orderArray[i]),
                     pocket: {
                         top: orderArray[i].pocket.side.top,
@@ -716,7 +714,7 @@ runParser = function(s, job){
                             // Turn buttcut off if required.
                             db.general.execute("SELECT * FROM digital_room.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
                             if(db.general.isRowAvailable()){
-                                data.notes.push([oproduct.itemNumber,"Butt cut disabled per database entry."]);
+                                data.notes.push([oproduct.itemNumber,"Notes","Butt cut disabled per database entry."]);
 
                             // Otherwise check the scenarios...
                             }else{
@@ -772,7 +770,7 @@ runParser = function(s, job){
                 if(data.facility.destination == "Salt Lake City"){
                     if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
                         if(product.subprocess.name != "Retractable"){
-                            data.notes.push([product.itemNumber,"DS 13oz banner assigned to SLC, removed from gang."]);
+                            data.notes.push([product.itemNumber,"Removed","DS 13oz banner assigned to SLC, removed from gang."]);
                             continue;
                         }
                     }
@@ -783,7 +781,7 @@ runParser = function(s, job){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
                             if(orderArray[i].width >= 168 || orderArray[i].height >= 168){
-                                data.notes.push([product.itemNumber,"Welded banner over 168\" assigned to ARL, removed from gang."]);
+                                data.notes.push([product.itemNumber,"Removed","Welded banner over 168\" assigned to ARL, removed from gang."]);
                                 continue;
                             }
                         }
@@ -797,7 +795,7 @@ runParser = function(s, job){
 
                 // If the subprocess can't be mixed with other subprocesses, reject it.
                 if(data.mixed != product.subprocess.mixed){
-                    data.notes.push([product.itemNumber,"Different process (" + product.subprocess.name + "), removed from gang."]);
+                    data.notes.push([product.itemNumber,"Removed","Different process (" + product.subprocess.name + "), removed from gang."]);
                     continue
                 }
 
@@ -807,19 +805,19 @@ runParser = function(s, job){
                 }
                 
                 // If the order is a reprint, send an email to the user.
-                if(product.reprint){
-                    data.notes.push([product.itemNumber,"Reprint! Please check IMS and approval report for reason and accuracy."]);
+                if(product.reprint.status){
+                    data.notes.push([product.itemNumber,"Notes","Reprint! Please check IMS. Reason: " + product.reprint.reason]);
                 }
                 
                 // If the order is a late.
                 if(product.late){
-                    data.notes.push([product.itemNumber,"Late! This item is late and is being labeled accordingly for production."]);
+                    data.notes.push([product.itemNumber,"Notes","Late! This item is late and is being labeled accordingly for production."]);
                     data.dateID = now.month + "-" + now.day
                 }
                 
                 // If the order is a replacement, send an email to the user.
                 if(orderArray[i].replacement){
-                    data.notes.push([product.itemNumber,"Replacement. Automated undersizing has been disabled."]);
+                    data.notes.push([product.itemNumber,"Notes","Replacement. Automated undersizing has been disabled."]);
                     product.subprocess.undersize = false;
                 }
                 
@@ -845,7 +843,7 @@ runParser = function(s, job){
                         product.transfer = true;
                     }else{
                         // this logic is flawed because with AWS we aren't transferring the file from the watermarked destination anymore. but this does let us check if a file exists.
-                        data.notes.push([product.itemNumber,"File missing: " + product.contentFile]);
+                        data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
                         continue;
                     }
                 }
@@ -859,13 +857,13 @@ runParser = function(s, job){
                     file.usableData = true;
 
                 }catch(e){
-                    data.notes.push([product.itemNumber,"File statistics do not exist, can't confirm file properties, including orientation, please verify in gang."]);
+                    data.notes.push([product.itemNumber,"Notes","File statistics do not exist, can't confirm file properties, including orientation, please verify in gang."]);
                 }
 
                 // Check if the 2nd page exists for DS product.
                 if(file.usableData){
                     if(file.pages == 1 && product.doubleSided){
-                        data.notes.push([product.itemNumber,"File missing 2nd page for DS printing."]);
+                        data.notes.push([product.itemNumber,"Removed","File missing 2nd page for DS printing, removed from gang."]);
                         continue;
                     }
                 }
@@ -908,23 +906,38 @@ runParser = function(s, job){
                             }else if(!product.orientation.result.standard && product.orientation.result.flipped){
                                 product.orientation.status = "Flipped";
                                 product.height = [product.width, product.width = product.height][0]; // Flips the WxH data.
-                                data.notes.push([product.itemNumber,"Flipped sizes to standard format."]);
+                                data.notes.push([product.itemNumber,"Notes","Flipped sizes to standard format."]);
                                 if(scale.check.result.flipped){
                                     scale.modifier = scale.check.height.flipped;
                                 }
 
-                            // If neither is true then we have an issue.
+                            // If neither is true then we have an issue, use the previous logic to help determine the orientation.
                             }else{
+                                var variance = {
+                                    standard: Math.abs(file.width-product.width) + Math.abs(file.height-product.height),
+                                    flipped: Math.abs(file.width-product.height) + Math.abs(file.height-product.width)
+                                }
+    
+                                if(product.pocket.top || product.pocket.bottom){
+                                    product.orientation.status = variance.standard >= variance.flipped ? "Flipped" : "Standard";
+                                }else{
+                                    product.orientation.status = variance.standard > variance.flipped ? "Flipped" : "Standard";
+                                }
+
+                                if(product.orientation.status == "Flipped"){
+                                    product.height = [product.width, product.width = product.height][0]; // Flips the WxH data.
+                                }
+
                                 product.orientation.status = "Failed"
                                 file.usableData = false;
-                                data.notes.push([product.itemNumber,"Failed to determine file orientation and scale, check gang carefully."]);
-                                data.notes.push([product.itemNumber,"Please show this file to Chelsea or Bret asap!"]);
+                                data.notes.push([product.itemNumber,"Notes","Failed to determine file orientation and scale, check gang carefully."]);
+                                data.notes.push([product.itemNumber,"Priority","Failed to determine file orientation and scale, check gang carefully."]);
                             }
 
                             // I have no idea what this does.
                             /*
                             if(Math.round((file.width/product.width)*100) == 10 && Math.round((file.height/product.height)*100) == 10){
-                                data.notes.push([product.itemNumber,"Please carefully check for correct size."]);
+                                data.notes.push([product.itemNumber,"Notes","Please carefully check for correct size."]);
                                 product.orientation.status = "Standard"
                             }
                             */
@@ -963,7 +976,7 @@ runParser = function(s, job){
                 // If it's a breakaway banner then adjust some parameters
                 if(product.subprocess.name == "Breakaway"){
                     if(file.pages != 2){
-                        data.notes.push([product.itemNumber,"This breakaway banner isn't split into 2, removed from gang."]);
+                        data.notes.push([product.itemNumber,"Removed","This breakaway banner isn't split into 2, removed from gang."]);
                         continue;
                     }
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
@@ -979,7 +992,7 @@ runParser = function(s, job){
                 if(orderArray[i].yardframe.active){
                     if(!orderArray[i].yardframe.undersize){
                         product.subprocess.undersize = false
-                        data.notes.push([product.itemNumber,"Requires hardware. Automated undersizing has been disabled."]);
+                        data.notes.push([product.itemNumber,"Notes","Requires hardware. Automated undersizing has been disabled."]);
                     }
                 }
 
@@ -1056,11 +1069,11 @@ runParser = function(s, job){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
                             scale.width = 23.25/product.width*100;
-                            data.notes.push([product.itemNumber,'Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)']);
+                            data.notes.push([product.itemNumber,"Notes",'Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)']);
                         }
                         if(product.width == 33){
                             scale.width = 33/product.width*100;
-                            data.notes.push([product.itemNumber,'Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)']);
+                            data.notes.push([product.itemNumber,"Notes",'Retractable width was adjusted for production. (' + Math.round(scale.width) + '%)']);
                         }
                     }
                 }
@@ -1073,13 +1086,13 @@ runParser = function(s, job){
                                 // Width == 96
                                 if(product.width == "96"){
                                     scale.width = 94/product.width*100;
-                                    data.notes.push([product.itemNumber,'Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)']);
+                                    data.notes.push([product.itemNumber,"Notes",'Backdrop width was undersized for shipping. (' + Math.round(scale.width) + '%)']);
                                 }
                                 // Height == 96
                                 if(product.width != product.height){
                                     if(product.height == "96"){
                                         scale.height = 94/product.height*100;
-                                        data.notes.push([product.itemNumber,'Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)']);
+                                        data.notes.push([product.itemNumber,"Notes",'Backdrop height was undersized for shipping. (' + Math.round(scale.height) + '%)']);
                                     }
                                 }
                             }
@@ -1097,15 +1110,15 @@ runParser = function(s, job){
                 // Remove the file from the gang if the undersizing is too extreme.
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     if((difference.width > 5) || (difference.height > 5)){
-                        data.notes.push([product.itemNumber,'File size is too different from expected size, removed from gang.']);
+                        data.notes.push([product.itemNumber,"Removed",'File size is too different from expected size, removed from gang.']);
                         continue;
                     // If the undersizing is greater than 1" but less than 5", remove it if a custom width was selected, otherwise just notify the user.
                     }else if((difference.width > 1) || (difference.height > 1)){
                         if(submit.material.active){
-                            data.notes.push([product.itemNumber,'File size is too different from expected size, removed from gang.']);
+                            data.notes.push([product.itemNumber,"Removed",'File size is too different from expected size, removed from gang.']);
                             continue;
                         }else{
-                            data.notes.push([product.itemNumber,'Undersizing was greater than 1", please confirm accuracy in Phoenix report.']);
+                            data.notes.push([product.itemNumber,"Notes",'Undersizing was greater than 1", please confirm accuracy in Phoenix report.']);
                         }
                     }
                 }
@@ -1205,7 +1218,7 @@ runParser = function(s, job){
                     product.spacingLeft = product.spacingLeft/10;
                     product.spacingRight = product.spacingRight/10;
                     product.bleed = matInfo.bleed/10;
-                    data.notes.push([product.itemNumber,'Scaled file, please verify accuracy in report. (' + Math.round(scale.height) + '%)']);
+                    data.notes.push([product.itemNumber,"Notes",'Scaled file, please verify accuracy in report. (' + Math.round(scale.height) + '%)']);
                 }
 
                 // Reassign ClearStaticCling in ARL to a different rip hotfolder when it's 2nd surface.
@@ -1225,7 +1238,7 @@ runParser = function(s, job){
                     if(db.general.getString(2) != "default"){
                         product.rotation = "Custom";
                         product.allowedRotations = db.general.getString(2);
-                        email.rotations.push(product.itemNumber + ": Rotation pulled from database, " + db.general.getString(2) + " degrees.");
+                        data.notes.push([product.itemNumber,"Notes","Rotation pulled from database, " + db.general.getString(2) + " degrees."]);
                     }
                 }
             

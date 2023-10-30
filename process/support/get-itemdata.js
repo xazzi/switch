@@ -130,8 +130,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			notes: "",
 			cvColors: [],
 			finishingType: "No Hem",
-			reprint: false,
-			reprintReason: null,
+			reprint:{
+				status: false,
+				reason: null
+			},
 			replacement: false
 		}
 		
@@ -192,8 +194,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 		// Loop through the order_specs and set some values based on them
 		for(var k=0; k<dataDump.order_specs.length; k++){
 			if(dataDump.order_specs[k].code == "RP_REASON"){
-				specs.reprint = true;
-				specs.reprintReason = dataDump.order_specs[k].value;
+				specs.reprint.status = true;
+				specs.reprint.reason = dataDump.order_specs[k].value;
 			}
 			if(dataDump.order_specs[k].code == "GROM"){
 				specs.grommet = addToTable(s, db, "options_grommets", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
