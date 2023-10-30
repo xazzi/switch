@@ -45,9 +45,9 @@ compileEmail = function(s, job){
             var email = {
                 subject: "Gang Summary: " + handoffData.projectID,
                 header: "",
-                removed: "",
-                submit: "",
-                notes: "",
+                removed: [],
+                submit: [],
+                notes: [],
                 to: handoffData.user.email,
                 cc: "",
                 bcc: "bret.c@digitalroominc.com"
@@ -95,7 +95,18 @@ compileEmail = function(s, job){
                         type: db.email.getString(7).toLowerCase()
                     }
 
-                    email[result.type] += result.itemNumber + ": " + result.message + "\n"
+                    email[result.type].push([result.itemNumber,result.message])
+                }
+
+                // Clean the email.notes array of any items that are also removed.
+                for(var k in email.removed){
+                    var h = email.notes.length
+                    while(h--){
+                        if(email.removed[k][0] == email.notes[h][0]){
+                            email.notes.splice(h,1);
+                            email.removed[k][1] += " " + email.notes[h][1];
+                        }
+                    }
                 }
 
                 // Send the compiled email.
@@ -139,9 +150,21 @@ createDataset = function(newXML, email){
 		
 		addNode_db(theXML, messageNode, "subject", email.subject);
         addNode_db(theXML, messageNode, "header", email.header);
-        addNode_db(theXML, messageNode, "notes", email.notes);
-		addNode_db(theXML, messageNode, "removed", email.removed);
-        addNode_db(theXML, messageNode, "submit", email.submit);
+
+        for(var notes in email.notes){
+            addNode_db(theXML, messageNode, "notes", email.notes[notes][0] + ": " + email.notes[notes][1] + "\n");
+        }
+
+        for(var removed in email.removed){
+            addNode_db(theXML, messageNode, "removed", email.removed[removed][0] + ": " + email.removed[removed][1] + "\n");
+        }
+
+        for(var submit in email.submit){
+            addNode_db(theXML, messageNode, "submit", email.submit[submit][0] + ": " + email.submit[submit][1] + "\n");
+        }
+        //addNode_db(theXML, messageNode, "notes", email.notes);
+		//addNode_db(theXML, messageNode, "removed", email.removed);
+        //addNode_db(theXML, messageNode, "submit", email.submit);
 		addNode_db(theXML, messageNode, "to", email.to);
 		addNode_db(theXML, messageNode, "cc", email.cc);
         addNode_db(theXML, messageNode, "bcc", email.bcc);
