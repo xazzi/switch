@@ -45,7 +45,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "ButtWeld"
+                    "ButtWeld",
+                    "ButtCut"
                 ],
                 "rejections":[]
             },
@@ -108,7 +109,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "ButtWeld"
+                    "ButtWeld",
+                    "ButtCut"
                 ],
                 "rejections":[]
             },
@@ -172,7 +174,8 @@
                 "requirements":[
                     "None",
                     "ButtWeld",
-                    "X-Stand"
+                    "X-Stand",
+                    "ButtCut"
                 ],
                 "rejections":[]
             },
@@ -235,7 +238,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "ButtWeld"
+                    "ButtWeld",
+                    "ButtCut"
                 ],
                 "rejections":[]
             },
@@ -283,7 +287,6 @@
                     "13oz-Matte",
                     "18ozBanner",
                     "18oz-Matte",
-                    "Coroplast",
                     "Mesh",
                     "8oz-Mesh",
                     "9oz-Mesh",
@@ -347,7 +350,6 @@
                     "13oz-Matte",
                     "18oz-Matte",
                     "18ozBanner",
-                    "Coroplast",
                     "Mesh",
                     "8oz-Mesh",
                     "9oz-Mesh",
@@ -411,7 +413,6 @@
                     "13oz-Matte",
                     "18ozBanner",
                     "18oz-Matte",
-                    "Coroplast",
                     "Mesh",
                     "8oz-Mesh",
                     "9oz-Mesh",
@@ -475,7 +476,6 @@
                     "13oz-Matte",
                     "18ozBanner",
                     "18oz-Matte",
-                    "Coroplast",
                     "Mesh",
                     "8oz-Mesh",
                     "9oz-Mesh",

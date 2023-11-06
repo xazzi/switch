@@ -331,10 +331,12 @@ runParser = function(s, job){
                 // Material overrides
                 // -----------------------------------------------------------------------------------------
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
-                if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
-                    matInfoCheck = true;
-                    orderSpecs.paper.map.wix = 51;
-                    data.prismStock = "13 oz. Smooth Matte"
+                if(data.doubleSided == null || data.doubleSided == orderSpecs.doubleSided){
+                    if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
+                        matInfoCheck = true;
+                        orderSpecs.paper.map.wix = 51;
+                        data.prismStock = "13 oz. Smooth Matte"
+                    }
                 }
 
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
@@ -654,6 +656,9 @@ runParser = function(s, job){
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
+                    date:{
+                        due: orderArray[i].date.due
+                    },
                     late: now.date >= orderArray[i].date.due,
                     reprint:{
                         status: orderArray[i].reprint.status,
@@ -935,12 +940,10 @@ runParser = function(s, job){
                             }
 
                             // I have no idea what this does.
-                            /*
                             if(Math.round((file.width/product.width)*100) == 10 && Math.round((file.height/product.height)*100) == 10){
                                 data.notes.push([product.itemNumber,"Notes","Please carefully check for correct size."]);
                                 product.orientation.status = "Standard"
                             }
-                            */
                         }
                     }
                 }
