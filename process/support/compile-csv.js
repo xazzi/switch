@@ -57,7 +57,8 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
         ["Script Name", product.script.name],
 		["Script Parameters", product.script.parameters],
 		["Script Dynamic", product.script.dynamic],
-		["Script Pockets", product.script.pockets]
+		["Script Pockets", product.script.pockets],
+		["Item Name", product.itemName]
 	];
 	return infoArray
 }
