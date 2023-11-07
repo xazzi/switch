@@ -43,6 +43,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Ship Date",orderArray.date.due],
         ["Ship Type",product.shipType],
 		["Due Date",data.date.due],
+		["Item Due Date",product.date.due],
 		["Gang Info", data.phoenix.gangLabel],
 		["Group Number", product.groupNumber],
 		["Custom Label", product.customLabel.value],
@@ -57,7 +58,8 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
         ["Script Name", product.script.name],
 		["Script Parameters", product.script.parameters],
 		["Script Dynamic", product.script.dynamic],
-		["Script Pockets", product.script.pockets]
+		["Script Pockets", product.script.pockets],
+		["Item Name", product.itemName]
 	];
 	return infoArray
 }

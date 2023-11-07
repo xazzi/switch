@@ -16,6 +16,11 @@ runMissingFiles = function(s, job){
                 general: new Statement(connections.general),
                 email: new Statement(connections.email)
             }
+
+            var privateData = {
+                type: job.getPrivateData("type"),
+                message: job.getPrivateData("message")
+            }
             
             // Load in the Handoff Data dataset
             var handoffDataDS = loadDataset_db("Handoff Data");
@@ -26,7 +31,7 @@ runMissingFiles = function(s, job){
                 itemNumber: handoffDataDS.evalToString("//product/itemNumber")
             }
 
-            emailDatabase_write(s, db, "parsed_data", "File Check", handoffData, [product.itemNumber,"Missing file or cutpath."])
+            emailDatabase_write(s, db, "parsed_data", "File Check", handoffData, [[handoffData.itemNumber, privateData.type, privateData.message]])
             
             // Add to the missing file table.
             db.general.execute("INSERT INTO digital_room.missing_file (gang_number,file_name,date) VALUES ('" + handoffData.projectID + "','" + handoffData.contentFile + "','" + new Date() + "');");
@@ -34,7 +39,7 @@ runMissingFiles = function(s, job){
             job.sendToSingle(job.getPath());
                     
         }catch(e){
-            s.log(2, "Critical Error: Missing Files")
+            s.log(2, "Critical Error: Missing Files: " + e)
             job.sendToNull(job.getPath())
         }
     }
