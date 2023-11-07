@@ -865,16 +865,17 @@ runParser = function(s, job){
 
                 }catch(e){}
 
-                // Check if the 2nd page exists for DS product.
-                if(file.usableData){
-                    if(file.pages == 1 && product.doubleSided){
-                        data.notes.push([product.itemNumber,"Removed","File missing 2nd page for DS printing."]);
-                        continue;
-                    }
-                }
-
+                
                 if(file.usableData){
                     if(product.subprocess.orientationCheck){
+
+                        // Check if the 2nd page exists for DS product.
+                        if(file.pages == 1 && product.doubleSided){
+                            data.notes.push([product.itemNumber,"Removed","File missing 2nd page for DS printing."]);
+                            continue;
+                        }
+
+                        // Perform the orientation and scale logic
                         if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                             
                             // Check for standard orientation of the file.
