@@ -864,7 +864,6 @@ runParser = function(s, job){
                     file.usableData = true;
 
                 }catch(e){}
-
                 
                 if(file.usableData){
                     if(product.subprocess.orientationCheck){
@@ -1473,7 +1472,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		handoffNode.appendChild(ripNode);
 		
 		addNode_db(theXML, ripNode, "device", data.rip.device);
-		addNode_db(theXML, ripNode, "hotfolder", data.rip.hotfolder);		
+		addNode_db(theXML, ripNode, "hotfolder", data.rip.hotfolder);
 	
 	var miscNode = theXML.createElement("misc", null);
 		handoffNode.appendChild(miscNode);

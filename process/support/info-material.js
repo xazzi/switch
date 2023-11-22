@@ -14,6 +14,8 @@ getMatInfo = function(orderSpecs, db){
         paperMapId = orderSpecs.paper.map.arl;
     }else if(orderSpecs.facilityId == 37){
         paperMapId = orderSpecs.paper.map.wix;
+    }else if(orderSpecs.facilityId == 1){
+        paperMapId = orderSpecs.paper.map.vn;
     }
     
     // Pull the material defaults based on the facility mapping ID.

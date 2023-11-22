@@ -21,6 +21,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         db.general.fetchRow();
 
         // Paper mapping
+        // These map options need to match the material maps below, this allows the process to work when there isn't a paper assigned to the item.
         if(table == "specs_paper"){
             return specs = {
                 active: true,
@@ -31,7 +32,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
                     sln: Number(db.general.getString(6)),
                     lou: Number(db.general.getString(7)),
                     arl: Number(db.general.getString(8)),
-                    wix: Number(db.general.getString(9))
+                    wix: Number(db.general.getString(9)),
+                    vn: Number(db.general.getString(10))
                 }
             }
         }
@@ -46,10 +48,20 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         }
 
         // Material options
+        // These map options need to match the paper maps above, this allows the process to work when there isn't a paper assigned to the item.
         if(table == "options_material"){
             return specs = {
                 active: true,
-                value: db.general.getString(1)
+                value: db.general.getString(1),
+                map: {
+                    slc: null,
+                    bri: null,
+                    sln: null,
+                    lou: null,
+                    arl: null,
+                    wix: null,
+                    vn: Number(db.general.getString(4))
+                }
             }
         }
 

@@ -210,7 +210,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.paper = addToTable(s, db, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "MATRL"){
-				//specs.material = addToTable(s, db, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				specs.material = addToTable(s, db, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
 				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
@@ -281,6 +281,12 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					specs.replacement = true;
 				}
 			}
+		}
+
+		// TO DO - Determine if this is the best method to assign the paper if it doesn't exist in IMS.
+		// Would it be better to do a more robust check outside of this?
+		if(!specs.paper.active){
+			specs.paper = specs.material
 		}
 
 		// Loop through the display specs.
