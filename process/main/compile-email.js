@@ -37,12 +37,14 @@ compileEmail = function(s, job){
             var email = {
                 subject: "Gang Summary: " + handoffData.projectID,
                 header: "",
-                removed: [],
-                submit: [],
-                notes: [],
                 to: handoffData.user.email,
                 cc: "",
                 bcc: "bret.c@digitalroominc.com"
+            }
+
+            var body = {
+                summary: "",
+                removed: ""
             }
 
             // Assign the header proerties.
@@ -89,11 +91,14 @@ compileEmail = function(s, job){
 
             // If the database pull fails, send an email to notify.
             if(!db.email.isRowAvailable()){
-                email.notes += "Failed to get gang summary info from database.";
+                email.header += "Failed to get gang summary info from database.";
                 createEmail(s, email, handoffData);
                 job.sendToNull(job.getPath())
                 return;
             }
+
+            var entries = {};
+            var raw = [];
 
             // Loop through those notes and add them to the body string.
             while(db.email.isRowAvailable()){
@@ -105,22 +110,39 @@ compileEmail = function(s, job){
                     type: db.email.getString(7).toLowerCase()
                 }
 
-                email[result.type].push([result.itemNumber,result.message])
+                raw.push([result.itemNumber,result.type,result.message])
             }
 
-            // Clean the email.notes array of any items that are also removed.
-            for(var k in email.removed){
-                var h = email.notes.length
-                while(h--){
-                    if(email.removed[k][0] == email.notes[h][0]){
-                        email.notes.splice(h,1);
-                        email.removed[k][1] += " " + email.notes[h][1];
-                    }
+            // Create the objects and sub-arrays out of the raw data.
+            for(var items in raw){
+                entries[raw[items][0]] = {
+                    removed: false,
+                    notes: []
                 }
             }
 
+            // Push the data from the raw pull to the objects and sub-arrays.
+            for(var results in raw){
+                if(raw[results][1] == "removed"){
+                    entries[raw[results][0]]["removed"] = true
+                }
+                entries[raw[results][0]]["notes"].push(raw[results][2]);
+            }
+
+            // Sort the data from the sub-arrays into body strings.
+            for(var item in entries){
+                if(entries[item]["removed"]){
+                    body.removed += item + ": " + entries[item]["notes"].join(', ') + "\n"
+                }else{
+                    body.summary += item + ": " + entries[item]["notes"].join(', ') + "\n"
+                }
+            }
+
+            if(body.summary == ""){body.summary = "None"}
+            if(body.removed == ""){body.removed = "None"}
+
             // Send the compiled email.
-            createEmail(s, email, handoffData)
+            createEmail(s, email, handoffData, body)
 
             // Send the job to be approved.
             job.sendToNull(job.getPath())
@@ -133,7 +155,7 @@ compileEmail = function(s, job){
     email(s, job)
 }
 
-createEmail = function(s,  email, handoffData){
+createEmail = function(s,  email, handoffData, body){
 	var emailXml = s.createNewJob();
 	var emailXmlPath = emailXml.createPathWithName(handoffData.projectID + ".txt", false);
 	var emailXmlFile = new File(emailXmlPath);
@@ -143,12 +165,12 @@ createEmail = function(s,  email, handoffData){
 		emailXmlFile.writeLine(email.subject);
 		emailXmlFile.close()
 	
-	createDataset(emailXml, email);
+	createDataset(emailXml, email, body);
 	
 	emailXml.sendTo(findConnectionByName_db(s, "Email"), emailXmlPath);
 }
 
-createDataset = function(newXML, email){
+createDataset = function(newXML, email, body){
 	var theXML = new Document();
 	
 	var baseNode = theXML.createElement("email", null);
@@ -160,20 +182,9 @@ createDataset = function(newXML, email){
 		addNode_db(theXML, messageNode, "subject", email.subject);
         addNode_db(theXML, messageNode, "header", email.header);
 
-        for(var notes in email.notes){
-            addNode_db(theXML, messageNode, "notes", email.notes[notes][0] + ": " + email.notes[notes][1] + "\n");
-        }
+        addNode_db(theXML, messageNode, "summary", body.summary);
+        addNode_db(theXML, messageNode, "removed", body.removed);
 
-        for(var removed in email.removed){
-            addNode_db(theXML, messageNode, "removed", email.removed[removed][0] + ": " + email.removed[removed][1] + "\n");
-        }
-
-        for(var submit in email.submit){
-            addNode_db(theXML, messageNode, "submit", email.submit[submit][0] + ": " + email.submit[submit][1] + "\n");
-        }
-        //addNode_db(theXML, messageNode, "notes", email.notes);
-		//addNode_db(theXML, messageNode, "removed", email.removed);
-        //addNode_db(theXML, messageNode, "submit", email.submit);
 		addNode_db(theXML, messageNode, "to", email.to);
 		addNode_db(theXML, messageNode, "cc", email.cc);
         addNode_db(theXML, messageNode, "bcc", email.bcc);

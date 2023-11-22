@@ -107,7 +107,7 @@ runProcessor = function(s, job){
                 s.log(2, data.projectID + " approved by " + userInfo.first + " " + userInfo.last + ".");
             }else{
                 s.log(2, data.projectID + " rejected by " + userInfo.first + " " + userInfo.last + ".")
-                sendEmail_db(s, data, null, getEmailResponse("Usage Rejection", null, null, data, userInfo), userInfo);
+                //sendEmail_db(s, data, null, getEmailResponse("Usage Rejection", null, null, data, userInfo), userInfo);
             }
             
             // Remove the SKU directory if it's empty.
