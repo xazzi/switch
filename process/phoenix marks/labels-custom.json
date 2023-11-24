@@ -237,6 +237,10 @@
                 {
                     "name":"Barcode",
                     "dir":"/Master Labels/Custom/Retractables/"
+                },
+                {
+                    "name":"Receipt URL",
+                    "dir":"/Master Labels/Custom/Retractables/"
                 }
             ]
         },

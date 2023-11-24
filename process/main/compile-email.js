@@ -89,14 +89,6 @@ compileEmail = function(s, job){
             // Pull any notes from the email table, including what was just posted.
             db.email.execute("SELECT * FROM emails.`parsed_data` WHERE sku = '" + handoffData.sku + "' and `gang-number` = '" + handoffData.projectID + "';");
 
-            // If the database pull fails, send an email to notify.
-            if(!db.email.isRowAvailable()){
-                email.header += "Failed to get gang summary info from database.";
-                createEmail(s, email, handoffData);
-                job.sendToNull(job.getPath())
-                return;
-            }
-
             var entries = {};
             var raw = [];
 
@@ -138,8 +130,8 @@ compileEmail = function(s, job){
                 }
             }
 
-            if(body.summary == ""){body.summary = "None"}
-            if(body.removed == ""){body.removed = "None"}
+            if(body.summary == ""){body.summary = "None" + "\n"}
+            if(body.removed == ""){body.removed = "None" + "\n"}
 
             // Send the compiled email.
             createEmail(s, email, handoffData, body)
