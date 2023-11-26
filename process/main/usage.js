@@ -7,10 +7,14 @@ runUsage = function(s, job){
 
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
+            eval(File.read(dir.support + "/connect-to-db.js"));
 
-            // Establish connection to the database.
-            var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
-                dbQuery = new Statement(dbConn);
+            // Establist connection to the databases
+            var connections = establishDatabases(s)
+            var db = {
+                general: new Statement(connections.general),
+                email: new Statement(connections.email)
+            }
 
             // Collect the handoff data.
             var handoffDataDS = loadDataset_db("Handoff Data");
@@ -26,7 +30,7 @@ runUsage = function(s, job){
             }
 
             // Update the history_gang table with the average usage.
-            dbQuery.execute("UPDATE digital_room.history_gang SET `average-usage` = '" + phoenixPlan.averageUsage + "' WHERE `gang-number` = '" + phoenixPlan.id + "' AND `SKU` = '" + handoffData.sku + "';");
+            db.general.execute("UPDATE digital_room.history_gang SET `average-usage` = '" + phoenixPlan.averageUsage + "' WHERE `gang-number` = '" + phoenixPlan.id + "' AND `SKU` = '" + handoffData.sku + "';");
                 
             // Send the job to be approved.
             job.sendToNull(job.getPath())

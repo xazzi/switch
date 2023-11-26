@@ -29,8 +29,12 @@
                     "13ozBanner",
                     "13oz-Matte",
                     "18ozBanner",
+                    "18oz-Matte",
                     "Coroplast",
                     "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "CeltecBanner",
                     "Celtec",
                     "DSS",
@@ -41,7 +45,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "ButtWeld"
+                    "ButtWeld",
+                    "ButtCut"
                 ],
                 "rejections":[]
             },
@@ -88,8 +93,12 @@
                     "13ozBanner",
                     "13oz-Matte",
                     "18ozBanner",
+                    "18oz-Matte",
                     "Coroplast",
                     "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "CeltecBanner",
                     "Celtec",
                     "DSS",
@@ -100,7 +109,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "ButtWeld"
+                    "ButtWeld",
+                    "ButtCut"
                 ],
                 "rejections":[]
             },
@@ -147,8 +157,12 @@
                     "13ozBanner",
                     "13oz-Matte",
                     "18ozBanner",
+                    "18oz-Matte",
                     "Coroplast",
                     "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "CeltecBanner",
                     "Celtec",
                     "DSS",
@@ -160,7 +174,8 @@
                 "requirements":[
                     "None",
                     "ButtWeld",
-                    "X-Stand"
+                    "X-Stand",
+                    "ButtCut"
                 ],
                 "rejections":[]
             },
@@ -207,8 +222,12 @@
                     "13ozBanner",
                     "13oz-Matte",
                     "18ozBanner",
+                    "18oz-Matte",
                     "Coroplast",
                     "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "CeltecBanner",
                     "Celtec",
                     "DSS",
@@ -219,7 +238,8 @@
             "subprocess":{
                 "requirements":[
                     "None",
-                    "ButtWeld"
+                    "ButtWeld",
+                    "ButtCut"
                 ],
                 "rejections":[]
             },
@@ -266,8 +286,11 @@
                     "13ozBanner",
                     "13oz-Matte",
                     "18ozBanner",
-                    "Coroplast",
+                    "18oz-Matte",
                     "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "CeltecBanner",
                     "Celtec",
                     "DSS",
@@ -325,9 +348,12 @@
                 "requirements":[
                     "13ozBanner",
                     "13oz-Matte",
+                    "18oz-Matte",
                     "18ozBanner",
-                    "Coroplast",
                     "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "CeltecBanner",
                     "Celtec",
                     "DSS",
@@ -386,8 +412,11 @@
                     "13ozBanner",
                     "13oz-Matte",
                     "18ozBanner",
-                    "Coroplast",
+                    "18oz-Matte",
                     "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "CeltecBanner",
                     "Celtec",
                     "DSS",
@@ -446,8 +475,11 @@
                     "13ozBanner",
                     "13oz-Matte",
                     "18ozBanner",
-                    "Coroplast",
+                    "18oz-Matte",
                     "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
                     "CeltecBanner",
                     "Celtec",
                     "DSS",

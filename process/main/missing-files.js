@@ -7,30 +7,39 @@ runMissingFiles = function(s, job){
 
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
+            eval(File.read(dir.support + "/write-to-email-db.js"));
+            eval(File.read(dir.support + "/connect-to-db.js"));
+
+            // Establist connection to the databases
+            var connections = establishDatabases(s)
+            var db = {
+                general: new Statement(connections.general),
+                email: new Statement(connections.email)
+            }
+
+            var privateData = {
+                type: job.getPrivateData("type"),
+                message: job.getPrivateData("message")
+            }
             
             // Load in the Handoff Data dataset
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
                 projectID: handoffDataDS.evalToString("//base/projectID"),
-                contentFile: handoffDataDS.evalToString("//product/contentFile")
+                sku: handoffDataDS.evalToString("//base/sku"),
+                contentFile: handoffDataDS.evalToString("//product/contentFile"),
+                itemNumber: handoffDataDS.evalToString("//product/itemNumber")
             }
+
+            emailDatabase_write(s, db, "parsed_data", "File Check", handoffData, [[handoffData.itemNumber, privateData.type, privateData.message]])
             
-            // Establist connection to the database
-            var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
-            var date = new Date();
-            
-            // Query the database to check/post the missing files.
-            var dbQuery = new Statement(dbConn);
-                dbQuery.execute("SELECT * FROM digital_room.missing_file WHERE file_name = '" + handoffData.contentFile + "';");
-            if(!dbQuery.isRowAvailable()){
-                var dbQuery = new Statement(dbConn);
-                    dbQuery.execute("INSERT INTO digital_room.missing_file (gang_number,file_name,date) VALUES ('" + handoffData.projectID + "','" + handoffData.contentFile + "','" + date + "');");
-            }
+            // Add to the missing file table.
+            db.general.execute("INSERT INTO digital_room.missing_file (gang_number,file_name,date) VALUES ('" + handoffData.projectID + "','" + handoffData.contentFile + "','" + new Date() + "');");
             
             job.sendToSingle(job.getPath());
                     
         }catch(e){
-            s.log(2, "Critical Error: Missing Files")
+            s.log(2, "Critical Error: Missing Files: " + e)
             job.sendToNull(job.getPath())
         }
     }

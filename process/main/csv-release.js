@@ -7,14 +7,20 @@ runRelease = function(s){
         
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
+            eval(File.read(dir.support + "/connect-to-db.js"));
+
+            // Establist connection to the databases
+            var connections = establishDatabases(s)
+            var db = {
+                general: new Statement(connections.general),
+                email: new Statement(connections.email)
+            }
             
             var secondInterval = 5;
                 s.setTimerInterval(secondInterval);
                 
             var environment = s.getPropertyValue("environment");
             var server = s.getPropertyValue("phoenixServer");
-            
-            var dbConn = connectToDatabase_db(s.getPropertyValue("database"));
                     
             var pdfDepository = new Dir("//AMZ-PHOENIX-P02/pdfDepository");
             var csvDepository = new Dir("C:/Switch/Depository/csvHold/" + environment);
@@ -43,16 +49,15 @@ runRelease = function(s){
                     
                         pdfReady = false;
                     
-                    var existCheck = new File(pdfDepository.absPath + "/" + line[1]);
+                    var existCheck = new File(pdfDepository.absPath + "/" + line[0]);
                     if(existCheck.exists){
                         pdfReady = true;
                         continue;
                     }
                     
                     if(!pdfReady){
-                        var dbQuery = new Statement(dbConn);
-                            dbQuery.execute("SELECT * FROM digital_room.missing_file WHERE file_name = '" + line[0] + "';");
-                        if(dbQuery.isRowAvailable()){
+                        db.general.execute("SELECT * FROM digital_room.missing_file WHERE file_name = '" + line[0] + "';");
+                        if(db.general.isRowAvailable()){
                             pdfReady = true;
                             break;
                         }

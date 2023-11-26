@@ -1,3 +1,5 @@
+// This is unused code as of the 10/23/2023 sprint.
+
 runReporting = function(s, job){
     function reporting(s, job){
         try{
