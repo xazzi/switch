@@ -897,7 +897,7 @@ runParser = function(s, job){
                             if(product.height == product.width){
                                 product.orientation.status = "Square";
                                 if(scale.check.result.standard){
-                                    scale.modifier = scale.check.height.standard;
+                                    scale.modifier = 1;
                                 }
 
                             // If the file is in WxH orientation.
