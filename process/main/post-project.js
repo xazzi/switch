@@ -37,7 +37,7 @@ runPost = function(s, job){
             var handoffObj = {
                 projectID: handoffDataDS.evalToString("//base/projectID"),
                 material: handoffDataDS.evalToString("//base/process"),
-                doublesided: handoffDataDS.evalToString("//settings/doublesided") == "true",
+                doublesided: false, //handoffDataDS.evalToString("//settings/doublesided") == "true",
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true",
                 laminate: handoffDataDS.evalToString("//settings/laminate") == "true",
                 secondsurface: handoffDataDS.evalToString("//settings/secondsurf") == "true",
@@ -47,6 +47,30 @@ runPost = function(s, job){
             var doc = new Document(job.getPath());	
             var map = doc.createDefaultMap();
             var layoutNodes = doc.evalToNodes('//job/layouts/layout', map);
+
+            // Check if it's actually DS or SS printing. (2 pages)
+            for(var i=0; i<layoutNodes.length; i++){
+                
+                var sideCheck = {
+                    front: false,
+                    back: false
+                }
+
+                var surfaceNodes = layoutNodes.at(i).evalToNodes('surfaces/surface');
+                for(var k=0; k<surfaceNodes.length; k++){
+                    if(surfaceNodes.at(k).evalToString('side') == "Front"){
+                        sideCheck.front = true
+                    }
+                    if(surfaceNodes.at(k).evalToString('side') == "Back"){
+                        sideCheck.back = true
+                    }
+                }
+
+                if(sideCheck.front && sideCheck.back){
+                    handoffObj.doublesided = true;
+                    break;
+                }
+            }
             
             var newJob = s.createNewJob();
             var xmlfile = newJob.createPathWithName(doc.evalToString('//job/id', map) + ".json", false);
@@ -107,7 +131,6 @@ runPost = function(s, job){
                 return;
             }
                     
-            s.log(2, "Phoenix API post complete!")
             job.sendTo(findConnectionByName(s, "Success"), job.getPath());            
             
         }catch(e){
