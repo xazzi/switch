@@ -846,12 +846,16 @@ runParser = function(s, job){
                         product.transfer = true;
                     }
                 }else{
-                    if(file.source.exists){
+                    if(data.fileSource == "S3 Bucket"){
                         product.transfer = true;
                     }else{
-                        // this logic is flawed because with AWS we aren't transferring the file from the watermarked destination anymore. but this does let us check if a file exists.
-                        data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
-                        continue;
+                        if(file.source.exists){
+                            product.transfer = true;
+                        }else{
+                            // this logic is flawed because with AWS we aren't transferring the file from the watermarked destination anymore. but this does let us check if a file exists.
+                            data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
+                            continue;
+                        }
                     }
                 }
 
