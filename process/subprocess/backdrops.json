@@ -11,7 +11,8 @@
             },
             "processes": [
                 "13ozBanner",
-                "Celtec"
+                "Celtec",
+                "18ozBanner"
             ],
             "properties": {
                 "mixed": false,
