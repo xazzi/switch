@@ -70,6 +70,7 @@ getMatInfo = function(orderSpecs, db){
         overrun: db.general.getString(27),
         forceUndersize: db.general.getString(28) == "0" ? false : true,
         sideMix: db.general.getString(29) == "0" ? false : true,
+        lamMix: db.general.getString(45) == 'y' ? true : false,
         rotateFront: db.general.getString(37) == 'y' ? true : false,
         rotateBack: db.general.getString(38) == 'y' ? true : false,
         rotate90: db.general.getString(39) == 'y' ? true : false,
