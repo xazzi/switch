@@ -1,0 +1,63 @@
+{
+    "description":"Corner marks for laminated products",
+    "name":"Laminate Marks",
+    "key":"None",
+    "parameters":[
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Magnet"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "orderArray":{
+                        "laminate":{
+                            "active":true
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "name": "LAM_Magnet",
+                    "dir": "/Misc/"
+                }
+            ]
+        }
+    ]
+}

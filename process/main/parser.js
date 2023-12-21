@@ -512,18 +512,21 @@ runParser = function(s, job){
                     }
                 }
                 
-                // Check if coating deviation
-                if(data.coating.active != orderSpecs.coating.active){
-                    var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
-                    continue;
-                }
-                
-                // Check if laminate deviation
-                if(data.laminate.active != orderSpecs.laminate.active){
-                    var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
-                    continue;
+                // Laminate and coating checks, skip if allowed to mix.
+                if(!matInfo.lamMix){
+                    // Check if coating deviation
+                    if(data.coating.active != orderSpecs.coating.active){
+                        var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        continue;
+                    }
+                    
+                    // Check if laminate deviation
+                    if(data.laminate.active != orderSpecs.laminate.active){
+                        var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        continue;
+                    }
                 }
                 
                 // Check if mount deviation
