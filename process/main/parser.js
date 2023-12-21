@@ -767,10 +767,6 @@ runParser = function(s, job){
                         scale.locked = true;
                     }
                 }
-
-                //product.query = "full-sheet";
-                //product.subprocess.undersize = false;
-                //scale.locked = true;
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query);
@@ -872,6 +868,7 @@ runParser = function(s, job){
 
                 }catch(e){}
                 
+                // If the file exists and you have data to use, go here.
                 if(file.usableData){
                     if(product.subprocess.orientationCheck){
 
