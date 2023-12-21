@@ -57,14 +57,13 @@ runRelease = function(s){
                     
                     if(!pdfReady){
                         //db.general.execute("SELECT * FROM digital_room.missing_file WHERE file_name = '" + line[0] + "';");
-                        // This is a test
                         db.email.execute("SELECT * FROM emails.parsed_data where message = 'File missing: '" + line[0] + "';");
                         if(db.general.isRowAvailable()){
                             pdfReady = true;
                             break;
                         }
                     }
-                    //this is Chelsea's test
+                    
                     if(!pdfReady){
                         // If the file is not ready and has not been logged as failed, break out of the loop and continue with !pdfReady
                         break;
