@@ -63,7 +63,7 @@ runRelease = function(s){
                             break;
                         }
                     }
-                    
+                    //this is Chelsea's test
                     if(!pdfReady){
                         // If the file is not ready and has not been logged as failed, break out of the loop and continue with !pdfReady
                         break;
