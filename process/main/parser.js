@@ -698,7 +698,10 @@ runParser = function(s, job){
                     width: 100,
                     height: 100,
                     modifier: 1,
-                    adjusted: false,
+                    adjusted:{
+                        width: false,
+                        height: false
+                    },
                     locked: false,
                     check:{
                         result:{
@@ -1017,14 +1020,14 @@ runParser = function(s, job){
                             if(product.width > product.height){
                                 if(product.width >= usableArea.height){
                                     scale.width = ((usableArea.height-.25)/product.width)*100;
-                                    scale.adjusted = true;
+                                    scale.adjusted.width = true;
                                     if(product.width == product.height){
                                         scale.height = scale.width
                                     }
                                 }
                                 if(product.height >= usableArea.width){
                                     scale.height = ((usableArea.width-.25)/product.height)*100;
-                                    scale.adjusted = true;
+                                    scale.adjusted.height = true;
                                     if(product.width == product.height){
                                         scale.width = scale.height
                                     }
@@ -1032,14 +1035,14 @@ runParser = function(s, job){
                             }else{
                                 if(product.height >= usableArea.height){
                                     scale.height = ((usableArea.height-.25)/product.height)*100;
-                                    scale.adjusted = true;
+                                    scale.adjusted.height = true;
                                     if(product.width == product.height){
                                         scale.width = scale.height
                                     }
                                 }
                                 if(product.width >= usableArea.width){
                                     scale.width = ((usableArea.width-.25)/product.width)*100;
-                                    scale.adjusted = true;
+                                    scale.adjusted.width = true;
                                     if(product.width == product.height){
                                         scale.height = scale.width
                                     }
@@ -1055,18 +1058,25 @@ runParser = function(s, job){
                 // This checks if the material info database is asking to undersize.
                 if(product.subprocess.undersize && product.forceUndersize == true){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+
+                        // If the width hasn't already been undersized automatically to fit on the material.
+                        if(!scale.adjusted.width){
                             db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
-                        if(db.general.isRowAvailable()){
-                            db.general.fetchRow();
-                            scale.width = db.general.getString(3)/db.general.getString(2)*100;
-                            scale.adjusted = true;
+                            if(db.general.isRowAvailable()){
+                                db.general.fetchRow();
+                                scale.width = db.general.getString(3)/db.general.getString(2)*100;
+                                scale.adjusted.width = true;
+                            }
                         }
                         
+                        // If the height hasn't already been undersized automatically to fit on the material.
+                        if(!scale.adjusted.height){
                             db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
-                        if(db.general.isRowAvailable()){
-                            db.general.fetchRow();
-                            scale.height = db.general.getString(3)/db.general.getString(2)*100;
-                            scale.adjusted = true;
+                            if(db.general.isRowAvailable()){
+                                db.general.fetchRow();
+                                scale.height = db.general.getString(3)/db.general.getString(2)*100;
+                                scale.adjusted.height = true;
+                            }
                         }
                     }
                 }
