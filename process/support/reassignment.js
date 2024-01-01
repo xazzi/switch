@@ -11,12 +11,6 @@ materialReassign = function(folder, dbConn, query, matInfo, data, reassignment){
         query.itemName = query.itemName.replace(/'/g,"\\'");
         query.itemName = query.itemName.replace(/,/g,'\\,');
 
-        /*
-        var db_mapItem = new Statement(dbConn);
-            db_mapItem.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + query.itemName + "';");
-            db_mapItem.fetchRow();
-        */
-
         if(reassignment == null){
             reassignment = query.material.reassignment;
         }
@@ -36,21 +30,11 @@ materialReassign = function(folder, dbConn, query, matInfo, data, reassignment){
         for(var i=0; i<files.length; i++){
             var str = File.read(folder.path + "/" + files[i], "UTF-8");
             var dump = JSON.parse(str)
-
-            s.log(2, dump.id)
-
-            /*
-            if(dump.id == "undefined"){
-                dump.id = dump.subprocess
-            }
-            */
             
             if(contains(reassignment, dump.id)){
-                s.log(2, "Start")
                 for(var j in dump.facility){
                     if(dump.facility[j].id == query.facilityId){
                         if(dump.facility[j].enabled){
-                            s.log(2, "K")
                             if(contains(dump.facility[j].processes, matInfo.prodName) || contains(dump.facility[j].processes, "All")){
                                 if(data.reassignment != null){
                                     if(dump.name != data.reassignment){
@@ -73,8 +57,6 @@ materialReassign = function(folder, dbConn, query, matInfo, data, reassignment){
                 }
             }
         }
-
-        s.log(2, "Done")
 
         return settings = {
             name: "None",
