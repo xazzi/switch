@@ -152,7 +152,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 		}
 		
 		if(theHTTP.finishedStatus == HTTP.Ok && theHTTP.statusCode == 200){
-			s.log(1, "Download completed successfully" );
+			//s.log(1, itemNumber + " download complete." );
 			specs.complete = true;
 		}else{
 			s.log(3, "Download failed with the status code %1", theHTTP.statusCode);

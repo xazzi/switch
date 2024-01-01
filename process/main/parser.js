@@ -512,18 +512,21 @@ runParser = function(s, job){
                     }
                 }
                 
-                // Check if coating deviation
-                if(data.coating.active != orderSpecs.coating.active){
-                    var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
-                    continue;
-                }
-                
-                // Check if laminate deviation
-                if(data.laminate.active != orderSpecs.laminate.active){
-                    var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
-                    continue;
+                // Laminate and coating checks, skip if allowed to mix.
+                if(!matInfo.lamMix){
+                    // Check if coating deviation
+                    if(data.coating.active != orderSpecs.coating.active){
+                        var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        continue;
+                    }
+                    
+                    // Check if laminate deviation
+                    if(data.laminate.active != orderSpecs.laminate.active){
+                        var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        continue;
+                    }
                 }
                 
                 // Check if mount deviation
@@ -695,7 +698,10 @@ runParser = function(s, job){
                     width: 100,
                     height: 100,
                     modifier: 1,
-                    adjusted: false,
+                    adjusted:{
+                        width: false,
+                        height: false
+                    },
                     locked: false,
                     check:{
                         result:{
@@ -764,10 +770,6 @@ runParser = function(s, job){
                         scale.locked = true;
                     }
                 }
-
-                //product.query = "full-sheet";
-                //product.subprocess.undersize = false;
-                //scale.locked = true;
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query);
@@ -846,12 +848,16 @@ runParser = function(s, job){
                         product.transfer = true;
                     }
                 }else{
-                    if(file.source.exists){
+                    if(data.fileSource == "S3 Bucket"){
                         product.transfer = true;
                     }else{
-                        // this logic is flawed because with AWS we aren't transferring the file from the watermarked destination anymore. but this does let us check if a file exists.
-                        data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
-                        continue;
+                        if(file.source.exists){
+                            product.transfer = true;
+                        }else{
+                            // this logic is flawed because with AWS we aren't transferring the file from the watermarked destination anymore. but this does let us check if a file exists.
+                            data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
+                            continue;
+                        }
                     }
                 }
 
@@ -865,6 +871,7 @@ runParser = function(s, job){
 
                 }catch(e){}
                 
+                // If the file exists and you have data to use, go here.
                 if(file.usableData){
                     if(product.subprocess.orientationCheck){
 
@@ -897,7 +904,7 @@ runParser = function(s, job){
                             if(product.height == product.width){
                                 product.orientation.status = "Square";
                                 if(scale.check.result.standard){
-                                    scale.modifier = scale.check.height.standard;
+                                    scale.modifier = 1;
                                 }
 
                             // If the file is in WxH orientation.
@@ -1013,14 +1020,14 @@ runParser = function(s, job){
                             if(product.width > product.height){
                                 if(product.width >= usableArea.height){
                                     scale.width = ((usableArea.height-.25)/product.width)*100;
-                                    scale.adjusted = true;
+                                    scale.adjusted.width = true;
                                     if(product.width == product.height){
                                         scale.height = scale.width
                                     }
                                 }
                                 if(product.height >= usableArea.width){
                                     scale.height = ((usableArea.width-.25)/product.height)*100;
-                                    scale.adjusted = true;
+                                    scale.adjusted.height = true;
                                     if(product.width == product.height){
                                         scale.width = scale.height
                                     }
@@ -1028,14 +1035,14 @@ runParser = function(s, job){
                             }else{
                                 if(product.height >= usableArea.height){
                                     scale.height = ((usableArea.height-.25)/product.height)*100;
-                                    scale.adjusted = true;
+                                    scale.adjusted.height = true;
                                     if(product.width == product.height){
                                         scale.width = scale.height
                                     }
                                 }
                                 if(product.width >= usableArea.width){
                                     scale.width = ((usableArea.width-.25)/product.width)*100;
-                                    scale.adjusted = true;
+                                    scale.adjusted.width = true;
                                     if(product.width == product.height){
                                         scale.height = scale.width
                                     }
@@ -1051,18 +1058,25 @@ runParser = function(s, job){
                 // This checks if the material info database is asking to undersize.
                 if(product.subprocess.undersize && product.forceUndersize == true){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+
+                        // If the width hasn't already been undersized automatically to fit on the material.
+                        if(!scale.adjusted.width){
                             db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
-                        if(db.general.isRowAvailable()){
-                            db.general.fetchRow();
-                            scale.width = db.general.getString(3)/db.general.getString(2)*100;
-                            scale.adjusted = true;
+                            if(db.general.isRowAvailable()){
+                                db.general.fetchRow();
+                                scale.width = db.general.getString(3)/db.general.getString(2)*100;
+                                scale.adjusted.width = true;
+                            }
                         }
                         
+                        // If the height hasn't already been undersized automatically to fit on the material.
+                        if(!scale.adjusted.height){
                             db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
-                        if(db.general.isRowAvailable()){
-                            db.general.fetchRow();
-                            scale.height = db.general.getString(3)/db.general.getString(2)*100;
-                            scale.adjusted = true;
+                            if(db.general.isRowAvailable()){
+                                db.general.fetchRow();
+                                scale.height = db.general.getString(3)/db.general.getString(2)*100;
+                                scale.adjusted.height = true;
+                            }
                         }
                     }
                 }
