@@ -4,7 +4,7 @@ runRelease = function(s){
             var dir = {
                 support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
             }
-        
+
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
@@ -40,8 +40,8 @@ runRelease = function(s){
 
                 while(!csvFile.eof){
                     var line = csvFile.readLine();
-                    line = line.replace(/\"/g,' ');
-                    line = line.split(';');
+                        line = line.replace(/\"/g,' ');
+                        line = line.split(';');
                     
                     if(line[0] == "Name"){
                         continue;
@@ -54,11 +54,10 @@ runRelease = function(s){
                         pdfReady = true;
                         continue;
                     }
-                    
+
                     if(!pdfReady){
-                        //db.general.execute("SELECT * FROM digital_room.missing_file WHERE file_name = '" + line[0] + "';");
-                        db.email.execute("SELECT * FROM emails.parsed_data where message = 'File missing: '" + line[0] + "';");
-                        if(db.general.isRowAvailable()){
+                        db.email.execute("SELECT * FROM emails.parsed_data where message = 'File missing: " + line[0] + "';");
+                        if(db.email.isRowAvailable()){
                             pdfReady = true;
                             break;
                         }
