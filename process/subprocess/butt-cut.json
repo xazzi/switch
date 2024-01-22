@@ -27,7 +27,7 @@
                     "spacingLeft": 0,
                     "spacingRight": 0,
                     "rotation": "None",
-                    "overruns": 50,
+                    "overrunMaxs": 50,
                     "allowedRotations": 0
                 },
                 "data": {

@@ -8,10 +8,12 @@ runPost = function(s, job){
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/get-token.js"));
+            eval(File.read(dir.support + "/load-module-settings.js"));
 
-            var environment = s.getPropertyValue("environment")
+            // Load settings from the module
+            var module = loadModuleSettings(s)
             
-            var bearerToken = getNewToken_phoenixProject(s, environment);
+            var bearerToken = getNewToken_phoenixProject(s, module.prismEndPoint);
             if(!bearerToken){
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
@@ -19,18 +21,18 @@ runPost = function(s, job){
 
             var server
 
-            switch(environment){
-                case "QA":
+            switch(module.prismEndpoint){
+                case "qa":
                     server = "https://gang.digitalroomapi-qa.io/v1/project/";
                 break;
-                case "Stage":
+                case "stage":
                     server = "https://gang.digitalroomapi-stage.io/v1/project/";
                 break;
-                case "Production":
+                case "prod":
                     server = "https://gang.digitalroomapi.io/v1/project/";
                 break;
                 default:
-                    server = "Oops"
+                    return false
             }
         
             var handoffDataDS = loadDataset_db("Handoff Data");

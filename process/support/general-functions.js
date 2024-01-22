@@ -34,7 +34,7 @@ loadDataset_db = function(dataset){
     var datasetJob = job.getDataset(dataset);
 	if (datasetJob === undefined || !datasetJob.hasValidData()) {
 		job.fail("Missing " + dataset);
-		return;
+		return "Dataset Missing"
 	}
 	var datasetDoc = new Document(datasetJob.getPath());
     

@@ -1,6 +1,6 @@
-establishDatabases = function(s){
+establishDatabases = function(s, module){
     return db = {
-        general: connectToDatabase_db(s.getPropertyValue("databases") == "other" ? s.getPropertyValue("databaseGeneral") : s.getPropertyValue("databases")),
-        email: connectToDatabase_db(s.getPropertyValue("databases") == "other" ? s.getPropertyValue("databaseEmail") : s.getPropertyValue("databases"))
+        general: connectToDatabase_db(module.database.general),
+        email: connectToDatabase_db(module.database.email)
     }
 }

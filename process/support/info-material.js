@@ -67,7 +67,7 @@ getMatInfo = function(orderSpecs, db){
         cropGang: db.general.getString(24) == "0" ? false : true,
         whiteElements: db.general.getString(25) == "0" ? false : true,
         pageHandling: db.general.getString(26),
-        overrun: db.general.getString(27),
+        overrunMax: db.general.getString(27),
         forceUndersize: db.general.getString(28) == "0" ? false : true,
         sideMix: db.general.getString(29) == "0" ? false : true,
         lamMix: db.general.getString(45) == 'y' ? true : false,

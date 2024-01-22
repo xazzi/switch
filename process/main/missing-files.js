@@ -9,9 +9,13 @@ runMissingFiles = function(s, job){
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
+            eval(File.read(dir.support + "/load-module-settings.js"));
+
+            // Load settings from the module
+            var module = loadModuleSettings(s)
 
             // Establist connection to the databases
-            var connections = establishDatabases(s)
+            var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
                 email: new Statement(connections.email)

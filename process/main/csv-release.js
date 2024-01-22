@@ -8,9 +8,13 @@ runRelease = function(s){
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
+            eval(File.read(dir.support + "/load-module-settings.js"));
+
+            // Load settings from the module
+            var module = loadModuleSettings(s)
 
             // Establist connection to the databases
-            var connections = establishDatabases(s)
+            var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
                 email: new Statement(connections.email)
@@ -18,21 +22,18 @@ runRelease = function(s){
             
             var secondInterval = 5;
                 s.setTimerInterval(secondInterval);
-                
-            var environment = s.getPropertyValue("environment");
-            var server = s.getPropertyValue("phoenixServer");
                     
             var pdfDepository = new Dir("//AMZ-PHOENIX-P02/pdfDepository");
-            var csvDepository = new Dir("C:/Switch/Depository/csvHold/" + environment);
+            var csvDepository = new Dir("C:/Switch/Depository/csvHold/" + module.localEnvironment);
 
-            var toPhoenix = getDirectory("C:/Switch/Depository/toPhoenix/" + environment + "/" + server);
+            var toPhoenix = getDirectory("C:/Switch/Depository/toPhoenix/" + module.localEnvironment + "/" + module.phoenixServer);
             
             var threshold = 5 * 60000; //5 mins
             var now = new Date();
                         
             var csvFiles = csvDepository.entryList("*.csv", Dir.Files, Dir.Name);
             
-            for(var i=0; i<csvFiles.length; i++){		
+            for(var i=0; i<csvFiles.length; i++){	
                 var pdfReady
                     
                 var csvFile = new File(csvDepository.absPath + "/" + csvFiles[i]);
@@ -49,7 +50,8 @@ runRelease = function(s){
                     
                         pdfReady = false;
                     
-                    var existCheck = new File(pdfDepository.absPath + "/" + line[0]);
+                    //var existCheck = new File(pdfDepository.absPath + "/" + line[0]);
+                    var existCheck = new File(line[1]);
                     if(existCheck.exists){
                         pdfReady = true;
                         continue;

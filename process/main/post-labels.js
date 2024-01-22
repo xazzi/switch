@@ -8,14 +8,22 @@ runPost = function(s, job){
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/get-token.js"));
-            
+            eval(File.read(dir.support + "/load-module-settings.js"));
+
+            // Load settings from the module
+            var module = loadModuleSettings(s)
+
+            // We might be deliberately NOT passing in the environment to this token function, so it always pulls a prod token.
             var bearerToken = getNewToken(s);
             if(!bearerToken){
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
             
-            var server = s.getPropertyValue("environment") == "QA" ? "https://qa-manufacturing.digitalroom.com/phoenixJob/" : "https://manufacturing.digitalroom.com/phoenixJob/";
+            var server = "https://manufacturing.digitalroom.com/phoenixJob/";
+            if(module.prismEndpoint == "qa"){
+                server = "https://qa-manufacturing.digitalroom.com/phoenixJob/"
+            }
         
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffObj = {
