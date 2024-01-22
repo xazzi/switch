@@ -24,7 +24,7 @@
                     "rotation": "Custom",
                     "allowedRotations": 0,
                     "pageHandling": "OnePerPage",
-                    "overrun": 20,
+                    "overrunMax": 20,
                     "shapeSearch": "Multiple"
                 },
                 "data": {

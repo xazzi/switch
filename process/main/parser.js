@@ -25,16 +25,20 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/get-edge-finishing.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
+            eval(File.read(dir.support + "/load-module-settings.js"));
+
+            // Load settings from the module
+            var module = loadModuleSettings(s)
 
             // Establist connection to the databases
-            var connections = establishDatabases(s)
+            var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
                 email: new Statement(connections.email)
             }
                 
             var localTime = new Date();
-            var hourOffset = s.getPropertyValue("timezone") == "AWS" ? 7 : 0;
+            var hourOffset = module.timezone == "AWS" ? 7 : 0;
             var hourAdjustment = localTime.getTime() - (3600000*hourOffset);
             var adjustedTime = new Date(hourAdjustment).toString();
                 
@@ -47,12 +51,16 @@ runParser = function(s, job){
             }
                 
             var submitDS
-            if(s.getPropertyValue("ignoreSubmit") == "No"){
+            if(!module.devSettings.ignoreSubmit){
                 submitDS = loadDataset_db("Submit");
+                if(submitDS == "Dataset Missing"){
+                    job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+                    return
+                }
             }
             
             var submit = {
-                nodes: s.getPropertyValue("ignoreSubmit") == "No" ? submitDS.evalToNodes("//field-list/field") : [],
+                nodes: !module.devSettings.ignoreSubmit ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
                 route: false,
@@ -179,8 +187,8 @@ runParser = function(s, job){
             var data = {
                 projectID: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
-                environment: s.getPropertyValue("environment"),
-                fileSource: s.getPropertyValue("fileSource"),
+                environment: module.localEnvironment,
+                fileSource: module.fileSource,
                 doubleSided: null,
                 secondSurface: null,
                 coating: {
@@ -275,7 +283,7 @@ runParser = function(s, job){
                 }
             }
             
-            if(s.getPropertyValue("forceUser") == "Bret Combe"){
+            if(module.devSettings.forceUser == "Bret Combe"){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
                 job.setUserEmail("bret.c@digitalroominc.com");
@@ -285,6 +293,7 @@ runParser = function(s, job){
             db.general.execute("SELECT * FROM digital_room.users WHERE email = '" + job.getUserEmail() + "';");
             if(!db.general.isRowAvailable()){
                 sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
+                job.sendToNull(job.getPath());
                 return;
             }
                 db.general.fetchRow();
@@ -363,6 +372,12 @@ runParser = function(s, job){
                     }
                 }
 
+                // Check if the unwind spec is ready to use.
+                if(orderSpecs.unwind.active && !orderSpecs.unwind.enable){
+                    data.notes.push([node.getAttributeValue('ID'),"Removed","Unwind rotation not defined in automation. Notify Bret."])
+                    continue;
+                }
+
                 // Enable the force laminate override
                 if(matInfo.forceLam){
                     orderSpecs.laminate.active = true
@@ -438,6 +453,8 @@ runParser = function(s, job){
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
                     data.phoenix.cutExport = matInfo.phoenix.cutExport;
+
+                    data.phoenix.gangLabel.push(matInfo.prodName)
                     
                     // Data overrides and array pushes.
                     if(data.coating.active || data.laminate.active){
@@ -634,7 +651,8 @@ runParser = function(s, job){
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
                     dieDesignName: "",
-                    overrun: matInfo.overrun,
+                    overrunMax: matInfo.overrunMax,
+                    overrunMin: 0,
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
@@ -691,7 +709,13 @@ runParser = function(s, job){
                     },
                     shipType: getShipType(orderArray[i].ship.serviceCode),
                     forceUndersize: matInfo.forceUndersize,
-                    cutLayerName: matInfo.cutter.layerName
+                    cutLayerName: matInfo.cutter.layerName,
+                    unwind:{
+                        active: orderArray[i].unwind.active,
+                        value: orderArray[i].unwind.value,
+                        key: orderArray[i].unwind.key,
+                        rotation: orderArray[i].unwind.rotation
+                    }
                 }
                 
                 var scale = {
@@ -863,7 +887,12 @@ runParser = function(s, job){
 
                 // Read some data from the file.
                 try{
-                    file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
+                    if(data.fileSource == "S3 Bucket"){
+                        file.stats = new FileStatistics("//10.21.71.213/pdfDepository/" + product.contentFile);
+                    }else{
+                        file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
+                    }
+                    
                     file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
                     file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
                     file.pages = file.stats.getNumber("NumberOfPages");
@@ -1149,6 +1178,17 @@ runParser = function(s, job){
                         product.allowedRotations = 90;
                     }
                 }
+
+                // Roll Label rotation
+                if(product.unwind.active){
+                    product.rotation = "Custom";
+                    if(product.unwind.rotation == null){
+                        if(product.width > product.height){
+                            product.unwind.rotation = 90;
+                        }
+                    }
+                    product.allowedRotations = product.unwind.rotation;
+                }
                 
                 // Brushed Silver rotation
                 if(data.prodName == "BrushedSilver"){ // BrushedSilver rotates 90 degrees by default
@@ -1208,6 +1248,9 @@ runParser = function(s, job){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = product.width + "x" + product.height;
                     product.customLabel.value = (i+1)+"-F";
+                    if(!product.doubleSided){
+                        product.customLabel.value += "+Blank"
+                    }
                     data.impositionProfile.name = "TensionStands";
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
@@ -1222,6 +1265,13 @@ runParser = function(s, job){
                     }else if(orderArray[i].qty >= 10){
                         //product.groupNumber = 30000;
                     }
+                }
+
+                // Set the group number based on the height so they group together in Phoenix
+                // Set the overrun higher so it fills the sheet
+                if(matInfo.prodName == "RollStickers"){
+                    product.groupNumber = product.height;
+                    product.overrunMin = 8;
                 }
                 
                 // Various Overrides ----------------------------------------------------------
