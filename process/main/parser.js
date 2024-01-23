@@ -656,7 +656,7 @@ runParser = function(s, job){
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
-                    groupNumber: 10000 + [i],
+                    group: 10000 + [i],
                     customLabel: {
                         apply: false,
                         value: ""
@@ -1240,7 +1240,11 @@ runParser = function(s, job){
                     
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
-                    product.customLabel.value = product.width + '" x ' + product.height + '" ' + product.itemName
+                    product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
+                    // For bannerstands, use the bannerstand value instead.
+                    if(orderArray[i].bannerstand.active){
+                        product.customLabel.value = product.width + '"x' + product.height + '" ' + orderArray[i].bannerstand.value
+                    }
                 }
 
                 // Tension Stands
@@ -1261,16 +1265,16 @@ runParser = function(s, job){
                 // Specific gang adjustments ----------------------------------------------------------
                 if(matInfo.prodName == "Coroplast"){
                     if(orderArray[i].qty%10 == 0){
-                        product.groupNumber = 20000 + [i];
+                        product.group = 20000 + [i];
                     }else if(orderArray[i].qty >= 10){
-                        //product.groupNumber = 30000;
+                        //product.group = 30000;
                     }
                 }
 
                 // Set the group number based on the height so they group together in Phoenix
                 // Set the overrun higher so it fills the sheet
                 if(matInfo.prodName == "RollStickers"){
-                    product.groupNumber = product.height;
+                    product.group = product.quantity + "-" + product.height;
                     product.overrunMin = 8;
                 }
                 
