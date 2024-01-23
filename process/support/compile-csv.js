@@ -46,7 +46,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Due Date",data.date.due],
 		["Item Due Date",product.date.due],
 		["Gang Info", data.phoenix.gangLabel],
-		["Group Number", product.groupNumber],
+		["Group", product.group],
 		["Custom Label", product.customLabel.value],
 		["Edge Top", product.pocket.top == true ? "Pocket" : product.hemValue],
 		["Edge Bottom", product.pocket.bottom == true ? "Pocket" : product.hemValue],
