@@ -1,0 +1,463 @@
+{
+    "description":"Color of the day for individual products.",
+    "name":"Color of the Day",
+    "key":"None",
+    "parameters":[
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "id":"0"
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product-Info/",
+                    "name": "ShipDate-Sunday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "id":"1"
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product-Info/",
+                    "name": "ShipDate-Monday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "id":"2"
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product-Info/",
+                    "name": "ShipDate-Tuesday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "id":"3"
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product-Info/",
+                    "name": "ShipDate-Wednesday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "id":"4"
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product-Info/",
+                    "name": "ShipDate-Thursday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "id":"5"
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product-Info/",
+                    "name": "ShipDate-Friday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "id":"6"
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product-Info/",
+                    "name": "ShipDate-Saturday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "id":"2"
+                        }
+                    }
+                },
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Facility",
+                    "dir": "/Overrides/Product-Info/",
+                    "name": "ShipDate-Tuesday-SLC"
+                }
+            ]
+        }
+    ]
+}

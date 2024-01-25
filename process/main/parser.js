@@ -656,7 +656,7 @@ runParser = function(s, job){
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
-                    group: 10000 + [i],
+                    group: null,
                     customLabel: {
                         apply: false,
                         value: ""
@@ -678,7 +678,8 @@ runParser = function(s, job){
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
                     date:{
-                        due: orderArray[i].date.due
+                        due: orderArray[i].date.due,
+                        id: new Date(Date.parse(orderArray[i].date.due)).getDay()
                     },
                     late: now.date >= orderArray[i].date.due,
                     reprint:{
@@ -1233,10 +1234,14 @@ runParser = function(s, job){
                 // Set the sides that will use the labels.
                 var labels = setLabels(s, orderArray[i]);
 
+                s.log(2, product.date.id)
+
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
+
+                s.log(2, marksArray)
                     
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
@@ -1264,10 +1269,8 @@ runParser = function(s, job){
                 
                 // Specific gang adjustments ----------------------------------------------------------
                 if(matInfo.prodName == "Coroplast"){
-                    if(orderArray[i].qty%10 == 0){
+                    if(orderArray[i].qty % 10 == 0){
                         product.group = 20000 + [i];
-                    }else if(orderArray[i].qty >= 10){
-                        //product.group = 30000;
                     }
                 }
 

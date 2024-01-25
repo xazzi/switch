@@ -45,12 +45,19 @@
                         }
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings": [
                 {
+                    "group": "Global",
                     "name": "Polished-Edge",
-                    "dir": "/Misc/"
+                    "dir": "/Product-Info/"
                 }
             ]
         }

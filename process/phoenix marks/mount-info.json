@@ -51,6 +51,7 @@
             },
             "settings": [
                 {
+                    "group": "Facility",
                     "name": "Mount-Info",
                     "dir": "/Mount/"
                 }

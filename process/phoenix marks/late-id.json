@@ -44,19 +44,21 @@
                 "requirements":{
                     "product":{
                         "late":true
-                    },
-                    "orderArray":{
-                        "shape":{
-                            "method":"Rect"
-                        }
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings": [
                 {
-                    "name": "LATE-Product",
-                    "dir": "/Misc/"
+                    "group": "Global",
+                    "name": "Late",
+                    "dir": "/Product-Info/"
                 }
             ]
         }

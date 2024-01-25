@@ -44,19 +44,21 @@
                 "requirements":{
                     "product":{
                         "reprint":true
-                    },
-                    "orderArray":{
-                        "shape":{
-                            "method":"Rect"
-                        }
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings": [
                 {
-                    "name": "REPRINT-Product",
-                    "dir": "/Misc/"
+                    "group": "Global",
+                    "name": "Reprint",
+                    "dir": "/Product-Info/"
                 }
             ]
         }

@@ -74,7 +74,11 @@ setPhoenixMarks = function(s, folder, matInfo, data, orderArray, product, marksA
 
                 // If all of the above criteria are met, add the associated marks to the array.
                 for(var k in dump.parameters[j].settings){
-                    marksArray.push(data.facility.destination + dump.parameters[j].settings[k].dir + dump.parameters[j].settings[k].name + data.scale);
+                    var group = data.facility.destination
+                    if(dump.parameters[j].settings[k].group.toLowerCase() == "global"){
+                        group = "Global"
+                    }
+                    marksArray.push(group + dump.parameters[j].settings[k].dir + dump.parameters[j].settings[k].name + data.scale);
                 }
             }
         }
