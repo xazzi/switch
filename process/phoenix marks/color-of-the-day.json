@@ -32,15 +32,37 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "date":{
-                            "id":"0"
+                            "dayID":"0"
                         }
                     }
                 },
@@ -89,15 +111,37 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "date":{
-                            "id":"1"
+                            "dayID":"1"
                         }
                     }
                 },
@@ -146,15 +190,37 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "date":{
-                            "id":"2"
+                            "dayID":"2"
                         }
                     }
                 },
@@ -203,15 +269,37 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "date":{
-                            "id":"3"
+                            "dayID":"3"
                         }
                     }
                 },
@@ -260,15 +348,37 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "date":{
-                            "id":"4"
+                            "dayID":"4"
                         }
                     }
                 },
@@ -317,15 +427,37 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "date":{
-                            "id":"5"
+                            "dayID":"5"
                         }
                     }
                 },
@@ -374,15 +506,37 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "date":{
-                            "id":"6"
+                            "dayID":"6"
                         }
                     }
                 },
@@ -431,15 +585,37 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
-                "rejections":[]
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "date":{
-                            "id":"2"
+                            "dayID":"2"
                         }
                     }
                 },

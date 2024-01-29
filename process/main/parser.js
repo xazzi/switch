@@ -605,7 +605,6 @@ runParser = function(s, job){
             var newCSV = s.createNewJob();
             var csvPath = newCSV.createPathWithName(data.projectID + ".csv", false);
             var csvFile = new File(csvPath);
-            //var csvFile = new File("C://Switch//Development//" + data.projectID + ".csv");
                 csvFile.open(File.Append);
                 
             var writeHeader = true;
@@ -679,7 +678,8 @@ runParser = function(s, job){
                     query: null,
                     date:{
                         due: orderArray[i].date.due,
-                        id: new Date(Date.parse(orderArray[i].date.due)).getDay()
+                        short: orderArray[i].date.due.split("-")[1] + "-" + orderArray[i].date.due.split("-")[2],
+                        dayID: new Date(Date.parse(orderArray[i].date.due)).getDay()
                     },
                     late: now.date >= orderArray[i].date.due,
                     reprint:{
@@ -1234,14 +1234,10 @@ runParser = function(s, job){
                 // Set the sides that will use the labels.
                 var labels = setLabels(s, orderArray[i]);
 
-                s.log(2, product.date.id)
-
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
-
-                s.log(2, marksArray)
                     
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){

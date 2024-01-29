@@ -27,12 +27,11 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["View Height",product.height],
 		["Description","Description"],
 		["Shape Search",product.shapeSearch],
-		["Notes","SheetLevelData"], //wtf is this?
+		["Notes","SheetLevelData"], //Unused?
 		["Page Handling",product.pageHandling],
-		["Marks",marksArray],
 		["METRIX_NAME",product.orderNumber],
 		["Item Number",product.itemNumber],
-		["Product Notes",orderArray.productNotes], //If you add something above this you have to update the xml updater as well. (this might be outdated)
+		["Product Notes",orderArray.productNotes],
 		["Bleed Type",matInfo.bleedType],
 		["A-Frame Type",orderArray.frame.value],
 		["Mount Info",orderArray.mount.value],
@@ -42,6 +41,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Max Overruns",product.overrunMax],
 		["Min Overruns",product.overrunMin],
 		["Ship Date",orderArray.date.due],
+		["Short Date",product.date.short],
         ["Ship Type",product.shipType],
 		["Due Date",data.date.due],
 		["Item Due Date",product.date.due],
@@ -61,7 +61,8 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Script Dynamic", product.script.dynamic],
 		["Script Pockets", product.script.pockets],
 		["Item Name", product.itemName],
-		["Facility",data.facility.destination]
+		["Facility",data.facility.destination],
+		["Marks",marksArray] // Keep this one last so it's easier to read the CSV
 	];
 	return infoArray
 }

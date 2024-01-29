@@ -33,10 +33,30 @@
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
                 "rejections":[
-                    "XY"
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
                 ]
             },
             "specs":{
