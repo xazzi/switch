@@ -7,7 +7,8 @@ runParser = function(s, job){
                 phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
                 phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
             }
-                                
+            
+            // Load in all of the supporting libraries and functions
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/get-itemdata.js"));
             eval(File.read(dir.support + "/get-next-shipdate.js"));
@@ -605,7 +606,6 @@ runParser = function(s, job){
             var newCSV = s.createNewJob();
             var csvPath = newCSV.createPathWithName(data.projectID + ".csv", false);
             var csvFile = new File(csvPath);
-            //var csvFile = new File("C://Switch//Development//" + data.projectID + ".csv");
                 csvFile.open(File.Append);
                 
             var writeHeader = true;
@@ -656,7 +656,7 @@ runParser = function(s, job){
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
-                    group: 10000 + [i],
+                    group: null,
                     customLabel: {
                         apply: false,
                         value: ""
@@ -678,7 +678,9 @@ runParser = function(s, job){
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
                     date:{
-                        due: orderArray[i].date.due
+                        due: orderArray[i].date.due,
+                        abbr: orderArray[i].date.due.split("-")[1] + "-" + orderArray[i].date.due.split("-")[2],
+                        dayID: new Date(Date.parse(orderArray[i].date.due)).getDay()
                     },
                     late: now.date >= orderArray[i].date.due,
                     reprint:{
@@ -1266,8 +1268,6 @@ runParser = function(s, job){
                 if(matInfo.prodName == "Coroplast"){
                     if(orderArray[i].qty%10 == 0){
                         product.group = 20000 + [i];
-                    }else if(orderArray[i].qty >= 10){
-                        //product.group = 30000;
                     }
                 }
 

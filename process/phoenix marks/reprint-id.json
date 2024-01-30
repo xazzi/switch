@@ -32,31 +32,51 @@
             },
             "subprocess":{
                 "requirements":[
+                    "A-Frame",
+                    "Breakaway",
                     "None",
-                    "UV-Greyback"
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
                 "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
                     "ButtCut",
-                    "ButtWeld"
+                    "FullSheet",
+                    "TableRunner"
                 ]
             },
             "specs":{
                 "requirements":{
                     "product":{
                         "reprint":true
-                    },
-                    "orderArray":{
-                        "shape":{
-                            "method":"Rect"
-                        }
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        }
+                    }
+                }
             },
             "settings": [
                 {
-                    "name": "REPRINT-Product",
-                    "dir": "/Misc/"
+                    "group": "Global",
+                    "name": "Reprint",
+                    "dir": "/Product-Info/"
                 }
             ]
         }

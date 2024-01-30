@@ -68,10 +68,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Barcode-T",
                     "dir":"/Master Labels/Stacked/Barcode/"
                 },
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo-T",
                     "dir":"/Master Labels/Stacked/Text/"
                 }
@@ -142,10 +144,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Barcode-B",
                     "dir":"/Master Labels/Stacked/Barcode/"
                 },
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo-B",
                     "dir":"/Master Labels/Stacked/Text/"
                 }
@@ -216,10 +220,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Barcode-L",
                     "dir":"/Master Labels/Stacked/Barcode/"
                 },
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo-L",
                     "dir":"/Master Labels/Stacked/Text/"
                 }
@@ -290,10 +296,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Barcode-R",
                     "dir":"/Master Labels/Stacked/Barcode/"
                 },
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo-R",
                     "dir":"/Master Labels/Stacked/Text/"
                 }
