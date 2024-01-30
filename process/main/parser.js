@@ -7,7 +7,8 @@ runParser = function(s, job){
                 phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
                 phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
             }
-                                
+            
+            // Load in all of the supporting libraries and functions
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/get-itemdata.js"));
             eval(File.read(dir.support + "/get-next-shipdate.js"));
@@ -678,7 +679,7 @@ runParser = function(s, job){
                     query: null,
                     date:{
                         due: orderArray[i].date.due,
-                        short: orderArray[i].date.due.split("-")[1] + "-" + orderArray[i].date.due.split("-")[2],
+                        abbr: orderArray[i].date.due.split("-")[1] + "-" + orderArray[i].date.due.split("-")[2],
                         dayID: new Date(Date.parse(orderArray[i].date.due)).getDay()
                     },
                     late: now.date >= orderArray[i].date.due,
@@ -1265,7 +1266,7 @@ runParser = function(s, job){
                 
                 // Specific gang adjustments ----------------------------------------------------------
                 if(matInfo.prodName == "Coroplast"){
-                    if(orderArray[i].qty % 10 == 0){
+                    if(orderArray[i].qty%10 == 0){
                         product.group = 20000 + [i];
                     }
                 }
