@@ -1,7 +1,7 @@
 {
     "subprocess": "x-stand",
     "name": "X-Stand",
-    "id": 17,
+    "id": "17",
     "parameters": [
         {
             "facility": {
@@ -10,8 +10,69 @@
                 "enabled": true
             },
             "processes": [
-                "13ozBanner",
-                "DSS"
+                "All"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                },
+                "data": {
+                },
+                "orderArray": {
+                    "hem":{
+                        "method":"None"
+                    },
+                    "grommet":{
+                        "key":"AllCorners"
+                    }
+                }
+            }
+        },
+        {
+            "facility": {
+                "name": "Wixom",
+                "id": "37",
+                "enabled": true
+            },
+            "processes": [
+                "All"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                },
+                "data": {
+                },
+                "orderArray": {
+                    "hem":{
+                        "method":"None"
+                    },
+                    "grommet":{
+                        "key":"AllCorners"
+                    }
+                }
+            }
+        },
+        {
+            "facility": {
+                "name": "Arlington",
+                "id": "5",
+                "enabled": true
+            },
+            "processes": [
+                "All"
             ],
             "properties": {
                 "mixed": true,

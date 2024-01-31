@@ -77,7 +77,7 @@
             "settings": [
                 {
                     "group": "Global",
-                    "dir": "/Product-Info/",
+                    "dir": "/Product Info/",
                     "name": "ShipDate-Sunday"
                 }
             ]
@@ -156,7 +156,7 @@
             "settings": [
                 {
                     "group": "Global",
-                    "dir": "/Product-Info/",
+                    "dir": "/Product Info/",
                     "name": "ShipDate-Monday"
                 }
             ]
@@ -235,7 +235,7 @@
             "settings": [
                 {
                     "group": "Global",
-                    "dir": "/Product-Info/",
+                    "dir": "/Product Info/",
                     "name": "ShipDate-Tuesday"
                 }
             ]
@@ -314,7 +314,7 @@
             "settings": [
                 {
                     "group": "Global",
-                    "dir": "/Product-Info/",
+                    "dir": "/Product Info/",
                     "name": "ShipDate-Wednesday"
                 }
             ]
@@ -393,7 +393,7 @@
             "settings": [
                 {
                     "group": "Global",
-                    "dir": "/Product-Info/",
+                    "dir": "/Product Info/",
                     "name": "ShipDate-Thursday"
                 }
             ]
@@ -472,7 +472,7 @@
             "settings": [
                 {
                     "group": "Global",
-                    "dir": "/Product-Info/",
+                    "dir": "/Product Info/",
                     "name": "ShipDate-Friday"
                 }
             ]
@@ -551,7 +551,7 @@
             "settings": [
                 {
                     "group": "Global",
-                    "dir": "/Product-Info/",
+                    "dir": "/Product Info/",
                     "name": "ShipDate-Saturday"
                 }
             ]
@@ -630,7 +630,7 @@
             "settings": [
                 {
                     "group": "Facility",
-                    "dir": "/Overrides/Product-Info/",
+                    "dir": "/Overrides/Product Info/",
                     "name": "ShipDate-Tuesday-SLC"
                 }
             ]

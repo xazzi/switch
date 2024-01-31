@@ -1508,6 +1508,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, baseNode, "rush", data.rush);
 		addNode_db(theXML, baseNode, "processed-time", now.time);
 		addNode_db(theXML, baseNode, "processed-date", now.date);
+        addNode_db(theXML, baseNode, "approved", matInfo.approved);
 	
 	var settingsNode = theXML.createElement("settings", null);
 		handoffNode.appendChild(settingsNode);	
@@ -1556,6 +1557,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, miscNode, "facility", data.facility.destination);
         addNode_db(theXML, miscNode, "server", s.getServerName());
         addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
+        addNode_db(theXML, miscNode, "duplicateHoles", matInfo.duplicateHoles);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);

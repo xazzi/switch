@@ -72,10 +72,10 @@ runProcessor = function(s, job){
             // Move the files inside the SKU directory.
             var files = phoenixOutput.entryList("*" + data.projectID + "*", Dir.Files, Dir.Name);
             for(var i=0; i<files.length; i++){
-                if(data.jobState == "Pass" || data.jobState == "Approve"){
+                if(data.jobState == "Approve"){
                     if(files[i].split("_")[2] == data.projectID + ".xml"){
                         if(module.prismPost && validation.post){
-                            var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, module.prismEndPoint, validation);
+                            var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, module.prismEndpoint, validation);
                             if(response == "Success"){
                                 // Email the success of the prism post.
                                 s.log(2, data.projectID + " posted to PRISM successfully!");
@@ -114,7 +114,6 @@ runProcessor = function(s, job){
                 s.log(2, data.projectID + " approved by " + userInfo.first + " " + userInfo.last + ".");
             }else{
                 s.log(2, data.projectID + " rejected by " + userInfo.first + " " + userInfo.last + ".")
-                //sendEmail_db(s, data, null, getEmailResponse("Usage Rejection", null, null, data, userInfo), userInfo);
             }
             
             // Remove the SKU directory if it's empty.
