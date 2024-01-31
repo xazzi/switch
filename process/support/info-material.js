@@ -71,6 +71,8 @@ getMatInfo = function(orderSpecs, db){
         forceUndersize: db.general.getString(28) == "0" ? false : true,
         sideMix: db.general.getString(29) == "0" ? false : true,
         lamMix: db.general.getString(45) == 'y' ? true : false,
+        approved: db.general.getString(46) == 'y' ? true : false,
+        duplicateHoles: db.general.getString(47) == 'y' ? true : false,
         rotateFront: db.general.getString(37) == 'y' ? true : false,
         rotateBack: db.general.getString(38) == 'y' ? true : false,
         rotate90: db.general.getString(39) == 'y' ? true : false,
