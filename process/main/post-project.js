@@ -13,7 +13,7 @@ runPost = function(s, job){
             // Load settings from the module
             var module = loadModuleSettings(s)
             
-            var bearerToken = getNewToken_phoenixProject(s, module.prismEndPoint);
+            var bearerToken = getNewToken_phoenixProject(s, module.prismEndpoint);
             if(!bearerToken){
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
