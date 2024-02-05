@@ -82,7 +82,7 @@ runParser = function(s, job){
                     priority: 0,
                     date: false,
                     redownload: false,
-                    fullsize: {
+                    fullsize:{
                         gang: false,
                         items: []
                     },
@@ -192,17 +192,17 @@ runParser = function(s, job){
                 fileSource: module.fileSource,
                 doubleSided: null,
                 secondSurface: null,
-                coating: {
+                coating:{
                     active: false,
                     method: null,
                     value: null
                 },
-                laminate: {
+                laminate:{
                     active: false,
                     method: null,
                     value: null
                 },
-                mount: {
+                mount:{
                     active: false,
                     method: null,
                     value: null
@@ -213,7 +213,7 @@ runParser = function(s, job){
                 oversize: false,
                 thing: null,
                 printer: null,
-                rip: {
+                rip:{
                     device: null,
                     hotfolder: null
                 },
@@ -222,13 +222,13 @@ runParser = function(s, job){
                 tolerance: 0,
                 paper: null,
                 prismStock: null,
-                facility: {
+                facility:{
                     original: null
                 },
-                date: {
+                date:{
                     due: null
                 },
-                phoenix: {
+                phoenix:{
                     printExport: "Auto",
                     cutExport: "Auto",
                     gangLabel: []
@@ -359,7 +359,7 @@ runParser = function(s, job){
                 if(orderSpecs.paper.map.wix == 73 && orderSpecs.laminate.active == true){
                     orderSpecs.paper.map.wix = 74;
                 }
-                
+
                 // Pull the material information if it hasn't been pulled yet.
                 if(matInfo == null || matInfoCheck){
                     matInfo = getMatInfo(orderSpecs, db);
@@ -657,17 +657,20 @@ runParser = function(s, job){
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
                     group: null,
-                    customLabel: {
+                    rollLabel:{
+                        eyeMark: false
+                    },
+                    customLabel:{
                         apply: false,
                         value: ""
                     },
-                    script: {
+                    script:{
                         name: [],
                         parameters: [],
                         dynamic: null,
                         pockets: null
                     },
-                    subprocess: {
+                    subprocess:{
                         name: null,
                         exists: false,
                         mixed: false,
@@ -688,7 +691,7 @@ runParser = function(s, job){
                         reason: orderArray[i].reprint.reason
                     },
                     edge: getEdgeFinishing(orderArray[i]),
-                    pocket: {
+                    pocket:{
                         top: orderArray[i].pocket.side.top,
                         bottom: orderArray[i].pocket.side.bottom,
                         left: orderArray[i].pocket.side.left,
@@ -1148,7 +1151,6 @@ runParser = function(s, job){
                     }
                 }
 
-                /*
                 // Establish the difference in expected vs actual product width due to undersizing.
                 var difference = {
                     width: product.width-(product.width*(scale.width/100)),
@@ -1167,10 +1169,10 @@ runParser = function(s, job){
                             continue;
                         }else{
                             data.notes.push([product.itemNumber,"Notes",'Undersizing was greater than 1", please confirm accuracy in Phoenix report.']);
+                            data.notes.push([product.itemNumber,"Notes",'Requested: ' + product.width + 'x' + product.height + ', Actual: ' + product.width*(scale.width/100) + 'x' + product.height*(scale.height/100)]);
                         }
                     }
                 }
-                */
                 
                 // Rotation adjustments ----------------------------------------------------------
                 // Coroplast rotation
@@ -1182,14 +1184,28 @@ runParser = function(s, job){
                 }
 
                 // Roll Label rotation
+                // This has to be set BEFORE the setPhoenixMarks() function
+                // We use this data inside the marks requirements.
                 if(product.unwind.active){
                     product.rotation = "Custom";
-                    if(product.unwind.rotation == null){
-                        if(product.width > product.height){
-                            product.unwind.rotation = 90;
+                    if(product.unwind.key == 'NI'){
+                        if(product.width >= product.height){
+                            product.unwind.rotation = 270;
                         }
                     }
                     product.allowedRotations = product.unwind.rotation;
+                    // Activate the custom eyemarks based on the height of the image when rotated.
+                    if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
+                        if(product.height >= 5.62){
+                            product.rollLabel.eyeMark = true;
+                        }
+                    }
+                    // Activate the custom eyemarks based on the width of the image when not rotated.
+                    if(product.unwind.rotation == 0 || product.unwind.rotation == 180){
+                        if(product.width >= 5.62){
+                            product.rollLabel.eyeMark = true;
+                        }
+                    }
                 }
                 
                 // Brushed Silver rotation
@@ -1252,7 +1268,7 @@ runParser = function(s, job){
                 // Tension Stands
                 if(product.subprocess.name == "TensionStand"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
-                    product.dieDesignName = product.width + "x" + product.height;
+                    product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                     product.customLabel.value = (i+1)+"-F";
                     if(!product.doubleSided){
                         product.customLabel.value += "+Blank"
@@ -1275,6 +1291,9 @@ runParser = function(s, job){
                 // Set the overrun higher so it fills the sheet
                 if(matInfo.prodName == "RollStickers"){
                     product.group = product.quantity + "-" + product.height;
+                    if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
+                        product.group = product.quantity + "-" + product.width;
+                    }
                     product.overrunMin = 8;
                 }
                 

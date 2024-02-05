@@ -1,0 +1,399 @@
+{
+    "description":"Custom mark for single column roll labels.",
+    "name":"Eye Marks",
+    "key":"None",
+    "parameters":[
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": true
+                },
+                {
+                    "name": "Solon",
+                    "id": "25",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "RollStickers"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "unwind":{
+                            "rotation":90
+                        },
+                        "rollLabel":{
+                            "eyeMark":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Roll Labels/",
+                    "name": "Marks-Left-Rot90"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": true
+                },
+                {
+                    "name": "Solon",
+                    "id": "25",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "RollStickers"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "unwind":{
+                            "rotation":"270"
+                        },
+                        "rollLabel":{
+                            "eyeMark":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Roll Labels/",
+                    "name": "Marks-Left-Rot270"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": true
+                },
+                {
+                    "name": "Solon",
+                    "id": "25",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "RollStickers"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "unwind":{
+                            "rotation":0
+                        },
+                        "rollLabel":{
+                            "eyeMark":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Roll Labels/",
+                    "name": "Marks-Left-Rot0"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": true
+                },
+                {
+                    "name": "Solon",
+                    "id": "25",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "RollStickers"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "unwind":{
+                            "rotation":180
+                        },
+                        "rollLabel":{
+                            "eyeMark":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Roll Labels/",
+                    "name": "Marks-Left-Rot180"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": true
+                },
+                {
+                    "name": "Solon",
+                    "id": "25",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "RollStickers"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "unwind":{
+                            "rotation":90
+                        },
+                        "rollLabel":{
+                            "eyeMark":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Roll Labels/",
+                    "name": "Marks-Left-Rot90-Red"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": true
+                },
+                {
+                    "name": "Solon",
+                    "id": "25",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "RollStickers"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "unwind":{
+                            "rotation":"270"
+                        },
+                        "rollLabel":{
+                            "eyeMark":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Roll Labels/",
+                    "name": "Marks-Left-Rot270-Red"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": true
+                },
+                {
+                    "name": "Solon",
+                    "id": "25",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "RollStickers"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "unwind":{
+                            "rotation":0
+                        },
+                        "rollLabel":{
+                            "eyeMark":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Roll Labels/",
+                    "name": "Marks-Left-Rot0-Red"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": true
+                },
+                {
+                    "name": "Solon",
+                    "id": "25",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "RollStickers"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "unwind":{
+                            "rotation":180
+                        },
+                        "rollLabel":{
+                            "eyeMark":true
+                        }
+                    }
+                },
+                "rejections":{}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Roll Labels/",
+                    "name": "Marks-Left-Rot180-Red"
+                }
+            ]
+        }
+    ]
+}
