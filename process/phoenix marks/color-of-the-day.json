@@ -70,6 +70,9 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
                         }
                     }
                 }
@@ -148,6 +151,9 @@
                 "rejections":{
                     "orderArray":{
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -228,6 +234,9 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
                         }
                     }
                 }
@@ -306,6 +315,9 @@
                 "rejections":{
                     "orderArray":{
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -386,6 +398,9 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
                         }
                     }
                 }
@@ -464,6 +479,9 @@
                 "rejections":{
                     "orderArray":{
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
@@ -544,6 +562,9 @@
                     "orderArray":{
                         "shape":{
                             "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
                         }
                     }
                 }
@@ -622,6 +643,9 @@
                 "rejections":{
                     "orderArray":{
                         "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
                             "method":"Custom"
                         }
                     }
