@@ -43,10 +43,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo",
                     "dir":"/Master Labels/Custom/Stretched Table Cloths/"
                 },
                 {
+                    "group": "Facility",
                     "name":"Barcode",
                     "dir":"/Master Labels/Custom/Stretched Table Cloths/"
                 }
@@ -91,6 +93,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Velcro",
                     "dir":"/Master Labels/Custom/Breakaway/"
                 }
@@ -136,10 +139,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo",
                     "dir":"/Master Labels/Custom/Table Cloths/"
                 },
                 {
+                    "group": "Facility",
                     "name":"Barcode",
                     "dir":"/Master Labels/Custom/Table Cloths/"
                 }
@@ -185,6 +190,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo",
                     "dir":"/Master Labels/Custom/Tension Stands/"
                 }
@@ -231,14 +237,17 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo",
                     "dir":"/Master Labels/Custom/Retractables/"
                 },
                 {
+                    "group": "Facility",
                     "name":"Barcode",
                     "dir":"/Master Labels/Custom/Retractables/"
                 },
                 {
+                    "group": "Facility",
                     "name":"Receipt URL",
                     "dir":"/Master Labels/Custom/Retractables/"
                 }
@@ -288,6 +297,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"DoubleSided",
                     "dir":"/Master Labels/Custom/Retractables/"
                 }
@@ -332,6 +342,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"A-Frame-Type",
                     "dir":"/Misc/"
                 }

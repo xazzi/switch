@@ -5,9 +5,12 @@ runHierarchy = function(s, job){
                 support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
             }
 
-            var enabled = s.getPropertyValue("enabled") == "Yes"
+            eval(File.read(dir.support + "/load-module-settings.js"));
 
-            if(enabled){
+            // Load settings from the module
+            var module = loadModuleSettings(s)
+
+            if(module.enabled){
                 // Read in any support directories
                 eval(File.read(dir.support + "/general-functions.js"));
 

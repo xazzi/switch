@@ -10,10 +10,17 @@ runProcessor = function(s, job){
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/email-responses.js"));
 			eval(File.read(dir.support + "/connect-to-db.js"));
-            
-            var environment = s.getPropertyValue("environment");
-            var prismPost = s.getPropertyValue("prismPost");
-            var endPoint = s.getPropertyValue("prismEndpoint");
+			eval(File.read(dir.support + "/load-module-settings.js"));
+
+            // Load settings from the module
+            var module = loadModuleSettings(s)
+
+			// Establist connection to the databases
+            var connections = establishDatabases(s, module)
+            var db = {
+                general: new Statement(connections.general),
+                email: new Statement(connections.email)
+            }
             
             var handoffDataDS = loadDataset_db("Handoff Data");
             
@@ -56,7 +63,7 @@ runProcessor = function(s, job){
                 dir: handoffDataDS.evalToString("//user/folder")
             }
             
-            var phoenixOutput = new Dir("C:/Switch/Depository/phoenixOutput/" + environment + "/" + data.sku);
+            var phoenixOutput = new Dir("C:/Switch/Depository/phoenixOutput/" + module.localEnvironment + "/" + data.sku);
             
             var newXML = s.createNewJob();
             var xmlPath = newXML.createPathWithName(data.projectID + ".xml", false);
@@ -65,10 +72,10 @@ runProcessor = function(s, job){
             // Move the files inside the SKU directory.
             var files = phoenixOutput.entryList("*" + data.projectID + "*", Dir.Files, Dir.Name);
             for(var i=0; i<files.length; i++){
-                if(data.jobState == "Pass" || data.jobState == "Approve"){
+                if(data.jobState == "Approve"){
                     if(files[i].split("_")[2] == data.projectID + ".xml"){
-                        if(prismPost == "Yes" && validation.post){
-                            var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, endPoint, validation);
+                        if(module.prismPost && validation.post){
+                            var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, module.prismEndpoint, validation);
                             if(response == "Success"){
                                 // Email the success of the prism post.
                                 s.log(2, data.projectID + " posted to PRISM successfully!");
@@ -88,7 +95,7 @@ runProcessor = function(s, job){
                     }
 
 					// Create or get the destination path.
-					var phoenixApproved = getFileType(files[i], environment)
+					var phoenixApproved = getFileType(files[i], module.localEnvironment)
 
 					// Move the file to the toPostProcessing directory.
                     s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
@@ -96,7 +103,7 @@ runProcessor = function(s, job){
                 }else{
 
 					// Create or get the destination path.
-					var phoenixRejected = getDirectory("C:/Switch/Depository/phoenixRejected/" + environment)
+					var phoenixRejected = getDirectory("C:/Switch/Depository/phoenixRejected/" + module.localEnvironment)
 
 					// Move the file to the rejected directory
                     s.move(phoenixOutput.path + "/" + files[i], phoenixRejected.path + "/" + files[i], true);
@@ -107,7 +114,6 @@ runProcessor = function(s, job){
                 s.log(2, data.projectID + " approved by " + userInfo.first + " " + userInfo.last + ".");
             }else{
                 s.log(2, data.projectID + " rejected by " + userInfo.first + " " + userInfo.last + ".")
-                //sendEmail_db(s, data, null, getEmailResponse("Usage Rejection", null, null, data, userInfo), userInfo);
             }
             
             // Remove the SKU directory if it's empty.
@@ -268,7 +274,7 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, data,
 			jsonFile.close();
 			
 		var url = "https://create-gang-api.digitalroom.com/xml-receiver";
-		if(endPoint == "QA"){
+		if(endPoint == "qa"){
 			url = "https://qa-create-gang-api.digitalroom.com/xml-receiver";
 		}
 					

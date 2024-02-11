@@ -56,7 +56,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
                 map: {
                     slc: null,
                     bri: null,
-                    sln: null,
+                    sln: Number(db.general.getString(5)),
                     lou: null,
                     arl: null,
                     wix: null,
@@ -227,6 +227,25 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             }
         }
 
+        // Unwind options
+        if(table == "options_unwind"){
+            return specs = {
+                active: true,
+                value: db.general.getString(1),
+                enable: db.general.getString(4) == "y" ? true : false,
+                key: db.general.getString(5),
+                rotation: db.general.getString(6)
+            }
+        }
+
+        // Bannerstand hardware
+        if(table == "options_bannerstand"){
+            return specs = {
+                active: true,
+                value: db.general.getString(1)
+            }
+        }
+
         // Cut options
         if(table == "options_cut"){
             return specs = {
@@ -254,11 +273,13 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
 
     return specs = {
         active: false,
+        enable: false,
         method: null,
         value: null,
         size: null,
         webbing: null,
         undersize: null,
-        key: null
+        key: null,
+        rotation: null
     }
 }

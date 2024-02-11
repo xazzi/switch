@@ -85,6 +85,17 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				method: null,
 				value: null
 			},
+			unwind: {
+				active: false,
+				value: null,
+				enable : false,
+				key: null,
+				rotation: null
+			},
+			bannerstand: {
+				active: false,
+				value: null
+			},
 			frame: {
 				active: false,
 				method: null,
@@ -217,6 +228,12 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			}
 			if(dataDump.order_specs[k].code == "LAM"){
 				specs.laminate = addToTable(s, db, "options_laminate", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+			}
+			if(dataDump.order_specs[k].code == "WIND"){
+				specs.unwind = addToTable(s, db, "options_unwind", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+			}
+			if(dataDump.order_specs[k].code == "BANNERSTAND"){
+				specs.bannerstand = addToTable(s, db, "options_bannerstand", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "EDGE"){
 				specs.edge = addToTable(s, db, "options_edge", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);

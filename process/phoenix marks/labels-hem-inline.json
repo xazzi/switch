@@ -63,10 +63,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Barcode-T",
                     "dir":"/Master Labels/In-Line/Barcode/"
                 },
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo-T",
                     "dir":"/Master Labels/In-Line/Text/"
                 }
@@ -132,10 +134,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Barcode-B",
                     "dir":"/Master Labels/In-Line/Barcode/"
                 },
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo-B",
                     "dir":"/Master Labels/In-Line/Text/"
                 }
@@ -201,10 +205,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Barcode-L",
                     "dir":"/Master Labels/In-Line/Barcode/"
                 },
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo-L",
                     "dir":"/Master Labels/In-Line/Text/"
                 }
@@ -270,10 +276,12 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Barcode-R",
                     "dir":"/Master Labels/In-Line/Barcode/"
                 },
                 {
+                    "group": "Facility",
                     "name":"OrderItemInfo-R",
                     "dir":"/Master Labels/In-Line/Text/"
                 }

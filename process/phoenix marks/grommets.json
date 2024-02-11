@@ -62,6 +62,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Flush-Top",
                     "dir":"/Grommets/"
                 }
@@ -126,6 +127,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Flush-Bottom",
                     "dir":"/Grommets/"
                 }
@@ -191,6 +193,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Flush-AllCorners",
                     "dir":"/Grommets/"
                 }
@@ -255,6 +258,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Flush-LeftCorners",
                     "dir":"/Grommets/"
                 }
@@ -318,6 +322,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Weld-Top",
                     "dir":"/Grommets/"
                 }
@@ -381,6 +386,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Weld-Bottom",
                     "dir":"/Grommets/"
                 }
@@ -444,6 +450,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Weld-AllCorners",
                     "dir":"/Grommets/"
                 }
@@ -507,6 +514,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Weld-LeftCorners",
                     "dir":"/Grommets/"
                 }
@@ -549,6 +557,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Weld-Top",
                     "dir":"/Grommets/Webbing/"
                 }
@@ -591,6 +600,7 @@
             },
             "settings":[
                 {
+                    "group": "Facility",
                     "name":"Grommets-Weld-AllCorners",
                     "dir":"/Grommets/Webbing/"
                 }

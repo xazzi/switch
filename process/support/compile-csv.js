@@ -1,6 +1,6 @@
 compileCSV = function(product, matInfo, scale, orderArray, data){
 	// Compile the CSV information.	
-	var infoArray = [
+	return infoArray = [
 		["Name",product.contentFile],
 		["Artwork File","//10.21.71.213/pdfDepository/" + product.artworkFile],
 		["Ordered",product.quantity],
@@ -27,40 +27,41 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["View Height",product.height],
 		["Description","Description"],
 		["Shape Search",product.shapeSearch],
-		["Notes","SheetLevelData"], //wtf is this?
+		["Notes","SheetLevelData"], //Unused?
 		["Page Handling",product.pageHandling],
-		["Marks",marksArray],
 		["METRIX_NAME",product.orderNumber],
 		["Item Number",product.itemNumber],
-		["Product Notes",orderArray.productNotes], //If you add something above this you have to update the xml updater as well. (this might be outdated)
+		["Product Notes",orderArray.productNotes],
 		["Bleed Type",matInfo.bleedType],
 		["A-Frame Type",orderArray.frame.value],
 		["Mount Info",orderArray.mount.value],
 		["Base Type",orderArray.base.active ? orderArray.base.value : orderArray.display.active ? orderArray.display.value : "Unknown Hardware"],
 		["Die Design Source",product.dieDesignSource],
 		["Die Design Name",product.dieDesignName],
-		["Max Overruns",product.overrun],
+		["Max Overruns",product.overrunMax],
+		["Min Overruns",product.overrunMin],
 		["Ship Date",orderArray.date.due],
+		["Abbr Date",product.date.abbr],
         ["Ship Type",product.shipType],
 		["Due Date",data.date.due],
 		["Item Due Date",product.date.due],
-		["Gang Info", data.phoenix.gangLabel],
-		["Group Number", product.groupNumber],
-		["Custom Label", product.customLabel.value],
-		["Edge Top", product.pocket.top == true ? "Pocket" : product.hemValue],
-		["Edge Bottom", product.pocket.bottom == true ? "Pocket" : product.hemValue],
-		["Edge Left", product.pocket.left == true ? "Pocket" : product.hemValue],
-		["Edge Right", product.pocket.right == true ? "Pocket" : product.hemValue],
-		["Finishing Type", orderArray.finishingType],
-		["Dash Offset", typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
-		["Late", product.late],
-		["Reprint", product.reprint],
-        ["Script Name", product.script.name],
-		["Script Parameters", product.script.parameters],
-		["Script Dynamic", product.script.dynamic],
-		["Script Pockets", product.script.pockets],
-		["Item Name", product.itemName],
-		["Facility",data.facility.destination]
+		["Gang Info",data.phoenix.gangLabel],
+		["Group",product.group],
+		["Custom Label",product.customLabel.value],
+		["Edge Top",product.pocket.top == true ? "Pocket" : product.hemValue],
+		["Edge Bottom",product.pocket.bottom == true ? "Pocket" : product.hemValue],
+		["Edge Left",product.pocket.left == true ? "Pocket" : product.hemValue],
+		["Edge Right",product.pocket.right == true ? "Pocket" : product.hemValue],
+		["Finishing Type",orderArray.finishingType],
+		["Dash Offset",typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
+		["Late",product.late],
+		["Reprint",product.reprint],
+        ["Script Name",product.script.name],
+		["Script Parameters",product.script.parameters],
+		["Script Dynamic",product.script.dynamic],
+		["Script Pockets",product.script.pockets],
+		["Item Name",product.itemName],
+		["Facility",data.facility.destination],
+		["Marks",marksArray]// Keep this one last so it's easier to read the CSV
 	];
-	return infoArray
 }

@@ -9,9 +9,13 @@ compileEmail = function(s, job){
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/write-to-email-db.js"));
+            eval(File.read(dir.support + "/load-module-settings.js"));
+
+            // Load settings from the module
+            var module = loadModuleSettings(s)
 
             // Establist connection to the databases
-            var connections = establishDatabases(s)
+            var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
                 email: new Statement(connections.email)
@@ -39,7 +43,7 @@ compileEmail = function(s, job){
                 header: "",
                 to: handoffData.user.email,
                 cc: "",
-                bcc: "bret.c@digitalroominc.com"
+                bcc: ""
             }
 
             var body = {
@@ -84,6 +88,7 @@ compileEmail = function(s, job){
                 emailDatabase_write(s, db, "parsed_data", "Phoenix", handoffData, entry)
             }else{
                 email.header += "\nStatus: Failed in Phoenix!" + "\n";
+                email.bcc = "bret.c@digitalroominc.com";
             }
 
             // Pull any notes from the email table, including what was just posted.

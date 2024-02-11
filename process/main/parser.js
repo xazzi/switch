@@ -7,7 +7,8 @@ runParser = function(s, job){
                 phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
                 phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
             }
-                                
+            
+            // Load in all of the supporting libraries and functions
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/get-itemdata.js"));
             eval(File.read(dir.support + "/get-next-shipdate.js"));
@@ -25,16 +26,20 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/get-edge-finishing.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
+            eval(File.read(dir.support + "/load-module-settings.js"));
+
+            // Load settings from the module
+            var module = loadModuleSettings(s)
 
             // Establist connection to the databases
-            var connections = establishDatabases(s)
+            var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
                 email: new Statement(connections.email)
             }
                 
             var localTime = new Date();
-            var hourOffset = s.getPropertyValue("timezone") == "AWS" ? 7 : 0;
+            var hourOffset = module.timezone == "AWS" ? 7 : 0;
             var hourAdjustment = localTime.getTime() - (3600000*hourOffset);
             var adjustedTime = new Date(hourAdjustment).toString();
                 
@@ -47,12 +52,16 @@ runParser = function(s, job){
             }
                 
             var submitDS
-            if(s.getPropertyValue("ignoreSubmit") == "No"){
+            if(!module.devSettings.ignoreSubmit){
                 submitDS = loadDataset_db("Submit");
+                if(submitDS == "Dataset Missing"){
+                    job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+                    return
+                }
             }
             
             var submit = {
-                nodes: s.getPropertyValue("ignoreSubmit") == "No" ? submitDS.evalToNodes("//field-list/field") : [],
+                nodes: !module.devSettings.ignoreSubmit ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
                 route: false,
@@ -73,7 +82,7 @@ runParser = function(s, job){
                     priority: 0,
                     date: false,
                     redownload: false,
-                    fullsize: {
+                    fullsize:{
                         gang: false,
                         items: []
                     },
@@ -179,21 +188,21 @@ runParser = function(s, job){
             var data = {
                 projectID: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
-                environment: s.getPropertyValue("environment"),
-                fileSource: s.getPropertyValue("fileSource"),
+                environment: module.localEnvironment,
+                fileSource: module.fileSource,
                 doubleSided: null,
                 secondSurface: null,
-                coating: {
+                coating:{
                     active: false,
                     method: null,
                     value: null
                 },
-                laminate: {
+                laminate:{
                     active: false,
                     method: null,
                     value: null
                 },
-                mount: {
+                mount:{
                     active: false,
                     method: null,
                     value: null
@@ -204,7 +213,7 @@ runParser = function(s, job){
                 oversize: false,
                 thing: null,
                 printer: null,
-                rip: {
+                rip:{
                     device: null,
                     hotfolder: null
                 },
@@ -213,13 +222,13 @@ runParser = function(s, job){
                 tolerance: 0,
                 paper: null,
                 prismStock: null,
-                facility: {
+                facility:{
                     original: null
                 },
-                date: {
+                date:{
                     due: null
                 },
-                phoenix: {
+                phoenix:{
                     printExport: "Auto",
                     cutExport: "Auto",
                     gangLabel: []
@@ -275,7 +284,7 @@ runParser = function(s, job){
                 }
             }
             
-            if(s.getPropertyValue("forceUser") == "Bret Combe"){
+            if(module.devSettings.forceUser == "Bret Combe"){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
                 job.setUserEmail("bret.c@digitalroominc.com");
@@ -285,6 +294,7 @@ runParser = function(s, job){
             db.general.execute("SELECT * FROM digital_room.users WHERE email = '" + job.getUserEmail() + "';");
             if(!db.general.isRowAvailable()){
                 sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
+                job.sendToNull(job.getPath());
                 return;
             }
                 db.general.fetchRow();
@@ -349,7 +359,7 @@ runParser = function(s, job){
                 if(orderSpecs.paper.map.wix == 73 && orderSpecs.laminate.active == true){
                     orderSpecs.paper.map.wix = 74;
                 }
-                
+
                 // Pull the material information if it hasn't been pulled yet.
                 if(matInfo == null || matInfoCheck){
                     matInfo = getMatInfo(orderSpecs, db);
@@ -361,6 +371,12 @@ runParser = function(s, job){
                         job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         return;
                     }
+                }
+
+                // Check if the unwind spec is ready to use.
+                if(orderSpecs.unwind.active && !orderSpecs.unwind.enable){
+                    data.notes.push([node.getAttributeValue('ID'),"Removed","Unwind rotation not defined in automation. Notify Bret."])
+                    continue;
                 }
 
                 // Enable the force laminate override
@@ -438,6 +454,8 @@ runParser = function(s, job){
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
                     data.phoenix.cutExport = matInfo.phoenix.cutExport;
+
+                    data.phoenix.gangLabel.push(matInfo.prodName)
                     
                     // Data overrides and array pushes.
                     if(data.coating.active || data.laminate.active){
@@ -588,7 +606,6 @@ runParser = function(s, job){
             var newCSV = s.createNewJob();
             var csvPath = newCSV.createPathWithName(data.projectID + ".csv", false);
             var csvFile = new File(csvPath);
-            //var csvFile = new File("C://Switch//Development//" + data.projectID + ".csv");
                 csvFile.open(File.Append);
                 
             var writeHeader = true;
@@ -634,22 +651,26 @@ runParser = function(s, job){
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
                     dieDesignName: "",
-                    overrun: matInfo.overrun,
+                    overrunMax: matInfo.overrunMax,
+                    overrunMin: 0,
                     notes: [],
                     transfer: false,
                     pageHandling: matInfo.pageHandling,
-                    groupNumber: 10000 + [i],
-                    customLabel: {
+                    group: null,
+                    rollLabel:{
+                        eyeMark: false
+                    },
+                    customLabel:{
                         apply: false,
                         value: ""
                     },
-                    script: {
+                    script:{
                         name: [],
                         parameters: [],
                         dynamic: null,
                         pockets: null
                     },
-                    subprocess: {
+                    subprocess:{
                         name: null,
                         exists: false,
                         mixed: false,
@@ -660,7 +681,9 @@ runParser = function(s, job){
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
                     date:{
-                        due: orderArray[i].date.due
+                        due: orderArray[i].date.due,
+                        abbr: orderArray[i].date.due.split("-")[1] + "-" + orderArray[i].date.due.split("-")[2],
+                        dayID: new Date(Date.parse(orderArray[i].date.due)).getDay()
                     },
                     late: now.date >= orderArray[i].date.due,
                     reprint:{
@@ -668,7 +691,7 @@ runParser = function(s, job){
                         reason: orderArray[i].reprint.reason
                     },
                     edge: getEdgeFinishing(orderArray[i]),
-                    pocket: {
+                    pocket:{
                         top: orderArray[i].pocket.side.top,
                         bottom: orderArray[i].pocket.side.bottom,
                         left: orderArray[i].pocket.side.left,
@@ -691,7 +714,13 @@ runParser = function(s, job){
                     },
                     shipType: getShipType(orderArray[i].ship.serviceCode),
                     forceUndersize: matInfo.forceUndersize,
-                    cutLayerName: matInfo.cutter.layerName
+                    cutLayerName: matInfo.cutter.layerName,
+                    unwind:{
+                        active: orderArray[i].unwind.active,
+                        value: orderArray[i].unwind.value,
+                        key: orderArray[i].unwind.key,
+                        rotation: orderArray[i].unwind.rotation
+                    }
                 }
                 
                 var scale = {
@@ -863,7 +892,12 @@ runParser = function(s, job){
 
                 // Read some data from the file.
                 try{
-                    file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
+                    if(data.fileSource == "S3 Bucket"){
+                        file.stats = new FileStatistics("//10.21.71.213/pdfDepository/" + product.contentFile);
+                    }else{
+                        file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
+                    }
+                    
                     file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
                     file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
                     file.pages = file.stats.getNumber("NumberOfPages");
@@ -1117,7 +1151,6 @@ runParser = function(s, job){
                     }
                 }
 
-                /*
                 // Establish the difference in expected vs actual product width due to undersizing.
                 var difference = {
                     width: product.width-(product.width*(scale.width/100)),
@@ -1136,10 +1169,10 @@ runParser = function(s, job){
                             continue;
                         }else{
                             data.notes.push([product.itemNumber,"Notes",'Undersizing was greater than 1", please confirm accuracy in Phoenix report.']);
+                            data.notes.push([product.itemNumber,"Notes",'Requested: ' + product.width + 'x' + product.height + ', Actual: ' + product.width*(scale.width/100) + 'x' + product.height*(scale.height/100)]);
                         }
                     }
                 }
-                */
                 
                 // Rotation adjustments ----------------------------------------------------------
                 // Coroplast rotation
@@ -1147,6 +1180,31 @@ runParser = function(s, job){
                     if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
                         product.rotation = "Custom";
                         product.allowedRotations = 90;
+                    }
+                }
+
+                // Roll Label rotation
+                // This has to be set BEFORE the setPhoenixMarks() function
+                // We use this data inside the marks requirements.
+                if(product.unwind.active){
+                    product.rotation = "Custom";
+                    if(product.unwind.key == 'NI'){
+                        if(product.width >= product.height){
+                            product.unwind.rotation = 270;
+                        }
+                    }
+                    product.allowedRotations = product.unwind.rotation;
+                    // Activate the custom eyemarks based on the height of the image when rotated.
+                    if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
+                        if(product.height >= 5.62){
+                            product.rollLabel.eyeMark = true;
+                        }
+                    }
+                    // Activate the custom eyemarks based on the width of the image when not rotated.
+                    if(product.unwind.rotation == 0 || product.unwind.rotation == 180){
+                        if(product.width >= 5.62){
+                            product.rollLabel.eyeMark = true;
+                        }
                     }
                 }
                 
@@ -1200,14 +1258,21 @@ runParser = function(s, job){
                     
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
-                    product.customLabel.value = product.width + '" x ' + product.height + '" ' + product.itemName
+                    product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
+                    // For bannerstands, use the bannerstand value instead.
+                    if(orderArray[i].bannerstand.active){
+                        product.customLabel.value = product.width + '"x' + product.height + '" ' + orderArray[i].bannerstand.value
+                    }
                 }
 
                 // Tension Stands
                 if(product.subprocess.name == "TensionStand"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
-                    product.dieDesignName = product.width + "x" + product.height;
+                    product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                     product.customLabel.value = (i+1)+"-F";
+                    if(!product.doubleSided){
+                        product.customLabel.value += "+Blank"
+                    }
                     data.impositionProfile.name = "TensionStands";
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
@@ -1218,10 +1283,18 @@ runParser = function(s, job){
                 // Specific gang adjustments ----------------------------------------------------------
                 if(matInfo.prodName == "Coroplast"){
                     if(orderArray[i].qty%10 == 0){
-                        product.groupNumber = 20000 + [i];
-                    }else if(orderArray[i].qty >= 10){
-                        //product.groupNumber = 30000;
+                        product.group = 20000 + [i];
                     }
+                }
+
+                // Set the group number based on the height so they group together in Phoenix
+                // Set the overrun higher so it fills the sheet
+                if(matInfo.prodName == "RollStickers"){
+                    product.group = product.quantity + "-" + product.height;
+                    if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
+                        product.group = product.quantity + "-" + product.width;
+                    }
+                    product.overrunMin = 8;
                 }
                 
                 // Various Overrides ----------------------------------------------------------
@@ -1454,6 +1527,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, baseNode, "rush", data.rush);
 		addNode_db(theXML, baseNode, "processed-time", now.time);
 		addNode_db(theXML, baseNode, "processed-date", now.date);
+        addNode_db(theXML, baseNode, "approved", matInfo.approved);
 	
 	var settingsNode = theXML.createElement("settings", null);
 		handoffNode.appendChild(settingsNode);	
@@ -1502,6 +1576,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, miscNode, "facility", data.facility.destination);
         addNode_db(theXML, miscNode, "server", s.getServerName());
         addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
+        addNode_db(theXML, miscNode, "duplicateHoles", matInfo.duplicateHoles);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);

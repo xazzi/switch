@@ -41,23 +41,23 @@ getNewToken = function(s, environment){
 	return contents = pingAPI(s, environment)
 }
 
-getNewToken_phoenixProject = function(s, environment){
-	function pingAPI(s, environment){
+getNewToken_phoenixProject = function(s, api){
+	function pingAPI(s, api){
 		var theHTTP = new HTTP(HTTP.SSL);
 
 		var client_secret, client_id, url
-		switch(environment){
-			case "QA":
+		switch(api){
+			case "qa":
 				client_secret = "1aenjvp9j89r8hl3hlljm55e9eda559jfij1hui8rq00lkg3ha6n";
 				client_id = "5k718o5ifnhsftm96r4btvh2m0";
 				url = "https://auth.digitalroomapi-qa.io/token";
 			break;
-			case "Stage":
+			case "stage":
 				client_secret = "c0tmecsqmjcve53761s6q6h3qidv6ef15u18va9p1ebkffjbnkq";
 				client_id = "1ni5pstli4d9jnisc07ee1da0f";
 				url = "https://auth.digitalroomapi.io/oauth2/token"
 			break;
-			case "Production":
+			case "prod":
 				client_secret = "c0tmecsqmjcve53761s6q6h3qidv6ef15u18va9p1ebkffjbnkq";
 				client_id = "1ni5pstli4d9jnisc07ee1da0f";
 				url = "https://auth.digitalroomapi.io/oauth2/token"
@@ -98,5 +98,5 @@ getNewToken_phoenixProject = function(s, environment){
 			return theError >= 0;
 		}
 	}
-	return contents = pingAPI(s, environment)
+	return contents = pingAPI(s, api)
 }

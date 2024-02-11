@@ -1,6 +1,6 @@
 {
     "subprocess": "a-frames-billboard",
-    "name": " Billboard A-Frame",
+    "name": "Billboard A-Frame",
     "id": "16",
     "parameters": [
         {
@@ -24,7 +24,7 @@
                     "rotation": "Custom",
                     "allowedRotations": 0,
                     "pageHandling": "OnePerPage",
-                    "overrun": 20,
+                    "overrunMax": 20,
                     "shapeSearch": "Multiple"
                 },
                 "data": {

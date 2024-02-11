@@ -38,11 +38,24 @@
                     "Busmark",
                     "FloorDecal",
                     "UV-Greyback",
-                    "Retractable"
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
                 ],
                 "rejections":[
                     "Tension Stand",
-                    "ButtWeld"
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
                 ]
             },
             "specs":{
@@ -60,6 +73,7 @@
             },
             "settings": [
                 {
+                    "group": "Facility",
                     "name": "ProductLabel",
                     "dir": "/Product Labels/"
                 }
