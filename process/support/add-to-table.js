@@ -242,7 +242,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         if(table == "options_bannerstand"){
             return specs = {
                 active: true,
-                value: db.general.getString(1)
+                value: db.general.getString(1).replace('"','')
             }
         }
 
