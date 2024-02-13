@@ -349,6 +349,10 @@ runParser = function(s, job){
                     }
                 }
 
+                if(orderSpecs.paper.map.arl == 101){
+                    data.prismStock = "13 oz. Smooth Matte"
+                }
+
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
                 if(orderSpecs.paper.map.wix == 73 && orderSpecs.material.value == "Adhesive Fabric"){
                     matInfoCheck = true;
@@ -1261,7 +1265,7 @@ runParser = function(s, job){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
                     // For bannerstands, use the bannerstand value instead.
                     if(orderArray[i].bannerstand.active){
-                        product.customLabel.value = product.width + '"x' + product.height + '" ' + orderArray[i].bannerstand.value
+                        product.customLabel.value = product.width + 'x' + product.height + ' - ' + orderArray[i].bannerstand.value
                     }
                 }
 
