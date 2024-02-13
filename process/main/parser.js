@@ -1265,7 +1265,7 @@ runParser = function(s, job){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
                     // For bannerstands, use the bannerstand value instead.
                     if(orderArray[i].bannerstand.active){
-                        product.customLabel.value = product.width + '"x' + product.height + '" ' + orderArray[i].bannerstand.value
+                        product.customLabel.value = product.width + 'x' + product.height + ' - ' + orderArray[i].bannerstand.value
                     }
                 }
 
