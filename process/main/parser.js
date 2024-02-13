@@ -349,6 +349,10 @@ runParser = function(s, job){
                     }
                 }
 
+                if(orderSpecs.paper.map.arl == 101){
+                    data.prismStock = "13 oz. Smooth Matte"
+                }
+
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
                 if(orderSpecs.paper.map.wix == 73 && orderSpecs.material.value == "Adhesive Fabric"){
                     matInfoCheck = true;
