@@ -1,7 +1,6 @@
 addToTable = function(s, db, table, parameter, example, data, userInfo){
     var original = parameter
-
-        //parameter = parameter.replace(/\\\"/,'\\"');
+    
         parameter = parameter.replace(/"/g,'\\"');
         parameter = parameter.replace(/'/g,"\\'");
         parameter = parameter.replace(/,/g,'\\,');
@@ -242,7 +241,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         if(table == "options_bannerstand"){
             return specs = {
                 active: true,
-                value: db.general.getString(1).replace('"','')
+                value: db.general.getString(1).replace(/"/g,'')
             }
         }
 
