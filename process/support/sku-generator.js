@@ -9,7 +9,7 @@ skuGenerator = function(length, type, data, db){
             chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         }
         if(type == 'alpha_lowercase'){
-            chars = 'abcdefghijklmnopqrstuvqxys';
+            chars = 'abcdefghijklmnopqrstuvwxyz';
         }
         if(type == 'numeric'){
             chars = '0123456789';
