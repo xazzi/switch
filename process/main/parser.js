@@ -1278,7 +1278,7 @@ runParser = function(s, job){
                     if(!product.doubleSided){
                         product.customLabel.value += "+Blank"
                     }
-                    data.impositionProfile.name = "TensionStands";
+                    //data.impositionProfile.name = "TensionStands";
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
                         product.allowedRotations = 0;
