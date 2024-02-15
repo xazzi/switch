@@ -349,6 +349,7 @@ runParser = function(s, job){
                     }
                 }
 
+                // Reassign this product in PRISM.
                 if(orderSpecs.paper.map.arl == 101){
                     data.prismStock = "13 oz. Smooth Matte"
                 }
