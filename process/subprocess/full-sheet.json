@@ -121,7 +121,8 @@
                 "enabled": true
             },
             "processes": [
-                "Coroplast"
+                "Coroplast",
+                "24pt-Cardstock"
             ],
             "properties": {
                 "mixed": false,

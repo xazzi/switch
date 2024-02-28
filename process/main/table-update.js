@@ -36,17 +36,17 @@ runTableUpdate = function(s, job){
                 layoutNode: phoenixPlanDS.evalToNodes("//job/layouts/layout", null)            
             }
             
-            // Add all of the item level data into the history_item table.
+            // Add all of the item level data into the details_item table.
             for(var j=0; j<handoffData.productNodes.length; j++){
-                db.general.execute("INSERT INTO digital_room.history_item (`gang-number`,`item-number`,`order-number`,`processed-time`,`processed-date`,`due-date`,`orientation`) VALUES ('" + phoenixPlan.id + "','" + handoffData.productNodes.at(j).evalToString('itemNumber') + "','" + handoffData.productNodes.at(j).evalToString('orderNumber') + "','" + handoffData.processedTime + "','" + handoffData.processedDate + "','" + handoffData.productNodes.at(j).evalToString('due-date') + "','" + handoffData.productNodes.at(j).evalToString('orientation') + "');");
+                db.history.execute("INSERT INTO history.details_item (`gang-number`,`item-number`,`order-number`,`processed-time`,`processed-date`,`due-date`,`orientation`) VALUES ('" + phoenixPlan.id + "','" + handoffData.productNodes.at(j).evalToString('itemNumber') + "','" + handoffData.productNodes.at(j).evalToString('orderNumber') + "','" + handoffData.processedTime + "','" + handoffData.processedDate + "','" + handoffData.productNodes.at(j).evalToString('due-date') + "','" + handoffData.productNodes.at(j).evalToString('orientation') + "');");
             }
             
-            // Update the gang on the history_gang table to complete.
-            db.general.execute("UPDATE digital_room.`history_gang` SET `completed` = 'y' WHERE (`gang-number` = '" + phoenixPlan.id + "' and `processed-time` = '" + handoffData.processedTime + "');");
+            // Update the gang on the details_gang table to complete.
+            db.history.execute("UPDATE history.details_gang SET `completed` = 'y' WHERE (`gang-number` = '" + phoenixPlan.id + "' and `processed-time` = '" + handoffData.processedTime + "');");
             
-            // Insert the layout level days into the history_layout table.
+            // Insert the layout level days into the details_layout table.
             for(var j=0; j<phoenixPlan.layoutNode.length; j++){
-                db.general.execute("INSERT INTO digital_room.`history_layout` (`gang-number`,`layout-id`,sku,`usage`) VALUES ('" + phoenixPlan.id + "','" + phoenixPlan.layoutNode.at(j).evalToString("index") + "','" + handoffData.sku + "','" + Math.round(phoenixPlan.layoutNode.at(j).evalToString("sheet-usage") * 100) + "');");	
+                db.history.execute("INSERT INTO history.details_layout (`gang-number`,`layout-id`,sku,`usage`) VALUES ('" + phoenixPlan.id + "','" + phoenixPlan.layoutNode.at(j).evalToString("index") + "','" + handoffData.sku + "','" + Math.round(phoenixPlan.layoutNode.at(j).evalToString("sheet-usage") * 100) + "');");	
             }
                 
             // Null the original job

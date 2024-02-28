@@ -17,7 +17,7 @@ getMatInfo = function(orderSpecs, db){
     }else if(orderSpecs.facilityId == 1){
         paperMapId = orderSpecs.paper.map.vn;
     }
-    
+
     // Pull the material defaults based on the facility mapping ID.
         db.general.execute('CALL digital_room.getMaterial(' + paperMapId + ')');
     if(!db.general.isRowAvailable()){
@@ -83,11 +83,13 @@ getMatInfo = function(orderSpecs, db){
         },
 
         rip: {
+            enable: db.general.getString(48) == 'y' ? true : false,
             device: db.general.getString(30),
-            hotfolder: db.general.getString(31)
+            hotfolder: db.general.getString(31) == 'empty' ? '' : db.general.getString(31)
         },
 
         cutter: {
+            enable: db.general.getString(49) == 'y' ? true : false,
             device: db.general.getString(32),
             hotfolder: db.general.getString(33),
             layerName: db.general.getString(42),

@@ -35,6 +35,7 @@ runParser = function(s, job){
             var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
+                history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
                 
@@ -213,10 +214,6 @@ runParser = function(s, job){
                 oversize: false,
                 thing: null,
                 printer: null,
-                rip:{
-                    device: null,
-                    hotfolder: null
-                },
                 dateID: null,
                 notes: [],
                 tolerance: 0,
@@ -350,7 +347,7 @@ runParser = function(s, job){
                 }
 
                 // Reassign this product in PRISM.
-                if(orderSpecs.paper.map.arl == 101){
+                if(orderSpecs.paper.map.arl == 101 && data.facility.destination == "Arlington"){
                     data.prismStock = "13 oz. Smooth Matte"
                 }
 
@@ -441,10 +438,12 @@ runParser = function(s, job){
                     data.coating.active = orderSpecs.coating.active;
                     data.laminate.active = orderSpecs.laminate.active;
                     data.mount.active = orderSpecs.mount.active;
-                    
-                    data.rip.device = matInfo.rip.device;
-                    data.rip.hotfolder = data.secondSurface ? matInfo.rip.hotfolder + "-2ndSurf" : matInfo.rip.hotfolder;
-                    
+
+                    // If it's 2nd Surface then append that to the hot folder name.
+                    if(data.secondSurface){
+                        matInfo.rip.hotfolder += "-2ndSurf";
+                    }
+
                     data.impositionProfile = {
                         name: matInfo.impositionProfile,
                         method: "Default (" + matInfo.phoenixMethodUserFriendly + ")"
@@ -1442,9 +1441,9 @@ runParser = function(s, job){
                 productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
                 
                 // Write the gang number to the database.
-                db.general.execute("SELECT * FROM digital_room.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
+                db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
                 if(!db.general.isRowAvailable()){
-                    db.general.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
+                    db.history.execute("INSERT INTO history.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
                 }
 
                 if(s.getServerName() == 'Switch-Dev'){
@@ -1494,7 +1493,7 @@ runParser = function(s, job){
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
             
-            db.general.execute("INSERT INTO digital_room.history_gang (`gang-number`,`processed-time`,`processed-date`,`due-date`,process,subprocess,sku,facility,`save-location`,rush,email) VALUES ('" + data.projectID + "','" + now.time + "','" + now.date + "','" + data.date.due + "','" + data.prodName + "','" + data.subprocess + "','" + data.sku + "','" + data.facility.destination + "','" + data.dateID + "','" + data.rush + "','" + userInfo.email + "');");
+            db.history.execute("INSERT INTO history.details_gang (`gang-number`,`processed-time`,`processed-date`,`due-date`,process,subprocess,sku,facility,`save-location`,rush,email) VALUES ('" + data.projectID + "','" + now.time + "','" + now.date + "','" + data.date.due + "','" + data.prodName + "','" + data.subprocess + "','" + data.sku + "','" + data.facility.destination + "','" + data.dateID + "','" + data.rush + "','" + userInfo.email + "');");
             
         }catch(e){
             s.log(3, "Critical Error!: " + e);
@@ -1558,14 +1557,16 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 	var cutterNode = theXML.createElement("cutters", null);
 		handoffNode.appendChild(cutterNode);
 		
+        addNode_db(theXML, cutterNode, "autocut", matInfo.cutter.enable);
 		addNode_db(theXML, cutterNode, "device", matInfo.cutter.device);
 		addNode_db(theXML, cutterNode, "hotfolder", matInfo.cutter.hotfolder);
 		
 	var ripNode = theXML.createElement("rip", null);
 		handoffNode.appendChild(ripNode);
 		
-		addNode_db(theXML, ripNode, "device", data.rip.device);
-		addNode_db(theXML, ripNode, "hotfolder", data.rip.hotfolder);
+        addNode_db(theXML, ripNode, "autorip", matInfo.rip.enable);
+		addNode_db(theXML, ripNode, "device", matInfo.rip.device);
+		addNode_db(theXML, ripNode, "hotfolder", matInfo.rip.hotfolder);
 	
 	var miscNode = theXML.createElement("misc", null);
 		handoffNode.appendChild(miscNode);

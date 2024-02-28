@@ -38,7 +38,7 @@ runMissingFiles = function(s, job){
             emailDatabase_write(s, db, "parsed_data", "File Check", handoffData, [[handoffData.itemNumber, privateData.type, privateData.message]])
             
             // Add to the missing file table.
-            db.general.execute("INSERT INTO digital_room.missing_file (gang_number,file_name,date) VALUES ('" + handoffData.projectID + "','" + handoffData.contentFile + "','" + new Date() + "');");
+            db.history.execute("INSERT INTO history.missing_file (gang_number,file_name,date) VALUES ('" + handoffData.projectID + "','" + handoffData.contentFile + "','" + new Date() + "');");
             
             job.sendToSingle(job.getPath());
                     

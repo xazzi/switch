@@ -19,6 +19,7 @@ runProcessor = function(s, job){
             var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
+				history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
             
@@ -27,7 +28,11 @@ runProcessor = function(s, job){
             var validationDataDS = loadDataset_db("Validation");
             var validation = {
                 nodes: validationDataDS.evalToNodes("//field-list/field"),
-                post: true,
+                post: {
+					prism: null,
+					processing: true,
+					facility: true
+				},
                 removals: {
                     items: "",
                     layouts: ""
@@ -38,15 +43,27 @@ runProcessor = function(s, job){
                 if(validation.nodes.getItem(i).evalToString('tag') == "Items to Remove"){
                     validation.removals.items = validation.nodes.getItem(i).evalToString('value').split(',');
                 }
-                if(validation.nodes.getItem(i).evalToString('tag') == "Post to Prism"){
-                    validation.post = validation.nodes.getItem(i).evalToString('value') == "No" ? false : true;
+
+				// Check if the user wants to post to prism.
+                if(validation.nodes.getItem(i).evalToString('tag') == "Post to Prism?"){
+                    validation.post.prism = validation.nodes.getItem(i).evalToString('value') == "No" ? 'n' : 'y';
                 }
+
+				// Do we want to apply the file processing?
+				if(validation.nodes.getItem(i).evalToString('tag') == "Apply Post-Processing?"){
+					validation.post.processing = validation.nodes.getItem(i).evalToString('value') == "No" ? 'n' : 'y';
+				}
+
+				// Do we want to send files to the facility?
+				if(validation.nodes.getItem(i).evalToString('tag') == "Send Files to Facility?"){
+					validation.post.facility = validation.nodes.getItem(i).evalToString('value') == "No" ? 'n' : 'y';
+				}
             }
             
             var data = {
                 projectID: handoffDataDS.evalToString("//base/projectID"),
                 facility: handoffDataDS.evalToString("//misc/facility"),
-                jobState: job.getJobState().split('_')[0],
+                status: job.getPrivateData("status"),
                 exportFolder: null,
                 sku: handoffDataDS.evalToString("//base/sku"),
                 process: handoffDataDS.evalToString("//base/process"),
@@ -62,9 +79,17 @@ runProcessor = function(s, job){
                 email: handoffDataDS.evalToString("//user/email"),
                 dir: handoffDataDS.evalToString("//user/folder")
             }
+
+			if(data.status != "approved"){
+				validation.post.prism = 'n';
+			}
             
             var phoenixOutput = new Dir("C:/Switch/Depository/phoenixOutput/" + module.localEnvironment + "/" + data.sku);
             
+            db.history.execute("UPDATE history.details_gang SET `post_to_prism` = '" + validation.post.prism + "' WHERE (`gang-number` = '" + data.projectID + "' and `sku` = '" + data.sku + "');");
+			db.history.execute("UPDATE history.details_gang SET `apply_post_processing` = '" + validation.post.processing + "' WHERE (`gang-number` = '" + data.projectID + "' and `sku` = '" + data.sku + "');");
+            db.history.execute("UPDATE history.details_gang SET `send_to_facility` = '" + validation.post.facility + "' WHERE (`gang-number` = '" + data.projectID + "' and `sku` = '" + data.sku + "');");
+
             var newXML = s.createNewJob();
             var xmlPath = newXML.createPathWithName(data.projectID + ".xml", false);
             var xmlFile = new File(xmlPath);
@@ -72,45 +97,33 @@ runProcessor = function(s, job){
             // Move the files inside the SKU directory.
             var files = phoenixOutput.entryList("*" + data.projectID + "*", Dir.Files, Dir.Name);
             for(var i=0; i<files.length; i++){
-                if(data.jobState == "Approve"){
-                    if(files[i].split("_")[2] == data.projectID + ".xml"){
-                        if(module.prismPost && validation.post){
-                            var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, module.prismEndpoint, validation);
-                            if(response == "Success"){
-                                // Email the success of the prism post.
-                                s.log(2, data.projectID + " posted to PRISM successfully!");
-                                //sendEmail_db(s, data, null, getEmailResponse("Prism Post Success", null, null, data, userInfo), userInfo);
-                                newXML.setPrivateData("Status","Pass");
-                            }else{
-                                // Email the failure of the prism post.
-                                s.log(2, data.projectID + " failed to post to PRISM.");
-                                sendEmail_db(s, data, null, getEmailResponse("Prism Post Fail", null, null, data, userInfo), userInfo);
-                                newXML.setPrivateData("Status","Fail");
-                            }
-                        }else{
-                            s.log(3, data.projectID + ": PRISM post disabled!")
-                        }
-                        newXML.setHierarchyPath([userInfo.dir])
-                        newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
-                    }
+				if(validation.post.prism == 'y'){
+					if(files[i].split("_")[2] == data.projectID + ".xml"){
+						var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, module.prismEndpoint, validation);
+						if(response == "Success"){
+							// Email the success of the prism post.
+							s.log(2, data.projectID + " posted to PRISM successfully!");
+							newXML.setPrivateData("Status","Pass");
+						}else{
+							// Email the failure of the prism post.
+							s.log(2, data.projectID + " failed to post to PRISM.");
+							sendEmail_db(s, data, null, getEmailResponse("Prism Post Fail", null, null, data, userInfo), userInfo);
+							newXML.setPrivateData("Status","Fail");
+						}
+					}
+					newXML.setHierarchyPath([userInfo.dir])
+					newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
+				}
 
-					// Create or get the destination path.
-					var phoenixApproved = getFileType(files[i], module.localEnvironment)
+				// Create or get the destination path.
+				var phoenixApproved = getFileType(files[i], module.localEnvironment)
 
-					// Move the file to the toPostProcessing directory.
-                    s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
-
-                }else{
-
-					// Create or get the destination path.
-					var phoenixRejected = getDirectory("C:/Switch/Depository/phoenixRejected/" + module.localEnvironment)
-
-					// Move the file to the rejected directory
-                    s.move(phoenixOutput.path + "/" + files[i], phoenixRejected.path + "/" + files[i], true);
-                }
+				// Move the file to the toPostProcessing directory.
+				s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
             }
             
-            if(data.jobState == "Pass" || data.jobState == "Approve"){
+			// Log that it was approved.
+            if(data.status == "approved"){
                 s.log(2, data.projectID + " approved by " + userInfo.first + " " + userInfo.last + ".");
             }else{
                 s.log(2, data.projectID + " rejected by " + userInfo.first + " " + userInfo.last + ".")
@@ -127,7 +140,7 @@ runProcessor = function(s, job){
             job.sendToNull(job.getPath());
             
         }catch(e){
-            s.log(2, "Critical Error: Processor")
+            s.log(2, "Critical Error: Processor -- " + e)
             job.sendToNull(job.getPath())
         }
     }
