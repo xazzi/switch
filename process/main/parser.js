@@ -525,6 +525,13 @@ runParser = function(s, job){
                         }
                     }
                 }
+
+                // Check if print surface is allowed for material. -CM
+                if((!matInfo.standardPrint && !orderSpecs.secondSurface) || (!matInfo.reversePrint && orderSpecs.secondSurface)){
+                    var type = orderSpecs.secondSurface ? "2nd Surface" : "1st Surface"
+                    data.notes.push([orderSpecs.jobItemId, "Removed.", "Print surface not allowed with material, " + type + ", " + matInfo.prodName + "."]);
+                    continue;
+                }
                 
                 // Check if surface deviation
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){

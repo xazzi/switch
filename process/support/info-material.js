@@ -73,6 +73,8 @@ getMatInfo = function(orderSpecs, db){
         lamMix: db.general.getString(45) == 'y' ? true : false,
         approved: db.general.getString(46) == 'y' ? true : false,
         duplicateHoles: db.general.getString(47) == 'y' ? true : false,
+        standardPrint: db.general.getString(51) == 'y' ? true : false,   //1st surface
+        reversePrint: db.general.getString(50) == 'y' ? true : false,    //2nd surface
         rotateFront: db.general.getString(37) == 'y' ? true : false,
         rotateBack: db.general.getString(38) == 'y' ? true : false,
         rotate90: db.general.getString(39) == 'y' ? true : false,
