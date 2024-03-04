@@ -97,29 +97,38 @@ runProcessor = function(s, job){
             // Move the files inside the SKU directory.
             var files = phoenixOutput.entryList("*" + data.projectID + "*", Dir.Files, Dir.Name);
             for(var i=0; i<files.length; i++){
-				if(validation.post.prism == 'y'){
-					if(files[i].split("_")[2] == data.projectID + ".xml"){
-						var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, module.prismEndpoint, validation);
-						if(response == "Success"){
-							// Email the success of the prism post.
-							s.log(2, data.projectID + " posted to PRISM successfully!");
-							newXML.setPrivateData("Status","Pass");
-						}else{
-							// Email the failure of the prism post.
-							s.log(2, data.projectID + " failed to post to PRISM.");
-							sendEmail_db(s, data, null, getEmailResponse("Prism Post Fail", null, null, data, userInfo), userInfo);
-							newXML.setPrivateData("Status","Fail");
+				if(data.status == "approved"){
+					if(validation.post.prism == 'y'){
+						if(files[i].split("_")[2] == data.projectID + ".xml"){
+							var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, data, module.prismEndpoint, validation);
+							if(response == "Success"){
+								// Email the success of the prism post.
+								s.log(2, data.projectID + " posted to PRISM successfully!");
+								newXML.setPrivateData("Status","Pass");
+							}else{
+								// Email the failure of the prism post.
+								s.log(2, data.projectID + " failed to post to PRISM.");
+								sendEmail_db(s, data, null, getEmailResponse("Prism Post Fail", null, null, data, userInfo), userInfo);
+								newXML.setPrivateData("Status","Fail");
+							}
 						}
+						newXML.setHierarchyPath([userInfo.dir])
+						newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
 					}
-					newXML.setHierarchyPath([userInfo.dir])
-					newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
+
+					// Create or get the destination path.
+					var phoenixApproved = getFileType(files[i], module.localEnvironment)
+
+					// Move the file to the toPostProcessing directory.
+					s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
+				}else{
+
+					// Create or get the destination path.
+					var phoenixRejected = getDirectory("C:/Switch/Depository/phoenixRejected/" + module.localEnvironment)
+
+					// Move the file to the rejected directory
+					s.move(phoenixOutput.path + "/" + files[i], phoenixRejected.path + "/" + files[i], true);
 				}
-
-				// Create or get the destination path.
-				var phoenixApproved = getFileType(files[i], module.localEnvironment)
-
-				// Move the file to the toPostProcessing directory.
-				s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
             }
             
 			// Log that it was approved.
