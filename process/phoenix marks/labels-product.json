@@ -78,6 +78,77 @@
                     "dir": "/Product Labels/"
                 }
             ]
+        },
+        {
+            "description": "Product labels.",
+            "type": "Product Label",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Van Nuys",
+                    "id": "1",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{
+                    "orderArray":{
+                        "shape":{
+                            "method":"Custom"
+                        },
+                        "diecut":{
+                            "method":"Custom"
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Facility",
+                    "name": "ProductLabel",
+                    "dir": "/Product Labels/"
+                },
+                {
+                    "group": "Facility",
+                    "name": "ProductLabel-Barcode",
+                    "dir": "/Product Labels/"
+                }
+            ]
         }
     ]
 }

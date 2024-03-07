@@ -402,6 +402,16 @@ runParser = function(s, job){
                     }
                 }
 
+                // Reassign printers and associated data based on various criteria.
+                if(data.facility.destination == "Van Nuys"){
+                    if(matInfo.prodName == "PolyFilm"){
+                        if(orderSpecs.width >= 59 && orderSpecs.height >= 59){
+                            matInfo.width = 125;
+                            matInfo.phoenixStock = "Roll_125";
+                        }
+                    }
+                }
+
                 // Override all of the above
                 if(submit.material.active){
                     matInfo.width = submit.material.width;
@@ -516,7 +526,7 @@ runParser = function(s, job){
                 }
                 
                 // If finishing type is different, remove them from the gang.
-                if(data.facility.destination != "Arlington"){
+                if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
                     if(!submit.override.mixedFinishing){
                         if(data.finishingType != orderSpecs.finishingType){
                             data.notes.push([orderSpecs.jobItemId,"Removed","Different finishing type, " + orderSpecs.finishingType + "."]);
@@ -1298,6 +1308,13 @@ runParser = function(s, job){
                     }
                 }
 
+                // For VN LFP, add 10% min overrun to files over qty 20
+                if(data.facility.destination == "Van Nuys"){
+                    if(product.quantity >= 20){
+                        product.overrunMin = 10;
+                    }
+                }
+
                 // Set the group number based on the height so they group together in Phoenix
                 // Set the overrun higher so it fills the sheet
                 if(matInfo.prodName == "RollStickers"){
@@ -1590,6 +1607,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "server", s.getServerName());
         addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
         addNode_db(theXML, miscNode, "duplicateHoles", matInfo.duplicateHoles);
+        addNode_db(theXML, miscNode, "splitDSLayouts", matInfo.splitDSLayouts);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
