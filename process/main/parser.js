@@ -425,9 +425,9 @@ runParser = function(s, job){
                 if(data.facility.destination == "Salt Lake City"){
                     if(matInfo.printer.name == "P10"){
                         if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
-                            matInfo.printer.name = "P5-350-HS";
-                            data.printer = "P5-350-HS";
-                            misc.rejectPress = false;
+                            //matInfo.printer.name = "P5-350-HS";
+                            //data.printer = "P5-350-HS";
+                            //misc.rejectPress = false;
                         }
                     }
                 }
