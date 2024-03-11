@@ -13,7 +13,7 @@
                 "All"
             ],
             "properties": {
-                "mixed": false,
+                "mixed": true,
                 "undersize": "Default",
                 "orientationCheck": true
             },

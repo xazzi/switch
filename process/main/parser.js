@@ -1198,9 +1198,11 @@ runParser = function(s, job){
                 // Rotation adjustments ----------------------------------------------------------
                 // Coroplast rotation
                 if(data.prodName == "Coroplast"){
-                    if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
-                        product.rotation = "Custom";
-                        product.allowedRotations = 90;
+                    if(product.subprocess.name != "FullSheet"){
+                        if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
+                            product.rotation = "Custom";
+                            product.allowedRotations = 90;
+                        }
                     }
                 }
 
@@ -1343,7 +1345,7 @@ runParser = function(s, job){
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.id == 85){ // 85 == Clear Static Cling
                         if(data.secondSurface){
-                            data.rip.hotfolder = "CSC-MIR"
+                            matInfo.rip.hotfolder = "CSC-MIR"
                         }
                     }
                 }    
