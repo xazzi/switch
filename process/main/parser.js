@@ -83,6 +83,9 @@ runParser = function(s, job){
                     priority: 0,
                     date: false,
                     redownload: false,
+                    removeRestrictions:{
+                        coroplast: false
+                    },
                     fullsize:{
                         gang: false,
                         items: []
@@ -169,6 +172,11 @@ runParser = function(s, job){
                         submit.override.rush = true
                     }
                 }
+
+                // Remove Coroplast restrictions
+                if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
+                    submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
+                }
             }
             
             var orderArray = [];
@@ -191,6 +199,7 @@ runParser = function(s, job){
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: module.fileSource,
+                repository: "//10.21.71.213/pdfDepository/",
                 doubleSided: null,
                 secondSurface: null,
                 coating:{
@@ -667,7 +676,14 @@ runParser = function(s, job){
                         left: "",
                         right: ""
                     },
-                    bleed: matInfo.bleed,
+                    bleed: {
+                        type: matInfo.bleed.type,
+                        base: matInfo.bleed.base,
+                        top: matInfo.bleed.top == undefined ? matInfo.bleed.base : matInfo.bleed.top,
+                        bottom: matInfo.bleed.bottom == undefined ? matInfo.bleed.base : matInfo.bleed.bottom,
+                        left: matInfo.bleed.left == undefined ? matInfo.bleed.base : matInfo.bleed.left,
+                        right: matInfo.bleed.right == undefined ? matInfo.bleed.base : matInfo.bleed.right
+                    },
                     grade: matInfo.grade,
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
@@ -1264,6 +1280,7 @@ runParser = function(s, job){
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.dieDesignSource = "ArtworkTrimbox";
                     product.transfer = true;
+                    data.repository = "//10.21.71.213/Repository_VL/";
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
@@ -1302,11 +1319,13 @@ runParser = function(s, job){
                         product.allowedRotations = 0;
                     }
                 }
-                
+
                 // Specific gang adjustments ----------------------------------------------------------
-                if(matInfo.prodName == "Coroplast"){
-                    if(orderArray[i].qty%10 == 0){
-                        product.group = 20000 + [i];
+                if(!submit.override.removeRestrictions.coroplast){
+                    if(matInfo.prodName == "Coroplast"){
+                        if(orderArray[i].qty%10 == 0){
+                            product.group = 20000 + [i];
+                        }
                     }
                 }
 
@@ -1337,7 +1356,10 @@ runParser = function(s, job){
                     product.spacingBottom = product.spacingBottom/10;
                     product.spacingLeft = product.spacingLeft/10;
                     product.spacingRight = product.spacingRight/10;
-                    product.bleed = matInfo.bleed/10;
+                    product.bleed.top = product.bleed.top/10;
+                    product.bleed.bottom = product.bleed.bottom/10;
+                    product.bleed.left = product.bleed.left/10;
+                    product.bleed.right = product.bleed.right/10;
                     data.notes.push([product.itemNumber,"Notes",'Scaled file, verify accuracy. (' + Math.round(scale.height) + '%)']);
                 }
 
