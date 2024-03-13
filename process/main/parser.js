@@ -175,7 +175,7 @@ runParser = function(s, job){
 
                 // Remove Coroplast restrictions
                 if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
-                    submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                    submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
                 }
             }
             
@@ -676,7 +676,14 @@ runParser = function(s, job){
                         left: "",
                         right: ""
                     },
-                    bleed: matInfo.bleed,
+                    bleed: {
+                        type: matInfo.bleed.type,
+                        base: matInfo.bleed.base,
+                        top: matInfo.bleed.top == undefined ? matInfo.bleed.base : matInfo.bleed.top,
+                        bottom: matInfo.bleed.bottom == undefined ? matInfo.bleed.base : matInfo.bleed.bottom,
+                        left: matInfo.bleed.left == undefined ? matInfo.bleed.base : matInfo.bleed.left,
+                        right: matInfo.bleed.right == undefined ? matInfo.bleed.base : matInfo.bleed.right
+                    },
                     grade: matInfo.grade,
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
@@ -1312,7 +1319,7 @@ runParser = function(s, job){
                         product.allowedRotations = 0;
                     }
                 }
-                
+
                 // Specific gang adjustments ----------------------------------------------------------
                 if(!submit.override.removeRestrictions.coroplast){
                     if(matInfo.prodName == "Coroplast"){
@@ -1349,7 +1356,10 @@ runParser = function(s, job){
                     product.spacingBottom = product.spacingBottom/10;
                     product.spacingLeft = product.spacingLeft/10;
                     product.spacingRight = product.spacingRight/10;
-                    product.bleed = matInfo.bleed/10;
+                    product.bleed.top = product.bleed.top/10;
+                    product.bleed.bottom = product.bleed.bottom/10;
+                    product.bleed.left = product.bleed.left/10;
+                    product.bleed.right = product.bleed.right/10;
                     data.notes.push([product.itemNumber,"Notes",'Scaled file, verify accuracy. (' + Math.round(scale.height) + '%)']);
                 }
 

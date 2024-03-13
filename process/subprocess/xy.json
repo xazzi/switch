@@ -23,7 +23,12 @@
                 },
                 "product": {
                     "grade": "251",
-                    "bleed": 0,
+                    "bleed": {
+                        "top": 0,
+                        "bottom": 0,
+                        "left": 0,
+                        "right": 0
+                    },
                     "stock": "Proc_XY"
                 },
                 "data": {

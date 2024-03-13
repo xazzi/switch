@@ -26,7 +26,12 @@
                     "spacingBottom": 0,
                     "spacingLeft": 0,
                     "spacingRight": 0,
-                    "bleed": 0,
+                    "bleed": {
+                        "top": 0,
+                        "bottom": 0,
+                        "left": 0,
+                        "right": 0
+                    },
                     "rotation": "Orthogonal"
                 },
                 "data": {
@@ -98,7 +103,12 @@
                     "spacingBottom": 0,
                     "spacingLeft": 0,
                     "spacingRight": 0,
-                    "bleed": 0,
+                    "bleed": {
+                        "top": 0,
+                        "bottom": 0,
+                        "left": 0,
+                        "right": 0
+                    },
                     "rotation": "Orthogonal",
                     "subprocess":{
                         "undersize":false
@@ -138,7 +148,12 @@
                     "spacingBottom": 0,
                     "spacingLeft": 0,
                     "spacingRight": 0,
-                    "bleed": 0,
+                    "bleed": {
+                        "top": 0,
+                        "bottom": 0,
+                        "left": 0,
+                        "right": 0
+                    },
                     "rotation": "Orthogonal",
                     "subprocess":{
                         "undersize":false
@@ -177,7 +192,12 @@
                     "spacingBottom": 0,
                     "spacingLeft": 0,
                     "spacingRight": 0,
-                    "bleed": 0,
+                    "bleed": {
+                        "top": 0,
+                        "bottom": 0,
+                        "left": 0,
+                        "right": 0
+                    },
                     "rotation": "Orthogonal",
                     "subprocess":{
                         "undersize":false

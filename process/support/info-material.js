@@ -44,14 +44,21 @@ getMatInfo = function(orderSpecs, db){
             right: db.general.getString(12)
         },
 
-        bleed: db.general.getString(13),
+        bleed: {
+            type: db.general.getString(17),
+            base: db.general.getString(13),
+            top: db.general.getString(53),
+            bottom: db.general.getString(54),
+            left: db.general.getString(55),
+            right: db.general.getString(56)
+        },
+
         rotation: db.general.getString(6),
         allowedRotations: db.general.getString(14),
         impositionProfile: db.general.getString(15),
         phoenixMethod: db.general.getString(35),
         phoenixMethodUserFriendly: db.general.getString(36),
         grade: db.general.getString(16),
-        bleedType: db.general.getString(17),
 
         printer: {
             name: db.general.getString(18),
