@@ -191,6 +191,7 @@ runParser = function(s, job){
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: module.fileSource,
+                repository: "//10.21.71.213/pdfDepository/",
                 doubleSided: null,
                 secondSurface: null,
                 coating:{
@@ -1264,6 +1265,7 @@ runParser = function(s, job){
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.dieDesignSource = "ArtworkTrimbox";
                     product.transfer = true;
+                    data.repository = "//10.21.71.213/Repository_VL/";
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
