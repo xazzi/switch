@@ -83,6 +83,9 @@ runParser = function(s, job){
                     priority: 0,
                     date: false,
                     redownload: false,
+                    removeRestrictions:{
+                        coroplast: false
+                    },
                     fullsize:{
                         gang: false,
                         items: []
@@ -168,6 +171,11 @@ runParser = function(s, job){
                         submit.override.priority = 100;
                         submit.override.rush = true
                     }
+                }
+
+                // Remove Coroplast restrictions
+                if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
+                    submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
             }
             
@@ -1306,9 +1314,11 @@ runParser = function(s, job){
                 }
                 
                 // Specific gang adjustments ----------------------------------------------------------
-                if(matInfo.prodName == "Coroplast"){
-                    if(orderArray[i].qty%10 == 0){
-                        product.group = 20000 + [i];
+                if(!submit.override.removeRestrictions.coroplast){
+                    if(matInfo.prodName == "Coroplast"){
+                        if(orderArray[i].qty%10 == 0){
+                            product.group = 20000 + [i];
+                        }
                     }
                 }
 
