@@ -101,6 +101,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				method: null,
 				value: null
 			},
+			side: {
+				active: false,
+				method: null,
+				value: null
+			},
 			yardframe:{
 				active: false,
 				method: null,

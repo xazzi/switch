@@ -18,7 +18,8 @@ runMissingFiles = function(s, job){
             var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
-                email: new Statement(connections.email)
+                email: new Statement(connections.email),
+                history: new Statement(connections.history)
             }
 
             var privateData = {

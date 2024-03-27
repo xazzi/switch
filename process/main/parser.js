@@ -360,6 +360,11 @@ runParser = function(s, job){
                     data.prismStock = "13 oz. Smooth Matte"
                 }
 
+                // Reassign this product in PRISM.
+                if(orderSpecs.paper.map.arl == 113 && data.facility.destination == "Van Nuys"){
+                    data.prismStock = "13 oz. Poly Film"
+                }
+
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
                 if(orderSpecs.paper.map.wix == 73 && orderSpecs.material.value == "Adhesive Fabric"){
                     matInfoCheck = true;
@@ -388,6 +393,14 @@ runParser = function(s, job){
                 if(orderSpecs.unwind.active && !orderSpecs.unwind.enable){
                     data.notes.push([node.getAttributeValue('ID'),"Removed","Unwind rotation not defined in automation. Notify Bret."])
                     continue;
+                }
+
+                // Items larger than 140" in either dim can't go to VN.
+                if(data.facility.destination == "Van Nuys"){
+                    if(orderSpecs.width >= 110 || orderSpecs.height >= 110){
+                        data.notes.push([product.itemNumber,"Removed","Item over 140\" assigned to VN."]);
+                        continue;
+                    }
                 }
 
                 // Enable the force laminate override
@@ -457,11 +470,6 @@ runParser = function(s, job){
                     data.coating.active = orderSpecs.coating.active;
                     data.laminate.active = orderSpecs.laminate.active;
                     data.mount.active = orderSpecs.mount.active;
-
-                    // If it's 2nd Surface then append that to the hot folder name.
-                    if(data.secondSurface){
-                        matInfo.rip.hotfolder += "-2ndSurf";
-                    }
 
                     data.impositionProfile = {
                         name: matInfo.impositionProfile,
@@ -1280,7 +1288,7 @@ runParser = function(s, job){
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.dieDesignSource = "ArtworkTrimbox";
                     product.transfer = true;
-                    data.repository = "//10.21.71.213/Repository_VL/";
+                    //data.repository = "//10.21.71.213/Repository_VL/";
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
@@ -1333,6 +1341,7 @@ runParser = function(s, job){
                 if(data.facility.destination == "Van Nuys"){
                     if(product.quantity >= 20){
                         product.overrunMin = 10;
+                        product.overrunMax = 20;
                     }
                 }
 
@@ -1370,7 +1379,14 @@ runParser = function(s, job){
                             matInfo.rip.hotfolder = "CSC-MIR"
                         }
                     }
-                }    
+                }  
+                
+                // If it's 2nd Surface in SLC then append that to the hot folder name.
+                if(data.facility.destination == "Salt Lake City"){
+                    if(data.secondSurface){
+                        matInfo.rip.hotfolder += "-2ndSurf";
+                    }
+                }
                 
                 // Check for custom rotations assigned in the database.
                 // This overrides any defaults assigned to the product or subprocess.
