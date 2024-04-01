@@ -1303,7 +1303,7 @@ runParser = function(s, job){
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
-                    
+
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
