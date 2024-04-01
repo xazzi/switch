@@ -78,7 +78,11 @@ setPhoenixMarks = function(s, folder, matInfo, data, orderArray, product, marksA
                     if(dump.parameters[j].settings[k].group.toLowerCase() == "global"){
                         group = "Global"
                     }
-                    marksArray.push(group + dump.parameters[j].settings[k].dir + dump.parameters[j].settings[k].name + data.scale);
+                    if(dump.parameters[j].settings[k].dir == "/Product Info/"){
+                        marksArray.push(group + dump.parameters[j].settings[k].dir + matInfo.labelOffset + "/" + dump.parameters[j].settings[k].name + data.scale);
+                    }else{
+                        marksArray.push(group + dump.parameters[j].settings[k].dir + dump.parameters[j].settings[k].name + data.scale);
+                    }
                 }
             }
         }
