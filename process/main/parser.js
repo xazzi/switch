@@ -639,7 +639,7 @@ runParser = function(s, job){
         
             // Loop through the approved files in the array.
             for(var i=0; i<orderArray.length; i++){
-                
+             
                 // Product level data.
                 var product = {
                     contentFile: orderArray[i].filePath[orderArray[i].filePath.length-1],
@@ -1194,7 +1194,12 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
+               
+                //write imp instructions to the database -cm
+                if(orderArray[i].impInstructions.active){
+                    db.email.execute("INSERT INTO emails.impinst_notes (`sku`,`gang-number`,`item-number`,`message`,`keywords`) VALUES ('" + data.sku + "','" + data.projectID + "','" + product.itemNumber + "', '" + orderArray[i].impInstructions.value + "');");
+                }
+
                 // Rotation adjustments ----------------------------------------------------------
                 // Coroplast rotation
                 if(data.prodName == "Coroplast"){

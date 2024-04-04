@@ -80,6 +80,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				method: null,
 				value: null
 			},
+			impInstructions: {
+				active: false,
+				value: null
+			},
 			edge: {
 				active: false,
 				method: null,
@@ -264,6 +268,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				if(specs.printDir.method == "2nd"){
 					specs.secondSurface = true;
 				}
+			}
+			if(dataDump.order_specs[k].code == "IMPINST"){
+				specs.impInstructions.active = true;
+				specs.impInstructions.value = dataDump.order_specs[k].value;
 			}
 			if(dataDump.order_specs[k].code == "SHAPE"){
 				specs.shape = addToTable(s, db, "options_shape", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
