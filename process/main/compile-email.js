@@ -47,6 +47,7 @@ compileEmail = function(s, job){
             }
 
             var body = {
+                impInst: "",
                 summary: "",
                 removed: ""
             }
@@ -135,6 +136,19 @@ compileEmail = function(s, job){
                 }
             }
 
+            //Pull notes for impinst
+            db.email.execute("SELECT * FROM emails.`impinst_notes` WHERE sku = '" + handoffData.sku + "' and `gang-number` = '" + handoffData.projectID + "';");
+
+            while(db.email.isRowAvailable()){
+                db.email.fetchRow();
+                var result = {
+                    itemNumber: db.email.getString(3),
+                    message: db.email.getString(4)
+                }
+                body.impInst += result.itemNumber + ": " + result.message + "." + "\n"
+            }
+
+            if(body.impInst == ""){body.impInst = "None" + "\n"}
             if(body.summary == ""){body.summary = "None" + "\n"}
             if(body.removed == ""){body.removed = "None" + "\n"}
 

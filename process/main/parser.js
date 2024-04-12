@@ -1197,7 +1197,7 @@ runParser = function(s, job){
                
                 //write imp instructions to the database -cm
                 if(orderArray[i].impInstructions.active){
-                    db.email.execute("INSERT INTO emails.impinst_notes (`sku`,`gang-number`,`item-number`,`message`,`keywords`) VALUES ('" + data.sku + "','" + data.projectID + "','" + product.itemNumber + "', '" + orderArray[i].impInstructions.value + "');");
+                    db.email.execute("INSERT INTO emails.impinst_notes (`sku`,`gang-number`,`item-number`,`message`) VALUES ('" + data.sku + "','" + data.projectID + "','" + product.itemNumber + "', '" + orderArray[i].impInstructions.value + "');");
                 }
 
                 // Rotation adjustments ----------------------------------------------------------
