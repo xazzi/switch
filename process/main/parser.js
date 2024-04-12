@@ -332,6 +332,11 @@ runParser = function(s, job){
                     data.notes.push([orderSpecs.jobItemId,"Removed","No facility assigned."]);
                     continue;
                 }
+
+                if(!orderSpecs.ship.exists){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
+                    continue;
+                }
                 
                 // Set facility information
                 if(data.facility.original == null){
@@ -522,11 +527,6 @@ runParser = function(s, job){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different printer " + matInfo.printer.name + "."]);
                         continue;
                     }
-                }
-
-                if(!orderSpecs.ship.exists){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
-                    continue;
                 }
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
