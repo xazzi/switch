@@ -39,7 +39,8 @@ runMissingFiles = function(s, job){
             emailDatabase_write(s, db, "parsed_data", "File Check", handoffData, [[handoffData.itemNumber, privateData.type, privateData.message]])
             
             // Add to the missing file table.
-            db.history.execute("INSERT INTO history.missing_file (gang_number,file_name,date) VALUES ('" + handoffData.projectID + "','" + handoffData.contentFile + "','" + new Date() + "');");
+            // Removed the ability to post to this table 4/8/24 -bc
+            //db.history.execute("INSERT INTO history.missing_file (gang_number,file_name,date) VALUES ('" + handoffData.projectID + "','" + handoffData.contentFile + "','" + new Date() + "');");
             
             job.sendToSingle(job.getPath());
                     
