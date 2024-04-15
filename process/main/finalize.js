@@ -171,7 +171,7 @@ runFinalize = function(s, job){
                 handoffData.surface = handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-MIRROR" : "";
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + handoffData.surface + ".pdf";
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){

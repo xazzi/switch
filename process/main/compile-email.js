@@ -193,6 +193,7 @@ createDataset = function(newXML, email, body){
 		addNode_db(theXML, messageNode, "subject", email.subject);
         addNode_db(theXML, messageNode, "header", email.header);
 
+        addNode_db(theXML, messageNode, "impInst", body.impInst);
         addNode_db(theXML, messageNode, "summary", body.summary);
         addNode_db(theXML, messageNode, "removed", body.removed);
 
