@@ -79,6 +79,7 @@ getMatInfo = function(orderSpecs, db){
         rotateBack: db.general.getString(38) == 'y' ? true : false,
         rotate90: db.general.getString(39) == 'y' ? true : false,
         splitDSLayouts: db.general.getString(52) == 'y' ? true : false,
+        cutAdjustments: db.general.getString(58) == 'y' ? true : false,
 
         dsIndicator:{
             top: db.general.getString(40) == 'y' ? true : false,
