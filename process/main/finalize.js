@@ -168,9 +168,10 @@ runFinalize = function(s, job){
             if(handoffData.facility == "Van Nuys"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
                 data.side = numberOfPages == 1 ? "_SS" : "_DS";
+                handoffData.surface = handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-MIRROR" : "";
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){

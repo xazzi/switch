@@ -208,6 +208,15 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             }
         }
 
+        // Print direction options
+        if(table == "options_print-direction"){
+            return specs = {
+                active: true,
+                method: db.general.getString(4),
+                value: db.general.getString(1)
+            }
+        }
+
         // Laminate options
         if(table == "options_laminate"){
             return specs = {

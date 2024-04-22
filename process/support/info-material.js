@@ -44,14 +44,21 @@ getMatInfo = function(orderSpecs, db){
             right: db.general.getString(12)
         },
 
-        bleed: db.general.getString(13),
+        bleed: {
+            type: db.general.getString(17),
+            base: db.general.getString(13),
+            top: db.general.getString(53),
+            bottom: db.general.getString(54),
+            left: db.general.getString(55),
+            right: db.general.getString(56)
+        },
+
         rotation: db.general.getString(6),
         allowedRotations: db.general.getString(14),
         impositionProfile: db.general.getString(15),
         phoenixMethod: db.general.getString(35),
         phoenixMethodUserFriendly: db.general.getString(36),
         grade: db.general.getString(16),
-        bleedType: db.general.getString(17),
 
         printer: {
             name: db.general.getString(18),
@@ -80,6 +87,7 @@ getMatInfo = function(orderSpecs, db){
         rotate90: db.general.getString(39) == 'y' ? true : false,
         splitDSLayouts: db.general.getString(52) == 'y' ? true : false,
         cutAdjustments: db.general.getString(58) == 'y' ? true : false,
+        labelOffset: db.general.getString(57) == 'NULL' ? null : db.general.getString(57) + " Offset",
 
         dsIndicator:{
             top: db.general.getString(40) == 'y' ? true : false,

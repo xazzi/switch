@@ -83,6 +83,9 @@ runParser = function(s, job){
                     priority: 0,
                     date: false,
                     redownload: false,
+                    removeRestrictions:{
+                        coroplast: false
+                    },
                     fullsize:{
                         gang: false,
                         items: []
@@ -169,6 +172,11 @@ runParser = function(s, job){
                         submit.override.rush = true
                     }
                 }
+
+                // Remove Coroplast restrictions
+                if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
+                    submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
+                }
             }
             
             var orderArray = [];
@@ -191,6 +199,7 @@ runParser = function(s, job){
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: module.fileSource,
+                repository: "//10.21.71.213/pdfDepository/",
                 doubleSided: null,
                 secondSurface: null,
                 coating:{
@@ -323,6 +332,11 @@ runParser = function(s, job){
                     data.notes.push([orderSpecs.jobItemId,"Removed","No facility assigned."]);
                     continue;
                 }
+
+                if(!orderSpecs.ship.exists){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
+                    continue;
+                }
                 
                 // Set facility information
                 if(data.facility.original == null){
@@ -349,6 +363,11 @@ runParser = function(s, job){
                 // Reassign this product in PRISM.
                 if(orderSpecs.paper.map.arl == 101 && data.facility.destination == "Arlington"){
                     data.prismStock = "13 oz. Smooth Matte"
+                }
+
+                // Reassign this product in PRISM.
+                if(orderSpecs.paper.map.arl == 113 && data.facility.destination == "Van Nuys"){
+                    data.prismStock = "13 oz. Poly Film"
                 }
 
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
@@ -379,6 +398,14 @@ runParser = function(s, job){
                 if(orderSpecs.unwind.active && !orderSpecs.unwind.enable){
                     data.notes.push([node.getAttributeValue('ID'),"Removed","Unwind rotation not defined in automation. Notify Bret."])
                     continue;
+                }
+
+                // Items larger than 140" in either dim can't go to VN.
+                if(data.facility.destination == "Van Nuys"){
+                    if(orderSpecs.width >= 110 || orderSpecs.height >= 110){
+                        data.notes.push([product.itemNumber,"Removed","Item over 140\" assigned to VN."]);
+                        continue;
+                    }
                 }
 
                 // Enable the force laminate override
@@ -425,9 +452,9 @@ runParser = function(s, job){
                 if(data.facility.destination == "Salt Lake City"){
                     if(matInfo.printer.name == "P10"){
                         if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
-                            matInfo.printer.name = "P5-350-HS";
-                            data.printer = "P5-350-HS";
-                            misc.rejectPress = false;
+                            //matInfo.printer.name = "P5-350-HS";
+                            //data.printer = "P5-350-HS";
+                            //misc.rejectPress = false;
                         }
                     }
                 }
@@ -448,11 +475,6 @@ runParser = function(s, job){
                     data.coating.active = orderSpecs.coating.active;
                     data.laminate.active = orderSpecs.laminate.active;
                     data.mount.active = orderSpecs.mount.active;
-
-                    // If it's 2nd Surface then append that to the hot folder name.
-                    if(data.secondSurface){
-                        matInfo.rip.hotfolder += "-2ndSurf";
-                    }
 
                     data.impositionProfile = {
                         name: matInfo.impositionProfile,
@@ -505,11 +527,6 @@ runParser = function(s, job){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different printer " + matInfo.printer.name + "."]);
                         continue;
                     }
-                }
-
-                if(!orderSpecs.ship.exists){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
-                    continue;
                 }
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
@@ -667,7 +684,14 @@ runParser = function(s, job){
                         left: "",
                         right: ""
                     },
-                    bleed: matInfo.bleed,
+                    bleed: {
+                        type: matInfo.bleed.type,
+                        base: matInfo.bleed.base,
+                        top: matInfo.bleed.top == undefined ? matInfo.bleed.base : matInfo.bleed.top,
+                        bottom: matInfo.bleed.bottom == undefined ? matInfo.bleed.base : matInfo.bleed.bottom,
+                        left: matInfo.bleed.left == undefined ? matInfo.bleed.base : matInfo.bleed.left,
+                        right: matInfo.bleed.right == undefined ? matInfo.bleed.base : matInfo.bleed.right
+                    },
                     grade: matInfo.grade,
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
@@ -1203,9 +1227,11 @@ runParser = function(s, job){
                 // Rotation adjustments ----------------------------------------------------------
                 // Coroplast rotation
                 if(data.prodName == "Coroplast"){
-                    if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
-                        product.rotation = "Custom";
-                        product.allowedRotations = 90;
+                    if(product.subprocess.name != "FullSheet"){
+                        if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
+                            product.rotation = "Custom";
+                            product.allowedRotations = 90;
+                        }
                     }
                 }
 
@@ -1267,6 +1293,7 @@ runParser = function(s, job){
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.dieDesignSource = "ArtworkTrimbox";
                     product.transfer = true;
+                    //data.repository = "//10.21.71.213/Repository_VL/";
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
@@ -1281,7 +1308,7 @@ runParser = function(s, job){
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
-                    
+
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
@@ -1305,11 +1332,13 @@ runParser = function(s, job){
                         product.allowedRotations = 0;
                     }
                 }
-                
+
                 // Specific gang adjustments ----------------------------------------------------------
-                if(matInfo.prodName == "Coroplast"){
-                    if(orderArray[i].qty%10 == 0){
-                        product.group = 20000 + [i];
+                if(!submit.override.removeRestrictions.coroplast){
+                    if(matInfo.prodName == "Coroplast"){
+                        if(orderArray[i].qty%10 == 0){
+                            product.group = 20000 + [i];
+                        }
                     }
                 }
 
@@ -1317,6 +1346,7 @@ runParser = function(s, job){
                 if(data.facility.destination == "Van Nuys"){
                     if(product.quantity >= 20){
                         product.overrunMin = 10;
+                        product.overrunMax = 20;
                     }
                 }
 
@@ -1340,7 +1370,10 @@ runParser = function(s, job){
                     product.spacingBottom = product.spacingBottom/10;
                     product.spacingLeft = product.spacingLeft/10;
                     product.spacingRight = product.spacingRight/10;
-                    product.bleed = matInfo.bleed/10;
+                    product.bleed.top = product.bleed.top/10;
+                    product.bleed.bottom = product.bleed.bottom/10;
+                    product.bleed.left = product.bleed.left/10;
+                    product.bleed.right = product.bleed.right/10;
                     data.notes.push([product.itemNumber,"Notes",'Scaled file, verify accuracy. (' + Math.round(scale.height) + '%)']);
                 }
 
@@ -1348,10 +1381,17 @@ runParser = function(s, job){
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.id == 85){ // 85 == Clear Static Cling
                         if(data.secondSurface){
-                            data.rip.hotfolder = "CSC-MIR"
+                            matInfo.rip.hotfolder = "CSC-MIR"
                         }
                     }
-                }    
+                }  
+                
+                // If it's 2nd Surface in SLC then append that to the hot folder name.
+                if(data.facility.destination == "Salt Lake City"){
+                    if(data.secondSurface){
+                        matInfo.rip.hotfolder += "-2ndSurf";
+                    }
+                }
                 
                 // Check for custom rotations assigned in the database.
                 // This overrides any defaults assigned to the product or subprocess.
