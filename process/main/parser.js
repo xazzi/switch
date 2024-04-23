@@ -1440,12 +1440,14 @@ runParser = function(s, job){
                 }
 
                 // For small product on the router(s), reassign the layer name.
-                if(matInfo.cutter.device == "router"){
-                    if(matInfo.cutter.layerName != "Default"){
-                        if(product.width * product.height <= 100){
-                            product.cutLayerName += " Small"
-                        }else if(product.width <= 6 || product.height <= 6){
-                            product.cutLayerName += " Small"
+                if(data.facility.destination == "Salt Lake City"){
+                    if(matInfo.cutter.device == "router"){
+                        if(matInfo.cutter.layerName != "Default"){
+                            if(product.width * product.height <= 100){
+                                product.cutLayerName += " Small"
+                            }else if(product.width <= 6 || product.height <= 6){
+                                product.cutLayerName += " Small"
+                            }
                         }
                     }
                 }
@@ -1658,6 +1660,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
         addNode_db(theXML, miscNode, "duplicateHoles", matInfo.duplicateHoles);
         addNode_db(theXML, miscNode, "splitDSLayouts", matInfo.splitDSLayouts);
+        addNode_db(theXML, miscNode, "cutAdjustments", matInfo.cutAdjustments);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
