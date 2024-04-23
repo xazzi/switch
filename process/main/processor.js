@@ -244,8 +244,8 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, data,
 			writeXmlNode(xmlFile, "products");
 			for(var j=0; j<productNodes.length; j++){
 				for(var n=0; n<handoffDataNodes.length; n++){
-					if(productNodes.at(j).evalToString('name').split('.pdf')[0] == handoffDataNodes.at(n).evalToString('contentFile').split('.pdf')[0]){
-						if(validation.removals.items.toString().match(new RegExp(handoffDataNodes.at(n).evalToString('itemNumber'),"g"))) {
+					if(productNodes.at(j).evalToString('name').split('_')[1] == handoffDataNodes.at(n).evalToString('contentFile').split('_')[1]){
+						if(validation.removals.items.toString().match(new RegExp(handoffDataNodes.at(n).evalToString('itemNumber'),"g"))){
 							break;
 						}
 						writeXmlNode(xmlFile, "product");
