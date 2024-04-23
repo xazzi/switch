@@ -23,7 +23,6 @@ runRelease = function(s){
             var secondInterval = 5;
                 s.setTimerInterval(secondInterval);
                     
-            var pdfDepository = new Dir("//AMZ-PHOENIX-P02/pdfDepository");
             var csvDepository = new Dir("C:/Switch/Depository/csvHold/" + module.localEnvironment);
 
             var toPhoenix = getDirectory("C:/Switch/Depository/toPhoenix/" + module.localEnvironment + "/" + module.phoenixServer);
@@ -50,7 +49,6 @@ runRelease = function(s){
                     
                         pdfReady = false;
                     
-                    //var existCheck = new File(pdfDepository.absPath + "/" + line[0]);
                     var existCheck = new File(line[1]);
                     if(existCheck.exists){
                         pdfReady = true;

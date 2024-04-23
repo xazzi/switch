@@ -403,7 +403,7 @@ runParser = function(s, job){
                 // Items larger than 140" in either dim can't go to VN.
                 if(data.facility.destination == "Van Nuys"){
                     if(orderSpecs.width >= 110 || orderSpecs.height >= 110){
-                        data.notes.push([product.itemNumber,"Removed","Item over 140\" assigned to VN."]);
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Item over 140\" assigned to VN."]);
                         continue;
                     }
                 }
@@ -919,6 +919,12 @@ runParser = function(s, job){
                 // Do we need to transfer the file from the depository?
                 if(file.depository.exists){
                     if(submit.override.redownload){
+                        try{
+                            file.depository.remove();
+                            s.log(2, product.contentFile + " removed successfully, redownloading.")
+                        }catch(e){
+                            s.log(2, product.contentFile + " failed to delete.")
+                        }
                         product.transfer = true;
                     }
                 }else{
@@ -928,7 +934,6 @@ runParser = function(s, job){
                         if(file.source.exists){
                             product.transfer = true;
                         }else{
-                            // this logic is flawed because with AWS we aren't transferring the file from the watermarked destination anymore. but this does let us check if a file exists.
                             data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
                             continue;
                         }
@@ -1293,7 +1298,7 @@ runParser = function(s, job){
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.dieDesignSource = "ArtworkTrimbox";
                     product.transfer = true;
-                    //data.repository = "//10.21.71.213/Repository_VL/";
+                    data.repository = "//10.21.71.213/Repository_VL/";
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
