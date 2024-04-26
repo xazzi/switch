@@ -23,7 +23,8 @@ runFinalize = function(s, job){
                 laminate: handoffDataDS.evalToString("//settings/laminate") == "true" ? "-Lam" : "",
                 mount: handoffDataDS.evalToString("//settings/mount") == "true" ? "-Mount" : "",
                 surface: handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-2ndSurf" : "",
-                rush: handoffDataDS.evalToString("//base/rush") == "true" ? "-RUSH" : ""
+                rush: handoffDataDS.evalToString("//base/rush") == "true" ? "-RUSH" : "",
+                whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true" ? "-W" : ""
             }
             
             var phoenixPlanDS = loadDataset_db("Phoenix Plan");
@@ -84,7 +85,7 @@ runFinalize = function(s, job){
                 
                 // Hierarchy
                 if(data.processType == "Print"){
-                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + handoffData.laminate + handoffData.mount + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
+                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + handoffData.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
@@ -139,7 +140,14 @@ runFinalize = function(s, job){
             // Arlington ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Arlington"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
-                data.side = numberOfPages == 1 ? "_SS" : "_DS";
+
+                if(data.filename.match(new RegExp("S1","g"))){
+                    data.side = "_F";
+                }else if(data.filename.match(new RegExp("S2","g"))){
+                    data.side = "_B";
+                }else{
+                    data.side = numberOfPages == 1 ? "_SS" : "_DS";
+                }
                 
                 if(data.processType == "Print"){
                     savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
@@ -147,6 +155,27 @@ runFinalize = function(s, job){
                 
                 if(data.processType == "Cut"){
                     savename = handoffData.projectID + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                }
+                
+                if(data.processType == "Summary"){				
+                    savename = handoffData.projectID + "_Report" + ".pdf";
+                }
+                
+                job.sendToSingle(job.getPath(), savename.toString());
+            }
+
+            // Van Nuys ------------------------------------------------------------------------------------------------
+            if(handoffData.facility == "Van Nuys"){
+                data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
+                data.side = numberOfPages == 1 ? "_SS" : "_DS";
+                handoffData.surface = handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-MIRROR" : "";
+                
+                if(data.processType == "Print"){
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
+                }
+                
+                if(data.processType == "Cut"){
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
                 }
                 
                 if(data.processType == "Summary"){				

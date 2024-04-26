@@ -8,6 +8,7 @@ loadModuleSettings = function(s){
         database: {
             selection: s.hasProperty("databases") ? s.getPropertyValue("databases") : undefined,
             general: s.hasProperty("databaseGeneral") ? s.getPropertyValue("databaseGeneral") : undefined,
+            history: s.hasProperty("databaseHistory") ? s.getPropertyValue("databaseHistory") : undefined,
             email: s.hasProperty("databaseEmail") ? s.getPropertyValue("databaseEmail") : undefined
         },
         devSettings: {
@@ -25,11 +26,13 @@ loadModuleSettings = function(s){
     // Database options
     if(module.database.selection == "prod"){
         module.database.general = "prod"
+        module.database.history = "prod"
         module.database.email = "prod"
     }
 
     if(module.database.selection == "dev"){
         module.database.general = "dev"
+        module.database.history = "dev"
         module.database.email = "dev"
     }
 

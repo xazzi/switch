@@ -17,6 +17,7 @@ runUsage = function(s, job){
             var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
+                history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
 
@@ -33,8 +34,8 @@ runUsage = function(s, job){
                 averageUsage: Math.round(phoenixPlanDS.evalToString("//job/sheet-usage",null) * 100)
             }
 
-            // Update the history_gang table with the average usage.
-            db.general.execute("UPDATE digital_room.history_gang SET `average-usage` = '" + phoenixPlan.averageUsage + "' WHERE `gang-number` = '" + phoenixPlan.id + "' AND `SKU` = '" + handoffData.sku + "';");
+            // Update the details_gang table with the average usage.
+            db.history.execute("UPDATE history.details_gang SET `average-usage` = '" + phoenixPlan.averageUsage + "' WHERE `gang-number` = '" + phoenixPlan.id + "' AND `SKU` = '" + handoffData.sku + "';");
                 
             // Send the job to be approved.
             job.sendToNull(job.getPath())

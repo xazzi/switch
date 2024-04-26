@@ -62,6 +62,37 @@
                     "sideMix": 1
                 }
             }
+        },
+        {
+            "facility": {
+                "name": "Arlington",
+                "id": "5",
+                "enabled": true
+            },
+            "processes": [
+                "13oz-Matte",
+                "13oz-Smooth",
+                "UV-Fabric",
+                "13oz-PolyFilm"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "pageHandling": "OnePerPage",
+                    "customLabel": {
+                        "apply": true
+                    }
+                },
+                "data": {
+                    "sideMix": 1
+                }
+            }
         }
     ]
 }
