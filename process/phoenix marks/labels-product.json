@@ -73,9 +73,9 @@
             },
             "settings": [
                 {
-                    "group": "Facility",
-                    "name": "ProductLabel",
-                    "dir": "/Product Labels/"
+                    "group": "Global",
+                    "name": "Label",
+                    "dir": "/Product Info/"
                 }
             ]
         }

@@ -17,7 +17,7 @@ getMatInfo = function(orderSpecs, db){
     }else if(orderSpecs.facilityId == 1){
         paperMapId = orderSpecs.paper.map.vn;
     }
-    
+
     // Pull the material defaults based on the facility mapping ID.
         db.general.execute('CALL digital_room.getMaterial(' + paperMapId + ')');
     if(!db.general.isRowAvailable()){
@@ -44,14 +44,21 @@ getMatInfo = function(orderSpecs, db){
             right: db.general.getString(12)
         },
 
-        bleed: db.general.getString(13),
+        bleed: {
+            type: db.general.getString(17),
+            base: db.general.getString(13),
+            top: db.general.getString(53),
+            bottom: db.general.getString(54),
+            left: db.general.getString(55),
+            right: db.general.getString(56)
+        },
+
         rotation: db.general.getString(6),
         allowedRotations: db.general.getString(14),
         impositionProfile: db.general.getString(15),
         phoenixMethod: db.general.getString(35),
         phoenixMethodUserFriendly: db.general.getString(36),
         grade: db.general.getString(16),
-        bleedType: db.general.getString(17),
 
         printer: {
             name: db.general.getString(18),
@@ -73,9 +80,14 @@ getMatInfo = function(orderSpecs, db){
         lamMix: db.general.getString(45) == 'y' ? true : false,
         approved: db.general.getString(46) == 'y' ? true : false,
         duplicateHoles: db.general.getString(47) == 'y' ? true : false,
+        standardPrint: db.general.getString(51) == 'y' ? true : false,   //1st surface
+        reversePrint: db.general.getString(50) == 'y' ? true : false,    //2nd surface
         rotateFront: db.general.getString(37) == 'y' ? true : false,
         rotateBack: db.general.getString(38) == 'y' ? true : false,
         rotate90: db.general.getString(39) == 'y' ? true : false,
+        splitDSLayouts: db.general.getString(52) == 'y' ? true : false,
+        cutAdjustments: db.general.getString(58) == 'y' ? true : false,
+        labelOffset: db.general.getString(57) == 'NULL' ? null : db.general.getString(57) + " Offset",
 
         dsIndicator:{
             top: db.general.getString(40) == 'y' ? true : false,
@@ -83,11 +95,13 @@ getMatInfo = function(orderSpecs, db){
         },
 
         rip: {
+            enable: db.general.getString(48) == 'y' ? true : false,
             device: db.general.getString(30),
-            hotfolder: db.general.getString(31)
+            hotfolder: db.general.getString(31) == 'empty' ? '' : db.general.getString(31)
         },
 
         cutter: {
+            enable: db.general.getString(49) == 'y' ? true : false,
             device: db.general.getString(32),
             hotfolder: db.general.getString(33),
             layerName: db.general.getString(42),

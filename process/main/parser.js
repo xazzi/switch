@@ -35,6 +35,7 @@ runParser = function(s, job){
             var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
+                history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
                 
@@ -82,6 +83,9 @@ runParser = function(s, job){
                     priority: 0,
                     date: false,
                     redownload: false,
+                    removeRestrictions:{
+                        coroplast: false
+                    },
                     fullsize:{
                         gang: false,
                         items: []
@@ -168,6 +172,11 @@ runParser = function(s, job){
                         submit.override.rush = true
                     }
                 }
+
+                // Remove Coroplast restrictions
+                if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
+                    submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
+                }
             }
             
             var orderArray = [];
@@ -190,6 +199,7 @@ runParser = function(s, job){
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: module.fileSource,
+                repository: "//10.21.71.213/pdfDepository/",
                 doubleSided: null,
                 secondSurface: null,
                 coating:{
@@ -213,10 +223,6 @@ runParser = function(s, job){
                 oversize: false,
                 thing: null,
                 printer: null,
-                rip:{
-                    device: null,
-                    hotfolder: null
-                },
                 dateID: null,
                 notes: [],
                 tolerance: 0,
@@ -326,6 +332,11 @@ runParser = function(s, job){
                     data.notes.push([orderSpecs.jobItemId,"Removed","No facility assigned."]);
                     continue;
                 }
+
+                if(!orderSpecs.ship.exists){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
+                    continue;
+                }
                 
                 // Set facility information
                 if(data.facility.original == null){
@@ -350,8 +361,13 @@ runParser = function(s, job){
                 }
 
                 // Reassign this product in PRISM.
-                if(orderSpecs.paper.map.arl == 101){
+                if(orderSpecs.paper.map.arl == 101 && data.facility.destination == "Arlington"){
                     data.prismStock = "13 oz. Smooth Matte"
+                }
+
+                // Reassign this product in PRISM.
+                if(orderSpecs.paper.map.arl == 113 && data.facility.destination == "Van Nuys"){
+                    data.prismStock = "13 oz. Poly Film"
                 }
 
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
@@ -384,6 +400,14 @@ runParser = function(s, job){
                     continue;
                 }
 
+                // Items larger than 140" in either dim can't go to VN.
+                if(data.facility.destination == "Van Nuys"){
+                    if(orderSpecs.width >= 110 || orderSpecs.height >= 110){
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Item over 140\" assigned to VN."]);
+                        continue;
+                    }
+                }
+
                 // Enable the force laminate override
                 if(matInfo.forceLam){
                     orderSpecs.laminate.active = true
@@ -405,6 +429,16 @@ runParser = function(s, job){
                     }
                 }
 
+                // Reassign printers and associated data based on various criteria.
+                if(data.facility.destination == "Van Nuys"){
+                    if(matInfo.prodName == "PolyFilm"){
+                        if(orderSpecs.width >= 59 && orderSpecs.height >= 59){
+                            matInfo.width = 125;
+                            matInfo.phoenixStock = "Roll_125";
+                        }
+                    }
+                }
+
                 // Override all of the above
                 if(submit.material.active){
                     matInfo.width = submit.material.width;
@@ -418,9 +452,9 @@ runParser = function(s, job){
                 if(data.facility.destination == "Salt Lake City"){
                     if(matInfo.printer.name == "P10"){
                         if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
-                            matInfo.printer.name = "P5-350-HS";
-                            data.printer = "P5-350-HS";
-                            misc.rejectPress = false;
+                            //matInfo.printer.name = "P5-350-HS";
+                            //data.printer = "P5-350-HS";
+                            //misc.rejectPress = false;
                         }
                     }
                 }
@@ -441,10 +475,7 @@ runParser = function(s, job){
                     data.coating.active = orderSpecs.coating.active;
                     data.laminate.active = orderSpecs.laminate.active;
                     data.mount.active = orderSpecs.mount.active;
-                    
-                    data.rip.device = matInfo.rip.device;
-                    data.rip.hotfolder = data.secondSurface ? matInfo.rip.hotfolder + "-2ndSurf" : matInfo.rip.hotfolder;
-                    
+
                     data.impositionProfile = {
                         name: matInfo.impositionProfile,
                         method: "Default (" + matInfo.phoenixMethodUserFriendly + ")"
@@ -497,11 +528,6 @@ runParser = function(s, job){
                         continue;
                     }
                 }
-
-                if(!orderSpecs.ship.exists){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
-                    continue;
-                }
                 
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
@@ -517,13 +543,20 @@ runParser = function(s, job){
                 }
                 
                 // If finishing type is different, remove them from the gang.
-                if(data.facility.destination != "Arlington"){
+                if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
                     if(!submit.override.mixedFinishing){
                         if(data.finishingType != orderSpecs.finishingType){
                             data.notes.push([orderSpecs.jobItemId,"Removed","Different finishing type, " + orderSpecs.finishingType + "."]);
                             continue;
                         }
                     }
+                }
+
+                // Check if print surface is allowed for material. -CM
+                if((!matInfo.standardPrint && !orderSpecs.secondSurface) || (!matInfo.reversePrint && orderSpecs.secondSurface)){
+                    var type = orderSpecs.secondSurface ? "2nd Surface" : "1st Surface"
+                    data.notes.push([orderSpecs.jobItemId, "Removed.", "Print surface not allowed with material, " + type + ", " + matInfo.prodName + "."]);
+                    continue;
                 }
                 
                 // Check if surface deviation
@@ -623,7 +656,7 @@ runParser = function(s, job){
         
             // Loop through the approved files in the array.
             for(var i=0; i<orderArray.length; i++){
-                
+             
                 // Product level data.
                 var product = {
                     contentFile: orderArray[i].filePath[orderArray[i].filePath.length-1],
@@ -651,7 +684,14 @@ runParser = function(s, job){
                         left: "",
                         right: ""
                     },
-                    bleed: matInfo.bleed,
+                    bleed: {
+                        type: matInfo.bleed.type,
+                        base: matInfo.bleed.base,
+                        top: matInfo.bleed.top == undefined ? matInfo.bleed.base : matInfo.bleed.top,
+                        bottom: matInfo.bleed.bottom == undefined ? matInfo.bleed.base : matInfo.bleed.bottom,
+                        left: matInfo.bleed.left == undefined ? matInfo.bleed.base : matInfo.bleed.left,
+                        right: matInfo.bleed.right == undefined ? matInfo.bleed.base : matInfo.bleed.right
+                    },
                     grade: matInfo.grade,
                     shapeSearch: "Largest",
                     dieDesignSource: "ArtworkPaths",
@@ -879,6 +919,12 @@ runParser = function(s, job){
                 // Do we need to transfer the file from the depository?
                 if(file.depository.exists){
                     if(submit.override.redownload){
+                        try{
+                            file.depository.remove();
+                            s.log(2, product.contentFile + " removed successfully, redownloading.")
+                        }catch(e){
+                            s.log(2, product.contentFile + " failed to delete.")
+                        }
                         product.transfer = true;
                     }
                 }else{
@@ -888,7 +934,6 @@ runParser = function(s, job){
                         if(file.source.exists){
                             product.transfer = true;
                         }else{
-                            // this logic is flawed because with AWS we aren't transferring the file from the watermarked destination anymore. but this does let us check if a file exists.
                             data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
                             continue;
                         }
@@ -1178,13 +1223,20 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
+               
+                //write imp instructions to the database -cm
+                if(orderArray[i].impInstructions.active){
+                    db.email.execute("INSERT INTO emails.impinst_notes (`sku`,`gang-number`,`item-number`,`message`) VALUES ('" + data.sku + "','" + data.projectID + "','" + product.itemNumber + "', '" + orderArray[i].impInstructions.value + "');");
+                }
+
                 // Rotation adjustments ----------------------------------------------------------
                 // Coroplast rotation
                 if(data.prodName == "Coroplast"){
-                    if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
-                        product.rotation = "Custom";
-                        product.allowedRotations = 90;
+                    if(product.subprocess.name != "FullSheet"){
+                        if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
+                            product.rotation = "Custom";
+                            product.allowedRotations = 90;
+                        }
                     }
                 }
 
@@ -1246,6 +1298,7 @@ runParser = function(s, job){
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.dieDesignSource = "ArtworkTrimbox";
                     product.transfer = true;
+                    data.repository = "//10.21.71.213/Repository_VL/";
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
@@ -1260,7 +1313,7 @@ runParser = function(s, job){
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
-                    
+
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
@@ -1278,17 +1331,27 @@ runParser = function(s, job){
                     if(!product.doubleSided){
                         product.customLabel.value += "+Blank"
                     }
-                    data.impositionProfile.name = "TensionStands";
+                    //data.impositionProfile.name = "TensionStands";
                     if((product.width*(scale.width/100)) > usableArea.width){
                         product.rotation = "Orthogonal";
                         product.allowedRotations = 0;
                     }
                 }
-                
+
                 // Specific gang adjustments ----------------------------------------------------------
-                if(matInfo.prodName == "Coroplast"){
-                    if(orderArray[i].qty%10 == 0){
-                        product.group = 20000 + [i];
+                if(!submit.override.removeRestrictions.coroplast){
+                    if(matInfo.prodName == "Coroplast"){
+                        if(orderArray[i].qty%10 == 0){
+                            product.group = 20000 + [i];
+                        }
+                    }
+                }
+
+                // For VN LFP, add 10% min overrun to files over qty 20
+                if(data.facility.destination == "Van Nuys"){
+                    if(product.quantity >= 20){
+                        product.overrunMin = 10;
+                        product.overrunMax = 20;
                     }
                 }
 
@@ -1312,7 +1375,10 @@ runParser = function(s, job){
                     product.spacingBottom = product.spacingBottom/10;
                     product.spacingLeft = product.spacingLeft/10;
                     product.spacingRight = product.spacingRight/10;
-                    product.bleed = matInfo.bleed/10;
+                    product.bleed.top = product.bleed.top/10;
+                    product.bleed.bottom = product.bleed.bottom/10;
+                    product.bleed.left = product.bleed.left/10;
+                    product.bleed.right = product.bleed.right/10;
                     data.notes.push([product.itemNumber,"Notes",'Scaled file, verify accuracy. (' + Math.round(scale.height) + '%)']);
                 }
 
@@ -1320,10 +1386,17 @@ runParser = function(s, job){
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.id == 85){ // 85 == Clear Static Cling
                         if(data.secondSurface){
-                            data.rip.hotfolder = "CSC-MIR"
+                            matInfo.rip.hotfolder = "CSC-MIR"
                         }
                     }
-                }    
+                }  
+                
+                // If it's 2nd Surface in SLC then append that to the hot folder name.
+                if(data.facility.destination == "Salt Lake City"){
+                    if(data.secondSurface){
+                        matInfo.rip.hotfolder += "-2ndSurf";
+                    }
+                }
                 
                 // Check for custom rotations assigned in the database.
                 // This overrides any defaults assigned to the product or subprocess.
@@ -1367,12 +1440,14 @@ runParser = function(s, job){
                 }
 
                 // For small product on the router(s), reassign the layer name.
-                if(matInfo.cutter.device == "router"){
-                    if(matInfo.cutter.layerName != "Default"){
-                        if(product.width * product.height <= 100){
-                            product.cutLayerName += " Small"
-                        }else if(product.width <= 6 || product.height <= 6){
-                            product.cutLayerName += " Small"
+                if(data.facility.destination == "Salt Lake City"){
+                    if(matInfo.cutter.device == "router"){
+                        if(matInfo.cutter.layerName != "Default"){
+                            if(product.width * product.height <= 100){
+                                product.cutLayerName += " Small"
+                            }else if(product.width <= 6 || product.height <= 6){
+                                product.cutLayerName += " Small"
+                            }
                         }
                     }
                 }
@@ -1442,9 +1517,9 @@ runParser = function(s, job){
                 productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
                 
                 // Write the gang number to the database.
-                db.general.execute("SELECT * FROM digital_room.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
+                db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
                 if(!db.general.isRowAvailable()){
-                    db.general.execute("INSERT INTO digital_room.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
+                    db.history.execute("INSERT INTO history.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
                 }
 
                 if(s.getServerName() == 'Switch-Dev'){
@@ -1494,7 +1569,7 @@ runParser = function(s, job){
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
             
-            db.general.execute("INSERT INTO digital_room.history_gang (`gang-number`,`processed-time`,`processed-date`,`due-date`,process,subprocess,sku,facility,`save-location`,rush,email) VALUES ('" + data.projectID + "','" + now.time + "','" + now.date + "','" + data.date.due + "','" + data.prodName + "','" + data.subprocess + "','" + data.sku + "','" + data.facility.destination + "','" + data.dateID + "','" + data.rush + "','" + userInfo.email + "');");
+            db.history.execute("INSERT INTO history.details_gang (`gang-number`,`processed-time`,`processed-date`,`due-date`,process,subprocess,sku,facility,`save-location`,rush,email) VALUES ('" + data.projectID + "','" + now.time + "','" + now.date + "','" + data.date.due + "','" + data.prodName + "','" + data.subprocess + "','" + data.sku + "','" + data.facility.destination + "','" + data.dateID + "','" + data.rush + "','" + userInfo.email + "');");
             
         }catch(e){
             s.log(3, "Critical Error!: " + e);
@@ -1558,14 +1633,16 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 	var cutterNode = theXML.createElement("cutters", null);
 		handoffNode.appendChild(cutterNode);
 		
+        addNode_db(theXML, cutterNode, "autocut", matInfo.cutter.enable);
 		addNode_db(theXML, cutterNode, "device", matInfo.cutter.device);
 		addNode_db(theXML, cutterNode, "hotfolder", matInfo.cutter.hotfolder);
 		
 	var ripNode = theXML.createElement("rip", null);
 		handoffNode.appendChild(ripNode);
 		
-		addNode_db(theXML, ripNode, "device", data.rip.device);
-		addNode_db(theXML, ripNode, "hotfolder", data.rip.hotfolder);
+        addNode_db(theXML, ripNode, "autorip", matInfo.rip.enable);
+		addNode_db(theXML, ripNode, "device", matInfo.rip.device);
+		addNode_db(theXML, ripNode, "hotfolder", matInfo.rip.hotfolder);
 	
 	var miscNode = theXML.createElement("misc", null);
 		handoffNode.appendChild(miscNode);
@@ -1582,6 +1659,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "server", s.getServerName());
         addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
         addNode_db(theXML, miscNode, "duplicateHoles", matInfo.duplicateHoles);
+        addNode_db(theXML, miscNode, "splitDSLayouts", matInfo.splitDSLayouts);
+        addNode_db(theXML, miscNode, "cutAdjustments", matInfo.cutAdjustments);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);

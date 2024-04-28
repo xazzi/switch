@@ -446,7 +446,13 @@
                         }
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true
+                        }
+                    }
+                }
             },
             "settings":[
                 {
