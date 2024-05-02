@@ -27,23 +27,28 @@ runLabelmasterXml = function(s, job){
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true" ? "-W" : ""
             }
             
+            /*
             var phoenixPlanDS = loadDataset_db("Phoenix Plan");
             var phoenixPlan = {
                 index: phoenixPlanDS.evalToString("//layouts/layout/index"),
                 qty: phoenixPlanDS.evalToString("//layouts/layout/run-length")
             }
+            */
             
             var newXML = s.createNewJob();
             var xmlPath = newXML.createPathWithName(handoffData.projectID + ".xml", false);
-            var xmlFile = new File(xmlPath);
+            //var xmlFile = new File(xmlPath);
+            var xmlFile = new File("C://Switch//Development//" + handoffData.projectID + ".xml");
 
             generateXml(s, handoffDataDS, xmlFile);
+
+            stop
 
             newXML.sendToSingle(job.getPath())
             
             
         }catch(e){
-            s.log(2, "Critical Error: Labelmaster XML")
+            s.log(2, "Critical Error: Labelmaster XML, " + e)
             job.sendToNull(job.getPath())
         }
     }
