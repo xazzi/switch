@@ -402,7 +402,7 @@ runParser = function(s, job){
 
                 // Items larger than 140" in either dim can't go to VN.
                 if(data.facility.destination == "Van Nuys"){
-                    if(orderSpecs.width >= 110 || orderSpecs.height >= 110){
+                    if(orderSpecs.width >= 140 || orderSpecs.height >= 140){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Item over 140\" assigned to VN."]);
                         continue;
                     }
