@@ -1389,13 +1389,6 @@ runParser = function(s, job){
                             matInfo.rip.hotfolder = "CSC-MIR"
                         }
                     }
-                }  
-                
-                // If it's 2nd Surface in SLC then append that to the hot folder name.
-                if(data.facility.destination == "Salt Lake City"){
-                    if(data.secondSurface){
-                        matInfo.rip.hotfolder += "-2ndSurf";
-                    }
                 }
                 
                 // Check for custom rotations assigned in the database.
@@ -1526,6 +1519,13 @@ runParser = function(s, job){
                     if(i>=49){
                         break;
                     }
+                }
+            }
+
+            // If it's 2nd Surface in SLC then append that to the hot folder name.
+            if(data.facility.destination == "Salt Lake City"){
+                if(data.secondSurface){
+                    matInfo.rip.hotfolder = matInfo.rip.hotfolder + "-2ndSurf";
                 }
             }
 
