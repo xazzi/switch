@@ -17,6 +17,7 @@ runUsage = function(s, job){
             var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
+                history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
 

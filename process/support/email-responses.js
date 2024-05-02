@@ -6,7 +6,8 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
 
     var sendTo = {
         bret: "bret.c@digitalroominc.com",
-        chelsea: "chelsea.mv@digitalroominc.com"
+        chelsea: "chelsea.mv@digitalroominc.com",
+        archie: "archimedes.t@digitalroominc.com"
     }
 
     switch(query){
@@ -31,7 +32,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
             active = true;
             subject = "New Table Entry!";
             body = "A new entry has been added to the " + matInfo + " table!" + "\n\n" + parameter_1;
-            to = [sendTo.bret,sendTo.chelsea]
+            to = [sendTo.bret,sendTo.chelsea,sendTo.archie]
             cc = []
             bcc = [];
         break;
