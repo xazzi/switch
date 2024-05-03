@@ -10,7 +10,10 @@
                 "enabled": true
             },
             "processes": [
-                "All"
+                "13oz-Matte",
+                "13oz-Smooth",
+                "DSS",
+                "18ozBanner"
             ],
             "properties": {
                 "mixed": true,
@@ -23,6 +26,54 @@
                 "product": {
                 },
                 "data": {
+                },
+                "orderArray": {
+                    "hem":{
+                        "method":"None"
+                    },
+                    "grommet":{
+                        "key":"AllCorners"
+                    }
+                }
+            }
+        },
+        {
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
+            "processes": [
+                "Celtec"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                    "prodName": "UV-Greyback",
+                    "height": "150",
+                    "printer": {
+                        "name": "512",
+                        "margin": {
+                            "top": "1.625",
+                            "bottom": "1.625",
+                            "left": ".25",
+                            "right": ".25" 
+                        }
+                    },
+                    "rip": {
+                        "device": "Caldera",
+                        "hotfolder": "Hotfolder3"
+                    }
+                },
+                "product": {
+                },
+                "data": {
+                    "prodMatFileName": "UV-Greyback",
+                    "printer":"512"
                 },
                 "orderArray": {
                     "hem":{
