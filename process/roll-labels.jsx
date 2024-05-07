@@ -6,11 +6,14 @@ try{
         marker: createLayer("Marker", true),
     };
 
-    for(var ii=0; ii<allPaths.length; ii++){
-        if(allPaths[ii].strokeColor.spot != undefined){
-            if(allPaths[ii].strokeColor.spot.name == "Hole-cut"){
-                allPaths[ii].remove()
-            }
+    var allPaths = $doc.pageItems;
+
+    // Remove all clipping paths    
+    for(i=allPaths.length-1; i>=0; i--){
+        if(allPaths[i].clipping == true){
+            try{
+                allPaths[i].remove();
+            }catch(e){}
         }
     }
 
@@ -18,13 +21,13 @@ try{
     var topRow = 0
 
     for(var j=0; j<allPaths.length; j++){
-        if(allPaths[j].top > topRow){
-            topRow = allPaths[j].top;
+        if(Math.round(allPaths[j].top) > topRow){
+            topRow = Math.round(allPaths[j].top)
         }
     }
 
     for (var i=allPaths.length-1; i>=0; i--){
-        if(allPaths[i].top != topRow){
+        if(Math.round(allPaths[i].top) != topRow){
             allPaths[i].remove();
         }
     }
@@ -41,7 +44,7 @@ try{
         }
     }
 
-    $doc.layers.getByName("Layer 1").remove();
+    //$doc.layers.getByName("Layer 1").remove();
 
 }catch(e){
 
