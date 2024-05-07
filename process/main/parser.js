@@ -1421,7 +1421,10 @@ runParser = function(s, job){
                 
                 // Set the Phoenix printer (thing).
                 data.thing = data.facility.destination + "/" + data.printer;
-                if(data.printer != "None"){		 
+                if(data.printer != "None"){	
+                    if(matInfo.prodName == "RollStickers"){
+                        data.thing += "-LabelMaster"
+                    }	 
                     if(matInfo.type == "roll"){
                         if(data.scaled){
                             data.thing += " (Scaled)";
