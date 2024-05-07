@@ -6,6 +6,14 @@ try{
         marker: createLayer("Marker", true),
     };
 
+    for(var ii=0; ii<allPaths.length; ii++){
+        if(allPaths[ii].strokeColor.spot != undefined){
+            if(allPaths[ii].strokeColor.spot.name == "Hole-cut"){
+                allPaths[ii].remove()
+            }
+        }
+    }
+
     var allPaths = $doc.pageItems;
     var topRow = 0
 
