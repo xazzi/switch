@@ -1,14 +1,8 @@
 try{
     var $doc = app.activeDocument;
 
-    var layer = {
-        artwork: createLayer("Artwork", true),
-        marker: createLayer("Marker", true),
-    };
-
-    var allPaths = $doc.pageItems;
-
-    // Remove all clipping paths    
+    // Remove all clipping paths   
+    var allPaths = $doc.pageItems; 
     for(i=allPaths.length-1; i>=0; i--){
         if(allPaths[i].clipping == true){
             try{
@@ -17,38 +11,54 @@ try{
         }
     }
 
-    var allPaths = $doc.pageItems;
-    var topRow = 0
+    var top = {
+        thruCut: 0,
+        eyemark: 0
+    }
 
+    var allPaths = $doc.pageItems;
     for(var j=0; j<allPaths.length; j++){
-        if(Math.round(allPaths[j].top) > topRow){
-            topRow = Math.round(allPaths[j].top)
-        }
-    }
-
-    for (var i=allPaths.length-1; i>=0; i--){
-        if(Math.round(allPaths[i].top) != topRow){
-            allPaths[i].remove();
-        }
-    }
-
-    var allPaths = $doc.pageItems;
-
-    for(var ii=0; ii<allPaths.length; ii++){
-        if(allPaths[ii].strokeColor.spot != undefined){
-            if(allPaths[ii].strokeColor.spot.name == "Thru-cut"){
-                allPaths[ii].move(layer.artwork, ElementPlacement.PLACEATBEGINNING)
+        if(allPaths[j].filled){
+            if(allPaths[j].fillColor.spot.name == "register"){
+                if(Math.round(allPaths[j].top) > top.eyemark){
+                    top.eyemark = Math.round(allPaths[j].top)
+                }
             }
-        }else{
-            allPaths[ii].move(layer.marker, ElementPlacement.PLACEATBEGINNING)
+        }
+        if(allPaths[j].stroked){
+            if(allPaths[j].strokeColor.spot.name == "Thru-cut"){
+                if(Math.round(allPaths[j].top) > top.thruCut){
+                    top.thruCut = Math.round(allPaths[j].top)
+                }
+            }
         }
     }
 
-    //$doc.layers.getByName("Layer 1").remove();
+    //Remove all but the top eyemark
+    var allPaths = $doc.pageItems;
+    for (var ii=allPaths.length-1; ii>=0; ii--){
+        if(allPaths[ii].filled){
+            if(allPaths[ii].fillColor.spot.name == "register"){
+                if(Math.round(allPaths[ii].top) != top.eyemark){
+                    allPaths[ii].remove();
+                }
+            }
+        }
+    }
 
-}catch(e){
+    //Remove all but the top row of Thru-cuts
+    var allPaths = $doc.pageItems;
+    for (var ii=allPaths.length-1; ii>=0; ii--){
+        if(allPaths[ii].stroked){
+            if(allPaths[ii].strokeColor.spot.name == "Thru-cut"){
+                if(Math.round(allPaths[ii].top) != top.thruCut){
+                    allPaths[ii].remove();
+                }
+            }
+        }
+    }
 
-}
+}catch(e){}
 
 function createLayer(name, print){
     var $doc = app.activeDocument;
