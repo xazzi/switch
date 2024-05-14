@@ -33,7 +33,8 @@
                         "right": 1
                     },
                     "rotation": "Custom",
-                    "allowedRotations": "0,90"
+                    "allowedRotations": "0,90",
+                    "dieDesignSource": "DieDesignLibrary"
                 },
                 "data": {
                 }

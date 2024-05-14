@@ -10,41 +10,53 @@ runLabelmasterXml = function(s, job){
 
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-                projectID: handoffDataDS.evalToString("//base/projectID"),
-                dateID: handoffDataDS.evalToString("//base/dateID"),
-                facility: handoffDataDS.evalToString("//misc/facility"),
-                dueDate: handoffDataDS.evalToString("//base/dueDate"),
-                sku: handoffDataDS.evalToString("//base/sku"),
-                paper: handoffDataDS.evalToString("//base/paper"),
-                process: handoffDataDS.evalToString("//base/process"),
-                subprocess: handoffDataDS.evalToString("//base/subprocess"),
-                prodMatFileName: handoffDataDS.evalToString("//base/prodMatFileName"),
-                printer: handoffDataDS.evalToString("//settings/printer"),
-                laminate: handoffDataDS.evalToString("//settings/laminate") == "true" ? "-Lam" : "",
-                mount: handoffDataDS.evalToString("//settings/mount") == "true" ? "-Mount" : "",
-                surface: handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-2ndSurf" : "",
-                rush: handoffDataDS.evalToString("//base/rush") == "true" ? "-RUSH" : "",
-                whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true" ? "-W" : ""
+                projectID: handoffDataDS.evalToString("//base/projectID")
             }
             
-            /*
             var phoenixPlanDS = loadDataset_db("Phoenix Plan");
             var phoenixPlan = {
                 index: phoenixPlanDS.evalToString("//layouts/layout/index"),
-                qty: phoenixPlanDS.evalToString("//layouts/layout/run-length")
+                contentFile: phoenixPlanDS.evalToString("//products/product/name"),
+                width: phoenixPlanDS.evalToString("//products/product/width").replace('"',''),
+                height: phoenixPlanDS.evalToString("//products/product/height").replace('"','')
             }
-            */
+
+            var productNodes = handoffDataDS.evalToNodes("//products/product");
+            for(var n=0; n<productNodes.length; n++){
+                if(phoenixPlan.contentFile == productNodes.at(n).evalToString('contentFile')){
+                    handoffData.rotation = productNodes.at(n).evalToString('rotation');
+                    break;
+                }
+            }
+
+            var moduleStep = 0
+            var library = "WPSP"
+            var gutter = .0625*2
+
+            if(contains([270,90,-90,-270], handoffData.rotation)) {
+                moduleStep = (Number(phoenixPlan.width) + gutter)
+            }
+            
+            if(contains([360,180,0,-180,-360], handoffData.rotation)){
+                moduleStep = (Number(phoenixPlan.height) + gutter)
+            }
+
+            // Convert to MM
+            moduleStep = moduleStep*25.4;
+
+            // Round to the 1000th
+            moduleStep = Math.round(moduleStep*1000)/1000
             
             var newXML = s.createNewJob();
-            var xmlPath = newXML.createPathWithName(handoffData.projectID + ".xml", false);
-            //var xmlFile = new File(xmlPath);
-            var xmlFile = new File("C://Switch//Development//" + handoffData.projectID + ".xml");
+            var xmlPath = newXML.createPathWithName(handoffData.projectID + '-' + phoenixPlan.index + ".xml", false);
+            var xmlFile = new File(xmlPath);
+            //var xmlFile = new File("C://Switch//Development//" + handoffData.projectID + ".xml");
 
-            generateXml(s, handoffDataDS, xmlFile);
+            generateXml(s, job, handoffData, phoenixPlan, xmlFile, moduleStep, library);
 
-            stop
+            newXML.sendToSingle(xmlPath);
 
-            newXML.sendToSingle(job.getPath())
+            job.sendToNull(job.getPath());
             
             
         }catch(e){
@@ -55,35 +67,29 @@ runLabelmasterXml = function(s, job){
     labelmasterXml(s, job)
 }
 
-function generateXml(s, handoffDataDS, xmlFile){
+function generateXml(s, job, handoffData, phoenixPlan, xmlFile, moduleStep, library){
     xmlFile.open(File.Append);
     xmlFile.writeLine("<?xml version='1.0' encoding='UTF-8'?>");
     
     xmlFile.writeLine('<JobSEI>');
 
-        xmlFile.writeLine('<Meta>');
-            writeXmlString(xmlFile, "Description", "Empty Script");
-            xmlFile.writeLine('<Creation Author="Bret Combe" Date="2016-09-27T10:14:21" Version="Stage" />');
-            xmlFile.writeLine('<Thumbnail Format="PNG" Data="ABAgMEBQYHCAoA==" />');
-        xmlFile.writeLine('</Meta>');
+        writeXmlString(xmlFile, "ZoneDivision", "ON");
+        //xmlFile.writeLine('<ZoneDimension Width="150" />');
 
-        writeXmlString(xmlFile, "ZoneDivision", "AUTO");
-        xmlFile.writeLine('<ZoneDimension Width="150" />');
-
-        xmlFile.writeLine('</LabelMaster>');
-            writeXmlString(xmlFile, "ModuleStep", "54");
-            xmlFile.writeLine('<Slitting>');
-                writeXmlString(xmlFile, "Position", "45");
-            xmlFile.writeLine('</Slitting>');
+        xmlFile.writeLine('<LabelMaster>');
+            writeXmlString(xmlFile, "ModuleStep", moduleStep);
+            //xmlFile.writeLine('<Slitting>');
+            //    writeXmlString(xmlFile, "Position", "45");
+            //xmlFile.writeLine('</Slitting>');
         xmlFile.writeLine('</LabelMaster>');
 
         xmlFile.writeLine('<Material Name="Generic">');
-            writeXmlString(xmlFile, "Library", "POLYPROPILENE");
+            writeXmlString(xmlFile, "Library", library);
         xmlFile.writeLine('</Material>');
 
-        xmlFile.writeLine('<Object Name="Printela1">');
-            xmlFile.writeLine('<File Type="PDF" Unit="MM">C:\\Jobs\\Gang-Index.pdf</File>');
-            xmlFile.writeLine('<Rotate Angle="-90" Ref="C"/>');
+        xmlFile.writeLine('<Object Name="' + handoffData.projectID + '-' + phoenixPlan.index + '">');
+            xmlFile.writeLine('<File Type="PDF" Unit="MM">\\\\SLN-GANGS-P01\\data\\Digital\\SEI cut\\' + job.getName() + '</File>');
+            xmlFile.writeLine('<Rotate Angle="0" Ref="C"/>');
             writeXmlString(xmlFile, "Optimize", "Full");
         xmlFile.writeLine('</Object>');
 

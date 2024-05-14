@@ -91,7 +91,8 @@ runParser = function(s, job){
                         gang: false,
                         items: []
                     },
-                    gangMethod: null
+                    gangMethod: null,
+                    labelmaster: false
                 }
             }
                 
@@ -178,6 +179,11 @@ runParser = function(s, job){
                 if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
                     submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
                 }
+
+                // Prep for the Labelmaster
+                if(submit.nodes.getItem(i).evalToString('tag') == "Labelmaster?"){
+                    submit.override.labelmaster = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                }
             }
             
             var orderArray = [];
@@ -248,7 +254,8 @@ runParser = function(s, job){
                 rotateBack: null,
                 rotate90: null,
                 rush: submit.override.rush,
-                sideMix: null
+                sideMix: null,
+                labelmaster: submit.override.labelmaster
             }
             
             var theNewToken = getNewToken(s, data.environment);
@@ -1339,6 +1346,11 @@ runParser = function(s, job){
                     }
                 }
 
+                // Table Runner Templates
+                if(product.subprocess.name == "TableRunner"){
+                    product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
+                }
+
                 // Specific gang adjustments ----------------------------------------------------------
                 if(!submit.override.removeRestrictions.coroplast){
                     if(matInfo.prodName == "Coroplast"){
@@ -1511,7 +1523,7 @@ runParser = function(s, job){
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method,product.allowedRotations]);
                 
                 // Write the gang number to the database.
                 db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
@@ -1665,6 +1677,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "duplicateHoles", matInfo.duplicateHoles);
         addNode_db(theXML, miscNode, "splitDSLayouts", matInfo.splitDSLayouts);
         addNode_db(theXML, miscNode, "cutAdjustments", matInfo.cutAdjustments);
+        addNode_db(theXML, miscNode, "labelmaster", data.labelmaster);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -1711,6 +1724,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
                 addNode_db(theXML, subProductsNode, "item-name", productArray[i][6]);
                 addNode_db(theXML, subProductsNode, "shape-method", productArray[i][7]);
                 addNode_db(theXML, subProductsNode, "corner-method", productArray[i][8]);
+                addNode_db(theXML, subProductsNode, "rotation", productArray[i][9]);
 		}
 	}
 	

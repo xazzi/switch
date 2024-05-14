@@ -24,7 +24,8 @@ runFinalize = function(s, job){
                 mount: handoffDataDS.evalToString("//settings/mount") == "true" ? "-Mount" : "",
                 surface: handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-2ndSurf" : "",
                 rush: handoffDataDS.evalToString("//base/rush") == "true" ? "-RUSH" : "",
-                whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true" ? "-W" : ""
+                whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true" ? "-W" : "",
+                labelmaster: handoffDataDS.evalToString("//misc/labelmaster") == "true" ? true : false
             }
             
             var phoenixPlanDS = loadDataset_db("Phoenix Plan");
@@ -95,6 +96,7 @@ runFinalize = function(s, job){
                 if(data.processType == "Summary"){				
                     savename = data.dateProper + "_" + name.process + name.subprocess + "-Report_" + handoffData.projectID + ".pdf";
                 }
+
                 job.sendToSingle(job.getPath(), savename.toString());
             }
             
@@ -124,6 +126,10 @@ runFinalize = function(s, job){
                 
                 if(data.processType == "Print"){
                     savename = handoffData.projectID + "-" + phoenixPlan.index + data.side + ".pdf";
+                }
+
+                if(data.processType == "CSV"){
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + data.side + "-Header" + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
