@@ -54,6 +54,8 @@ runLabelmasterXml = function(s, job){
 
             generateXml(s, job, handoffData, phoenixPlan, xmlFile, moduleStep, library);
 
+            newXML.setPrivateData("Type","Cut");
+            newXML.setDataset("Handoff Data", job.getDataset("Handoff Data"));
             newXML.sendToSingle(xmlPath);
 
             job.sendToNull(job.getPath());
