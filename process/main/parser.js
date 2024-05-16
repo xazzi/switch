@@ -1318,7 +1318,7 @@ runParser = function(s, job){
                 var labels = setLabels(s, orderArray[i]);
 
                 // If it's contour at all, override the bleed type to margins, regardless of any facility or product.
-                if(orderArray[i].shape.method == "Custom"){
+                if(orderArray[i].shape.method == "Custom" || orderArray[i].diecut.method == "Custom"){
                     product.bleed.type = "Contour";
                 }
 
