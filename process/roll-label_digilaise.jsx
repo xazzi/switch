@@ -75,6 +75,8 @@ try{
         newGroup.rotate(90);
     }
 
+    $doc.activeLayer.name = "DieLine"
+
     // Fit artboard to the new art setup.
     app.executeMenuCommand('selectall');
     $doc.fitArtboardToSelectedArt(0);
