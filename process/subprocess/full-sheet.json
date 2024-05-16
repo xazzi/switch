@@ -30,7 +30,8 @@
                         "top": 0,
                         "bottom": 0,
                         "left": 0,
-                        "right": 0
+                        "right": 0,
+                        "type": "Margins"
                     },
                     "rotation": "Orthogonal"
                 },
@@ -153,7 +154,8 @@
                         "top": 0,
                         "bottom": 0,
                         "left": 0,
-                        "right": 0
+                        "right": 0,
+                        "type": "Margins"
                     },
                     "rotation": "Orthogonal",
                     "subprocess":{
@@ -197,7 +199,8 @@
                         "top": 0,
                         "bottom": 0,
                         "left": 0,
-                        "right": 0
+                        "right": 0,
+                        "type": "Margins"
                     },
                     "rotation": "Orthogonal",
                     "subprocess":{
