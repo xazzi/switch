@@ -19,15 +19,19 @@
             },
             "overrides": {
                 "matInfo": {
-                    "width": 54,
+                    "width": 125,
                     "height": 96,
                     "printer": {
-                        "name": "Epson"
+                        "name":"GS3250r"
                     },
-                    "sideMix": 1
+                    "sideMix": 1,
+                    "rip":{
+                        "device":"P5350HS",
+                        "hotfolder":"P5350HS"
+                    }
                 },
                 "product": {
-                    "stock": "Roll_52",
+                    "stock": "Roll_125",
                     "pageHandling": "OnePerPage",
                     "customLabel": {
                         "apply": true
@@ -35,7 +39,7 @@
                 },
                 "data": {
                     "prodMatFileName": "MBS",
-                    "printer": "Epson"
+                    "printer": "GS3250r"
                 },
                 "scale": {}
             }
