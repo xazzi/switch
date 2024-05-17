@@ -75,12 +75,27 @@ try{
         newGroup.rotate(90);
     }
 
-    $doc.activeLayer.name = "DieLine"
+    // Change the artboard to be the width of the product + at least an offset from the art.
+    var width  = newGroup.width;
+    var height = newGroup.height;
+    for (i=0; i<$doc.artboards.length; i++) {
+        var abBounds = $doc.artboards[i].artboardRect; // left, top, right, bottom
 
-    // Fit artboard to the new art setup.
-    app.executeMenuCommand('selectall');
-    $doc.fitArtboardToSelectedArt(0);
-    app.executeMenuCommand('deselectall');
+        var pWidth = abBounds[2] - abBounds[0];
+        var offset = .0625 * 72;
+
+        var ableft = newGroup.left - offset;
+        var abtop = newGroup.top + ((pWidth - newGroup.height)/2);
+        var abwidth = newGroup.width;
+        var abheight = newGroup.height;
+
+        var abright = newGroup.left + newGroup.width + offset;
+        var abbottom = abtop - pWidth;
+
+        $doc.artboards[i].artboardRect = [ableft, abtop, abright, abbottom];
+    }
+
+    $doc.activeLayer.name = "DieLine"
 
 }catch(e){}
 
