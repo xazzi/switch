@@ -177,11 +177,19 @@ runFinalize = function(s, job){
                 handoffData.surface = handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-MIRROR" : "";
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
+                    if(handoffData.process == "RollLabel"){
+                        savename = handoffData.projectID + " Layout " + phoenixPlan.index + " " + name.paper + " " + phoenixPlan.qty + " Frames" + ".pdf";
+                    }else{
+                        savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
+                    }
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    if(handoffData.process == "RollLabel"){
+                        savename = handoffData.projectID + "-" + phoenixPlan.index + ".pdf";
+                    }else{
+                        savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    }
                 }
                 
                 if(data.processType == "Summary"){				
