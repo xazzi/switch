@@ -1375,7 +1375,7 @@ runParser = function(s, job){
 
                 // Set the group number based on the height so they group together in Phoenix
                 // Set the overrun higher so it fills the sheet
-                if(matInfo.prodName == "RollStickers"){
+                if(matInfo.prodName == "RollLabel"){
                     product.group = product.quantity + "-" + product.height;
                     if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
                         product.group = product.quantity + "-" + product.width;
