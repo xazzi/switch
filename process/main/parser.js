@@ -1309,6 +1309,11 @@ runParser = function(s, job){
                 // Set the sides that will use the labels.
                 var labels = setLabels(s, orderArray[i]);
 
+                // If it's contour at all, override the bleed type to margins, regardless of any facility or product.
+                if(orderArray[i].shape.method == "Custom" || orderArray[i].diecut.method == "Custom" || orderArray[i].shape.method == "Oval"){
+                    product.bleed.type = "Contour";
+                }
+
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
