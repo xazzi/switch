@@ -1652,16 +1652,16 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
     var laminateNode = theXML.createElement("laminate", null);
 		handoffNode.appendChild(laminateNode);
 
-        addNode_db(theXML, settingsNode, "active", data.laminate.active ? true : false);
-        addNode_db(theXML, settingsNode, "method", data.laminate.method);
-        addNode_db(theXML, settingsNode, "value", data.laminate.value);
+        addNode_db(theXML, laminateNode, "active", data.laminate.active ? true : false);
+        addNode_db(theXML, laminateNode, "method", data.laminate.method);
+        addNode_db(theXML, laminateNode, "value", data.laminate.value);
 
     var coatingNode = theXML.createElement("coating", null);
 		handoffNode.appendChild(coatingNode);
 
-        addNode_db(theXML, settingsNode, "active", data.coating.active ? true : false);
-        addNode_db(theXML, settingsNode, "method", data.coating.method);
-        addNode_db(theXML, settingsNode, "value", data.coating.value);
+        addNode_db(theXML, coatingNode, "active", data.coating.active ? true : false);
+        addNode_db(theXML, coatingNode, "method", data.coating.method);
+        addNode_db(theXML, coatingNode, "value", data.coating.value);
 	
 	var mountNode = theXML.createElement("mount", null);
 		handoffNode.appendChild(mountNode);	
