@@ -15,17 +15,27 @@ runFinalize = function(s, job){
                 facility: handoffDataDS.evalToString("//misc/facility"),
                 dueDate: handoffDataDS.evalToString("//base/dueDate"),
                 sku: handoffDataDS.evalToString("//base/sku"),
+                type: handoffDataDS.evalToString("//base/type"),
                 paper: handoffDataDS.evalToString("//base/paper"),
                 process: handoffDataDS.evalToString("//base/process"),
                 subprocess: handoffDataDS.evalToString("//base/subprocess"),
                 prodMatFileName: handoffDataDS.evalToString("//base/prodMatFileName"),
                 printer: handoffDataDS.evalToString("//settings/printer"),
-                laminate: handoffDataDS.evalToString("//settings/laminate") == "true" ? "-Lam" : "",
                 mount: handoffDataDS.evalToString("//settings/mount") == "true" ? "-Mount" : "",
                 surface: handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-2ndSurf" : "",
                 rush: handoffDataDS.evalToString("//base/rush") == "true" ? "-RUSH" : "",
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true" ? "-W" : "",
-                labelmaster: handoffDataDS.evalToString("//misc/labelmaster") == "true" ? true : false
+                labelmaster: handoffDataDS.evalToString("//misc/labelmaster") == "true" ? true : false,
+                laminate: {
+                    active: handoffDataDS.evalToString("//laminate/active") == "true",
+                    method: handoffDataDS.evalToString("//laminate/method"),
+                    value: handoffDataDS.evalToString("//laminate/value")
+                },
+                coating: {
+                    active: handoffDataDS.evalToString("//coating/active") == "true",
+                    method: handoffDataDS.evalToString("//coating/method"),
+                    value: handoffDataDS.evalToString("//coating/value")
+                }
             }
             
             var phoenixPlanDS = loadDataset_db("Phoenix Plan");
@@ -46,9 +56,11 @@ runFinalize = function(s, job){
             }
             
             var date = new Date();
-            var data = {}
-                data.processType = job.getPrivateData("Type")
-                data.filename = job.getVariableAsString("[Job.NameProper]", s);
+            var data = {
+                processType: job.getPrivateData("Type"),
+                filename: job.getVariableAsString("[Job.NameProper]", s),
+                laminate: null
+            }
                 
             var savename = job.getName();
             
@@ -78,6 +90,9 @@ runFinalize = function(s, job){
                 if(handoffData.process == "FloorDecal"){
                     handoffData.laminate = ""
                 }
+
+                // Laminate
+                data.laminate = (handoffData.laminate.active || handoffData.coating.active) ? "-Lam" : "";
             
                 // Date and side information
                 data.dateID = date.getMonth() + "-" + date.getDate();
@@ -86,7 +101,7 @@ runFinalize = function(s, job){
                 
                 // Hierarchy
                 if(data.processType == "Print"){
-                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + handoffData.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
+                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + data.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
@@ -122,14 +137,14 @@ runFinalize = function(s, job){
             
             // Solon ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Solon"){
-                data.side = data.filename.match(new RegExp("S1","g")) ? "_F" : data.filename.match(new RegExp("S2","g")) ? "_B" : '';
+                data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + data.side + ".pdf";
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + handoffData.laminate.method + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
                 }
 
                 if(data.processType == "CSV"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + data.side + "-Header" + ".pdf";
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + "-Header" + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
