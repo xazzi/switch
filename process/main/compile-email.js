@@ -89,7 +89,7 @@ compileEmail = function(s, job){
                 emailDatabase_write(s, db, "parsed_data", "Phoenix", handoffData, entry)
             }else{
                 email.header += "\nStatus: Failed in Phoenix!" + "\n";
-                email.bcc = "bret.c@digitalroominc.com";
+                //email.bcc = "bret.c@digitalroominc.com";
             }
 
             // Pull any notes from the email table, including what was just posted.

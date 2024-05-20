@@ -178,7 +178,7 @@ runFinalize = function(s, job){
                 
                 if(data.processType == "Print"){
                     if(handoffData.process == "RollLabel"){
-                        savename = handoffData.projectID + " Layout " + phoenixPlan.index + " " + name.paper + " " + phoenixPlan.qty + " Frames" + ".pdf";
+                        savename = handoffData.projectID + " Layout " + phoenixPlan.index + " " + handoffData.paper + " " + phoenixPlan.qty + " Frames" + ".pdf";
                     }else{
                         savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
                     }

@@ -50,7 +50,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
             body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due + "\n" + "All files removed from gang due to errors." + "\n" + escalate;
             to = [userInfo.email];
             cc = []
-            bcc = [sendTo.bret];
+            bcc = [];
         break;
         case "Gang Notes":
             active = false;
