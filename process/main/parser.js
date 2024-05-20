@@ -501,10 +501,15 @@ runParser = function(s, job){
 
                     data.phoenix.gangLabel.push(matInfo.prodName)
                     
-                    // Data overrides and array pushes.
-                    if(data.coating.active || data.laminate.active){
-                        data.phoenix.gangLabel.push("Lam");
+                    // Apply special labels.
+                    // For LFP products (roll and sheet), apply coating as a laminate option.
+                    if(matInfo.type == "roll" || matInfo.type == "sheet"){
+                        if(data.coating.active || data.laminate.active){
+                            data.phoenix.gangLabel.push("Lam");
+                        }
                     }
+
+                    // Mount label.
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
                     }
@@ -677,7 +682,8 @@ runParser = function(s, job){
                     height: round(Number(orderArray[i].height)),
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
-                    coating: orderArray[i].coating.active ? true : orderArray[i].laminate.active ? true : false,
+                    laminate: orderArray[i].laminate.active ? true : false,
+                    coating: orderArray[i].coating.active ? true : false,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
                     stock: data.phoenixStock,
@@ -1442,7 +1448,7 @@ runParser = function(s, job){
                     if(matInfo.prodName == "RollStickers"){
                         data.thing += "-LabelMaster"
                     }	 
-                    if(matInfo.type == "roll"){
+                    if(matInfo.type == "roll" || matInfo.type == "roll-sticker" || matInfo.type == "roll-label"){
                         if(data.scaled){
                             data.thing += " (Scaled)";
                         }else if(data.oversize){
@@ -1638,11 +1644,24 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, settingsNode, "whiteink", matInfo.whiteElements);
 		addNode_db(theXML, settingsNode, "doublesided", data.doubleSided);
 		addNode_db(theXML, settingsNode, "secondsurf", data.secondSurface);
-		addNode_db(theXML, settingsNode, "laminate", data.coating.active ? true : data.laminate.active ? true : false);
 		addNode_db(theXML, settingsNode, "mount", data.mount.active);
 		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
         addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
 		addNode_db(theXML, settingsNode, "scaled", data.scaled);
+
+    var laminateNode = theXML.createElement("laminate", null);
+		handoffNode.appendChild(laminateNode);
+
+        addNode_db(theXML, settingsNode, "active", data.laminate.active ? true : false);
+        addNode_db(theXML, settingsNode, "method", data.laminate.method);
+        addNode_db(theXML, settingsNode, "value", data.laminate.value);
+
+    var coatingNode = theXML.createElement("coating", null);
+		handoffNode.appendChild(coatingNode);
+
+        addNode_db(theXML, settingsNode, "active", data.coating.active ? true : false);
+        addNode_db(theXML, settingsNode, "method", data.coating.method);
+        addNode_db(theXML, settingsNode, "value", data.coating.value);
 	
 	var mountNode = theXML.createElement("mount", null);
 		handoffNode.appendChild(mountNode);	

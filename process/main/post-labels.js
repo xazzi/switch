@@ -29,13 +29,39 @@ runPost = function(s, job){
             var handoffObj = {
                 dateID: handoffDataDS.evalToString("//base/dateID"),
                 sku: handoffDataDS.evalToString("//base/sku"),
+                type: handoffDataDS.evalToString("//base/type"),
                 jobNumber: handoffDataDS.evalToString("//base/saveLocation"),
                 material: handoffDataDS.evalToString("//base/process"),
                 doublesided: handoffDataDS.evalToString("//settings/doublesided") == "true",
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true",
-                laminate: handoffDataDS.evalToString("//settings/laminate") == "true",
                 secondsurface: handoffDataDS.evalToString("//settings/secondsurf") == "true",
-                printer: handoffDataDS.evalToString("//settings/printer")
+                printer: handoffDataDS.evalToString("//settings/printer"),
+                laminate: {
+                    active: handoffDataDS.evalToString("//laminate/active") == "true",
+                    method: handoffDataDS.evalToString("//laminate/method"),
+                    value: handoffDataDS.evalToString("//laminate/value")
+                },
+                coating: {
+                    active: handoffDataDS.evalToString("//coating/active") == "true",
+                    method: handoffDataDS.evalToString("//coating/method"),
+                    value: handoffDataDS.evalToString("//coating/value")
+                }
+            }
+
+            // Create a data object to anchor overrides to.
+            var data = {
+                laminate: null
+            }
+
+            // For LFP products (roll and sheet), apply coating as a laminate option.
+            if(handoffObj.type == "roll" || handoffObj.type == "sheet"){
+                if(handoffObj.laminate.active || handoffObj.coating.active){
+                    data.laminate = true
+                }
+            }else{
+                if(handoffObj.laminate.active){
+                    data.laminate = true
+                }
             }
             
             var doc = new Document(job.getPath());	
@@ -56,10 +82,6 @@ runPost = function(s, job){
                 xmlF.writeLine('"JobID": "' + doc.evalToString('//job/id', map) + '",');
                 xmlF.writeLine('"JobName": "' + 'House Stock' + '",');
                 xmlF.writeLine('"AddedOn": "' + new Date() + '",');
-                //xmlF.writeLine('"Contact": "' + doc.evalToString('//job/contact', map) + '",');
-                //xmlF.writeLine('"Phone": "' + doc.evalToString('//job/phone', map) + '",');
-                //xmlF.writeLine('"Client": "' + doc.evalToString('//job/client', map) + '",');
-                //xmlF.writeLine('"Note": "' + doc.evalToString('//job/notes', map) + '",');
                 xmlF.writeLine('"DefaultBleed": "' + '0.25' + '",');
                 xmlF.writeLine('"Units": "' + doc.evalToString('//job/units', map) + '",');
                 xmlF.writeLine('"RunLength": ' + doc.evalToString('//job/run-length', map) + ',');
@@ -82,7 +104,7 @@ runPost = function(s, job){
                 xmlF.writeLine('"DoubleSided": ' + handoffObj.doublesided + ',');
                 xmlF.writeLine('"PhoenixJobMountID": ' + 1 + ',');
                 xmlF.writeLine('"SecondSurface": ' + handoffObj.secondsurface + ',');
-                xmlF.writeLine('"Laminate": ' + handoffObj.laminate + ',');
+                xmlF.writeLine('"Laminate": ' + data.laminate + ',');
                 xmlF.writeLine('"Premask": ' + false + ',');
                 xmlF.writeLine('"Technician": "' + 'bcombe' + '",');
                 xmlF.writeLine('"Material": "' + handoffObj.material + '",');
