@@ -32,6 +32,13 @@ try{
                 }
             }
         }
+        if(allPaths[j].stroked){
+            if(allPaths[j].strokeColor.spot.name == "Kiss-cut"){
+                if(Math.round(allPaths[j].top) > top.thruCut){
+                    top.thruCut = Math.round(allPaths[j].top)
+                }
+            }
+        }
     }
 
     //Remove all but the top eyemark
@@ -51,6 +58,11 @@ try{
     for (var ii=allPaths.length-1; ii>=0; ii--){
         if(allPaths[ii].stroked){
             if(allPaths[ii].strokeColor.spot.name == "Thru-cut"){
+                if(Math.round(allPaths[ii].top) != top.thruCut){
+                    allPaths[ii].remove();
+                }
+            }
+            if(allPaths[ii].strokeColor.spot.name == "Kiss-cut"){
                 if(Math.round(allPaths[ii].top) != top.thruCut){
                     allPaths[ii].remove();
                 }
