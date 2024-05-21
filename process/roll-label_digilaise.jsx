@@ -13,6 +13,7 @@ try{
 
     var top = {
         thruCut: 0,
+        kissCut: 0,
         eyemark: 0
     }
 
@@ -32,6 +33,13 @@ try{
                 }
             }
         }
+        if(allPaths[j].stroked){
+            if(allPaths[j].strokeColor.spot.name == "Kiss-cut"){
+                if(Math.round(allPaths[j].top) > top.kissCut){
+                    top.kissCut = Math.round(allPaths[j].top)
+                }
+            }
+        }
     }
 
     //Remove all but the top eyemark
@@ -39,9 +47,7 @@ try{
     for (var ii=allPaths.length-1; ii>=0; ii--){
         if(allPaths[ii].filled){
             if(allPaths[ii].fillColor.spot.name == "register"){
-                //if(Math.round(allPaths[ii].top) != top.eyemark){
-                    allPaths[ii].remove();
-                //}
+                allPaths[ii].remove();
             }
         }
     }
@@ -58,10 +64,16 @@ try{
         }
     }
 
-    //Remove all but the top row of Thru-cuts
+    //Remove all but the top row of Kiss-cuts
     var allPaths = $doc.pageItems;
-    for(var j=0; j<allPaths.length; j++){
-        allPaths[j].selected = true
+    for (var ii=allPaths.length-1; ii>=0; ii--){
+        if(allPaths[ii].stroked){
+            if(allPaths[ii].strokeColor.spot.name == "Kiss-cut"){
+                if(Math.round(allPaths[ii].top) != top.kissCut){
+                    allPaths[ii].remove();
+                }
+            }
+        }
     }
 
     // Rotate the art.
