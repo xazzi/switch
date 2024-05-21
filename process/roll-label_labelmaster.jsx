@@ -13,6 +13,7 @@ try{
 
     var top = {
         thruCut: 0,
+        kissCut: 0,
         eyemark: 0
     }
 
@@ -34,8 +35,8 @@ try{
         }
         if(allPaths[j].stroked){
             if(allPaths[j].strokeColor.spot.name == "Kiss-cut"){
-                if(Math.round(allPaths[j].top) > top.thruCut){
-                    top.thruCut = Math.round(allPaths[j].top)
+                if(Math.round(allPaths[j].top) > top.kissCut){
+                    top.kissCut = Math.round(allPaths[j].top)
                 }
             }
         }
@@ -62,8 +63,15 @@ try{
                     allPaths[ii].remove();
                 }
             }
+        }
+    }
+
+    //Remove all but the top row of Thru-cuts
+    var allPaths = $doc.pageItems;
+    for (var ii=allPaths.length-1; ii>=0; ii--){
+        if(allPaths[ii].stroked){
             if(allPaths[ii].strokeColor.spot.name == "Kiss-cut"){
-                if(Math.round(allPaths[ii].top) != top.thruCut){
+                if(Math.round(allPaths[ii].top) != top.kissCut){
                     allPaths[ii].remove();
                 }
             }
