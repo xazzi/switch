@@ -46,7 +46,8 @@ runFinalize = function(s, job){
             
             var name = {
                 process: handoffData.prodMatFileName,
-                subprocess: ""
+                subprocess: "",
+                laminate: null
             }
             
             var fileStat = new FileStatistics(job.getPath());
@@ -58,8 +59,7 @@ runFinalize = function(s, job){
             var date = new Date();
             var data = {
                 processType: job.getPrivateData("Type"),
-                filename: job.getVariableAsString("[Job.NameProper]", s),
-                laminate: null
+                filename: job.getVariableAsString("[Job.NameProper]", s)
             }
                 
             var savename = job.getName();
@@ -86,13 +86,13 @@ runFinalize = function(s, job){
                     }
                 }
 
+                // Laminate
+                name.laminate = (handoffData.laminate.active || handoffData.coating.active) ? "-Lam" : "";
+
                 // FloorDecal
                 if(handoffData.process == "FloorDecal"){
-                    handoffData.laminate = ""
+                    name.laminate = ""
                 }
-
-                // Laminate
-                data.laminate = (handoffData.laminate.active || handoffData.coating.active) ? "-Lam" : "";
             
                 // Date and side information
                 data.dateID = date.getMonth() + "-" + date.getDate();
@@ -101,7 +101,7 @@ runFinalize = function(s, job){
                 
                 // Hierarchy
                 if(data.processType == "Print"){
-                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + data.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
+                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + name.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
@@ -138,9 +138,14 @@ runFinalize = function(s, job){
             // Solon ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Solon"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
+                if(handoffData.laminate.method == "null"){
+                    name.laminate = ""
+                }else{
+                    name.laminate = "_" + handoffData.laminate.method
+                }
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + handoffData.laminate.method + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
+                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + name.laminate + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
                 }
 
                 if(data.processType == "CSV"){

@@ -329,6 +329,8 @@ runParser = function(s, job){
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
 
+                s.log(2, orderSpecs.laminate.method)
+
                 // API pull failed.
                 if(!orderSpecs.complete){
                     data.notes.push([node.getAttributeValue('ID'),"Removed","API pull failed."])
@@ -480,8 +482,12 @@ runParser = function(s, job){
                     
                     data.doubleSided = orderSpecs.doubleSided;
                     data.secondSurface = orderSpecs.secondSurface;
-                    data.coating.active = orderSpecs.coating.active;
                     data.laminate.active = orderSpecs.laminate.active;
+                    data.laminate.method = orderSpecs.laminate.method;
+                    data.laminate.value = orderSpecs.laminate.value;
+                    data.coating.active = orderSpecs.coating.active;
+                    data.coating.method = orderSpecs.coating.method;
+                    data.coating.value = orderSpecs.coating.value;
                     data.mount.active = orderSpecs.mount.active;
 
                     data.impositionProfile = {
@@ -1362,6 +1368,13 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                 }
 
+                // Table Runner Templates
+                if(product.subprocess.name == "RectangleFlag"){
+                    scale.width = 91.2
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_F";
+                }
+
                 // Specific gang adjustments ----------------------------------------------------------
                 if(!submit.override.removeRestrictions.coroplast){
                     if(matInfo.prodName == "Coroplast"){
@@ -1445,7 +1458,7 @@ runParser = function(s, job){
                 // Set the Phoenix printer (thing).
                 data.thing = data.facility.destination + "/" + data.printer;
                 if(data.printer != "None"){	
-                    if(matInfo.prodName == "RollStickers"){
+                    if(matInfo.type == "roll-sticker"){
                         data.thing += "-LabelMaster"
                     }	 
                     if(matInfo.type == "roll" || matInfo.type == "roll-sticker" || matInfo.type == "roll-label"){
@@ -1496,6 +1509,17 @@ runParser = function(s, job){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf";
                         product.customLabel.value = (i+1)+"-B";
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                            
+                        writeCSV(s, csvFile, infoArray, 1);
+                    }
+                }
+
+                // Table Runner Templates
+                if(product.subprocess.name == "RectangleFlag"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                        product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_B";
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
                         writeCSV(s, csvFile, infoArray, 1);
