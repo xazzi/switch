@@ -4,7 +4,7 @@
     "key":"None",
     "parameters":[
         {
-            "description":"",
+            "description":"Standard sewn hems.",
             "type": "Custom Mark",
             "key":"None",
             "facility": [
@@ -61,6 +61,56 @@
                         "parameters": null,
                         "dynamic":[
                             "Offset:1.125"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "description":"Table Runners",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Celtec",
+                    "CeltecBanner"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "TableRunner"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":{
+                "product": {
+                    "script":{
+                        "name":"SewnHem",
+                        "parameters": null,
+                        "dynamic":[
+                            "Offset:.75"
                         ]
                     }
                 }

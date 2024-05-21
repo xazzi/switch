@@ -174,6 +174,10 @@ function getFileType(name, environment){
 		return getDirectory("C:/Switch/Depository/fileDistribution/" + environment + "/Phoenix")
 	}
 
+	if(name.match(/csv/) == "csv"){
+		return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/CSV")
+	}
+
 	return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/Print")
 }
 

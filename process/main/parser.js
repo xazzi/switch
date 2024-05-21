@@ -91,7 +91,8 @@ runParser = function(s, job){
                         gang: false,
                         items: []
                     },
-                    gangMethod: null
+                    gangMethod: null,
+                    labelmaster: false
                 }
             }
                 
@@ -178,6 +179,11 @@ runParser = function(s, job){
                 if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
                     submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
                 }
+
+                // Prep for the Labelmaster
+                if(submit.nodes.getItem(i).evalToString('tag') == "Labelmaster?"){
+                    submit.override.labelmaster = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                }
             }
             
             var orderArray = [];
@@ -248,7 +254,8 @@ runParser = function(s, job){
                 rotateBack: null,
                 rotate90: null,
                 rush: submit.override.rush,
-                sideMix: null
+                sideMix: null,
+                labelmaster: submit.override.labelmaster
             }
             
             var theNewToken = getNewToken(s, data.environment);
@@ -321,6 +328,8 @@ runParser = function(s, job){
                 
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
+
+                s.log(2, orderSpecs.laminate.method)
 
                 // API pull failed.
                 if(!orderSpecs.complete){
@@ -473,8 +482,12 @@ runParser = function(s, job){
                     
                     data.doubleSided = orderSpecs.doubleSided;
                     data.secondSurface = orderSpecs.secondSurface;
-                    data.coating.active = orderSpecs.coating.active;
                     data.laminate.active = orderSpecs.laminate.active;
+                    data.laminate.method = orderSpecs.laminate.method;
+                    data.laminate.value = orderSpecs.laminate.value;
+                    data.coating.active = orderSpecs.coating.active;
+                    data.coating.method = orderSpecs.coating.method;
+                    data.coating.value = orderSpecs.coating.value;
                     data.mount.active = orderSpecs.mount.active;
 
                     data.impositionProfile = {
@@ -494,10 +507,15 @@ runParser = function(s, job){
 
                     data.phoenix.gangLabel.push(matInfo.prodName)
                     
-                    // Data overrides and array pushes.
-                    if(data.coating.active || data.laminate.active){
-                        data.phoenix.gangLabel.push("Lam");
+                    // Apply special labels.
+                    // For LFP products (roll and sheet), apply coating as a laminate option.
+                    if(matInfo.type == "roll" || matInfo.type == "sheet"){
+                        if(data.coating.active || data.laminate.active){
+                            data.phoenix.gangLabel.push("Lam");
+                        }
                     }
+
+                    // Mount label.
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
                     }
@@ -670,7 +688,8 @@ runParser = function(s, job){
                     height: round(Number(orderArray[i].height)),
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
-                    coating: orderArray[i].coating.active ? true : orderArray[i].laminate.active ? true : false,
+                    laminate: orderArray[i].laminate.active ? true : false,
+                    coating: orderArray[i].coating.active ? true : false,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
                     stock: data.phoenixStock,
@@ -1310,6 +1329,11 @@ runParser = function(s, job){
                 // Set the sides that will use the labels.
                 var labels = setLabels(s, orderArray[i]);
 
+                // If it's contour at all, override the bleed type to margins, regardless of any facility or product.
+                if(orderArray[i].shape.method == "Custom" || orderArray[i].diecut.method == "Custom" || orderArray[i].shape.method == "Oval"){
+                    product.bleed.type = "Contour";
+                }
+
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
@@ -1339,6 +1363,18 @@ runParser = function(s, job){
                     }
                 }
 
+                // Table Runner Templates
+                if(product.subprocess.name == "TableRunner"){
+                    product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
+                }
+
+                // Table Runner Templates
+                if(product.subprocess.name == "RectangleFlag"){
+                    scale.width = 91.2
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_F";
+                }
+
                 // Specific gang adjustments ----------------------------------------------------------
                 if(!submit.override.removeRestrictions.coroplast){
                     if(matInfo.prodName == "Coroplast"){
@@ -1358,7 +1394,7 @@ runParser = function(s, job){
 
                 // Set the group number based on the height so they group together in Phoenix
                 // Set the overrun higher so it fills the sheet
-                if(matInfo.prodName == "RollStickers"){
+                if(matInfo.prodName == "RollLabel"){
                     product.group = product.quantity + "-" + product.height;
                     if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
                         product.group = product.quantity + "-" + product.width;
@@ -1421,8 +1457,11 @@ runParser = function(s, job){
                 
                 // Set the Phoenix printer (thing).
                 data.thing = data.facility.destination + "/" + data.printer;
-                if(data.printer != "None"){		 
-                    if(matInfo.type == "roll"){
+                if(data.printer != "None"){	
+                    if(matInfo.type == "roll-sticker"){
+                        data.thing += "-LabelMaster"
+                    }	 
+                    if(matInfo.type == "roll" || matInfo.type == "roll-sticker" || matInfo.type == "roll-label"){
                         if(data.scaled){
                             data.thing += " (Scaled)";
                         }else if(data.oversize){
@@ -1475,6 +1514,17 @@ runParser = function(s, job){
                         writeCSV(s, csvFile, infoArray, 1);
                     }
                 }
+
+                // Table Runner Templates
+                if(product.subprocess.name == "RectangleFlag"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                        product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_B";
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                            
+                        writeCSV(s, csvFile, infoArray, 1);
+                    }
+                }
                 
                 // Create the xml to inject the file into the flow.
                 if(product.transfer){
@@ -1508,7 +1558,7 @@ runParser = function(s, job){
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method,product.allowedRotations]);
                 
                 // Write the gang number to the database.
                 db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
@@ -1618,11 +1668,24 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, settingsNode, "whiteink", matInfo.whiteElements);
 		addNode_db(theXML, settingsNode, "doublesided", data.doubleSided);
 		addNode_db(theXML, settingsNode, "secondsurf", data.secondSurface);
-		addNode_db(theXML, settingsNode, "laminate", data.coating.active ? true : data.laminate.active ? true : false);
 		addNode_db(theXML, settingsNode, "mount", data.mount.active);
 		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
         addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
 		addNode_db(theXML, settingsNode, "scaled", data.scaled);
+
+    var laminateNode = theXML.createElement("laminate", null);
+		handoffNode.appendChild(laminateNode);
+
+        addNode_db(theXML, laminateNode, "active", data.laminate.active ? true : false);
+        addNode_db(theXML, laminateNode, "method", data.laminate.method);
+        addNode_db(theXML, laminateNode, "value", data.laminate.value);
+
+    var coatingNode = theXML.createElement("coating", null);
+		handoffNode.appendChild(coatingNode);
+
+        addNode_db(theXML, coatingNode, "active", data.coating.active ? true : false);
+        addNode_db(theXML, coatingNode, "method", data.coating.method);
+        addNode_db(theXML, coatingNode, "value", data.coating.value);
 	
 	var mountNode = theXML.createElement("mount", null);
 		handoffNode.appendChild(mountNode);	
@@ -1662,6 +1725,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "duplicateHoles", matInfo.duplicateHoles);
         addNode_db(theXML, miscNode, "splitDSLayouts", matInfo.splitDSLayouts);
         addNode_db(theXML, miscNode, "cutAdjustments", matInfo.cutAdjustments);
+        addNode_db(theXML, miscNode, "labelmaster", data.labelmaster);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -1708,6 +1772,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
                 addNode_db(theXML, subProductsNode, "item-name", productArray[i][6]);
                 addNode_db(theXML, subProductsNode, "shape-method", productArray[i][7]);
                 addNode_db(theXML, subProductsNode, "corner-method", productArray[i][8]);
+                addNode_db(theXML, subProductsNode, "rotation", productArray[i][9]);
 		}
 	}
 	

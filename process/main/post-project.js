@@ -41,9 +41,34 @@ runPost = function(s, job){
                 material: handoffDataDS.evalToString("//base/process"),
                 doublesided: false, //handoffDataDS.evalToString("//settings/doublesided") == "true",
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true",
-                laminate: handoffDataDS.evalToString("//settings/laminate") == "true",
                 secondsurface: handoffDataDS.evalToString("//settings/secondsurf") == "true",
-                printer: handoffDataDS.evalToString("//settings/printer")
+                printer: handoffDataDS.evalToString("//settings/printer"),
+                laminate: {
+                    active: handoffDataDS.evalToString("//laminate/active") == "true",
+                    method: handoffDataDS.evalToString("//laminate/method"),
+                    value: handoffDataDS.evalToString("//laminate/value")
+                },
+                coating: {
+                    active: handoffDataDS.evalToString("//coating/active") == "true",
+                    method: handoffDataDS.evalToString("//coating/method"),
+                    value: handoffDataDS.evalToString("//coating/value")
+                }
+            }
+
+            // Create a data object to anchor overrides to.
+            var data = {
+                laminate: null
+            }
+
+            // For LFP products (roll and sheet), apply coating as a laminate option.
+            if(handoffObj.type == "roll" || handoffObj.type == "sheet"){
+                if(handoffObj.laminate.active || handoffObj.coating.active){
+                    data.laminate = true
+                }
+            }else{
+                if(handoffObj.laminate.active){
+                    data.laminate = true
+                }
             }
             
             var doc = new Document(job.getPath());	
@@ -90,7 +115,7 @@ runPost = function(s, job){
                 xmlF.writeLine('"WhiteInk": ' + handoffObj.whiteink + ',');
                 xmlF.writeLine('"DoubleSided": ' + handoffObj.doublesided + ',');
                 xmlF.writeLine('"SecondSurface": ' + handoffObj.secondsurface + ',');
-                xmlF.writeLine('"Laminate": ' + handoffObj.laminate + ',');
+                xmlF.writeLine('"Laminate": ' + data.laminate + ',');
                 xmlF.writeLine('"Premask": ' + false + ',');
                 
                 //layout loop starts here

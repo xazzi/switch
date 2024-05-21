@@ -13,7 +13,7 @@
                 "13oz-Smooth"
             ],
             "properties": {
-                "mixed": false,
+                "mixed": true,
                 "undersize": "Default",
                 "orientationCheck": true
             },

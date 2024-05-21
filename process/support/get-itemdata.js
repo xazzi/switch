@@ -75,6 +75,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				method: null,
 				value: null
 			},
+			laminate: {
+				active: false,
+				method: null,
+				value: null
+			},
 			coating: {
 				active: false,
 				method: null,
@@ -135,9 +140,6 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				active: false,
 				method: null,
 				value: null
-			},
-			laminate: {
-				active: false
 			},
 			disable: {
 				label: {
