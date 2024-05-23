@@ -57,7 +57,7 @@ runPost = function(s, job){
 
             // Create a data object to anchor overrides to.
             var data = {
-                laminate: null
+                laminate: false
             }
 
             // For LFP products (roll and sheet), apply coating as a laminate option.
