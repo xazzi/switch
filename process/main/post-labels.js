@@ -50,7 +50,7 @@ runPost = function(s, job){
 
             // Create a data object to anchor overrides to.
             var data = {
-                laminate: null
+                laminate: false
             }
 
             // For LFP products (roll and sheet), apply coating as a laminate option.
@@ -232,7 +232,7 @@ runPost = function(s, job){
             job.sendTo(findConnectionByName(s, "Success"), job.getPath());          
             
         }catch(e){
-            s.log(2, "Critical Error: Post-Phoenix")
+            s.log(2, "Critical Error: Post-Phoenix: + " + e)
             job.sendTo(findConnectionByName(s, "Error"), job.getPath());
         }
     }
