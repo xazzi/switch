@@ -39,6 +39,7 @@ runPost = function(s, job){
             var handoffObj = {
                 projectID: handoffDataDS.evalToString("//base/projectID"),
                 material: handoffDataDS.evalToString("//base/process"),
+                type: handoffDataDS.evalToString("//base/type"),
                 doublesided: false, //handoffDataDS.evalToString("//settings/doublesided") == "true",
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true",
                 secondsurface: handoffDataDS.evalToString("//settings/secondsurf") == "true",
