@@ -20,7 +20,7 @@ try{
     var allPaths = $doc.pageItems;
     for(var j=0; j<allPaths.length; j++){
         if(allPaths[j].filled){
-            if(allPaths[j].fillColor.spot.name == "register"){
+            if(allPaths[j].fillColor.spot.name == "Eyemark"){
                 if(Math.round(allPaths[j].top) > top.eyemark){
                     top.eyemark = Math.round(allPaths[j].top)
                 }
@@ -46,7 +46,7 @@ try{
     var allPaths = $doc.pageItems;
     for (var ii=allPaths.length-1; ii>=0; ii--){
         if(allPaths[ii].filled){
-            if(allPaths[ii].fillColor.spot.name == "register"){
+            if(allPaths[ii].fillColor.spot.name == "Eyemark"){
                 allPaths[ii].remove();
             }
         }
