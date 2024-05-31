@@ -78,7 +78,7 @@ runParser = function(s, job){
                     facility: null
                 },
                 override:{
-                    mixedFinishing: null,
+                    mixedHem: null,
                     sideMix: null,
                     rush: false,
                     priority: 0,
@@ -107,17 +107,17 @@ runParser = function(s, job){
                     }
                 }
 
-                // Finishing separation field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix finishing?"){
-                    submit.override.mixedFinishing = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
+                if(submit.nodes.getItem(i).evalToString('tag') == "Mix hems?"){
+                    submit.override.mixedHem = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
-                // Finishing separation field.
+                // Redownload file field.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Redownload file?"){
                     redownloadFrom(submit.nodes.getItem(i).evalToString('value'), submit)
                 }
 
-                // Finishing separation field.
+                // Gang method override.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Gang Method"){
                     submit.override.gangMethod = submit.nodes.getItem(i).evalToString('value')
                 }
@@ -137,7 +137,7 @@ runParser = function(s, job){
                     }
                 }
 
-                // Finishing separation field.
+                // Mix sides override.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix sides?"){
                     submit.override.sideMix = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
@@ -574,11 +574,11 @@ runParser = function(s, job){
                     continue;
                 }
                 
-                // If finishing type is different, remove them from the gang.
+                // If finishing hem type is different, remove them from the gang.
                 if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
-                    if(!submit.override.mixedFinishing){
+                    if(!submit.override.mixedHem){
                         if(data.finishingType != orderSpecs.finishingType){
-                            data.notes.push([orderSpecs.jobItemId,"Removed","Different finishing type, " + orderSpecs.finishingType + "."]);
+                            data.notes.push([orderSpecs.jobItemId,"Removed","Different hem type, " + orderSpecs.finishingType + "."]);
                             continue;
                         }
                     }
