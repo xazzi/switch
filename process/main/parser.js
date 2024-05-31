@@ -83,7 +83,10 @@ runParser = function(s, job){
                     rush: false,
                     priority: 0,
                     date: false,
-                    redownload: false,
+                    redownload:{
+                        bool: false,
+                        location: null
+                    },
                     removeRestrictions:{
                         coroplast: false
                     },
@@ -111,7 +114,7 @@ runParser = function(s, job){
 
                 // Finishing separation field.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Redownload file?"){
-                    submit.override.redownload = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                    redownloadFrom(submit.nodes.getItem(i).evalToString('value'), submit)
                 }
 
                 // Finishing separation field.
@@ -298,6 +301,7 @@ runParser = function(s, job){
                 }
             }
             
+            // Force user dev settings.
             if(module.devSettings.forceUser == "Bret Combe"){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
@@ -317,7 +321,18 @@ runParser = function(s, job){
                 first: db.general.getString(1),
                 last: db.general.getString(2),
                 email: db.general.getString(3),
-                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4)
+                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4),
+                fileSource: getFileSource(db.general.getString(9))
+            }
+
+            // If the module is set to choose the fileSource based on user.
+            if(data.fileSource == "User Defined"){
+                data.fileSource = userInfo.fileSource
+            }
+
+            // Override the fileSource if necessary.
+            if(submit.override.redownload.bool){
+                data.fileSource = submit.override.redownload.location
             }
                 
             // Loop through the items, pull the data from the API, then post it to the array.
@@ -328,8 +343,6 @@ runParser = function(s, job){
                 
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
-
-                s.log(2, orderSpecs.laminate.method)
 
                 // API pull failed.
                 if(!orderSpecs.complete){
@@ -938,7 +951,7 @@ runParser = function(s, job){
                     
                 // Do we need to transfer the file from the depository?
                 if(file.depository.exists){
-                    if(submit.override.redownload){
+                    if(submit.override.redownload.bool){
                         try{
                             file.depository.remove();
                             s.log(2, product.contentFile + " removed successfully, redownloading.")
