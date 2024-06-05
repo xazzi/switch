@@ -131,6 +131,38 @@
                     "sideMix": 1
                 }  
             }
+        },
+        {
+            "facility": {
+                "name": "Van Nuys",
+                "id": "1",
+                "enabled": true
+            },
+            "processes": [
+                "Coroplast"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": false,
+                "orientationCheck": false
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "rotation": "Custom",
+                    "allowedRotations": 90,
+                    "pageHandling": "OnePerPage",
+                    "overrunMax": 20,
+                    "shapeSearch": "Multiple"
+                },
+                "data": {
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
+                    "sideMix": 1
+                }  
+            }
         }
     ]
 }
