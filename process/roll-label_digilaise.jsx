@@ -84,7 +84,7 @@ try{
         for(var a = allLayers[n].pageItems.length-1; a > 0; a--){  
             app.activeDocument.layers[n].pageItems[a].moveToBeginning(newGroup);
         }
-        newGroup.rotate(90);
+        newGroup.rotate(-90);
     }
 
     // Change the artboard to be the width of the product + at least an offset from the art.
