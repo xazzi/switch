@@ -66,9 +66,10 @@ runParser = function(s, job){
                 nodes: !module.devSettings.ignoreSubmit ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
-                route: false,
-                facilityName: "Default",
-                facilityId: "Default",
+                route:{
+                    active: false,
+                    facility: null
+                },
                 material:{
                     active: false,
                     name: null,
@@ -79,6 +80,7 @@ runParser = function(s, job){
                 },
                 override:{
                     mixedHem: null,
+                    mixedLam: null,
                     sideMix: null,
                     rush: false,
                     priority: 0,
@@ -110,6 +112,11 @@ runParser = function(s, job){
                 // Hem finishing separation field. changed mixed finishing to mixed hem -CM
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix hems?"){
                     submit.override.mixedHem = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                }
+
+                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
+                if(submit.nodes.getItem(i).evalToString('tag') == "Mix lam?"){
+                    submit.override.mixedLam = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
                 // Redownload file field.
@@ -145,12 +152,8 @@ runParser = function(s, job){
                 // Rerouting input field.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Route to another facility?"){
                     if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.route = true;				
-                        submit.facilityName = submit.nodes.getItem(i).evalToString("field-list/field/value");
-
-                        db.general.execute("SELECT * FROM digital_room.facility WHERE facility = '" + submit.facilityName + "';");
-                        db.general.fetchRow();
-                        submit.facilityId = db.general.getString(3);
+                        submit.route.active = true;				
+                        submit.route.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
                     }
                 }
 
@@ -356,6 +359,7 @@ runParser = function(s, job){
                     continue;
                 }
 
+                // Remove the file if shipping information doesn't exist.
                 if(!orderSpecs.ship.exists){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
                     continue;
@@ -364,12 +368,19 @@ runParser = function(s, job){
                 // Set facility information
                 if(data.facility.original == null){
                     data.facility.original = orderSpecs.facility;
-                    data.facility.destination = submit.route ? submit.facilityName : orderSpecs.facility;
-                }
-                
-                // Override the facilityId with the manual route, if true.
-                if(submit.route){
-                    orderSpecs.facilityId = submit.facilityId;
+                    data.facility.destination = submit.route.active ? submit.route.facility : orderSpecs.facility;
+
+                    // Pull the facility information.
+                    db.general.execute("SELECT * FROM digital_room.facility WHERE facility = '" + data.facility.destination + "';");
+                    db.general.fetchRow();
+
+                    orderSpecs.facilityId = db.general.getString(3);
+                    data.facility.id = db.general.getString(3);
+
+                    // Set any facility level breakers to disable processes
+                    data.facility.breaker = {
+                        lam: db.general.getString(5) == 'y'
+                    }
                 }
 
                 // Material overrides
@@ -599,9 +610,28 @@ runParser = function(s, job){
                         continue;
                     }
                 }
-                
+
+                // If the laminate breaker is on, separate the laminates out.
+                if(!data.facility.breaker.lam){
+                    
+                    // Check if coating deviation
+                    if(data.coating.active != orderSpecs.coating.active){
+                        var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        continue;
+                    }
+                    
+                    // Check if laminate deviation
+                    if(data.laminate.active != orderSpecs.laminate.active){
+                        var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        continue;
+                    }
+                }
+
                 // Laminate and coating checks, skip if allowed to mix.
-                if(!matInfo.lamMix){
+                if(!matInfo.lamMix && !submit.override.mixedLam){
+
                     // Check if coating deviation
                     if(data.coating.active != orderSpecs.coating.active){
                         var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
@@ -1739,6 +1769,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "splitDSLayouts", matInfo.splitDSLayouts);
         addNode_db(theXML, miscNode, "cutAdjustments", matInfo.cutAdjustments);
         addNode_db(theXML, miscNode, "labelmaster", data.labelmaster);
+        addNode_db(theXML, miscNode, "addKeyline", matInfo.addKeyline);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
