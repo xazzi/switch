@@ -197,7 +197,7 @@ runFinalize = function(s, job){
                 handoffData.surface = handoffDataDS.evalToString("//settings/secondsurf") == "true" ? "-MIRROR" : "";
                 
                 if(data.processType == "Print"){
-                    if(handoffData.process == "RollLabel"){
+                    if(handoffData.type == "roll-label"){
                         savename = handoffData.projectID + " Layout " + phoenixPlan.index + " " + handoffData.paper + " " + phoenixPlan.qty + " Frames" + ".pdf";
                     }else{
                         savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
@@ -205,7 +205,7 @@ runFinalize = function(s, job){
                 }
                 
                 if(data.processType == "Cut"){
-                    if(handoffData.process == "RollLabel"){
+                    if(handoffData.type == "roll-label"){
                         savename = handoffData.projectID + "-" + phoenixPlan.index + ".pdf";
                     }else{
                         savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
