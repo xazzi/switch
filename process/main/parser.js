@@ -1,3 +1,4 @@
+//chelsea was here
 runParser = function(s, job){
     function parser(s, job){
         try{
@@ -65,9 +66,10 @@ runParser = function(s, job){
                 nodes: !module.devSettings.ignoreSubmit ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
-                route: false,
-                facilityName: "Default",
-                facilityId: "Default",
+                route:{
+                    active: false,
+                    facility: null
+                },
                 material:{
                     active: false,
                     name: null,
@@ -77,12 +79,16 @@ runParser = function(s, job){
                     facility: null
                 },
                 override:{
-                    mixedFinishing: null,
+                    mixedHem: null,
+                    mixedLam: null,
                     sideMix: null,
                     rush: false,
                     priority: 0,
                     date: false,
-                    redownload: false,
+                    redownload:{
+                        bool: false,
+                        location: null
+                    },
                     removeRestrictions:{
                         coroplast: false
                     },
@@ -90,7 +96,8 @@ runParser = function(s, job){
                         gang: false,
                         items: []
                     },
-                    gangMethod: null
+                    gangMethod: null,
+                    labelmaster: false
                 }
             }
                 
@@ -102,17 +109,22 @@ runParser = function(s, job){
                     }
                 }
 
-                // Finishing separation field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix finishing?"){
-                    submit.override.mixedFinishing = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
+                if(submit.nodes.getItem(i).evalToString('tag') == "Mix hems?"){
+                    submit.override.mixedHem = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
-                // Finishing separation field.
+                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
+                if(submit.nodes.getItem(i).evalToString('tag') == "Mix lam?"){
+                    submit.override.mixedLam = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                }
+
+                // Redownload file field.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Redownload file?"){
-                    submit.override.redownload = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                    redownloadFrom(submit.nodes.getItem(i).evalToString('value'), submit)
                 }
 
-                // Finishing separation field.
+                // Gang method override.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Gang Method"){
                     submit.override.gangMethod = submit.nodes.getItem(i).evalToString('value')
                 }
@@ -132,7 +144,7 @@ runParser = function(s, job){
                     }
                 }
 
-                // Finishing separation field.
+                // Mix sides override.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix sides?"){
                     submit.override.sideMix = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
@@ -140,12 +152,8 @@ runParser = function(s, job){
                 // Rerouting input field.
                 if(submit.nodes.getItem(i).evalToString('tag') == "Route to another facility?"){
                     if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.route = true;				
-                        submit.facilityName = submit.nodes.getItem(i).evalToString("field-list/field/value");
-
-                        db.general.execute("SELECT * FROM digital_room.facility WHERE facility = '" + submit.facilityName + "';");
-                        db.general.fetchRow();
-                        submit.facilityId = db.general.getString(3);
+                        submit.route.active = true;				
+                        submit.route.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
                     }
                 }
 
@@ -176,6 +184,11 @@ runParser = function(s, job){
                 // Remove Coroplast restrictions
                 if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
                     submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
+                }
+
+                // Prep for the Labelmaster
+                if(submit.nodes.getItem(i).evalToString('tag') == "Labelmaster?"){
+                    submit.override.labelmaster = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
             }
             
@@ -247,7 +260,8 @@ runParser = function(s, job){
                 rotateBack: null,
                 rotate90: null,
                 rush: submit.override.rush,
-                sideMix: null
+                sideMix: null,
+                labelmaster: submit.override.labelmaster
             }
             
             var theNewToken = getNewToken(s, data.environment);
@@ -290,6 +304,7 @@ runParser = function(s, job){
                 }
             }
             
+            // Force user dev settings.
             if(module.devSettings.forceUser == "Bret Combe"){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
@@ -309,7 +324,18 @@ runParser = function(s, job){
                 first: db.general.getString(1),
                 last: db.general.getString(2),
                 email: db.general.getString(3),
-                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4)
+                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4),
+                fileSource: getFileSource(db.general.getString(9))
+            }
+
+            // If the module is set to choose the fileSource based on user.
+            if(data.fileSource == "User Defined"){
+                data.fileSource = userInfo.fileSource
+            }
+
+            // Override the fileSource if necessary.
+            if(submit.override.redownload.bool){
+                data.fileSource = submit.override.redownload.location
             }
                 
             // Loop through the items, pull the data from the API, then post it to the array.
@@ -333,6 +359,7 @@ runParser = function(s, job){
                     continue;
                 }
 
+                // Remove the file if shipping information doesn't exist.
                 if(!orderSpecs.ship.exists){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
                     continue;
@@ -341,12 +368,19 @@ runParser = function(s, job){
                 // Set facility information
                 if(data.facility.original == null){
                     data.facility.original = orderSpecs.facility;
-                    data.facility.destination = submit.route ? submit.facilityName : orderSpecs.facility;
-                }
-                
-                // Override the facilityId with the manual route, if true.
-                if(submit.route){
-                    orderSpecs.facilityId = submit.facilityId;
+                    data.facility.destination = submit.route.active ? submit.route.facility : orderSpecs.facility;
+
+                    // Pull the facility information.
+                    db.general.execute("SELECT * FROM digital_room.facility WHERE facility = '" + data.facility.destination + "';");
+                    db.general.fetchRow();
+
+                    orderSpecs.facilityId = db.general.getString(3);
+                    data.facility.id = db.general.getString(3);
+
+                    // Set any facility level breakers to disable processes
+                    data.facility.breaker = {
+                        lam: db.general.getString(5) == 'y'
+                    }
                 }
 
                 // Material overrides
@@ -472,8 +506,12 @@ runParser = function(s, job){
                     
                     data.doubleSided = orderSpecs.doubleSided;
                     data.secondSurface = orderSpecs.secondSurface;
-                    data.coating.active = orderSpecs.coating.active;
                     data.laminate.active = orderSpecs.laminate.active;
+                    data.laminate.method = orderSpecs.laminate.method;
+                    data.laminate.value = orderSpecs.laminate.value;
+                    data.coating.active = orderSpecs.coating.active;
+                    data.coating.method = orderSpecs.coating.method;
+                    data.coating.value = orderSpecs.coating.value;
                     data.mount.active = orderSpecs.mount.active;
 
                     data.impositionProfile = {
@@ -493,10 +531,15 @@ runParser = function(s, job){
 
                     data.phoenix.gangLabel.push(matInfo.prodName)
                     
-                    // Data overrides and array pushes.
-                    if(data.coating.active || data.laminate.active){
-                        data.phoenix.gangLabel.push("Lam");
+                    // Apply special labels.
+                    // For LFP products (roll and sheet), apply coating as a laminate option.
+                    if(matInfo.type == "roll" || matInfo.type == "sheet"){
+                        if(data.coating.active || data.laminate.active){
+                            data.phoenix.gangLabel.push("Lam");
+                        }
                     }
+
+                    // Mount label.
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
                     }
@@ -542,11 +585,11 @@ runParser = function(s, job){
                     continue;
                 }
                 
-                // If finishing type is different, remove them from the gang.
+                // If finishing hem type is different, remove them from the gang.
                 if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
-                    if(!submit.override.mixedFinishing){
+                    if(!submit.override.mixedHem){
                         if(data.finishingType != orderSpecs.finishingType){
-                            data.notes.push([orderSpecs.jobItemId,"Removed","Different finishing type, " + orderSpecs.finishingType + "."]);
+                            data.notes.push([orderSpecs.jobItemId,"Removed","Different hem type, " + orderSpecs.finishingType + "."]);
                             continue;
                         }
                     }
@@ -567,9 +610,28 @@ runParser = function(s, job){
                         continue;
                     }
                 }
-                
+
+                // If the laminate breaker is on, separate the laminates out.
+                if(!data.facility.breaker.lam){
+                    
+                    // Check if coating deviation
+                    if(data.coating.active != orderSpecs.coating.active){
+                        var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        continue;
+                    }
+                    
+                    // Check if laminate deviation
+                    if(data.laminate.active != orderSpecs.laminate.active){
+                        var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        continue;
+                    }
+                }
+
                 // Laminate and coating checks, skip if allowed to mix.
-                if(!matInfo.lamMix){
+                if(!matInfo.lamMix && !submit.override.mixedLam){
+
                     // Check if coating deviation
                     if(data.coating.active != orderSpecs.coating.active){
                         var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
@@ -669,7 +731,8 @@ runParser = function(s, job){
                     height: round(Number(orderArray[i].height)),
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
-                    coating: orderArray[i].coating.active ? true : orderArray[i].laminate.active ? true : false,
+                    laminate: orderArray[i].laminate.active ? true : false,
+                    coating: orderArray[i].coating.active ? true : false,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
                     stock: data.phoenixStock,
@@ -918,7 +981,7 @@ runParser = function(s, job){
                     
                 // Do we need to transfer the file from the depository?
                 if(file.depository.exists){
-                    if(submit.override.redownload){
+                    if(submit.override.redownload.bool){
                         try{
                             file.depository.remove();
                             s.log(2, product.contentFile + " removed successfully, redownloading.")
@@ -1343,6 +1406,18 @@ runParser = function(s, job){
                     }
                 }
 
+                // Table Runner Templates
+                if(product.subprocess.name == "TableRunner"){
+                    product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
+                }
+
+                // Table Runner Templates
+                if(product.subprocess.name == "RectangleFlag"){
+                    scale.width = 91.2
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_F";
+                }
+
                 // Specific gang adjustments ----------------------------------------------------------
                 if(!submit.override.removeRestrictions.coroplast){
                     if(matInfo.prodName == "Coroplast"){
@@ -1362,7 +1437,7 @@ runParser = function(s, job){
 
                 // Set the group number based on the height so they group together in Phoenix
                 // Set the overrun higher so it fills the sheet
-                if(matInfo.prodName == "RollStickers"){
+                if(matInfo.prodName == "RollLabel"){
                     product.group = product.quantity + "-" + product.height;
                     if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
                         product.group = product.quantity + "-" + product.width;
@@ -1425,8 +1500,11 @@ runParser = function(s, job){
                 
                 // Set the Phoenix printer (thing).
                 data.thing = data.facility.destination + "/" + data.printer;
-                if(data.printer != "None"){		 
-                    if(matInfo.type == "roll"){
+                if(data.printer != "None"){	
+                    if(matInfo.type == "roll-sticker"){
+                        data.thing += "-LabelMaster"
+                    }	 
+                    if(matInfo.type == "roll" || matInfo.type == "roll-sticker" || matInfo.type == "roll-label"){
                         if(data.scaled){
                             data.thing += " (Scaled)";
                         }else if(data.oversize){
@@ -1479,6 +1557,17 @@ runParser = function(s, job){
                         writeCSV(s, csvFile, infoArray, 1);
                     }
                 }
+
+                // Table Runner Templates
+                if(product.subprocess.name == "RectangleFlag"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                        product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_B";
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                            
+                        writeCSV(s, csvFile, infoArray, 1);
+                    }
+                }
                 
                 // Create the xml to inject the file into the flow.
                 if(product.transfer){
@@ -1512,7 +1601,7 @@ runParser = function(s, job){
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method,product.allowedRotations]);
                 
                 // Write the gang number to the database.
                 db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
@@ -1622,11 +1711,24 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, settingsNode, "whiteink", matInfo.whiteElements);
 		addNode_db(theXML, settingsNode, "doublesided", data.doubleSided);
 		addNode_db(theXML, settingsNode, "secondsurf", data.secondSurface);
-		addNode_db(theXML, settingsNode, "laminate", data.coating.active ? true : data.laminate.active ? true : false);
 		addNode_db(theXML, settingsNode, "mount", data.mount.active);
 		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
         addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
 		addNode_db(theXML, settingsNode, "scaled", data.scaled);
+
+    var laminateNode = theXML.createElement("laminate", null);
+		handoffNode.appendChild(laminateNode);
+
+        addNode_db(theXML, laminateNode, "active", data.laminate.active ? true : false);
+        addNode_db(theXML, laminateNode, "method", data.laminate.method);
+        addNode_db(theXML, laminateNode, "value", data.laminate.value);
+
+    var coatingNode = theXML.createElement("coating", null);
+		handoffNode.appendChild(coatingNode);
+
+        addNode_db(theXML, coatingNode, "active", data.coating.active ? true : false);
+        addNode_db(theXML, coatingNode, "method", data.coating.method);
+        addNode_db(theXML, coatingNode, "value", data.coating.value);
 	
 	var mountNode = theXML.createElement("mount", null);
 		handoffNode.appendChild(mountNode);	
@@ -1666,6 +1768,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "duplicateHoles", matInfo.duplicateHoles);
         addNode_db(theXML, miscNode, "splitDSLayouts", matInfo.splitDSLayouts);
         addNode_db(theXML, miscNode, "cutAdjustments", matInfo.cutAdjustments);
+        addNode_db(theXML, miscNode, "labelmaster", data.labelmaster);
+        addNode_db(theXML, miscNode, "addKeyline", matInfo.addKeyline);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -1712,6 +1816,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
                 addNode_db(theXML, subProductsNode, "item-name", productArray[i][6]);
                 addNode_db(theXML, subProductsNode, "shape-method", productArray[i][7]);
                 addNode_db(theXML, subProductsNode, "corner-method", productArray[i][8]);
+                addNode_db(theXML, subProductsNode, "rotation", productArray[i][9]);
 		}
 	}
 	

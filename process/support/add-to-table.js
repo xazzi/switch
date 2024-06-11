@@ -163,15 +163,6 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             }
         }
 
-        // Coating options
-        if(table == "options_coating"){
-            return specs = {
-                active: db.general.getString(4) == "None" ? false : true,
-                method: db.general.getString(4),
-                value: db.general.getString(1)
-            }
-        }
-
         // Mount options
         if(table == "options_mount"){
             return specs = {
@@ -221,6 +212,15 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         if(table == "options_laminate"){
             return specs = {
                 active: true,
+                method: db.general.getString(4),
+                value: db.general.getString(1)
+            }
+        }
+
+        // Coating options
+        if(table == "options_coating"){
+            return specs = {
+                active: db.general.getString(4) == "None" ? false : true,
                 method: db.general.getString(4),
                 value: db.general.getString(1)
             }

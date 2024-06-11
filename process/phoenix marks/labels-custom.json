@@ -214,7 +214,7 @@
                 {
                     "name": "Wixom",
                     "id": "37",
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
@@ -345,6 +345,52 @@
                     "group": "Facility",
                     "name":"A-Frame-Type",
                     "dir":"/Misc/"
+                }
+            ]
+        },
+        {
+            "description":"Table Runners",
+            "type":"Hem Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "TableRunner"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "group": "Facility",
+                    "name":"OrderItemInfo",
+                    "dir":"/Master Labels/Custom/Table Runners/"
                 }
             ]
         }
