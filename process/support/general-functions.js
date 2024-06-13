@@ -73,6 +73,17 @@ loadDataset_db = function(dataset){
     return datasetDoc
 }
 
+loadDatasetNoFail_db = function(dataset){
+    var datasetJob = job.getDataset(dataset);
+	if (datasetJob === undefined || !datasetJob.hasValidData()) {
+		//job.fail("Missing " + dataset);
+		return "Dataset Missing"
+	}
+	var datasetDoc = new Document(datasetJob.getPath());
+    
+    return datasetDoc
+}
+
 contains = function(a, object) {
 	var i = a.length;
 	while (i--) {

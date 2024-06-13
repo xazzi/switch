@@ -8,10 +8,15 @@ runPost = function(s, job){
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
 
-            var handoffDataDS = loadDataset_db("Handoff Data");
-            var handoffObj = {
-                projectID: handoffDataDS.evalToString("//base/projectID"),
-                process: handoffDataDS.evalToString("//base/process")
+            var handoffDataDS = loadDatasetNoFail_db("Handoff Data");
+            var handoffObj = {}
+            
+            if(handoffDataDS == "Dataset Missing"){
+                handoffObj.projectID = job.getNameProper()
+                handoffObj.process = "Unknown"
+            }else{
+                handoffObj.projectID = handoffDataDS.evalToString("//base/projectID")
+                handoffObj.process = handoffDataDS.evalToString("//base/process")
             }
 
             var newJob = s.createNewJob();
