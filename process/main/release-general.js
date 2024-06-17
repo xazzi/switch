@@ -27,7 +27,7 @@ runRelease = function(s){
 
             var toPhoenix = getDirectory("C:/Switch/Depository/toPhoenix/" + module.localEnvironment + "/" + module.phoenixServer);
             
-            var threshold = 5 * 60000; //5 mins
+            var threshold = 15 * 60000; //5 mins
             var now = new Date();
                         
             var csvFiles = csvDepository.entryList("*.csv", Dir.Files, Dir.Name);
