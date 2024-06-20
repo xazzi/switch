@@ -59,7 +59,11 @@
                 ]
             },
             "specs":{
-                "requirements":{},
+                "requirements":{
+                    "labels":{
+                        "bottom":true
+                    }
+                },
                 "rejections":{
                     "orderArray":{
                         "shape":{
