@@ -23,7 +23,8 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/set-phoenix-scripts.js"));
             eval(File.read(dir.support + "/add-to-table.js"));
             eval(File.read(dir.support + "/compile-csv.js"));
-            eval(File.read(dir.support + "/set-labels.js"));
+            eval(File.read(dir.support + "/set-hem-labels.js"));
+            eval(File.read(dir.support + "/set-product-labels.js"));
             eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/get-edge-finishing.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
@@ -425,6 +426,15 @@ runParser = function(s, job){
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
                         job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         return;
+                    }
+                }
+
+                // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
+                if(orderSpecs.facility != data.facility.destination){
+                    if(!submit.route.active){
+                        sendEmail_db(s, data, matInfo, getEmailResponse("Facility Mismatch", null, matInfo, data, userInfo, null), userInfo);
+                        job.sendToNull(job.getPath());
+                        return
                     }
                 }
 
@@ -1369,8 +1379,11 @@ runParser = function(s, job){
                     }
                 }
 
-                // Set the sides that will use the labels.
-                var labels = setLabels(s, orderArray[i]);
+                // Set advanced settings for the marks
+                var advancedSettings = {
+                    hemLabel: setHemLabels(s, orderArray[i]),
+                    productLabel: setProductLabel(s, orderArray[i])
+                }
 
                 // If it's contour at all, override the bleed type to margins, regardless of any facility or product.
                 if(orderArray[i].shape.method == "Custom" || orderArray[i].diecut.method == "Custom" || orderArray[i].shape.method == "Oval"){
@@ -1379,7 +1392,7 @@ runParser = function(s, job){
 
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
-                setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, labels);
+                setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, advancedSettings);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
 
                 // If the product requires a custom label, apply it.
@@ -1411,11 +1424,16 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                 }
 
-                // Table Runner Templates
+                // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
-                    scale.width = 91.2
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_F";
+                }
+
+                // Angled Flag Templates
+                if(product.subprocess.name == "AngledFlag"){
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    product.dieDesignName = "angledFlag_" + product.width + "x" + product.height + "_F";
                 }
 
                 // Specific gang adjustments ----------------------------------------------------------
@@ -1558,11 +1576,22 @@ runParser = function(s, job){
                     }
                 }
 
-                // Table Runner Templates
+                // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                         product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_B";
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                            
+                        writeCSV(s, csvFile, infoArray, 1);
+                    }
+                }
+
+                // Angled Flag Templates
+                if(product.subprocess.name == "AngledFlag"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                        product.dieDesignName = "angledFlag_" + product.width + "x" + product.height + "_B";
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
                         writeCSV(s, csvFile, infoArray, 1);

@@ -64,18 +64,12 @@
                         "date":{
                             "dayID":"0"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {
@@ -146,18 +140,12 @@
                         "date":{
                             "dayID":"1"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {
@@ -228,18 +216,12 @@
                         "date":{
                             "dayID":"2"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {
@@ -310,18 +292,12 @@
                         "date":{
                             "dayID":"3"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {
@@ -392,18 +368,12 @@
                         "date":{
                             "dayID":"4"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {
@@ -474,18 +444,12 @@
                         "date":{
                             "dayID":"5"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {
@@ -556,18 +520,12 @@
                         "date":{
                             "dayID":"6"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {
@@ -638,18 +596,12 @@
                         "date":{
                             "dayID":"2"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {

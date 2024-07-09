@@ -1,8 +1,8 @@
 var parent = [];
 var apply, facilityCheck;
 
-setPhoenixMarks = function(s, folder, matInfo, data, orderArray, product, marksArray, labels){
-    function readFiles(s, folder, matInfo, data, orderArray, product, marksArray, labels){
+setPhoenixMarks = function(s, folder, matInfo, data, orderArray, product, marksArray, advancedSettings){
+    function readFiles(s, folder, matInfo, data, orderArray, product, marksArray, advancedSettings){
 
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);
 
@@ -62,10 +62,10 @@ setPhoenixMarks = function(s, folder, matInfo, data, orderArray, product, marksA
                 apply = true;
 
                 // Check the requirements.
-                checkParameters(s, "requirements", dump.parameters[j].specs.requirements, matInfo, product, data, orderArray, labels);
+                checkParameters(s, "requirements", dump.parameters[j].specs.requirements, matInfo, product, data, orderArray, advancedSettings);
 
                 // Check for any rejections.
-                checkParameters(s, "rejections", dump.parameters[j].specs.rejections, matInfo, product, data, orderArray, labels);
+                checkParameters(s, "rejections", dump.parameters[j].specs.rejections, matInfo, product, data, orderArray, advancedSettings);
 
                 // If any of the above checks failed, continue through the array.
                 if(!apply){
@@ -87,10 +87,10 @@ setPhoenixMarks = function(s, folder, matInfo, data, orderArray, product, marksA
             }
         }
     }
-    readFiles(s, folder, matInfo, data, orderArray, product, marksArray, labels);
+    readFiles(s, folder, matInfo, data, orderArray, product, marksArray, advancedSettings);
 }
 
-function checkParameters(s, type, parameter, matInfo, product, data, orderArray, labels){
+function checkParameters(s, type, parameter, matInfo, product, data, orderArray, advancedSettings){
 
     // If it's already false then return out of the function.
     if(!apply){
@@ -103,7 +103,7 @@ function checkParameters(s, type, parameter, matInfo, product, data, orderArray,
         // If the parameter is an nested object, dig further.
         if(typeof parameter[l] === 'object'){
             parent.push(l);
-            checkParameters(s, type, parameter[l], matInfo, product, data, orderArray, labels);
+            checkParameters(s, type, parameter[l], matInfo, product, data, orderArray, advancedSettings);
 
         // If the parameter is an array
         }else if(parameter instanceof Array){

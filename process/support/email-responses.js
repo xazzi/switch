@@ -52,6 +52,14 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
             cc = []
             bcc = [];
         break;
+        case "Facility Mismatch":
+            active = true;
+            subject = "Facility Mismatch: " + data.projectID;
+            body = "Process: " + matInfo.prodName + "\n" + "Due Date: " +  data.date.due + "\n\n" + "At least 1 item in your gang has a different facility, please use the routing tool when submitting.";
+            to = [userInfo.email];
+            cc = []
+            bcc = [];
+        break;
         case "Gang Notes":
             active = false;
             subject = "Gang Summary: " + data.projectID;

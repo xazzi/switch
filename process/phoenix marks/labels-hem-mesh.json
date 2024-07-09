@@ -47,19 +47,15 @@
             },
             "specs":{
                 "requirements":{
-                    "labels":{
-                        "top":true
+                    "advancedSettings":{
+                        "hemLabel":{
+                            "top":true
+                        }
                     }
                 },
                 "rejections":{
                     "orderArray":{
-                        "doubleSided":true,
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
+                        "doubleSided":true
                     }
                 }
             },
@@ -120,19 +116,15 @@
             },
             "specs":{
                 "requirements":{
-                    "labels":{
-                        "bottom":true
+                    "advancedSettings":{
+                        "hemLabel":{
+                            "bottom":true
+                        }
                     }
                 },
                 "rejections":{
                     "orderArray":{
-                        "doubleSided":true,
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
+                        "doubleSided":true
                     }
                 }
             },
@@ -193,19 +185,15 @@
             },
             "specs":{
                 "requirements":{
-                    "labels":{
-                        "left":true
+                    "advancedSettings":{
+                        "hemLabel":{
+                            "left":true
+                        }
                     }
                 },
                 "rejections":{
                     "orderArray":{
-                        "doubleSided":true,
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
+                        "doubleSided":true
                     }
                 }
             },
@@ -266,19 +254,15 @@
             },
             "specs":{
                 "requirements":{
-                    "labels":{
-                        "right":true
+                    "advancedSettings":{
+                        "hemLabel":{
+                            "right":true
+                        }
                     }
                 },
                 "rejections":{
                     "orderArray":{
-                        "doubleSided":true,
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
+                        "doubleSided":true
                     }
                 }
             },

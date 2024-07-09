@@ -1,4 +1,4 @@
-setLabels = function(s, orderArray){
+setHemLabels = function(s, orderArray){
     var labels = {
         top: orderArray.hem.side.top || orderArray.pocket.side.top,
         bottom: orderArray.hem.side.bottom || orderArray.pocket.side.bottom,

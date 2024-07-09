@@ -62,18 +62,12 @@
                 "requirements":{
                     "product":{
                         "late":true
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {

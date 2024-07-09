@@ -65,18 +65,12 @@
                         "edge":{
                             "method":"Polished"
                         }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
                     }
                 },
-                "rejections":{
-                    "orderArray":{
-                        "shape":{
-                            "method":"Custom"
-                        },
-                        "diecut":{
-                            "method":"Custom"
-                        }
-                    }
-                }
+                "rejections":{}
             },
             "settings": [
                 {

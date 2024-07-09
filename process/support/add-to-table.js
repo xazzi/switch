@@ -88,7 +88,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db.general.getString(4),
-                value: db.general.getString(1)
+                value: db.general.getString(1),
+                applyProductLabel: db.general.getString(5) == "y"
             }
         }
 
@@ -106,7 +107,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db.general.getString(4),
-                value: db.general.getString(1)
+                value: db.general.getString(1),
+                applyProductLabel: db.general.getString(5) == "y"
             }
         }
 

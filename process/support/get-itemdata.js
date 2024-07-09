@@ -20,7 +20,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			shape: {
 				active: false,
 				method: null,
-				value: null
+				value: null,
+				applyProductLabel: null
 			},
 			corner: {
 				active: false,
@@ -30,7 +31,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			diecut: {
 				active: false,
 				method: null,
-				value: null
+				value: null,
+				applyProductLabel: null
 			},
 			grommet: {
 				active: false,
