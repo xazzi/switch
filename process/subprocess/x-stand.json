@@ -1,12 +1,12 @@
 {
     "subprocess": "x-stand",
     "name": "X-Stand",
-    "id": "17",
+    "id": 17,
     "parameters": [
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [
@@ -40,7 +40,7 @@
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [
@@ -54,14 +54,14 @@
             "overrides": {
                 "matInfo": {
                     "prodName": "UV-Greyback",
-                    "height": "150",
+                    "height": 150,
                     "printer": {
-                        "name": "512",
+                        "name": 512,
                         "margin": {
-                            "top": "1.625",
-                            "bottom": "1.625",
-                            "left": ".25",
-                            "right": ".25" 
+                            "top": 1.625,
+                            "bottom": 1.625,
+                            "left": 0.25,
+                            "right": 0.25 
                         }
                     },
                     "rip": {
@@ -73,7 +73,7 @@
                 },
                 "data": {
                     "prodMatFileName": "UV-Greyback",
-                    "printer":"512"
+                    "printer":512
                 },
                 "orderArray": {
                     "hem":{
@@ -88,7 +88,7 @@
         {
             "facility": {
                 "name": "Wixom",
-                "id": "37",
+                "id": 37,
                 "enabled": true
             },
             "processes": [
@@ -119,7 +119,7 @@
         {
             "facility": {
                 "name": "Arlington",
-                "id": "5",
+                "id": 5,
                 "enabled": true
             },
             "processes": [

@@ -1,12 +1,12 @@
 {
     "subprocess": "rectangle-flag",
     "name": "RectangleFlag",
-    "id": "18",
+    "id": 18,
     "parameters": [
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [

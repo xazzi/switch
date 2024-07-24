@@ -1,12 +1,12 @@
 {
     "subprocess": "mini-banner-stand",
     "name": "MiniBannerStand",
-    "id": "11",
+    "id": 11,
     "parameters": [
         {
             "facility": {
                 "name": "Wixom",
-                "id": "37",
+                "id": 37,
                 "enabled": true
             },
             "processes": [
@@ -47,7 +47,7 @@
         {
             "facility": {
                 "name": "Wixom",
-                "id": "37",
+                "id": 37,
                 "enabled": true
             },
             "processes": [
