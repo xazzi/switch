@@ -661,6 +661,11 @@ runParser = function(s, job){
                         continue;
                     }
                 }
+
+                // Reassign the dueDate if we are mixing due dates.
+                if(orderSpecs.date.due < data.date.due){
+                    data.date.due = orderSpecs.date.due
+                }
                 
                 // After all of the deviation checks have been done, set some settings for the gang.
                 // These are intended to overwrite previous settings if necessary, and therefor out of the initial data compiling above.
