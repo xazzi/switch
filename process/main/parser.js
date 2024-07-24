@@ -352,7 +352,16 @@ runParser = function(s, job){
                     data.notes.push([node.getAttributeValue('ID'),"Removed","API pull failed."])
                     continue;
                 }
-                            
+                 
+                //history table, nickname check
+                if(orderSpecs.bannerstand.active){
+                    db.general.execute("SELECT * FROM history.check" + " WHERE hardware = '" + orderSpecs.bannerstand.value + "' AND `item-name` = '" + orderSpecs.itemName + "';");
+                    if(!db.general.isRowAvailable()){
+                        db.general.execute("INSERT INTO history.check" + "(`example-item`, hardware, `item-name`, width, height) VALUES ('" + orderSpecs.jobItemId + "','" + orderSpecs.bannerstand.value + "','" + orderSpecs.itemName + "','" + orderSpecs.width + "','" + orderSpecs.height + "');");
+
+                    }
+                }
+
                 // Check if facility information exists
                 if(orderSpecs.facility == undefined || orderSpecs.facilityId == undefined){
                     data.notes.push([orderSpecs.jobItemId,"Removed","No facility assigned."]);
