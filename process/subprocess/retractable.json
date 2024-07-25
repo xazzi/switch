@@ -11,7 +11,8 @@
             },
             "processes": [
                 "13ozBanner",
-                "DSS"
+                "DSS",
+                "UV Fabric"
             ],
             "properties": {
                 "mixed": false,
