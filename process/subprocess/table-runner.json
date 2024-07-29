@@ -1,12 +1,12 @@
 {
     "subprocess": "table-runner",
     "name": "TableRunner",
-    "id": "12",
+    "id": 12,
     "parameters": [
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [

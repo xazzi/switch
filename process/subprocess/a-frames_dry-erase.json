@@ -1,12 +1,12 @@
 {
     "subprocess": "a-frames-dry-erase",
     "name": "Dry Erase A-Frame",
-    "id": "14",
+    "id": 14,
     "parameters": [
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [

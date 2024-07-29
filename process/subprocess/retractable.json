@@ -6,12 +6,13 @@
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [
                 "13ozBanner",
-                "DSS"
+                "DSS",
+                "UV Fabric"
             ],
             "properties": {
                 "mixed": false,
@@ -35,7 +36,7 @@
         {
             "facility": {
                 "name": "Wixom",
-                "id": "37",
+                "id": 37,
                 "enabled": true
             },
             "processes": [
@@ -66,7 +67,7 @@
         {
             "facility": {
                 "name": "Arlington",
-                "id": "5",
+                "id": 5,
                 "enabled": true
             },
             "processes": [

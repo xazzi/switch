@@ -1,12 +1,12 @@
 {
     "subprocess": "butt-cut",
     "name": "ButtCut",
-    "id": null,
+    "id": 19,
     "parameters": [
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [

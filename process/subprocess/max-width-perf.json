@@ -1,12 +1,12 @@
 {
     "subprocess": "max-width-perf",
     "name": "Max Width Perf",
-    "id": null,
+    "id": 22,
     "parameters": [
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [
@@ -21,8 +21,8 @@
                 "matInfo":{
                     "printer":{
                         "margin":{
-                            "left": ".25",
-                            "right": ".25"
+                            "left": 0.25,
+                            "right": 0.25
                         }
                     }
                 },
