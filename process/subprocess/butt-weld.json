@@ -1,12 +1,12 @@
 {
     "subprocess": "butt-weld",
     "name": "ButtWeld",
-    "id": null,
+    "id": 20,
     "parameters": [
         {
             "facility": {
                 "name": "Wixom",
-                "id": "37",
+                "id": 37,
                 "enabled": true
             },
             "processes": [

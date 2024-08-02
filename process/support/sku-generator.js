@@ -41,3 +41,39 @@ skuGenerator = function(length, type, data, db){
     }
     return contents = scanCSV(length, type, data, db)
 }
+
+skuGeneratorSim = function(length, type){
+
+    function scanCSV(length, type){
+
+        var result = '';
+        var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+        if(type == 'alpha_uppercase'){
+            chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        }
+        if(type == 'alpha_lowercase'){
+            chars = 'abcdefghijklmnopqrstuvwxyz';
+        }
+        if(type == 'numeric'){
+            chars = '0123456789';
+        }
+        if(type == 'alphanumeric_uppercase'){
+            chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        }
+        if(type == 'alphanumeric_lowercase'){
+            chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+        }
+
+        makeSKU(chars);
+
+        function makeSKU(chars){
+            // Make a SKU.
+            while (result.length < length){
+                result += chars.charAt(Math.round(Math.random() * (chars.length) - 1) + 1)
+            }
+        }
+        return result;
+    }
+    return scanCSV(length, type)
+}

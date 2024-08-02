@@ -1,12 +1,12 @@
 {
     "subprocess": "indoor-only-banner",
     "name": "IndoorOnlyBanner",
-    "id": "10",
+    "id": 10,
     "parameters": [
         {
             "facility": {
                 "name": "Wixom",
-                "id": "37",
+                "id": 37,
                 "enabled": true
             },
             "processes": [

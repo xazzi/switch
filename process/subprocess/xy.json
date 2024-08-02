@@ -1,12 +1,12 @@
 {
     "subprocess": "xy",
     "name": "XY",
-    "id": null,
+    "id": 23,
     "parameters": [
         {
             "facility": {
                 "name": "Salt Lake City",
-                "id": "28",
+                "id": 28,
                 "enabled": true
             },
             "processes": [
@@ -22,7 +22,7 @@
                 "matInfo": {
                 },
                 "product": {
-                    "grade": "251",
+                    "grade": 251,
                     "bleed": {
                         "top": 0,
                         "bottom": 0,

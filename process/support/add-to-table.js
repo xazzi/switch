@@ -93,7 +93,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             }
         }
 
-        // Shape options
+        // Corner options
         if(table == "options_corner"){
             return specs = {
                 active: true,

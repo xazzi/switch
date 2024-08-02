@@ -53,6 +53,13 @@ getMatInfo = function(orderSpecs, db){
             right: db.general.getString(56)
         },
 
+        offcut: {
+            top: db.general.getString(61),
+            bottom: db.general.getString(62),
+            left: db.general.getString(63),
+            right: db.general.getString(64)
+        },
+
         rotation: db.general.getString(6),
         allowedRotations: db.general.getString(14),
         impositionProfile: db.general.getString(15),
@@ -89,6 +96,7 @@ getMatInfo = function(orderSpecs, db){
         cutAdjustments: db.general.getString(58) == 'y' ? true : false,
         labelOffset: db.general.getString(57) == 'NULL' ? null : db.general.getString(57) + " Offset",
         addKeyline: db.general.getString(59) == 'y' ? true : false,
+        cutMethod: db.general.getString(60),
 
         dsIndicator:{
             top: db.general.getString(40) == 'y' ? true : false,
@@ -110,6 +118,7 @@ getMatInfo = function(orderSpecs, db){
         },
 
         phoenix:{
+            printExport: db.general.getString(65),
             cutExport: db.general.getString(43)
         }
     }
