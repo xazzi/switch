@@ -249,8 +249,8 @@ runParser = function(s, job){
                     due: null
                 },
                 phoenix:{
-                    printExport: "Auto",
-                    cutExport: "Auto",
+                    printExport: null,
+                    cutExport: null,
                     gangLabel: []
                 },
                 subprocess: [],
@@ -347,6 +347,13 @@ runParser = function(s, job){
                 
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
+
+                if(orderSpecs.bannerstand.active){
+                    db.general.execute("SELECT * FROM history.check" + " WHERE hardware = '" + orderSpecs.bannerstand.value + "' AND `item-name` = '" + orderSpecs.itemName + "';");
+                    if(!db.general.isRowAvailable()){
+                        db.general.execute("INSERT INTO history.check" + "(`example-item`, hardware, `item-name`, width, height) VALUES ('" + orderSpecs.jobItemId + "','" + orderSpecs.bannerstand.value + "','" + orderSpecs.itemName + "','" + orderSpecs.width + "','" + orderSpecs.height + "');");
+                    }
+                }
 
                 // API pull failed.
                 if(!orderSpecs.complete){
@@ -537,6 +544,7 @@ runParser = function(s, job){
                     data.sideMix = matInfo.sideMix;
                     data.printer = matInfo.printer.name;
                     data.phoenixStock = matInfo.phoenixStock;
+                    data.phoenix.printExport = matInfo.phoenix.printExport;
                     data.phoenix.cutExport = matInfo.phoenix.cutExport;
 
                     data.phoenix.gangLabel.push(matInfo.prodName)
@@ -671,6 +679,11 @@ runParser = function(s, job){
                         continue;
                     }
                 }
+
+                // Reassign the dueDate if we are mixing due dates.
+                if(orderSpecs.date.due < data.date.due){
+                    data.date.due = orderSpecs.date.due
+                }
                 
                 // After all of the deviation checks have been done, set some settings for the gang.
                 // These are intended to overwrite previous settings if necessary, and therefor out of the initial data compiling above.
@@ -752,10 +765,10 @@ runParser = function(s, job){
                     spacingLeft: matInfo.spacing.left == undefined ? matInfo.spacing.base : matInfo.spacing.left,
                     spacingRight: matInfo.spacing.right == undefined ? matInfo.spacing.base : matInfo.spacing.right,
                     offcut:{
-                        top: "",
-                        bottom: "",
-                        left: "",
-                        right: ""
+                        top: matInfo.offcut.top,
+                        bottom: matInfo.offcut.bottom,
+                        left: matInfo.offcut.left,
+                        right: matInfo.offcut.right
                     },
                     bleed: {
                         type: matInfo.bleed.type,
@@ -1426,13 +1439,17 @@ runParser = function(s, job){
 
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
-                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    }
                     product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_F";
                 }
 
                 // Angled Flag Templates
                 if(product.subprocess.name == "AngledFlag"){
-                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    }
                     product.dieDesignName = "angledFlag_" + product.width + "x" + product.height + "_F";
                 }
 
@@ -1799,6 +1816,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "cutAdjustments", matInfo.cutAdjustments);
         addNode_db(theXML, miscNode, "labelmaster", data.labelmaster);
         addNode_db(theXML, miscNode, "addKeyline", matInfo.addKeyline);
+        addNode_db(theXML, miscNode, "cutMethod", matInfo.cutMethod);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);

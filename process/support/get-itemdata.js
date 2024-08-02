@@ -213,6 +213,13 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				gangBy: dataDump.gang_by_date
 			}
 
+			/*
+			// Bret was using this code to trouble shoot old data that had null due dates.
+			if(specs.date.due == "undefined"){
+				specs.date.due = new Date().toString().split("T")[0];
+			}
+			*/
+
 			specs.item = addToTable(s, db, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo, null);
 
 		// Loop through the order_specs and set some values based on them

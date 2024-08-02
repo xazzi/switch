@@ -93,6 +93,7 @@ runProcessor = function(s, job){
             var newXML = s.createNewJob();
             var xmlPath = newXML.createPathWithName(data.projectID + ".xml", false);
             var xmlFile = new File(xmlPath);
+			//var xmlFile = new File("C://Switch//Development//test.xml");
             
             // Move the files inside the SKU directory.
             var files = phoenixOutput.entryList("*" + data.projectID + "*", Dir.Files, Dir.Name);
@@ -110,10 +111,10 @@ runProcessor = function(s, job){
 								s.log(2, data.projectID + " failed to post to PRISM.");
 								sendEmail_db(s, data, null, getEmailResponse("Prism Post Fail", null, null, data, userInfo), userInfo);
 								newXML.setPrivateData("Status","Fail");
+								newXML.setHierarchyPath([userInfo.dir])
+								newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
 							}
 						}
-						newXML.setHierarchyPath([userInfo.dir])
-						newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
 					}
 
 					// Create or get the destination path.
@@ -189,6 +190,12 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, data,
 	var layoutNodes = doc.evalToNodes('//job/layouts/layout', map);
 	var productNodes = doc.evalToNodes('//job/products/product', map);
 	var handoffDataNodes = handoffDataDS.evalToNodes("//products/product");
+
+	var name = handoffDataDS.evalToString("//base/prismStock").replace(/\"/g,"&quot;");
+
+	if(data.facility == "Solon"){
+		//name += "_" + handoffDataDS.evalToString("//settings/printer") + "_" + handoffDataDS.evalToString("//misc/cutMethod")
+	}
 	
 		xmlFile.open(File.Append);
 		xmlFile.writeLine("<?xml version='1.0' encoding='UTF-8'?>");
@@ -227,7 +234,7 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, data,
 								writeXmlString(xmlFile, "name", handoffDataDS.evalToString("//settings/printer"));
 							writeXmlNode(xmlFile, "/press");
 							writeXmlNode(xmlFile, "stock");
-								writeXmlString(xmlFile, "name", handoffDataDS.evalToString("//base/prismStock").replace(/\"/g,"&quot;"));
+								writeXmlString(xmlFile, "name", name);
 								writeXmlString(xmlFile, "id", layoutNodes.at(i).evalToString('//surfaces/surface/stock/id'));
 							writeXmlNode(xmlFile, "/stock");
 							writeXmlNode(xmlFile, "grade");
@@ -264,6 +271,7 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, data,
 							writeXmlString(xmlFile, "placed", productNodes.at(j).evalToString('placed'));
 							writeXmlString(xmlFile, "total", productNodes.at(j).evalToString('total'));
 							writeXmlString(xmlFile, "overrun", productNodes.at(j).evalToString('overrun'));
+							//writeXmlString(xmlFile, "stock", name);
 							writeXmlNode(xmlFile, "properties");
 								writeXmlNode(xmlFile, "property");
 									writeXmlString(xmlFile, "value", handoffDataNodes.at(n).evalToString('orderNumber'));
