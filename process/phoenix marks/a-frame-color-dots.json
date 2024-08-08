@@ -32,7 +32,9 @@
             },
             "subprocess": {
                 "requirements": [
-                    "A-Frame"
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
                 ],
                 "rejections": []
             },
@@ -44,7 +46,148 @@
                 {
                     "group": "Global",
                     "dir": "/A-Frames/",
-                    "name": "Color-Dot"
+                    "name": "Color-Standard-White"
+                }
+            ]
+        }, 
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key": "None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process": {
+                "requirements": [
+                    "All"
+                ],
+                "rejections": []
+            },
+            "subprocess": {
+                "requirements": [
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
+                ],
+                "rejections": []
+            },
+            "specs": {
+                "requirements": {},
+                "rejections": {}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/A-Frames/",
+                    "name": "Color-Standard-Black"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key": "None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process": {
+                "requirements": [
+                    "All"
+                ],
+                "rejections": []
+            },
+            "subprocess": {
+                "requirements": [
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
+                ],
+                "rejections": []
+            },
+            "specs": {
+                "requirements": {},
+                "rejections": {}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/A-Frames/",
+                    "name": "Color-Deluxe-White"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key": "None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process": {
+                "requirements": [
+                    "All"
+                ],
+                "rejections": []
+            },
+            "subprocess": {
+                "requirements": [
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
+                ],
+                "rejections": []
+            },
+            "specs": {
+                "requirements": {},
+                "rejections": {}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/A-Frames/",
+                    "name": "Color-Deluxe-Black"
                 }
             ]
         }
