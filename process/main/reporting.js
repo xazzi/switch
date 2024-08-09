@@ -12,7 +12,7 @@ runReporting = function(s, job){
 	
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-                projectID: handoffDataDS.evalToString("//base/projectID"),
+                gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 facility: handoffDataDS.evalToString("//misc/facility"),
                 printer: handoffDataDS.evalToString("//settings/printer"),
                 whiteInk: handoffDataDS.evalToString("//settings/whiteink"),

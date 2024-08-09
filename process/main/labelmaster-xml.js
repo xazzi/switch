@@ -10,7 +10,7 @@ runLabelmasterXml = function(s, job){
 
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-                projectID: handoffDataDS.evalToString("//base/projectID")
+                gangNumber: handoffDataDS.evalToString("//base/gangNumber")
             }
             
             var phoenixPlanDS = loadDataset_db("Phoenix Plan");
@@ -48,9 +48,9 @@ runLabelmasterXml = function(s, job){
             moduleStep = Math.round(moduleStep*1000)/1000
             
             var newXML = s.createNewJob();
-            var xmlPath = newXML.createPathWithName(handoffData.projectID + '-' + phoenixPlan.index + ".xml", false);
+            var xmlPath = newXML.createPathWithName(handoffData.gangNumber + '-' + phoenixPlan.index + ".xml", false);
             var xmlFile = new File(xmlPath);
-            //var xmlFile = new File("C://Switch//Development//" + handoffData.projectID + ".xml");
+            //var xmlFile = new File("C://Switch//Development//" + handoffData.gangNumber + ".xml");
 
             generateXml(s, job, handoffData, phoenixPlan, xmlFile, moduleStep, library);
 
@@ -89,7 +89,7 @@ function generateXml(s, job, handoffData, phoenixPlan, xmlFile, moduleStep, libr
             writeXmlString(xmlFile, "Library", library);
         xmlFile.writeLine('</Material>');
 
-        xmlFile.writeLine('<Object Name="' + handoffData.projectID + '-' + phoenixPlan.index + '">');
+        xmlFile.writeLine('<Object Name="' + handoffData.gangNumber + '-' + phoenixPlan.index + '">');
             xmlFile.writeLine('<File Type="PDF" Unit="MM">\\\\SLN-GANGS-P01\\data\\Digital\\SEI cut\\' + job.getName() + '</File>');
             xmlFile.writeLine('<Rotate Angle="180" Ref="C"/>');
             writeXmlString(xmlFile, "Optimize", "Full");

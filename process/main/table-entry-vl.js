@@ -24,7 +24,7 @@ runTableEntry = function(s, job){
             // Collect the handoff data
             var handoffDataDS = loadDataset_db("Vinyl Lettering");
             var handoffData = {
-                sku: handoffDataDS.evalToString("//data/sku"),
+                projectID: handoffDataDS.evalToString("//data/projectID"),
                 gangNumber: handoffDataDS.evalToString("//data/gangNumber"),
                 itemNumber: handoffDataDS.evalToString("//data/itemNumber"),
                 filename: {
@@ -39,7 +39,7 @@ runTableEntry = function(s, job){
             }
             
             // Update the gang on the details_gang table to complete.
-            db.history.execute("INSERT INTO history.vinyl_lettering (`sku`,`gang-number`,`item-number`,`single-filename`,`phoenix-filename`,`facility`,`color`,`layout-code`,`ready-to-gang`) VALUES ('" + handoffData.sku + "','" + handoffData.gangNumber + "','" + handoffData.itemNumber + "','" + handoffData.filename.single + "','" + handoffData.filename.phoenix + "','" + handoffData.settings.facility + "','" + handoffData.settings.color + "','" + handoffData.settings.layout + "','" + 'y' + "');");
+            db.history.execute("INSERT INTO history.vinyl_lettering (`project-id`,`gang-number`,`item-number`,`single-filename`,`phoenix-filename`,`facility`,`color`,`layout-code`,`ready-to-gang`) VALUES ('" + handoffData.projectID + "','" + handoffData.gangNumber + "','" + handoffData.itemNumber + "','" + handoffData.filename.single + "','" + handoffData.filename.phoenix + "','" + handoffData.settings.facility + "','" + handoffData.settings.color + "','" + handoffData.settings.layout + "','" + 'y' + "');");
                 
             // Null the original job
             job.sendToNull(job.getPath())

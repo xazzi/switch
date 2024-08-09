@@ -30,16 +30,48 @@ skuGenerator = function(length, type, data, db){
             }
             
             // Check and see if the SKU is already in use.
-            db.general.execute("SELECT * FROM history.active_sku WHERE sku = '" + result + "' and date_id = '" + data.dateID + "' and facility = '" + data.facility.destination + "';");
-            if(db.general.isRowAvailable()){
+            db.history.execute("SELECT * FROM history.active_sku WHERE sku = '" + result + "' and date_id = '" + data.dateID + "' and facility = '" + data.facility.destination + "';");
+            if(db.history.isRowAvailable()){
                 result = '';
                 makeSKU(chars);
             }
-                db.general.execute("INSERT INTO history.active_sku (sku, date_id, facility, gang_number) VALUES ('" + result + "', '" + data.dateID + "', '" + data.facility.destination + "', '" + data.projectID + "');");
+                db.history.execute("INSERT INTO history.active_sku (sku, date_id, facility) VALUES ('" + result + "', '" + data.dateID + "', '" + data.facility.destination + "');");
+
+                // Add the SKU number to the details_gang table
+                db.history.execute("UPDATE history.details_gang SET `sku` = '" + result + "' WHERE (`gang-number` = '" + data.gangNumber + "' and `project-id` = '" + data.projectID + "');");
         }
         return result;
     }
     return contents = scanCSV(length, type, data, db)
+}
+
+skuGenerator_projectID = function(db){
+
+    function generateID(db){
+
+        var result = '';
+        var length = 8;
+        var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+        makeSKU(chars);
+
+        function makeSKU(chars){
+            // Make a SKU.
+            while (result.length < length){
+                result += chars.charAt(Math.round(Math.random() * (chars.length) - 1) + 1)
+            }
+            
+            // Check and see if the SKU is already in use.
+            db.history.execute("SELECT * FROM history.active_project WHERE `project-id`` = '" + result + "';");
+            if(db.history.isRowAvailable()){
+                result = '';
+                makeSKU(chars);
+            }
+                db.history.execute("INSERT INTO history.active_project (`project-id`) VALUES ('" + result + "');");
+        }
+        return result;
+    }
+    return contents = generateID(db)
 }
 
 skuGeneratorSim = function(length, type){
