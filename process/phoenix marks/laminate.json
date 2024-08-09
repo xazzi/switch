@@ -48,10 +48,10 @@
                     "TableTop",
                     "X-Stand",
                     "Dry Erase A-Frame",
+                    "Tension Stand",
                     "Billboard A-Frame"
                 ],
                 "rejections":[
-                    "Tension Stand",
                     "ButtWeld",
                     "ButtCut",
                     "FullSheet",
