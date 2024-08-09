@@ -237,19 +237,19 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"OrderItemInfo",
-                    "dir":"/Global/Master Labels/Custom/Retractables/"
+                    "dir":"/Master Labels/Custom/Retractables/"
                 },
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"Barcode",
-                    "dir":"/Global/Master Labels/Custom/Retractables/"
+                    "dir":"/Master Labels/Custom/Retractables/"
                 },
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"Receipt URL",
-                    "dir":"/Global/Master Labels/Custom/Retractables/"
+                    "dir":"/Master Labels/Custom/Retractables/"
                 }
             ]
         },
@@ -297,9 +297,9 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"DoubleSided",
-                    "dir":"/Global/Master Labels/Custom/Retractables/"
+                    "dir":"/Master Labels/Custom/Retractables/"
                 }
             ]
         },
