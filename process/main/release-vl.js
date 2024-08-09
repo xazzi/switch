@@ -24,7 +24,7 @@ runRelease = function(s){
             // Collect the handoff data.
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-                sku: handoffDataDS.evalToString("//base/sku")
+                projectID: handoffDataDS.evalToString("//base/projectID")
             }
                     
             var repository = new Dir("//10.21.71.213/Repository_VL");
@@ -86,7 +86,7 @@ runRelease = function(s){
                     db.general.fetchRow();
                     width = db.general.getString(4);
 
-                    db.history.execute("SELECT * FROM history.`vinyl_lettering` where `sku` = '" + handoffData.sku + "' AND `phoenix-filename` = '" + filename + "' AND `color` = '" + color + "';");
+                    db.history.execute("SELECT * FROM history.`vinyl_lettering` where `project-id` = '" + handoffData.projectID + "' AND `phoenix-filename` = '" + filename + "' AND `color` = '" + color + "';");
                     db.history.fetchRow();
                     layoutType = db.history.getString(8);
 

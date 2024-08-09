@@ -29,6 +29,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/get-edge-finishing.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
+            eval(File.read(dir.support + "/sql-statements.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -207,13 +208,14 @@ runParser = function(s, job){
             
             var doc = new Document(job.getPath());	
             var map = doc.createDefaultMap();
-            
+
             var data = {
-                projectID: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
+                projectID: skuGenerator_projectID(db),
+                gangNumber: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: module.fileSource,
-                repository: "//10.21.71.213/pdfDepository/",
+                repository: "//10.21.71.213/File Repository/",
                 doubleSided: null,
                 secondSurface: null,
                 coating:{
@@ -264,6 +266,11 @@ runParser = function(s, job){
                 sideMix: null,
                 labelmaster: submit.override.labelmaster
             }
+
+            db.history.execute(generateSqlStatement_Insert(s, "history.details_gang", [
+                ["project-id", data.projectID],
+                ["gang-number",data.gangNumber]
+            ]));
             
             var theNewToken = getNewToken(s, data.environment);
             
@@ -344,7 +351,15 @@ runParser = function(s, job){
             for(var i=0; i<productList.length; i++){
                 
                 var node = productList.getItem(i);
-                
+
+                db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                    ["project-id", data.projectID],
+                    ["gang-number", data.gangNumber],
+                    ["item-number", node.getAttributeValue('ID')],
+                    ["order-number", node.getAttributeValue('Name')],
+                    ["status", "Initiated"]
+                ]));	
+
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
 
@@ -429,7 +444,7 @@ runParser = function(s, job){
 
                     // Material data is missing from the material table, might be a paper mapping issue.
                     if(matInfo == "Material Data Missing"){
-                        s.log(3, data.projectID + " :: Material entry doesn't exist, job rejected.");
+                        s.log(3, data.gangNumber + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
                         job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         return;
@@ -439,6 +454,7 @@ runParser = function(s, job){
                 // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
                 if(orderSpecs.facility != data.facility.destination){
                     if(!submit.route.active){
+                        s.log(3, data.gangNumber + " :: Facility mismatch.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Facility Mismatch", null, matInfo, data, userInfo, null), userInfo);
                         job.sendToNull(job.getPath());
                         return
@@ -715,7 +731,7 @@ runParser = function(s, job){
                 orderArray.push(orderSpecs);
             }
 
-            // Safety check for if all files have been removed from the gang.
+            // 1st safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
                 sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
                 job.sendToNull(job.getPath());
@@ -727,7 +743,7 @@ runParser = function(s, job){
                 
             // Create the CSV and the new Job() for the project.
             var newCSV = s.createNewJob();
-            var csvPath = newCSV.createPathWithName(data.projectID + ".csv", false);
+            var csvPath = newCSV.createPathWithName(data.gangNumber + ".csv", false);
             var csvFile = new File(csvPath);
                 csvFile.open(File.Append);
                 
@@ -893,13 +909,13 @@ runParser = function(s, job){
                                 // Scenario 1 to activate butt-cut
                                 if(orderArray[i].qty >= 20){
                                     if(orderArray[i].width <= 24 || orderArray[i].height <= 48){
-                                        product.query = "butt-cut";
+                                        product.query = "19";
                                     }
                                 }
                                 // Scenario 2 to activate butt-cut
                                 if(orderArray[i].qty >= 2){
                                     if(orderArray[i].width == 48 && orderArray[i].height == 48){
-                                        product.query = "butt-cut";
+                                        product.query = "19";
                                     }
                                 }
                             }
@@ -907,9 +923,10 @@ runParser = function(s, job){
                     }
                 }
 
+                // Max width Perf
                 if(matInfo.prodName == "Perf"){
                     if(product.width >= 53 && product.height >= 53){
-                        product.query = "max-width-perf"
+                        product.query = "22"
                     }
                 }
                 
@@ -917,7 +934,7 @@ runParser = function(s, job){
                 if(data.facility.destination == "Wixom"){
                     if(orderArray[i].hem.method == "Weld" || orderArray[i].hem.method == "Sewn"){
                         if(!orderArray[i].doubleSided){
-                            product.query = "butt-weld";
+                            product.query = "20";
                         }
                     }
                 }
@@ -925,7 +942,7 @@ runParser = function(s, job){
                 // Full-Sheet subprocessing
                 if((product.width == 48 && product.height == 96) || (product.height == 48 && product.width == 96)){
                     if(matInfo.width == 48 && matInfo.height == 96){
-                        product.query = "full-sheet";
+                        product.query = "21";
                         product.subprocess.undersize = false;
                         scale.locked = true;
                     }
@@ -998,7 +1015,7 @@ runParser = function(s, job){
                 // Gather the source file options
                 var file = {
                     source: new File(watermarkDrive + "/" + product.contentFile),
-                    depository: new File("//10.21.71.213/pdfDepository/" + product.contentFile),
+                    depository: new File("//10.21.71.213/File Repository/" + product.contentFile),
                     usableData: false
                 }
                     
@@ -1012,6 +1029,10 @@ runParser = function(s, job){
                             s.log(2, product.contentFile + " failed to delete.")
                         }
                         product.transfer = true;
+                    }else{
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", ["project-id", data.projectID], [
+                            ["status","Already Exists"]
+                        ]))
                     }
                 }else{
                     if(data.fileSource == "S3 Bucket"){
@@ -1029,7 +1050,7 @@ runParser = function(s, job){
                 // Read some data from the file.
                 try{
                     if(data.fileSource == "S3 Bucket"){
-                        file.stats = new FileStatistics("//10.21.71.213/pdfDepository/" + product.contentFile);
+                        file.stats = new FileStatistics("//10.21.71.213/File Repository/" + product.contentFile);
                     }else{
                         file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
                     }
@@ -1312,7 +1333,7 @@ runParser = function(s, job){
                
                 //write imp instructions to the database -cm
                 if(orderArray[i].impInstructions.active){
-                    db.email.execute("INSERT INTO emails.impinst_notes (`sku`,`gang-number`,`item-number`,`message`) VALUES ('" + data.sku + "','" + data.projectID + "','" + product.itemNumber + "', '" + orderArray[i].impInstructions.value + "');");
+                    db.email.execute("INSERT INTO emails.impinst_notes (`project-id`,`gang-number`,`item-number`,`message`) VALUES ('" + data.projectID + "','" + data.gangNumber + "','" + product.itemNumber + "', '" + orderArray[i].impInstructions.value + "');");
                 }
 
                 // Rotation adjustments ----------------------------------------------------------
@@ -1646,13 +1667,18 @@ runParser = function(s, job){
                     cvXML.setPriority(submit.override.priority)
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
+
+                db.history.execute(generateSqlStatement_Update(s, "history.details_item", ["project-id", data.projectID], [
+                    ["orientation",product.orientation.status],
+                    ["due-date", orderArray[i].date.due]
+                ]))
                 
                 productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method,product.allowedRotations]);
                 
                 // Write the gang number to the database.
-                db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.projectID + "' AND item_number = '" + product.itemNumber + "';");
+                db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.gangNumber + "' AND item_number = '" + product.itemNumber + "';");
                 if(!db.general.isRowAvailable()){
-                    db.history.execute("INSERT INTO history.data_item_number (gang_number, item_number) VALUES ('" + data.projectID + "', '" + product.itemNumber + "');");
+                    db.history.execute("INSERT INTO history.data_item_number (gang_number, item_number) VALUES ('" + data.gangNumber + "', '" + product.itemNumber + "');");
                 }
 
                 if(s.getServerName() == 'Switch-Dev'){
@@ -1692,12 +1718,22 @@ runParser = function(s, job){
                 }
             }
 
+            // 2nd safety check for if all files have been removed from the gang.
+            /* //TODO - Fix byteCount() below, it does't work
+            if(newCSV.getByteCount() == 0){
+                s.log(2, "Empty Gang")
+                sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
+                job.sendToNull(job.getPath());
+                return
+            }
+                */
+
             emailDatabase_write(s, db, "parsed_data", "Parser", data, data.notes)
             
             csvFile.close();
         
             createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now);
-            newCSV.setHierarchyPath([data.environment,data.sku]);
+            newCSV.setHierarchyPath([data.environment,data.projectID]);
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
             newCSV.setUserFullName(job.getUserFullName());
@@ -1705,11 +1741,22 @@ runParser = function(s, job){
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
             
             createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now);
-            job.setHierarchyPath([data.projectID]);
+            job.setHierarchyPath([data.gangNumber]);
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
             
-            db.history.execute("INSERT INTO history.details_gang (`gang-number`,`processed-time`,`processed-date`,`due-date`,process,subprocess,sku,facility,`save-location`,rush,email) VALUES ('" + data.projectID + "','" + now.time + "','" + now.date + "','" + data.date.due + "','" + data.prodName + "','" + data.subprocess + "','" + data.sku + "','" + data.facility.destination + "','" + data.dateID + "','" + data.rush + "','" + userInfo.email + "');");
+            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", ["project-id", data.projectID], [
+                ["process",data.prodName],
+                ["subprocess",data.subprocess],
+                ["facility",data.facility.destination],
+                ["save-location",data.dateID],
+                ["rush",data.rush],
+                ["email",userInfo.email],
+                ["processed-time",now.time],
+                ["processed-date",now.date],
+                ["due-date",data.date.due],
+                ["status","Parse Complete"]
+            ]))
             
         }catch(e){
             s.log(3, "Critical Error!: " + e);
@@ -1732,7 +1779,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 	var baseNode = theXML.createElement("base", null);
 		handoffNode.appendChild(baseNode);
 		
-		addNode_db(theXML, baseNode, "projectID", data.projectID);
+        addNode_db(theXML, baseNode, "projectID", data.projectID);
+		addNode_db(theXML, baseNode, "gangNumber", data.gangNumber);
 		addNode_db(theXML, baseNode, "projectNotes", data.projectNotes);
 		addNode_db(theXML, baseNode, "saveLocation", data.dateID);
 		addNode_db(theXML, baseNode, "dateID", data.dateID.replace('-',''));

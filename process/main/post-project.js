@@ -37,7 +37,7 @@ runPost = function(s, job){
         
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffObj = {
-                projectID: handoffDataDS.evalToString("//base/projectID"),
+                gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 material: handoffDataDS.evalToString("//base/process"),
                 type: handoffDataDS.evalToString("//base/type"),
                 doublesided: false, //handoffDataDS.evalToString("//settings/doublesided") == "true",
@@ -107,7 +107,7 @@ runPost = function(s, job){
                 xmlF.open(File.Append);
                 xmlF.writeLine('{');
                 
-                xmlF.writeLine('"Description": "' + handoffObj.projectID + '",');
+                xmlF.writeLine('"Description": "' + handoffObj.gangNumber + '",');
                 xmlF.writeLine('"Workspace": "' + handoffObj.printer + '",');
                 xmlF.writeLine('"Material": "' + handoffObj.material + '",');
                 xmlF.writeLine('"Status": ' + '1' + ',');
