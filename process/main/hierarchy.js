@@ -11,6 +11,7 @@ runHierarchy = function(s, job){
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
                 projectID: handoffDataDS.evalToString("//base/projectID"),
+                gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 dateID: handoffDataDS.evalToString("//base/dateID"),
                 saveDir: handoffDataDS.evalToString("//base/saveLocation"),
                 facility: handoffDataDS.evalToString("//misc/facility"),
@@ -42,23 +43,23 @@ runHierarchy = function(s, job){
                 }
                 
                 if(data.processType == "Summary"){				
-                    newPath.push("/Summary/" + handoffData.projectID + "/");
+                    newPath.push("/Summary/" + handoffData.gangNumber + "/");
                 }
                 
                 if(data.processType == "Rejected"){				
-                    newPath.push("/Summary/" + handoffData.projectID + "/Rejected/" + handoffData.sku + "/");
+                    newPath.push("/Summary/" + handoffData.gangNumber + "/Rejected/" + handoffData.projectID + "/");
                 }
                 
                 if(data.processType == "Failed"){				
-                    newPath.push("/Summary/" + handoffData.projectID + "/Failed/" + handoffData.sku + "/");
+                    newPath.push("/Summary/" + handoffData.gangNumber + "/Failed/" + handoffData.projectID + "/");
                 }
                 
                 if(data.processType == "XML"){				
-                    newPath.push("/Summary/" + handoffData.projectID + "/");
+                    newPath.push("/Summary/" + handoffData.gangNumber + "/");
                 }
                 
                 if(data.processType == "PHX"){
-                    newPath.push("/Summary/" + handoffData.projectID + "/");
+                    newPath.push("/Summary/" + handoffData.gangNumber + "/");
                 }
                 
                 job.setHierarchyPath(newPath);

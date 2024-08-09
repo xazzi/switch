@@ -1,6 +1,7 @@
 compileCSV = function(product, matInfo, scale, orderArray, data){
 	// Compile the CSV information.	
 	return infoArray = [
+		["Project ID", data.projectID],
 		["Name",product.contentFile],
 		["Artwork File",data.repository + product.artworkFile],
 		["Ordered",product.quantity],

@@ -134,7 +134,7 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 	var infoNode = theXML.createElement("info", null);
 		baseNode.appendChild(infoNode);
 		
-		addNode_db(theXML, infoNode, "projectID", data.projectID);
+		addNode_db(theXML, infoNode, "gangNumber", data.gangNumber);
 		addNode_db(theXML, infoNode, "projectNotes", data.projectNotes);
 
 	if(matInfo != "Material Data Missing" && matInfo != null){

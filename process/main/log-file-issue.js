@@ -30,17 +30,13 @@ runMissingFiles = function(s, job){
             // Load in the Handoff Data dataset
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-                projectID: handoffDataDS.evalToString("//base/projectID"),
+                gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 sku: handoffDataDS.evalToString("//base/sku"),
                 contentFile: handoffDataDS.evalToString("//product/contentFile"),
                 itemNumber: handoffDataDS.evalToString("//product/itemNumber")
             }
 
             emailDatabase_write(s, db, "parsed_data", "File Check", handoffData, [[handoffData.itemNumber, privateData.type, privateData.message]])
-            
-            // Add to the missing file table.
-            // Removed the ability to post to this table 4/8/24 -bc
-            //db.history.execute("INSERT INTO history.missing_file (gang_number,file_name,date) VALUES ('" + handoffData.projectID + "','" + handoffData.contentFile + "','" + new Date() + "');");
             
             job.sendToSingle(job.getPath());
                     

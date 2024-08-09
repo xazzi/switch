@@ -10,7 +10,7 @@ runFinalize = function(s, job){
 
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-                projectID: handoffDataDS.evalToString("//base/projectID"),
+                gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 dateID: handoffDataDS.evalToString("//base/dateID"),
                 facility: handoffDataDS.evalToString("//misc/facility"),
                 dueDate: handoffDataDS.evalToString("//base/dueDate"),
@@ -101,15 +101,15 @@ runFinalize = function(s, job){
                 
                 // Hierarchy
                 if(data.processType == "Print"){
-                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + name.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
+                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + name.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.gangNumber + phoenixPlan.index + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = data.dateProper + "_" + name.process + name.subprocess + "_CUT" + "_Q" + phoenixPlan.qty + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
+                    savename = data.dateProper + "_" + name.process + name.subprocess + "_CUT" + "_Q" + phoenixPlan.qty + "_" + handoffData.gangNumber + phoenixPlan.index + ".pdf";
                 }
                 
                 if(data.processType == "Summary"){				
-                    savename = data.dateProper + "_" + name.process + name.subprocess + "-Report_" + handoffData.projectID + ".pdf";
+                    savename = data.dateProper + "_" + name.process + name.subprocess + "-Report_" + handoffData.gangNumber + ".pdf";
                 }
 
                 job.sendToSingle(job.getPath(), savename.toString());
@@ -121,15 +121,15 @@ runFinalize = function(s, job){
                 data.side = numberOfPages == 1 ? "_SS" : "_DS";
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
                 }
                 
                 if(data.processType == "Summary"){				
-                    savename = handoffData.projectID + "_Report" + ".pdf";
+                    savename = handoffData.gangNumber + "_Report" + ".pdf";
                 }
                 
                 job.sendToSingle(job.getPath(), savename.toString());
@@ -145,19 +145,19 @@ runFinalize = function(s, job){
                 }
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + name.laminate + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + name.laminate + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
                 }
 
                 if(data.processType == "CSV"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "-Header" + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-Header" + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "-CUT" + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-CUT" + ".pdf";
                 }
                 
                 if(data.processType == "Summary"){				
-                    savename = handoffData.projectID + "_Report" + ".pdf";
+                    savename = handoffData.gangNumber + "_Report" + ".pdf";
                 }
                 
                 job.sendToSingle(job.getPath(), savename.toString());
@@ -176,15 +176,15 @@ runFinalize = function(s, job){
                 }
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.projectID + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    savename = handoffData.gangNumber + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
                 }
                 
                 if(data.processType == "Summary"){				
-                    savename = handoffData.projectID + "_Report" + ".pdf";
+                    savename = handoffData.gangNumber + "_Report" + ".pdf";
                 }
                 
                 job.sendToSingle(job.getPath(), savename.toString());
@@ -198,22 +198,22 @@ runFinalize = function(s, job){
                 
                 if(data.processType == "Print"){
                     if(handoffData.type == "roll-label"){
-                        savename = handoffData.projectID + " Layout " + phoenixPlan.index + " " + handoffData.paper + " " + phoenixPlan.qty + " Frames" + ".pdf";
+                        savename = handoffData.gangNumber + " Layout " + phoenixPlan.index + " " + handoffData.paper + " " + phoenixPlan.qty + " Frames" + ".pdf";
                     }else{
-                        savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
                     }
                 }
                 
                 if(data.processType == "Cut"){
                     if(handoffData.type == "roll-label"){
-                        savename = handoffData.projectID + "-" + phoenixPlan.index + ".pdf";
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".pdf";
                     }else{
-                        savename = handoffData.projectID + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
                     }
                 }
                 
                 if(data.processType == "Summary"){				
-                    savename = handoffData.projectID + "_Report" + ".pdf";
+                    savename = handoffData.gangNumber + "_Report" + ".pdf";
                 }
                 
                 job.sendToSingle(job.getPath(), savename.toString());

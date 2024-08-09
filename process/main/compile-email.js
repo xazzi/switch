@@ -25,7 +25,7 @@ compileEmail = function(s, job){
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
                 projectID: handoffDataDS.evalToString("//base/projectID"),
-                sku: handoffDataDS.evalToString("//base/sku"),
+                gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 process: handoffDataDS.evalToString("//base/process"),
                 subprocess: handoffDataDS.evalToString("//base/subprocess"),
                 dueDate: handoffDataDS.evalToString("//base/dueDate"),
@@ -39,7 +39,7 @@ compileEmail = function(s, job){
 
             // Create the email object and set some of the known parameters.
             var email = {
-                subject: "Gang Summary: " + handoffData.projectID,
+                subject: "Gang Summary: " + handoffData.gangNumber,
                 header: "",
                 to: handoffData.user.email,
                 cc: "",
@@ -93,7 +93,7 @@ compileEmail = function(s, job){
             }
 
             // Pull any notes from the email table, including what was just posted.
-            db.email.execute("SELECT * FROM emails.`parsed_data` WHERE sku = '" + handoffData.sku + "' and `gang-number` = '" + handoffData.projectID + "';");
+            db.email.execute("SELECT * FROM emails.`parsed_data` WHERE `project-id` = '" + handoffData.projectID + "';");
 
             var entries = {};
             var raw = [];
@@ -137,7 +137,7 @@ compileEmail = function(s, job){
             }
 
             //Pull notes for impinst
-            db.email.execute("SELECT * FROM emails.`impinst_notes` WHERE sku = '" + handoffData.sku + "' and `gang-number` = '" + handoffData.projectID + "';");
+            db.email.execute("SELECT * FROM emails.`impinst_notes` WHERE `project-id` = '" + handoffData.projectID + "';");
 
             while(db.email.isRowAvailable()){
                 db.email.fetchRow();
@@ -168,7 +168,7 @@ compileEmail = function(s, job){
 
 createEmail = function(s,  email, handoffData, body){
 	var emailXml = s.createNewJob();
-	var emailXmlPath = emailXml.createPathWithName(handoffData.projectID + ".txt", false);
+	var emailXmlPath = emailXml.createPathWithName(handoffData.gangNumber + ".txt", false);
 	var emailXmlFile = new File(emailXmlPath);
     //var emailXmlFile = new File("C://Switch//Development//test.txt");
 	
