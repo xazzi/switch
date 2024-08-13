@@ -16,6 +16,7 @@ runPost = function(s, job){
                 handoffObj.process = "Unknown"
             }else{
                 handoffObj.projectID = handoffDataDS.evalToString("//base/projectID")
+                handoffObj.gangNumber = handoffDataDS.evalToString("//base/gangNumber")
                 handoffObj.process = handoffDataDS.evalToString("//base/process")
             }
 
@@ -37,7 +38,7 @@ runPost = function(s, job){
                     },
                     {
                         "name": "Gang: ",
-                        "value": handoffObj.projectID
+                        "value": handoffObj.gangNumber
                     },
                     {
                         "name": "Process: ",

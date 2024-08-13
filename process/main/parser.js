@@ -30,6 +30,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
             eval(File.read(dir.support + "/sql-statements.js"));
+            eval(File.read(dir.support + "/get-target-height.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -355,8 +356,9 @@ runParser = function(s, job){
                 db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
                     ["project-id", data.projectID],
                     ["gang-number", data.gangNumber],
-                    ["item-number", node.getAttributeValue('ID')],
                     ["order-number", node.getAttributeValue('Name')],
+                    ["item-number", node.getAttributeValue('ID')],
+                    ["page", "1"],
                     ["status", "Initiated"]
                 ]));	
 
@@ -701,26 +703,6 @@ runParser = function(s, job){
                     data.date.due = orderSpecs.date.due
                 }
                 
-                // After all of the deviation checks have been done, set some settings for the gang.
-                // These are intended to overwrite previous settings if necessary, and therefor out of the initial data compiling above.
-                // --------------------------------------------------------------------------------------------------------------------------------
-                
-                // Check if it should enable long rolls (251gsm)
-                if(matInfo.type == "roll" && !data.scaled){
-                    if((orderSpecs.width > matInfo.width && orderSpecs.width > matInfo.height) || 
-                        (orderSpecs.height > matInfo.width && orderSpecs.height > matInfo.height)){ 
-                        data.scaled = false;
-                        data.oversize = true;
-                    }
-                }
-                
-                // Enable the 10th Scale logic in Phoenix
-                if(orderSpecs.width >= 380 || orderSpecs.height >= 380){
-                    data.scaled = true;
-                    data.oversize = false;
-                    data.scale = "-10pct";
-                }
-                
                 orderSpecs.productNotes = node.getAttributeValue('Notes');
                 
                 orderSpecs.filePath = node.getAttributeValue('ContentFile').toString();
@@ -748,6 +730,14 @@ runParser = function(s, job){
                 csvFile.open(File.Append);
                 
             var writeHeader = true;
+
+            var dynamic = getTargetHeight(s, matInfo, orderArray, data)
+
+            // Set the usableArea
+            var usableArea = {
+                width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
+                height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
+            }
                 
             // Special label for gang level info that prints on the sheet.
             if(data.phoenix.gangLabel.length == 0){
@@ -1007,11 +997,6 @@ runParser = function(s, job){
                     product.subprocess.undersize = false;
                 }
                 
-                var usableArea = {
-                    width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
-                    height: matInfo.height - matInfo.printer.margin.top - matInfo.printer.margin.bottom
-                }
-                
                 // Gather the source file options
                 var file = {
                     source: new File(watermarkDrive + "/" + product.contentFile),
@@ -1181,6 +1166,14 @@ runParser = function(s, job){
                         continue;
                     }
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                    db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                        ["project-id", data.projectID],
+                        ["gang-number", data.gangNumber],
+                        ["order-number", product.orderNumber],
+                        ["item-number", product.itemNumber],
+                        ["page", "2"],
+                        ["status", "Initiated"]
+                    ]));	
                 }
                 
                 // Check if the item_number can be undersized.
@@ -1566,7 +1559,7 @@ runParser = function(s, job){
                         }else if(data.oversize){
                             // Send the base printer name
                         }else{
-                            data.thing += " (" + matInfo.height + ")";
+                            data.thing += " (" + dynamic.height.value + ")";
                         }
                     }
                 }
@@ -1611,6 +1604,16 @@ runParser = function(s, job){
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
                         writeCSV(s, csvFile, infoArray, 1);
+
+                        // Write the extra line to the database
+                        db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                            ["project-id", data.projectID],
+                            ["gang-number", data.gangNumber],
+                            ["order-number", product.orderNumber],
+                            ["item-number", product.itemNumber],
+                            ["page", "2"],
+                            ["status", "Initiated"]
+                        ]));	
                     }
                 }
 
@@ -1622,6 +1625,16 @@ runParser = function(s, job){
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
                         writeCSV(s, csvFile, infoArray, 1);
+
+                        // Write the extra line to the database
+                        db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                            ["project-id", data.projectID],
+                            ["gang-number", data.gangNumber],
+                            ["order-number", product.orderNumber],
+                            ["item-number", product.itemNumber],
+                            ["page", "2"],
+                            ["status", "Initiated"]
+                        ]));
                     }
                 }
 
@@ -1633,6 +1646,16 @@ runParser = function(s, job){
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
                         writeCSV(s, csvFile, infoArray, 1);
+
+                        // Write the extra line to the database
+                        db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                            ["project-id", data.projectID],
+                            ["gang-number", data.gangNumber],
+                            ["order-number", product.orderNumber],
+                            ["item-number", product.itemNumber],
+                            ["page", "2"],
+                            ["status", "Initiated"]
+                        ]));
                     }
                 }
                 
@@ -1718,19 +1741,17 @@ runParser = function(s, job){
                 }
             }
 
+            // Close the CSV you were writing
+            csvFile.close();
+
             // 2nd safety check for if all files have been removed from the gang.
-            /* //TODO - Fix byteCount() below, it does't work
-            if(newCSV.getByteCount() == 0){
-                s.log(2, "Empty Gang")
+            if(productArray.length == 0){
                 sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
                 job.sendToNull(job.getPath());
                 return
             }
-                */
 
             emailDatabase_write(s, db, "parsed_data", "Parser", data, data.notes)
-            
-            csvFile.close();
         
             createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now);
             newCSV.setHierarchyPath([data.environment,data.projectID]);
@@ -1755,6 +1776,8 @@ runParser = function(s, job){
                 ["processed-time",now.time],
                 ["processed-date",now.date],
                 ["due-date",data.date.due],
+                ["dynamic-height-enabled",dynamic.height.enabled],
+                ["dynamic-height-value",dynamic.height.value],
                 ["status","Parse Complete"]
             ]))
             
