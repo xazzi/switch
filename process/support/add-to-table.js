@@ -269,8 +269,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         }
     }
 
-        //WORK IN PROGRESS, (is this in the wrong spot?)
-        //New options bannerstand table, nickname check
+        //New options bannerstand table, nickname
         if(orderSpecs.bannerstand.active){
             db.general.execute("SELECT * FROM digital_room.options_bannerstand" + " WHERE parameter = '" + orderSpecs.bannerstand.value + "' AND `item-name` = '" + orderSpecs.itemName + "';");
             if(!db.general.isRowAvailable()){
