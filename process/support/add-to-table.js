@@ -272,7 +272,17 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         }
     }
 
-        // If the parameter is not on the table, add it to the able and send an email.
+        //WORK IN PROGRESS, (is this in the wrong spot?)
+        //New options bannerstand table, nickname check
+        if(orderSpecs.bannerstand.active){
+            db.general.execute("SELECT * FROM digital_room.options_bannerstand" + " WHERE parameter = '" + orderSpecs.bannerstand.value + "' AND `item-name` = '" + orderSpecs.itemName + "';");
+            if(!db.general.isRowAvailable()){
+                db.general.execute("INSERT INTO digital_room.options_bannerstand" + "(`example-item`, parameter, `item-name`, width, height) VALUES ('" + orderSpecs.jobItemId + "','" + orderSpecs.bannerstand.value + "','" + orderSpecs.itemName + "','" + orderSpecs.width + "','" + orderSpecs.height + "');");
+
+            }
+        }
+
+        // If the parameter is not on the table, add it to the table and send an email.
         db.general.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
         
         db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
