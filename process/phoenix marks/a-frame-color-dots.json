@@ -1,0 +1,211 @@
+{
+    "description": "A-Frame color dots.",
+    "name": "A-Frame",
+    "key": "None",
+    "parameters": [
+        {
+            "description": "Cyan-Standard-White",
+            "type": "Custom Mark",
+            "key": "None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process": {
+                "requirements": [
+                    "All"
+                ],
+                "rejections": []
+            },
+            "subprocess": {
+                "requirements": [
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
+                ],
+                "rejections": []
+            },
+            "specs": {
+                "requirements": {
+                    "orderArray": {
+                        "color": "Cyan"
+                    }
+                },
+                "rejections": {}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/A-Frames/",
+                    "name": "Cyan-Standard-White"
+                }
+            ]
+        }, 
+        {
+            "description": "Green-Standard-Black",
+            "type": "Custom Mark",
+            "key": "None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process": {
+                "requirements": [
+                    "All"
+                ],
+                "rejections": []
+            },
+            "subprocess": {
+                "requirements": [
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
+                ],
+                "rejections": []
+            },
+            "specs": {
+                "requirements": {
+                    "orderArray": {
+                        "color": "Green"
+                    }
+                },
+                "rejections": {}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/A-Frames/",
+                    "name": "Green-Standard-Black"
+                }
+            ]
+        },
+        {
+            "description": "Red-Deluxe-Black",
+            "type": "Custom Mark",
+            "key": "None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process": {
+                "requirements": [
+                    "All"
+                ],
+                "rejections": []
+            },
+            "subprocess": {
+                "requirements": [
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
+                ],
+                "rejections": []
+            },
+            "specs": {
+                "requirements": {
+                    "orderArray": {
+                        "color": "Red"
+                    }
+                },
+                "rejections": {}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/A-Frames/",
+                    "name": "Red-Deluxe-Black"
+                }
+            ]
+        },
+        {
+            "description": "Yellow-Deluxe-White",
+            "type": "Custom Mark",
+            "key": "None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process": {
+                "requirements": [
+                    "All"
+                ],
+                "rejections": []
+            },
+            "subprocess": {
+                "requirements": [
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
+                ],
+                "rejections": []
+            },
+            "specs": {
+                "requirements": {
+                    "orderArray": {
+                        "color": "Yellow"
+                    }
+                },
+                "rejections": {}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/A-Frames/",
+                    "name": "Yellow-Deluxe-White"
+                }
+            ]
+        }
+    ]
+}
