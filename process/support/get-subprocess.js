@@ -24,6 +24,10 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
             }
         }
 
+        if(db.general.getString(6) == 'n'){
+            return "Reject"
+        }
+
             subprocess = subprocess.split(',');
     
         var files = folder.entryList("*.json", Dir.Files, Dir.Name);

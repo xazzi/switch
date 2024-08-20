@@ -52,6 +52,14 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
             cc = []
             bcc = [];
         break;
+        case "Rejected Subprocess":
+            active = true;
+            subject = "Rejected Subprocess: " + product.itemNumber;
+            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due + "\n" + "Subprocess still in development, rejecting." + "\n" + escalate;
+            to = [userInfo.email];
+            cc = [sendTo.bret,sendTo.chelsea]
+            bcc = [];
+        break;
         case "Gang Notes":
             active = false;
             subject = "Gang Summary: " + data.projectID;

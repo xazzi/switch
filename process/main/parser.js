@@ -925,6 +925,13 @@ runParser = function(s, job){
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query);
 
+                if(product.subprocess == "Reject"){
+                    s.log(3, data.projectID + " :: Subprocess still in testing, job rejected.");
+                    sendEmail_db(s, data, matInfo, getEmailResponse("Rejected Subprocess", product, matInfo, data, userInfo, null), userInfo);
+                    job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
+                    return
+                }
+
                 // If it's DS 13ozBanner for SLC, skip it and send an email.
                 if(data.facility.destination == "Salt Lake City"){
                     if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
