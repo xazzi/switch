@@ -69,7 +69,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db.general.getString(4),
-                value: db.general.getString(1).replace(/"/g,'')
+                value: db.general.getString(1).replace(/"/g,''),
+                color: db.general.getString(5)
             }
         }
 

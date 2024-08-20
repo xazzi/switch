@@ -4,7 +4,7 @@
     "key": "None",
     "parameters": [
         {
-            "description": "",
+            "description": "Cyan-Standard-White",
             "type": "Custom Mark",
             "key": "None",
             "facility": [
@@ -39,19 +39,21 @@
                 "rejections": []
             },
             "specs": {
-                "requirements": {},
+                "requirements": {
+                    "color": "Cyan"
+                },
                 "rejections": {}
             },
             "settings": [
                 {
                     "group": "Global",
                     "dir": "/A-Frames/",
-                    "name": "Color-Standard-White"
+                    "name": "Cyan-Standard-White"
                 }
             ]
         }, 
         {
-            "description": "",
+            "description": "Green-Standard-Black",
             "type": "Custom Mark",
             "key": "None",
             "facility": [
@@ -86,19 +88,21 @@
                 "rejections": []
             },
             "specs": {
-                "requirements": {},
+                "requirements": {
+                    "color": "Green"
+                },
                 "rejections": {}
             },
             "settings": [
                 {
                     "group": "Global",
                     "dir": "/A-Frames/",
-                    "name": "Color-Standard-Black"
+                    "name": "Green-Standard-Black"
                 }
             ]
         },
         {
-            "description": "",
+            "description": "Red-Deluxe-Black",
             "type": "Custom Mark",
             "key": "None",
             "facility": [
@@ -133,19 +137,21 @@
                 "rejections": []
             },
             "specs": {
-                "requirements": {},
+                "requirements": {
+                    "color": "Red"
+                },
                 "rejections": {}
             },
             "settings": [
                 {
                     "group": "Global",
                     "dir": "/A-Frames/",
-                    "name": "Color-Deluxe-White"
+                    "name": "Red-Deluxe-Black"
                 }
             ]
         },
         {
-            "description": "",
+            "description": "Yellow-Deluxe-White",
             "type": "Custom Mark",
             "key": "None",
             "facility": [
@@ -180,14 +186,16 @@
                 "rejections": []
             },
             "specs": {
-                "requirements": {},
+                "requirements": {
+                    "color": "Yellow"
+                },
                 "rejections": {}
             },
             "settings": [
                 {
                     "group": "Global",
                     "dir": "/A-Frames/",
-                    "name": "Color-Deluxe-Black"
+                    "name": "Yellow-Deluxe-White"
                 }
             ]
         }
