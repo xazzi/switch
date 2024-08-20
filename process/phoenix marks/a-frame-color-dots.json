@@ -40,7 +40,9 @@
             },
             "specs": {
                 "requirements": {
-                    "color": "Cyan"
+                    "orderArray": {
+                        "color": "Cyan"
+                    }
                 },
                 "rejections": {}
             },
@@ -89,7 +91,9 @@
             },
             "specs": {
                 "requirements": {
-                    "color": "Green"
+                    "orderArray": {
+                        "color": "Green"
+                    }
                 },
                 "rejections": {}
             },
@@ -138,7 +142,9 @@
             },
             "specs": {
                 "requirements": {
-                    "color": "Red"
+                    "orderArray": {
+                        "color": "Red"
+                    }
                 },
                 "rejections": {}
             },
@@ -187,7 +193,9 @@
             },
             "specs": {
                 "requirements": {
-                    "color": "Yellow"
+                    "orderArray": {
+                        "color": "Yellow"
+                    }
                 },
                 "rejections": {}
             },
