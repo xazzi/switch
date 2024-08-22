@@ -250,7 +250,14 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         if(table == "options_bannerstand"){
             return specs = {
                 active: true,
-                value: db.general.getString(1).replace(/"/g,'')
+                value: db.general.getString(1).replace(/"/g,''),
+                nickname: {
+                    global: db.general.getString(6),
+                    globalSize: db.general.getString(7),
+                    slcSize: db.general.getString(8),
+                    wxmSize: db.general.getString(9)
+                }
+
             }
         }
 
@@ -268,25 +275,15 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             active: true
         }
     }
-
+    
         //New options bannerstand table, nickname
-        if(orderSpecs.bannerstand.active){
-            db.general.execute("SELECT * FROM digital_room.options_bannerstand" + " WHERE parameter = '" + orderSpecs.bannerstand.value + "' AND `item-name` = '" + orderSpecs.itemName + "';");
-            if(!db.general.isRowAvailable()){
-                db.general.execute("INSERT INTO digital_room.options_bannerstand" + "(`example-item`, parameter, `item-name`, width, height) VALUES ('" + orderSpecs.jobItemId + "','" + orderSpecs.bannerstand.value + "','" + orderSpecs.itemName + "','" + orderSpecs.width + "','" + orderSpecs.height + "');");
+        db.general.execute("INSERT INTO digital_room.options_bannerstand" + "(`example-item`, parameter, `item-name`, width, height) VALUES ('" + orderSpecs.jobItemId + "','" + orderSpecs.bannerstand.value + "','" + orderSpecs.itemName + "','" + orderSpecs.width + "','" + orderSpecs.height + "');");
 
-            }
-        }
-
-        // If the parameter is not on the table, add it to the table and send an email.
+        // If the parameter is not on the table, add it to the table.
         db.general.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
         
-        db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
-        if(db.general.isRowAvailable()){
-            sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
-        }else{
-            sendEmail_db(s, data, null, getEmailResponse("New Entry Failed", null, table, data, userInfo, parameter), userInfo);
-        }
+        //send New Entry email
+        sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
 
     return specs = {
         active: false,
@@ -297,6 +294,12 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         webbing: null,
         undersize: null,
         key: null,
-        rotation: null
+        rotation: null,
+        nickname: {
+            global: null,
+            globalSize: null,
+            slcSize: null,
+            wxmSize: null
+        }
     }
 }
