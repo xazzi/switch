@@ -89,6 +89,9 @@ runFinalize = function(s, job){
                 // Laminate
                 name.laminate = (handoffData.laminate.active || handoffData.coating.active) ? "-Lam" : "";
 
+                //Mixed Laminate -cm
+                name.mixLam = (handoffData.mixLam) ? "-mixLam" : "";
+
                 // FloorDecal
                 if(handoffData.process == "FloorDecal"){
                     name.laminate = ""
@@ -99,9 +102,10 @@ runFinalize = function(s, job){
                 data.dateProper = handoffData.dateID + "-" + handoffData.sku + "-" + phoenixPlan.index;
                 data.side = data.filename.match(new RegExp("S1","g")) ? "_F" : data.filename.match(new RegExp("S2","g")) ? "_B" : '';
                 
+                // need to verify naming convention (and that it's visible as true) of handoffData.mixLam (added after name.laminate)
                 // Hierarchy
                 if(data.processType == "Print"){
-                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + name.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
+                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + name.laminate + handoffData.mixLam + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.projectID + phoenixPlan.index + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
