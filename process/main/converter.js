@@ -35,14 +35,12 @@ runParser = function(s, job){
             var module = loadModuleSettings(s)
 
             // Establist connection to the databases
-            /*
             var connections = establishDatabases(s, module)
             var db = {
                 general: new Statement(connections.general),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
-            */
                 
             var localTime = new Date();
             var hourOffset = module.timezone == "AWS" ? 7 : 0;
@@ -72,11 +70,19 @@ runParser = function(s, job){
                 repository: "//10.21.71.213/File Repository/"
             }
             
-            //var theNewToken = getNewToken(s, data.environment);
+            var theNewToken = getNewToken(s, data.environment);
             
             var watermarkDrive = "T://watermarked-files";
             if(data.environment == "QA"){
                 watermarkDrive = "Q://watermarked-files";
+            }
+
+            var userInfo = {
+                first: db.general.getString(1),
+                last: db.general.getString(2),
+                email: db.general.getString(3),
+                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4),
+                fileSource: getFileSource(db.general.getString(9))
             }
                 
             // Loop through the items, pull the data from the API, then post it to the array.
@@ -85,6 +91,8 @@ runParser = function(s, job){
                 
                 var node = productList.getItem(i);
 
+                var orderSpecsAPI = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
+
                 var orderSpecs = {
                     orderNumber: node.getAttributeValue('Name'),
                     itemNumber: node.getAttributeValue('ID'),
@@ -92,7 +100,8 @@ runParser = function(s, job){
                     artworkFile: node.getAttributeValue('ContentFile'),
                     width: node.getAttributeValue('FinishedTrimWidth'),
                     height: node.getAttributeValue('FinishedTrimHeight'),
-                    quantity: node.getAttributeValue('RequiredQuantity')
+                    quantity: node.getAttributeValue('RequiredQuantity'),
+                    stock: orderSpecsAPI.paper.value.replace(/\,/g,'').toString()
                 }
 
                 // Once compiled, push to working array.
@@ -118,7 +127,12 @@ runParser = function(s, job){
                     itemNumber: orderArray[i].itemNumber,
                     quantity: orderArray[i].quantity,
                     width: orderArray[i].width,
-                    height: orderArray[i].height
+                    height: orderArray[i].height,
+                    stock: orderArray[i].stock,
+                    bleed:{
+                        type:"Margins",
+                        base:".0625"
+                    }
                 }
                 
                 /*
@@ -199,6 +213,8 @@ runParser = function(s, job){
             newCSV.setUserFullName(job.getUserFullName());
             //newCSV.setPriority(submit.override.priority);
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
+
+            job.sendToNull(job.getPath())
                         
         }catch(e){
             s.log(3, "Critical Error!: " + e);

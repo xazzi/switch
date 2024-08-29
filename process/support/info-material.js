@@ -98,6 +98,11 @@ getMatInfo = function(orderSpecs, db){
         labelOffset: db.general.getString(57) == 'NULL' ? null : db.general.getString(57) + " Offset",
         addKeyline: db.general.getString(59) == 'y' ? true : false,
         cutMethod: db.general.getString(60),
+        
+        layoutCount:{
+            target: db.general.getString(67),
+            max: db.general.getString(68)
+        },
 
         dsIndicator:{
             top: db.general.getString(40) == 'y' ? true : false,

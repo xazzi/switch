@@ -1,4 +1,4 @@
-addToTable = function(s, db, table, parameter, example, data, userInfo){
+addToTable = function(s, db, table, parameter, example, data, userInfo, object){
     var original = parameter
     
         parameter = parameter.replace(/"/g,'\\"');
@@ -69,7 +69,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             return specs = {
                 active: true,
                 method: db.general.getString(4),
-                value: db.general.getString(1).replace(/"/g,'')
+                value: db.general.getString(1).replace(/"/g,''),
+                color: db.general.getString(5)
             }
         }
 
@@ -271,15 +272,18 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         }
     }
 
-        // If the parameter is not on the table, add it to the able and send an email.
-        db.general.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
+        // If it makes it this far, the entry doesn't exist in the table yet. Add it
+        // New options bannerstand table, nickname check
+        if(table == "options_bannerstand"){
+            db.general.execute("INSERT INTO digital_room.options_bannerstand" + "(`example-item`, parameter, `item-name`, width, height) VALUES ('" + object.jobItemId + "','" + parameter + "','" + object.itemName + "','" + object.width + "','" + object.height + "');");
         
-        db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
-        if(db.general.isRowAvailable()){
-            sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
+        // All of the other options tables.
         }else{
-            sendEmail_db(s, data, null, getEmailResponse("New Entry Failed", null, table, data, userInfo, parameter), userInfo);
+            db.general.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
         }
+
+        // Send an email about the new entry
+        sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
 
     return specs = {
         active: false,
@@ -290,6 +294,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         webbing: null,
         undersize: null,
         key: null,
-        rotation: null
+        rotation: null,
+        color: null
     }
 }

@@ -224,14 +224,35 @@ runPost = function(s, job){
                 File.remove(xmlfile);
             
             if(theHTTP.finishedStatus == HTTP.Failed || theHTTP.statusCode !== 201){
+                // Post the response to the database
+                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                    ["project-id", handoffData.projectID]
+                ],[
+                    ["label-response","Fail"]
+                ])) 
                 s.log(3, "Phoenix API post failed: " + theHTTP.lastError);
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
+
+            // Post the response to the database
+            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                ["project-id", handoffData.projectID]
+            ],[
+                ["label-response","Success"]
+            ])) 
                     
             job.sendTo(findConnectionByName(s, "Success"), job.getPath());          
             
         }catch(e){
+
+            // Post the response to the database
+            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                ["project-id", handoffData.projectID]
+            ],[
+                ["label-response","Error"]
+            ])) 
+
             s.log(2, "Critical Error: Post-Phoenix: + " + e)
             job.sendTo(findConnectionByName(s, "Error"), job.getPath());
         }

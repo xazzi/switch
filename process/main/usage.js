@@ -38,7 +38,9 @@ runUsage = function(s, job){
             }
 
             // Update the details_gang table with the average usage.
-            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", ["project-id", handoffData.projectID], [
+            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                ["project-id", handoffData.projectID]
+            ],[
                 ["average-usage",phoenixPlan.averageUsage],
                 ["status","Ganged"]
             ]))   
