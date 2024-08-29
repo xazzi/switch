@@ -20,7 +20,8 @@ runRelease = function(s){
                 "Already Exists",
                 "Error",
                 "Missing File",
-                "Missing Cut Path"
+                "Missing Cut Path",
+                "Removed from Gang"
             ]
 
             // Establist connection to the databases
@@ -111,7 +112,7 @@ function checkCSV(s, db, statuses, csvFile){
             db.history.execute("SELECT * FROM history.details_item WHERE `item-number` = '" + line[index.itemNumber] + "' AND `project-id` = '" + line[index.projectID] + "';");
             if(db.history.isRowAvailable()){
                 db.history.fetchRow();
-                if(!contains(statuses, db.history.getString(6))){
+                if(!contains(statuses, db.history.getString(7))){
                     // If the file isn't skippable, end the while loop.
                     csvFile.close();
                     return false

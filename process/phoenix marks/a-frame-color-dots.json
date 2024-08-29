@@ -11,7 +11,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name": "Arlington",
@@ -41,7 +41,9 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "color": "Cyan"
+                        "frame":{
+                            "color": "Cyan"
+                        }
                     }
                 },
                 "rejections": {}
@@ -62,7 +64,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name": "Arlington",
@@ -92,7 +94,9 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "color": "Green"
+                        "frame":{
+                            "color": "Green"
+                        }
                     }
                 },
                 "rejections": {}
@@ -113,7 +117,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name": "Arlington",
@@ -143,7 +147,9 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "color": "Red"
+                        "frame":{
+                            "color": "Red"
+                        }
                     }
                 },
                 "rejections": {}
@@ -164,7 +170,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name": "Arlington",
@@ -194,7 +200,9 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "color": "Yellow"
+                        "frame":{
+                            "color": "Yellow"
+                        }
                     }
                 },
                 "rejections": {}

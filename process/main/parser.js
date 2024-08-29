@@ -325,6 +325,12 @@ runParser = function(s, job){
             if(!db.general.isRowAvailable()){
                 sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
                 job.sendToNull(job.getPath());
+                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                    ["project-id", data.projectID]
+                ],[
+                    ["status","Parse Failed"],
+                    ["note","Undefined user."]
+                ]))
                 return;
             }
                 db.general.fetchRow();
@@ -362,31 +368,47 @@ runParser = function(s, job){
                     ["status", "Initiated"]
                 ]));	
 
+                s.log(2, "Start")
+
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
-
-                if(orderSpecs.bannerstand.active){
-                    db.general.execute("SELECT * FROM history.check" + " WHERE hardware = '" + orderSpecs.bannerstand.value + "' AND `item-name` = '" + orderSpecs.itemName + "';");
-                    if(!db.general.isRowAvailable()){
-                        db.general.execute("INSERT INTO history.check" + "(`example-item`, hardware, `item-name`, width, height) VALUES ('" + orderSpecs.jobItemId + "','" + orderSpecs.bannerstand.value + "','" + orderSpecs.itemName + "','" + orderSpecs.width + "','" + orderSpecs.height + "');");
-                    }
-                }
-
+                
                 // API pull failed.
                 if(!orderSpecs.complete){
                     data.notes.push([node.getAttributeValue('ID'),"Removed","API pull failed."])
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",node.getAttributeValue('ID')]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","API pull failed."]
+                    ]))
                     continue;
                 }
                             
                 // Check if facility information exists
                 if(orderSpecs.facility == undefined || orderSpecs.facilityId == undefined){
                     data.notes.push([orderSpecs.jobItemId,"Removed","No facility assigned."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","No facility assigned."]
+                    ]))
                     continue;
                 }
 
                 // Remove the file if shipping information doesn't exist.
                 if(!orderSpecs.ship.exists){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Shipping data is missing"]
+                    ]))
                     continue;
                 }
                 
@@ -449,6 +471,18 @@ runParser = function(s, job){
                         s.log(3, data.gangNumber + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
                         job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID]
+                        ],[
+                            ["status","Gang Failed"],
+                            ["note","Undefined material."]
+                        ]));
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                            ["project-id", data.projectID]
+                        ],[
+                            ["status","Parse Failed"],
+                            ["note","Undefined material."]
+                        ]));
                         return;
                     }
                 }
@@ -459,6 +493,18 @@ runParser = function(s, job){
                         s.log(3, data.gangNumber + " :: Facility mismatch.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Facility Mismatch", null, matInfo, data, userInfo, null), userInfo);
                         job.sendToNull(job.getPath());
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID]
+                        ],[
+                            ["status","Gang Failed"],
+                            ["note","Facility mismatch."]
+                        ]))
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                            ["project-id", data.projectID]
+                        ],[
+                            ["status","Parse Failed"],
+                            ["note","Facility mismatch."]
+                        ]))
                         return
                     }
                 }
@@ -466,6 +512,13 @@ runParser = function(s, job){
                 // Check if the unwind spec is ready to use.
                 if(orderSpecs.unwind.active && !orderSpecs.unwind.enable){
                     data.notes.push([node.getAttributeValue('ID'),"Removed","Unwind rotation not defined in automation. Notify Bret."])
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Unwind rotation issue."]
+                    ]))
                     continue;
                 }
 
@@ -473,6 +526,13 @@ runParser = function(s, job){
                 if(data.facility.destination == "Van Nuys"){
                     if(orderSpecs.width >= 140 || orderSpecs.height >= 140){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Item over 140\" assigned to VN."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Too large for VN."]
+                        ]))
                         continue;
                     }
                 }
@@ -588,6 +648,13 @@ runParser = function(s, job){
                     }else{
                         var temp = orderSpecs.doubleSided ? "Double Sided" : "Single Sided"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + temp + "."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Different process: " + temp]
+                        ]))
                         continue;
                     }
                 }
@@ -604,6 +671,13 @@ runParser = function(s, job){
                 if(data.printer != matInfo.printer.name){
                     if(misc.rejectPress){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different printer " + matInfo.printer.name + "."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Different printer: " + matInfo.printer.name]
+                        ]))
                         continue;
                     }
                 }
@@ -611,6 +685,13 @@ runParser = function(s, job){
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + matInfo.prodName + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different process: " + matInfo.prodName]
+                    ]))
                     continue;
                 }
                 
@@ -618,6 +699,13 @@ runParser = function(s, job){
                 if(data.paper != orderSpecs.paper.value){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material, " + orderSpecs.paper.value + "."]);
                     data.notes.push([orderSpecs.jobItemId,"Priority","Different IMS material, " + orderSpecs.paper.value + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different IMS material: " + orderSpecs.paper.value]
+                    ]))
                     continue;
                 }
                 
@@ -626,6 +714,13 @@ runParser = function(s, job){
                     if(!submit.override.mixedHem){
                         if(data.finishingType != orderSpecs.finishingType){
                             data.notes.push([orderSpecs.jobItemId,"Removed","Different hem type, " + orderSpecs.finishingType + "."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",orderSpecs.jobItemId]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Different hem type: " + orderSpecs.finishingType]
+                            ]))
                             continue;
                         }
                     }
@@ -635,6 +730,13 @@ runParser = function(s, job){
                 if((!matInfo.standardPrint && !orderSpecs.secondSurface) || (!matInfo.reversePrint && orderSpecs.secondSurface)){
                     var type = orderSpecs.secondSurface ? "2nd Surface" : "1st Surface"
                     data.notes.push([orderSpecs.jobItemId, "Removed.", "Print surface not allowed with material, " + type + ", " + matInfo.prodName + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Print surface issue."]
+                    ]))
                     continue;
                 }
                 
@@ -643,6 +745,13 @@ runParser = function(s, job){
                     if(data.secondSurface != orderSpecs.secondSurface){
                         var type = orderSpecs.secondSurface ? "2nd Surface" : "1st Surface"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Different process: " + type]
+                        ]))
                         continue;
                     }
                 }
@@ -654,6 +763,13 @@ runParser = function(s, job){
                     if(data.coating.active != orderSpecs.coating.active){
                         var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Different process: " + type]
+                        ]))
                         continue;
                     }
                     
@@ -661,6 +777,13 @@ runParser = function(s, job){
                     if(data.laminate.active != orderSpecs.laminate.active){
                         var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Different process: " + type]
+                        ]))
                         continue;
                     }
                 }
@@ -672,6 +795,13 @@ runParser = function(s, job){
                     if(data.coating.active != orderSpecs.coating.active){
                         var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Different process: " + type]
+                        ]))
                         continue;
                     }
                     
@@ -679,6 +809,13 @@ runParser = function(s, job){
                     if(data.laminate.active != orderSpecs.laminate.active){
                         var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Different process: " + type]
+                        ]))
                         continue;
                     }
                 }
@@ -687,6 +824,13 @@ runParser = function(s, job){
                 if(data.mount.active != orderSpecs.mount.active){
                     var type = orderSpecs.mount.active ? "Mounted" : "Not Mounted"
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different process: " + type]
+                    ]))
                     continue;
                 }
 
@@ -694,6 +838,13 @@ runParser = function(s, job){
                 if(!submit.override.date){
                     if(orderSpecs.date.due != data.date.due){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different due date, " + orderSpecs.date.due + "."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Different due date: " + orderSpecs.date.due]
+                        ]))
                         continue;
                     }
                 }
@@ -717,6 +868,12 @@ runParser = function(s, job){
             if(orderArray.length == 0){
                 sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
                 job.sendToNull(job.getPath());
+                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                    ["project-id", data.projectID]
+                ],[
+                    ["status","Parse Failed"],
+                    ["note","All files removed."]
+                ]))
                 return
             }
             
@@ -939,13 +1096,28 @@ runParser = function(s, job){
                 }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
-                product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query);
+                product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query, dynamic);
+
+                // Reject the subprocess if it's not ready.
+                if(product.subprocess == "Reject"){
+                    s.log(3, data.projectID + " :: Subprocess still in testing, job rejected.");
+                    sendEmail_db(s, data, matInfo, getEmailResponse("Rejected Subprocess", product, matInfo, data, userInfo, null), userInfo);
+                    job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
+                    return
+                }
 
                 // If it's DS 13ozBanner for SLC, skip it and send an email.
                 if(data.facility.destination == "Salt Lake City"){
                     if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
                         if(product.subprocess.name != "Retractable"){
                             data.notes.push([product.itemNumber,"Removed","DS 13oz banner assigned to SLC."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Can't produce in SLC."]
+                            ]))
                             continue;
                         }
                     }
@@ -955,8 +1127,15 @@ runParser = function(s, job){
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
-                            if(orderArray[i].width >= 168 || orderArray[i].height >= 168){
+                            if(orderArray[i].width >= 240 || orderArray[i].height >= 240){
                                 data.notes.push([product.itemNumber,"Removed","Welded banner over 168\" assigned to ARL."]);
+                                db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                    ["project-id",data.projectID],
+                                    ["item-number",product.itemNumber]
+                                ],[
+                                    ["status","Removed from Gang"],
+                                    ["note","Can't produce in ARL."]
+                                ]))
                                 continue;
                             }
                         }
@@ -971,6 +1150,13 @@ runParser = function(s, job){
                 // If the subprocess can't be mixed with other subprocesses, reject it.
                 if(data.mixed != product.subprocess.mixed){
                     data.notes.push([product.itemNumber,"Removed","Different subprocess, " + product.subprocess.name + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",product.itemNumber]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different subprocess: " + product.subprocess.name]
+                    ]))
                     continue
                 }
 
@@ -1001,7 +1187,8 @@ runParser = function(s, job){
                 var file = {
                     source: new File(watermarkDrive + "/" + product.contentFile),
                     depository: new File("//10.21.71.213/File Repository/" + product.contentFile),
-                    usableData: false
+                    usableData: false,
+                    stats: null
                 }
                     
                 // Do we need to transfer the file from the depository?
@@ -1015,7 +1202,11 @@ runParser = function(s, job){
                         }
                         product.transfer = true;
                     }else{
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", ["project-id", data.projectID], [
+                        file.stats = new FileStatistics("//10.21.71.213/File Repository/" + product.contentFile);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",product.itemNumber]
+                        ],[
                             ["status","Already Exists"]
                         ]))
                     }
@@ -1024,9 +1215,17 @@ runParser = function(s, job){
                         product.transfer = true;
                     }else{
                         if(file.source.exists){
+                            file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
                             product.transfer = true;
                         }else{
                             data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","File missing: " + product.contentFile]
+                            ]))
                             continue;
                         }
                     }
@@ -1034,17 +1233,12 @@ runParser = function(s, job){
 
                 // Read some data from the file.
                 try{
-                    if(data.fileSource == "S3 Bucket"){
-                        file.stats = new FileStatistics("//10.21.71.213/File Repository/" + product.contentFile);
-                    }else{
-                        file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
+                    if(file.stats != null){                        
+                        file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
+                        file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
+                        file.pages = file.stats.getNumber("NumberOfPages");
+                        file.usableData = true;
                     }
-                    
-                    file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
-                    file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
-                    file.pages = file.stats.getNumber("NumberOfPages");
-                    file.usableData = true;
-
                 }catch(e){}
                 
                 // If the file exists and you have data to use, go here.
@@ -1054,6 +1248,13 @@ runParser = function(s, job){
                         // Check if the 2nd page exists for DS product.
                         if(file.pages == 1 && product.doubleSided){
                             data.notes.push([product.itemNumber,"Removed","File missing 2nd page for DS printing."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Missing 2nd page for DS printing."]
+                            ]))
                             continue;
                         }
 
@@ -1163,6 +1364,13 @@ runParser = function(s, job){
                 if(product.subprocess.name == "Breakaway"){
                     if(file.pages != 2){
                         data.notes.push([product.itemNumber,"Removed","Breakaway banner not split."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",product.itemNumber]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Breakaway banner file incorrect."]
+                        ]))
                         continue;
                     }
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
@@ -1311,11 +1519,25 @@ runParser = function(s, job){
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     if((difference.width > 5) || (difference.height > 5)){
                         data.notes.push([product.itemNumber,"Removed",'File size is too different from expected size, removed from gang.']);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",product.itemNumber]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","File size discrepancy."]
+                        ]))
                         continue;
                     // If the undersizing is greater than 1" but less than 5", remove it if a custom width was selected, otherwise just notify the user.
                     }else if((difference.width > 1) || (difference.height > 1)){
                         if(submit.material.active){
                             data.notes.push([product.itemNumber,"Removed",'File size is too different from expected size, removed from gang.']);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","File size discrepancy."]
+                            ]))
                             continue;
                         }else{
                             data.notes.push([product.itemNumber,"Notes",'Undersizing was greater than 1", please confirm accuracy in Phoenix report.']);
@@ -1691,7 +1913,10 @@ runParser = function(s, job){
                     cvXML.sendTo(findConnectionByName_db(s, "CV XML"), cvPath);
                 }
 
-                db.history.execute(generateSqlStatement_Update(s, "history.details_item", ["project-id", data.projectID], [
+                db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                    ["project-id", data.projectID],
+                    ["item-number",product.itemNumber]
+                ],[
                     ["orientation",product.orientation.status],
                     ["due-date", orderArray[i].date.due]
                 ]))
@@ -1748,6 +1973,12 @@ runParser = function(s, job){
             if(productArray.length == 0){
                 sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
                 job.sendToNull(job.getPath());
+                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                    ["project-id", data.projectID]
+                ],[
+                    ["status","Parse Failed"],
+                    ["note","All files removed."]
+                ]))
                 return
             }
 
@@ -1766,7 +1997,9 @@ runParser = function(s, job){
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
             
-            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", ["project-id", data.projectID], [
+            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                ["project-id", data.projectID]
+            ],[
                 ["process",data.prodName],
                 ["subprocess",data.subprocess],
                 ["facility",data.facility.destination],
@@ -1777,7 +2010,7 @@ runParser = function(s, job){
                 ["processed-date",now.date],
                 ["due-date",data.date.due],
                 ["dynamic-height-enabled",dynamic.height.enabled],
-                ["dynamic-height-value",dynamic.height.value],
+                ["height-value",dynamic.height.value],
                 ["status","Parse Complete"]
             ]))
             
@@ -1888,6 +2121,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "labelmaster", data.labelmaster);
         addNode_db(theXML, miscNode, "addKeyline", matInfo.addKeyline);
         addNode_db(theXML, miscNode, "cutMethod", matInfo.cutMethod);
+        addNode_db(theXML, miscNode, "targetLayoutCount", matInfo.layoutCount.target);
+        addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);

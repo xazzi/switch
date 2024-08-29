@@ -77,20 +77,21 @@ runProcessor = function(s, job){
             
             var phoenixOutput = new Dir("C:/Switch/Depository/phoenixOutput/" + module.localEnvironment + "/" + handoffData.projectID);
             
-            db.history.execute("UPDATE history.details_gang SET `post-to-prism` = '" + validation.post.prism + "' WHERE (`gang-number` = '" + handoffData.gangNumber + "' and `project-id` = '" + handoffData.projectID + "');");
-
             var newXML = s.createNewJob();
             var xmlPath = newXML.createPathWithName(handoffData.gangNumber + ".xml", false);
             var xmlFile = new File(xmlPath);
 			//var xmlFile = new File("C://Switch//Development//test.xml");
             
+			var response, status
+
             // Move the files inside the projectID directory.
             var files = phoenixOutput.entryList("*" + handoffData.gangNumber + "*", Dir.Files, Dir.Name);
             for(var i=0; i<files.length; i++){
 				if(handoffData.status == "approved"){
+					status = "Approved"
 					if(validation.post.prism == 'y'){
 						if(files[i].split("_")[2] == handoffData.gangNumber + ".xml"){
-							var response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, handoffData, module.prismEndpoint, validation);
+							response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, handoffData, module.prismEndpoint, validation);
 							if(response == "Success"){
 								// Email the success of the prism post.
 								s.log(2, handoffData.gangNumber + " posted to PRISM successfully!");
@@ -103,10 +104,6 @@ runProcessor = function(s, job){
 								newXML.setHierarchyPath([userInfo.dir])
 								newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
 							}
-							// Log the status of the failed prism post.
-							db.history.execute(generateSqlStatement_Update(s, "history.details_gang", ["project-id", handoffData.projectID], [
-								["prism-response",response]
-							])) 
 						}
 					}
 
@@ -116,25 +113,25 @@ runProcessor = function(s, job){
 					// Move the file to the toPostProcessing directory.
 					s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
 
-					// Update the database to reflect the status
-					db.history.execute(generateSqlStatement_Update(s, "history.details_gang", ["project-id", handoffData.projectID], [
-						["status","Gang Approved"]
-					])) 
-
 				}else{
-
+					status = "Rejected"
 					// Create or get the destination path.
 					var phoenixRejected = getDirectory("C:/Switch/Depository/phoenixRejected/" + module.localEnvironment)
 
 					// Move the file to the rejected directory
 					s.move(phoenixOutput.path + "/" + files[i], phoenixRejected.path + "/" + files[i], true);
 
-					// Update the database to reflect the status
-					db.history.execute(generateSqlStatement_Update(s, "history.details_gang", ["project-id", handoffData.projectID], [
-						["status","Gang Rejected"]
-					])) 
 				}
             }
+
+			// Update the database to reflect the status
+			db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+				["project-id",handoffData.projectID]
+			],[
+				["status",status],
+				["prism-response",response],
+				["post-to-prism",validation.post.prism]
+			])) 
             
 			// Log that it was approved.
             if(handoffData.status == "approved"){
