@@ -13,7 +13,9 @@
                 "13oz-Matte",
                 "13oz-Smooth",
                 "DSS",
-                "18ozBanner"
+                "18ozBanner",
+                "UV-Fabric",
+                "UV Fabric"
             ],
             "properties": {
                 "mixed": true,

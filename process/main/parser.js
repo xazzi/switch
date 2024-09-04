@@ -1387,11 +1387,23 @@ runParser = function(s, job){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
                     // For bannerstands, use the bannerstand value instead.
                     if(orderArray[i].bannerstand.active){
-                        product.customLabel.value = product.width + 'x' + product.height + ' - ' + orderArray[i].bannerstand.value
+                        if(data.facility.destination == "Salt Lake City"){
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc
+                            product.customLabel.size = orderArray[i].bannerstand.size.slc
+                        }
+                        if(data.facility.destination == "Wixom"){
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm
+                            product.customLabel.size = orderArray[i].bannerstand.size.wxm
+                        }
+                        product.customLabel.value = orderArray[i].bannerstand.value
                     }
                 }
 
-                // Tension Stands
+                if(orderArray[i].replacement)[
+                    product.customLabel.value = "Replacement: " + product.customLabel.value
+                ]
+
+                // Tension Stands Templates
                 if(product.subprocess.name == "TensionStand"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
@@ -1411,7 +1423,12 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                 }
 
-                // Table Runner Templates
+                // Retractable Templates
+                if(product.subprocess.name == "Retractable"){
+                    product.dieDesignName = "retractable_" + product.width + "x" + product.height;
+                }
+
+                // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
                     scale.width = 91.2
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
@@ -1558,7 +1575,7 @@ runParser = function(s, job){
                     }
                 }
 
-                // Table Runner Templates
+                // It it's Rectangle Flag, write it again for the 2nd page.
                 if(product.subprocess.name == "RectangleFlag"){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"

@@ -106,9 +106,13 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				value: null,
 				nickname: {
 					global: null,
-					globalSize: null,
-					slcSize: null,
-					wxmSize: null
+					slc: null,
+					wxm: null
+				},
+				size: {
+					global: null,
+					slc: null,
+					wxm: null
 				}		
 			},
 			frame: {

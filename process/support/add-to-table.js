@@ -250,14 +250,17 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         if(table == "options_bannerstand"){
             return specs = {
                 active: true,
-                value: db.general.getString(1).replace(/"/g,''),
+                value: db.general.getString(2).replace(/"/g,''),
                 nickname: {
                     global: db.general.getString(6),
-                    globalSize: db.general.getString(7),
-                    slcSize: db.general.getString(8),
-                    wxmSize: db.general.getString(9)
+                    slc: db.general.getString(7),
+					wxm: db.general.getString(8)
+                },
+                size: {
+                    global: db.general.getString(9),
+                    slc: db.general.getString(10),
+                    wxm: db.general.getString(11)
                 }
-
             }
         }
 
@@ -276,13 +279,17 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         }
     }
     
-        //New options bannerstand table, nickname
-        db.general.execute("INSERT INTO digital_room.options_bannerstand" + "(`example-item`, parameter, `item-name`, width, height) VALUES ('" + orderSpecs.jobItemId + "','" + orderSpecs.bannerstand.value + "','" + orderSpecs.itemName + "','" + orderSpecs.width + "','" + orderSpecs.height + "');");
-
-        // If the parameter is not on the table, add it to the table.
-        db.general.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
+        // If it makes it this far, the entry doesn't exist in the table yet. Add it
+        // New options bannerstand table, nickname check
+        if(table == "options_bannerstand"){
+            db.general.execute("INSERT INTO digital_room.options_bannerstand" + "(`example-item`, parameter, `item-name`, width, height) VALUES ('" + object.jobItemId + "','" + parameter + "','" + object.itemName + "','" + object.width + "','" + object.height + "');");
         
-        //send New Entry email
+        // All of the other options tables.
+        }else{
+            db.general.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
+        }
+
+        // Send an email about the new entry
         sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
 
     return specs = {
@@ -297,9 +304,13 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         rotation: null,
         nickname: {
             global: null,
-            globalSize: null,
-            slcSize: null,
-            wxmSize: null
-        }
+            slc: null,
+            wxm: null
+        },
+        size: {
+            global: null,
+            slc: null,
+            wxm: null
+        }		
     }
 }
