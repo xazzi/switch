@@ -37,6 +37,7 @@ runPost = function(s, job){
         
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffObj = {
+                projectID: handoffDataDS.evalToString("//base/projectID"),
                 gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 material: handoffDataDS.evalToString("//base/process"),
                 type: handoffDataDS.evalToString("//base/type"),
@@ -154,14 +155,32 @@ runPost = function(s, job){
                 File.remove(xmlfile);
             
             if(theHTTP.finishedStatus == HTTP.Failed || theHTTP.statusCode !== 201){
+                // Log the status of the prism post.
+                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                    ["project-id", handoffData.projectID]
+                ],[
+                    ["ppq-response","Fail"]
+                ])) 
                 s.log(3, "Phoenix API post failed: " + theHTTP.lastError);
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
+
+            // Log the status of the prism post.
+            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                ["project-id", handoffData.projectID]
+            ],[
+                ["ppq-response","Success"]
+            ])) 
                     
-            job.sendTo(findConnectionByName(s, "Success"), job.getPath());            
+            job.sendTo(findConnectionByName(s, "Success"), job.getPath());       
             
         }catch(e){
+            db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                ["project-id", handoffData.projectID]
+            ],[
+                ["ppq-response","Error"]
+            ])) 
             s.log(2, "Critical Error: Post-Project")
             job.sendTo(findConnectionByName(s, "Error"), job.getPath());
         }

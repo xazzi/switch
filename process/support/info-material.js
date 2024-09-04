@@ -33,6 +33,7 @@ getMatInfo = function(orderSpecs, db){
         type: db.general.getString(2),
         width: Number(db.general.getString(3)),
         height: Number(db.general.getString(4)),
+        dynamicHeightIncrement: db.general.getString(66),
         phoenixStock: db.general.getString(5),
 
         spacing: {
@@ -97,6 +98,11 @@ getMatInfo = function(orderSpecs, db){
         labelOffset: db.general.getString(57) == 'NULL' ? null : db.general.getString(57) + " Offset",
         addKeyline: db.general.getString(59) == 'y' ? true : false,
         cutMethod: db.general.getString(60),
+        
+        layoutCount:{
+            target: db.general.getString(67),
+            max: db.general.getString(68)
+        },
 
         dsIndicator:{
             top: db.general.getString(40) == 'y' ? true : false,

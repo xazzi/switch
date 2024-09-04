@@ -92,6 +92,14 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
             cc = []
             bcc = [sendTo.bret];
         break;
+        case "Rejected Subprocess":
+            active = true;
+            subject = "Rejected Subprocess: " + product.itemNumber;
+            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due + "\n" + "Subprocess still in development, rejecting." + "\n" + escalate;
+            to = [userInfo.email];
+            cc = [sendTo.bret,sendTo.chelsea]
+            bcc = [];
+        break;
         case "Prism Post Success":
             active = false;
             subject = "Prism Post Success: " + data.gangNumber;

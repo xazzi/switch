@@ -1,7 +1,7 @@
 var parent = []
 
-getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, subprocess){
-    function readFiles(folder, db, orderArray, matInfo, product, data, scale, subprocess){
+getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, subprocess, dynamic){
+    function readFiles(folder, db, orderArray, matInfo, product, data, scale, subprocess, dynamic){
 
         orderArray.itemName = orderArray.itemName.replace(/"/g,'\\"');
         orderArray.itemName = orderArray.itemName.replace(/'/g,"\\'");
@@ -22,6 +22,10 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
                 undersize: db.general.getString(5) == 'n' ? false : true,
                 orientationCheck: true
             }
+        }
+
+        if(db.general.getString(7) == 'n'){
+            return "Reject"
         }
 
             subprocess = subprocess.split(',');
@@ -57,7 +61,7 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
                                 }
 
                                 // Apply the subprocess overrides
-                                checkObject(s, dump.parameters[j].overrides, matInfo, product, data, scale, orderArray)
+                                checkObject(s, dump.parameters[j].overrides, matInfo, product, data, scale, orderArray, dynamic)
                                 return settings = {
                                     name: dump.name,
                                     exists: true,
@@ -81,16 +85,16 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
             orientationCheck: true
         }
     }
-    return readFiles(folder, db, orderArray, matInfo, product, data, scale, subprocess);
+    return readFiles(folder, db, orderArray, matInfo, product, data, scale, subprocess, dynamic);
 }
 
-function checkObject(s, parameter, matInfo, product, data, scale, orderArray){
+function checkObject(s, parameter, matInfo, product, data, scale, orderArray, dynamic){
     for(var l in parameter){
 
         // If the parameter is an nested object, dig further.
         if(typeof parameter[l] === 'object'){
             parent.push(l + ".");
-            checkObject(s, parameter[l], matInfo, product, data, scale, orderArray);
+            checkObject(s, parameter[l], matInfo, product, data, scale, orderArray, dynamic);
 
         // Eval the new parameter.
         }else{

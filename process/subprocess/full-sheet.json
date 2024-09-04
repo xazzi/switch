@@ -63,6 +63,11 @@
                 "matInfo": {
                     "height": 150
                 },
+                "dynamic":{
+                    "height":{
+                        "value": 150
+                    }
+                },
                 "product": {
                     "stock": "Mat_Reflective_FullSheet",
                     "spacingTop": 0,

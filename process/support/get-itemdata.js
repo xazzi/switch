@@ -112,7 +112,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			frame: {
 				active: false,
 				method: null,
-				value: null
+				value: null,
+				color: null
 			},
 			side: {
 				active: false,
@@ -255,7 +256,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.unwind = addToTable(s, db, "options_unwind", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "BANNERSTAND"){
-				specs.bannerstand = addToTable(s, db, "options_bannerstand", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				specs.bannerstand = addToTable(s, db, "options_bannerstand", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, specs);
 			}
 			if(dataDump.order_specs[k].code == "EDGE"){
 				specs.edge = addToTable(s, db, "options_edge", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);

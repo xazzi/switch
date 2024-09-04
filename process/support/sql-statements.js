@@ -23,13 +23,19 @@ generateSqlStatement_Update = function(s, table, query, array){
     function run(s, table, array){
 
         var setArray = []
+        var setQuery = []
 
         for(var i in array){
             setArray.push("`" + array[i][0] + "` = '" + array[i][1] + "'")
         }
-        setArray.join(',').toString()
+        setArray = setArray.join(',').toString()
 
-        return "UPDATE " + table + " SET " + setArray + " WHERE `" + query[0] + "` = '" + query[1] + "';";
+        for(var i in query){
+            setQuery.push("`" + query[i][0] + "` = '" + query[i][1] + "'")
+        }
+        setQuery = setQuery.join(' AND ').toString()
+
+        return "UPDATE " + table + " SET " + setArray + " WHERE " + setQuery + ";";
     }
 
     return run(s, table, array)

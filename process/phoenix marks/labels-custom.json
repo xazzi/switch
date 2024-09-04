@@ -10,17 +10,17 @@
             "facility":[
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -61,17 +61,17 @@
             "facility":[
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": false
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": false
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": false
                 }
             ],
@@ -106,17 +106,17 @@
             "facility":[
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -157,17 +157,17 @@
             "facility":[
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -203,17 +203,17 @@
             "facility":[
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": false
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -237,17 +237,17 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"OrderItemInfo",
                     "dir":"/Master Labels/Custom/Retractables/"
                 },
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"Barcode",
                     "dir":"/Master Labels/Custom/Retractables/"
                 },
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"Receipt URL",
                     "dir":"/Master Labels/Custom/Retractables/"
                 }
@@ -260,17 +260,17 @@
             "facility":[
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": false
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": false
                 }
             ],
@@ -297,7 +297,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"DoubleSided",
                     "dir":"/Master Labels/Custom/Retractables/"
                 }
@@ -310,17 +310,17 @@
             "facility":[
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -355,17 +355,17 @@
             "facility":[
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
