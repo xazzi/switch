@@ -1416,7 +1416,8 @@ runParser = function(s, job){
                 // Set advanced settings for the marks
                 var advancedSettings = {
                     hemLabel: setHemLabels(s, orderArray[i]),
-                    productLabel: setProductLabel(s, orderArray[i])
+                    productLabel: setProductLabel(s, orderArray[i]),
+                    bannerSorting: setBannerSorting(s, orderArray[i])
                 }
 
                 // If it's contour at all, override the bleed type to margins, regardless of any facility or product.

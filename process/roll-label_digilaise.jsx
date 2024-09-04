@@ -20,9 +20,11 @@ try{
     var allPaths = $doc.pageItems;
     for(var j=0; j<allPaths.length; j++){
         if(allPaths[j].filled){
-            if(allPaths[j].fillColor.spot.name == "Eyemark"){
-                if(Math.round(allPaths[j].top) > top.eyemark){
-                    top.eyemark = Math.round(allPaths[j].top)
+            if(allPaths[j].fillColor.typename == "SpotColor"){
+                if(allPaths[j].fillColor.spot.name == "Eyemark"){
+                    if(Math.round(allPaths[j].top) > top.eyemark){
+                        top.eyemark = Math.round(allPaths[j].top)
+                    }
                 }
             }
         }
@@ -42,12 +44,27 @@ try{
         }
     }
 
-    //Remove all but the top eyemark
+    // Remove the CMYK version of the Eyemarks
     var allPaths = $doc.pageItems;
     for (var ii=allPaths.length-1; ii>=0; ii--){
         if(allPaths[ii].filled){
-            if(allPaths[ii].fillColor.spot.name == "Eyemark"){
+            if(allPaths[ii].fillColor.typename == "CMYKColor"){
                 allPaths[ii].remove();
+            }
+        }
+    }
+
+    //Remove the Spot version of the Eyemarks
+    var allPaths = $doc.pageItems;
+    for (var ii=allPaths.length-1; ii>=0; ii--){
+        if(allPaths[ii].filled){
+            if(allPaths[ii].fillColor.typename == "SpotColor"){
+                if(allPaths[ii].fillColor.spot.name == "Eyemark"){
+                    allPaths[ii].remove();
+                }
+                if(allPaths[ii].fillColor.spot.name == "Dieline"){
+                    allPaths[ii].remove();
+                }
             }
         }
     }
@@ -109,7 +126,9 @@ try{
 
     $doc.activeLayer.name = "DieLine"
 
-}catch(e){}
+}catch(e){
+    alert(e)
+}
 
 function createLayer(name, print){
     var $doc = app.activeDocument;

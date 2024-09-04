@@ -150,6 +150,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
             return specs = {
                 value: db.general.getString(1),
                 enable: db.general.getString(4) == "y" ? true : false,
+                method: "Active",
                 side: {
                     top: db.general.getString(5) == "y" ? true : false,
                     bottom: db.general.getString(6) == "y" ? true : false,
@@ -252,7 +253,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo){
         if(table == "options_bannerstand"){
             return specs = {
                 active: true,
-                value: db.general.getString(1).replace(/"/g,'')
+                value: db.general.getString(1).replace(/"/g,''),
+                sorting: db.general.getString(10) == "y" ? true : false
             }
         }
 

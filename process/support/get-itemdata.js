@@ -59,6 +59,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			pocket: {
 				value: null,
                 enable: false,
+				method: "Inactive",
 				side: {
 					top: null,
 					bottom: null,
@@ -105,7 +106,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			},
 			bannerstand: {
 				active: false,
-				value: null
+				value: null,
+				sorting: null
 			},
 			frame: {
 				active: false,
