@@ -41,7 +41,8 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "color": "Cyan"
+                        "color": "White",
+                        "type": "Standard"
                     }
                 },
                 "rejections": {}
@@ -92,7 +93,8 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "color": "Green"
+                        "color": "Black",
+                        "type": "Standard"
                     }
                 },
                 "rejections": {}
@@ -143,7 +145,8 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "color": "Red"
+                        "color": "Black",
+                        "type": "Deluxe"
                     }
                 },
                 "rejections": {}
@@ -194,7 +197,8 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "color": "Yellow"
+                        "color": "White",
+                        "type": "Deluxe"
                     }
                 },
                 "rejections": {}
