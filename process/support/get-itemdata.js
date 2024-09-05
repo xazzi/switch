@@ -105,7 +105,17 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			},
 			bannerstand: {
 				active: false,
-				value: null
+				value: null,
+				nickname: {
+					global: null,
+					slc: null,
+					wxm: null
+				},
+				size: {
+					global: null,
+					slc: null,
+					wxm: null
+				}		
 			},
 			frame: {
 				active: false,

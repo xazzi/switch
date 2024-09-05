@@ -26,6 +26,7 @@ runFinalize = function(s, job){
                 rush: handoffDataDS.evalToString("//base/rush") == "true" ? "-RUSH" : "",
                 whiteink: handoffDataDS.evalToString("//settings/whiteink") == "true" ? "-W" : "",
                 labelmaster: handoffDataDS.evalToString("//misc/labelmaster") == "true" ? true : false,
+                mixedLam: handoffDataDS.evalToString("//misc/mixedLam") == "true" ? true : false,
                 laminate: {
                     active: handoffDataDS.evalToString("//laminate/active") == "true",
                     method: handoffDataDS.evalToString("//laminate/method"),
@@ -87,7 +88,7 @@ runFinalize = function(s, job){
                 }
 
                 // Laminate
-                name.laminate = (handoffData.laminate.active || handoffData.coating.active) ? "-Lam" : "";
+                name.laminate = handoffData.mixedLam ? "-mixLam" : (handoffData.laminate.active || handoffData.coating.active) ? "-Lam" : "";
 
                 // FloorDecal
                 if(handoffData.process == "FloorDecal"){
