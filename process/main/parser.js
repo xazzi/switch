@@ -1647,23 +1647,24 @@ runParser = function(s, job){
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
+                    
                     // For bannerstands, use the bannerstand value instead.
                     if(orderArray[i].bannerstand.active){
                         if(data.facility.destination == "Salt Lake City"){
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc
-                            product.customLabel.size = orderArray[i].bannerstand.size.slc
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc;
+                            product.customLabel.size = orderArray[i].bannerstand.size.slc;
+                        }else if(data.facility.destination == "Wixom"){
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm;
+                            product.customLabel.size = orderArray[i].bannerstand.size.wxm;
+                        }else{
+                            product.customLabel.value = orderArray[i].bannerstand.value;
                         }
-                        if(data.facility.destination == "Wixom"){
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm
-                            product.customLabel.size = orderArray[i].bannerstand.size.wxm
-                        }
-                        product.customLabel.value = orderArray[i].bannerstand.value
                     }
-                }
+                };
 
-                if(orderArray[i].replacement)[
+                if(orderArray[i].replacement){
                     product.customLabel.value = "Replacement: " + product.customLabel.value
-                ]
+                }
 
                 // Tension Stands Templates
                 if(product.subprocess.name == "TensionStand"){
@@ -1685,10 +1686,10 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                 }
 
-                // Retractable Templates
-                if(product.subprocess.name == "Retractable"){
-                    product.dieDesignName = "retractable_" + product.width + "x" + product.height;
-                }
+                // Retractable Templates      -- tmporarily commented out until all templates are in and finalized (names need to match IMS dimensions not what is set)
+               // if(product.subprocess.name == "Retractable"){
+                //    product.dieDesignName = "retractable_" + product.width + "x" + product.height;
+                //}
 
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
