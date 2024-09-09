@@ -259,7 +259,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
                     slc: db.general.getString(7),
 					wxm: db.general.getString(8)
                 },
-                size: {
+                displaySize: {
                     global: db.general.getString(9),
                     slc: db.general.getString(10),
                     wxm: db.general.getString(11)
@@ -311,7 +311,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
             slc: null,
             wxm: null
         },
-        size: {
+        displaySize: {
             global: null,
             slc: null,
             wxm: null

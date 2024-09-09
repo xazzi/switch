@@ -111,7 +111,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					slc: null,
 					wxm: null
 				},
-				size: {
+				displaySize: {
 					global: null,
 					slc: null,
 					wxm: null

@@ -1648,14 +1648,14 @@ runParser = function(s, job){
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
                     
-                    // For bannerstands, use the bannerstand value instead.
+                    // For bannerstands, Retractables use the bannerstand value instead.
                     if(orderArray[i].bannerstand.active){
                         if(data.facility.destination == "Salt Lake City"){
                             product.customLabel.value = orderArray[i].bannerstand.nickname.slc;
-                            product.customLabel.size = orderArray[i].bannerstand.size.slc;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.slc;
                         }else if(data.facility.destination == "Wixom"){
                             product.customLabel.value = orderArray[i].bannerstand.nickname.wxm;
-                            product.customLabel.size = orderArray[i].bannerstand.size.wxm;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.wxm;
                         }else{
                             product.customLabel.value = orderArray[i].bannerstand.value;
                         }
