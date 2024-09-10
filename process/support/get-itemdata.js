@@ -111,7 +111,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				active: false,
 				method: null,
 				value: null,
-				color: null
+				color: null,
+				type: null
 			},
 			side: {
 				active: false,

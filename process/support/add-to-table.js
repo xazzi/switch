@@ -70,7 +70,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
                 active: true,
                 method: db.general.getString(4),
                 value: db.general.getString(1).replace(/"/g,''),
-                color: db.general.getString(5)
+                color: db.general.getString(5),
+                type: db.general.getString(6)
             }
         }
 
@@ -295,6 +296,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
         undersize: null,
         key: null,
         rotation: null,
-        color: null
+        color: null,
+        type: null
     }
 }
