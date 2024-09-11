@@ -254,15 +254,16 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
             return specs = {
                 active: true,
                 value: db.general.getString(2).replace(/"/g,''),
+                templateId: db.general.getString(6),
                 nickname: {
-                    global: db.general.getString(6),
-                    slc: db.general.getString(7),
-					wxm: db.general.getString(8)
+                    global: db.general.getString(7),
+                    slc: db.general.getString(8),
+					wxm: db.general.getString(9)
                 },
                 displaySize: {
-                    global: db.general.getString(9),
-                    slc: db.general.getString(10),
-                    wxm: db.general.getString(11)
+                    global: db.general.getString(10),
+                    slc: db.general.getString(11),
+                    wxm: db.general.getString(12)
                 }
             }
         }
@@ -306,6 +307,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
         key: null,
         rotation: null,
         color: null,
+        templateId: null,
         nickname: {
             global: null,
             slc: null,
