@@ -106,7 +106,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			bannerstand: {
 				active: false,
 				value: null,
-				templateId: null,
+				template:{
+                    id: null,
+                    active: false,
+                    name: null
+				},
 				nickname: {
 					global: null,
 					slc: null,
@@ -117,6 +121,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					slc: null,
 					wxm: null
 				},		
+				enabled: false
 			},
 			frame: {
 				active: false,

@@ -537,6 +537,19 @@ runParser = function(s, job){
                     }
                 }
 
+                // If bannerstands aren't enabled for produciton, remove them from the gang.
+                if(!orderSpecs.bannerstand.enabled){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Not approved for production."]
+                    ]))
+                    continue;
+                }
+
                 // Enable the force laminate override
                 if(matInfo.forceLam){
                     orderSpecs.laminate.active = true
@@ -1650,14 +1663,21 @@ runParser = function(s, job){
                     
                     // For bannerstands, Retractables use the bannerstand value instead.
                     if(orderArray[i].bannerstand.active){
+
+                        // Pull the SLC data
                         if(data.facility.destination == "Salt Lake City"){
                             product.customLabel.value = orderArray[i].bannerstand.nickname.slc;
                             product.customLabel.size = orderArray[i].bannerstand.displaySize.slc;
+
+                        // Pull the WXM data
                         }else if(data.facility.destination == "Wixom"){
                             product.customLabel.value = orderArray[i].bannerstand.nickname.wxm;
                             product.customLabel.size = orderArray[i].bannerstand.displaySize.wxm;
+
+                        // If it's not SLC or WXM.
                         }else{
-                            product.customLabel.value = orderArray[i].bannerstand.value;
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.global;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.global;
                         }
                     }
                 };
@@ -1686,10 +1706,10 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                 }
 
-                // Retractable Templates      -- tmporarily commented out until all templates are in and finalized (names need to match IMS dimensions not what is set)
-               // if(product.subprocess.name == "Retractable"){
-                //    product.dieDesignName = "retractable_" + product.width + "x" + product.height;
-                //}
+                // Retractable Templates
+                if(product.subprocess.name == "Retractable"){
+                    product.dieDesignName = orderArray[i].bannerstand.template.name
+                }
 
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
