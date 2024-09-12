@@ -271,6 +271,14 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			}
 			if(dataDump.order_specs[k].code == "BANNERSTAND"){
 				specs.bannerstand = addToTable(s, db, "options_bannerstand", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, specs);
+
+				// Pull the rectactable template name from the database.
+				db.general.execute("SELECT * FROM digital_room.`bannerstand_retractable` WHERE id = '" + specs.bannerstand.template.id + "';");
+				if(db.general.isRowAvailable()){
+					db.general.fetchRow();
+					specs.bannerstand.template.active = true;
+					specs.bannerstand.template.name = db.general.getString(1)
+				}
 			}
 			if(dataDump.order_specs[k].code == "EDGE"){
 				specs.edge = addToTable(s, db, "options_edge", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);

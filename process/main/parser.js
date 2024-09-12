@@ -368,8 +368,6 @@ runParser = function(s, job){
                     ["status", "Initiated"]
                 ]));	
 
-                s.log(2, "Start")
-
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
                 

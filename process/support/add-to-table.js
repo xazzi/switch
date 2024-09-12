@@ -258,7 +258,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
 
         // Bannerstand hardware
         if(table == "options_bannerstand"){
-            var specs = {
+            return specs = {
                 active: true,
                 value: db.general.getString(2).replace(/"/g,''),
                 template:{
@@ -278,16 +278,6 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
                 },
                 enabled: db.general.getString(13)
             }
-
-            // Pull the rectactable template name from the database.
-            db.general.execute("SELECT * FROM digital_room.`bannerstand_retractable` WHERE id = '" + specs.template.id + "';");
-            if(db.general.isRowAvailable()){
-                db.general.fetchRow();
-                specs.template.active = true;
-                specs.template.name = db.general.getString(1)
-            }
-
-            return specs
         }
 
         // Cut options
@@ -329,7 +319,11 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
         key: null,
         rotation: null,
         color: null,
-        templateId: null,
+        template:{
+            id: null,
+            active: false,
+            name: null
+        },
         nickname: {
             global: null,
             slc: null,
