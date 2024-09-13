@@ -1704,8 +1704,8 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                 }
 
-                // Retractable Templates
-                if(product.subprocess.name == "Retractable"){
+                // Retractable Templates, Bannerstand hardware
+                if(product.subprocess.name == "Retractable" || "TableTop" || "MiniBannerStand"){
                     product.dieDesignName = orderArray[i].bannerstand.template.name
                 }
 
