@@ -1664,13 +1664,13 @@ runParser = function(s, job){
 
                         // Pull the SLC data
                         if(data.facility.destination == "Salt Lake City"){
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc;
-                            product.customLabel.size = orderArray[i].bannerstand.displaySize.slc;
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.slc;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.slc == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.slc;
 
                         // Pull the WXM data
                         }else if(data.facility.destination == "Wixom"){
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm;
-                            product.customLabel.size = orderArray[i].bannerstand.displaySize.wxm;
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.wxm;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.wxm == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.wxm;
 
                         // If it's not SLC or WXM.
                         }else{

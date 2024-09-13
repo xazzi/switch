@@ -276,7 +276,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
                     slc: db.general.getString(11),
                     wxm: db.general.getString(12)
                 },
-                enabled: db.general.getString(13)
+                enabled: db.general.getString(13) == "y" ? true : false
             }
         }
 
@@ -333,6 +333,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
             global: null,
             slc: null,
             wxm: null
-        }		
+        },
+        enabled: false
     }
 }
