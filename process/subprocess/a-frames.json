@@ -38,6 +38,39 @@
         },
         {
             "facility": {
+                "name": "Salt Lake City",
+                "id": 28,
+                "enabled": true
+            },
+            "processes": [
+                "3mm-Sintra"
+            ],
+            "properties": {
+                "mixed": false,
+                "undersize": false,
+                "orientationCheck": false
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "rotation": "Custom",
+                    "allowedRotations": 90,
+                    "pageHandling": "OnePerPage",
+                    "overrunMax": 20,
+                    "shapeSearch": "Multiple"
+                },
+                "data": {
+                    "impositionProfile": {
+                        "name": "Sheet"
+                    },
+                    "sideMix": 1,
+                    "prodMatFileName": "3mmPVC-AFrame"
+                }   
+            }
+        },
+        {
+            "facility": {
                 "name": "Wixom",
                 "id": 37,
                 "enabled": true
