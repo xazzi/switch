@@ -46,7 +46,8 @@
                 "requirements":[
                     "None",
                     "ButtWeld",
-                    "ButtCut"
+                    "ButtCut",
+                    "A-Frame"
                 ],
                 "rejections":[]
             },

@@ -9,6 +9,8 @@ runPost = function(s, job){
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
+            eval(File.read(dir.support + "/connect-to-db.js"));
+            eval(File.read(dir.support + "/sql-statements.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -17,6 +19,14 @@ runPost = function(s, job){
             if(!bearerToken){
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
+            }
+
+            // Establist connection to the databases
+            var connections = establishDatabases(s, module)
+            var db = {
+                general: new Statement(connections.general),
+                history: new Statement(connections.history),
+                email: new Statement(connections.email)
             }
 
             var server
@@ -156,31 +166,37 @@ runPost = function(s, job){
             
             if(theHTTP.finishedStatus == HTTP.Failed || theHTTP.statusCode !== 201){
                 // Log the status of the prism post.
+                /*
                 db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
                     ["project-id", handoffData.projectID]
                 ],[
                     ["ppq-response","Fail"]
                 ])) 
+                    */
                 s.log(3, "Phoenix API post failed: " + theHTTP.lastError);
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
 
+            /*
             // Log the status of the prism post.
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
                 ["project-id", handoffData.projectID]
             ],[
                 ["ppq-response","Success"]
             ])) 
+                */
                     
             job.sendTo(findConnectionByName(s, "Success"), job.getPath());       
             
         }catch(e){
+            /*
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
                 ["project-id", handoffData.projectID]
             ],[
                 ["ppq-response","Error"]
             ])) 
+                */
             s.log(2, "Critical Error: Post-Project")
             job.sendTo(findConnectionByName(s, "Error"), job.getPath());
         }

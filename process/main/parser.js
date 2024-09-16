@@ -1127,7 +1127,7 @@ runParser = function(s, job){
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
-                            if(orderArray[i].width >= 240 || orderArray[i].height >= 240){
+                            if(orderArray[i].width >= 241 || orderArray[i].height >= 241){
                                 data.notes.push([product.itemNumber,"Removed","Welded banner over 168\" assigned to ARL."]);
                                 db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                                     ["project-id",data.projectID],
