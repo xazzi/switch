@@ -543,7 +543,7 @@ runParser = function(s, job){
                         ["item-number",orderSpecs.jobItemId]
                     ],[
                         ["status","Removed from Gang"],
-                        ["note","Not approved for production."]
+                        ["note","Bannerstand not approved for production."]
                     ]))
                     continue;
                 }
@@ -967,7 +967,8 @@ runParser = function(s, job){
                     },
                     customLabel:{
                         apply: false,
-                        value: ""
+                        value: "",
+                        size: ""
                     },
                     script:{
                         name: [],
@@ -1485,15 +1486,16 @@ runParser = function(s, job){
                 }
                 
                 // Retractable undersizing so it fits in the stand easier.
+                // Undersizing has been disabled due to size happening with the templates now.
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
-                            scale.width = 23.25/product.width*100;
-                            data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
+                            //scale.width = 23.25/product.width*100;
+                            //data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
                         }
                         if(product.width == 33){
-                            scale.width = 33/product.width*100;
-                            data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
+                            //scale.width = 33/product.width*100;
+                            //data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
                         }
                     }
                 }
