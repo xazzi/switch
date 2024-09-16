@@ -53,6 +53,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Gang Info",data.phoenix.gangLabel],
 		["Group",product.group],
 		["Custom Label",product.customLabel.value],
+		["Custom Label Size",product.customLabel.size],
 		["Edge Top",product.pocket.top == true ? "Pocket" : product.hemValue],
 		["Edge Bottom",product.pocket.bottom == true ? "Pocket" : product.hemValue],
 		["Edge Left",product.pocket.left == true ? "Pocket" : product.hemValue],
