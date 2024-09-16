@@ -13,7 +13,14 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
         }
     }
 
+    // For bannerstands, run a specific query.
+    if(table == "options_bannerstand"){
+        db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';");
+
+    // For everything else, run a generic query.
+    }else{
         db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "';");
+    }
 
     // If the parameter is found in the tables, return out of the function.
     if(db.general.isRowAvailable()){
@@ -253,7 +260,23 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
         if(table == "options_bannerstand"){
             return specs = {
                 active: true,
-                value: db.general.getString(1).replace(/"/g,'')
+                value: db.general.getString(2).replace(/"/g,''),
+                template:{
+                    id: db.general.getString(6),
+                    active: false,
+                    name: null
+                },
+                nickname: {
+                    global: db.general.getString(7),
+                    slc: db.general.getString(8),
+					wxm: db.general.getString(9)
+                },
+                displaySize: {
+                    global: db.general.getString(10),
+                    slc: db.general.getString(11),
+                    wxm: db.general.getString(12)
+                },
+                enabled: db.general.getString(13) == "y" ? true : false
             }
         }
 
@@ -295,6 +318,22 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
         undersize: null,
         key: null,
         rotation: null,
-        color: null
+        color: null,
+        template:{
+            id: null,
+            active: false,
+            name: null
+        },
+        nickname: {
+            global: null,
+            slc: null,
+            wxm: null
+        },
+        displaySize: {
+            global: null,
+            slc: null,
+            wxm: null
+        },
+        enabled: false
     }
 }

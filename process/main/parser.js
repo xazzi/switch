@@ -258,6 +258,7 @@ runParser = function(s, job){
                 },
                 subprocess: [],
                 mixed: null,
+                mixedLam: false,
                 prodMatFileName: null,
                 cropGang: null,
                 rotateFront: null,
@@ -367,8 +368,6 @@ runParser = function(s, job){
                     ["page", "1"],
                     ["status", "Initiated"]
                 ]));	
-
-                s.log(2, "Start")
 
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
@@ -524,7 +523,7 @@ runParser = function(s, job){
 
                 // Items larger than 140" in either dim can't go to VN.
                 if(data.facility.destination == "Van Nuys"){
-                    if(orderSpecs.width >= 140 || orderSpecs.height >= 140){
+                    if(orderSpecs.width >= 144 || orderSpecs.height >= 144){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Item over 140\" assigned to VN."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
@@ -535,6 +534,19 @@ runParser = function(s, job){
                         ]))
                         continue;
                     }
+                }
+
+                // If bannerstands aren't enabled for produciton, remove them from the gang.
+                if(!orderSpecs.bannerstand.enabled){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Bannerstand not approved for production."]
+                    ]))
+                    continue;
                 }
 
                 // Enable the force laminate override
@@ -819,6 +831,13 @@ runParser = function(s, job){
                         continue;
                     }
                 }
+
+                // If we are allowing the laminate to mix with non lam, throw a flag for the file name.
+                if(matInfo.prodName == "Magnet" && data.facility.destination == "Salt Lake City"){
+                    if((data.laminate.active != orderSpecs.laminate.active) || (data.coating.active != orderSpecs.coating.active)){
+                        data.mixedLam = true
+                    }
+                }
                 
                 // Check if mount deviation
                 if(data.mount.active != orderSpecs.mount.active){
@@ -956,7 +975,8 @@ runParser = function(s, job){
                     },
                     customLabel:{
                         apply: false,
-                        value: ""
+                        value: "",
+                        size: ""
                     },
                     script:{
                         name: [],
@@ -969,7 +989,8 @@ runParser = function(s, job){
                         exists: false,
                         mixed: false,
                         undersize: false,
-                        orientationCheck: true
+                        orientationCheck: true,
+                        template: null
                     },
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
@@ -1120,6 +1141,21 @@ runParser = function(s, job){
                             ]))
                             continue;
                         }
+                    }
+                }
+
+                // If it's DS product for VN, skip it and send an email.
+                if(data.facility.destination == "Van Nuys"){
+                    if(orderArray[i].doubleSided){
+                        data.notes.push([product.itemNumber,"Removed","DS product assigned to VN."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",product.itemNumber]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Can't produce in VN."]
+                        ]))
+                        continue;
                     }
                 }
 
@@ -1474,15 +1510,16 @@ runParser = function(s, job){
                 }
                 
                 // Retractable undersizing so it fits in the stand easier.
+                // Undersizing has been disabled due to size happening with the templates now.
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
-                            scale.width = 23.25/product.width*100;
-                            data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
+                            //scale.width = 23.25/product.width*100;
+                            //data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
                         }
                         if(product.width == 33){
-                            scale.width = 33/product.width*100;
-                            data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
+                            //scale.width = 33/product.width*100;
+                            //data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
                         }
                     }
                 }
@@ -1647,13 +1684,33 @@ runParser = function(s, job){
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
-                    // For bannerstands, use the bannerstand value instead.
+                    
+                    // For bannerstands, Retractables use the bannerstand value instead.
                     if(orderArray[i].bannerstand.active){
-                        product.customLabel.value = product.width + 'x' + product.height + ' - ' + orderArray[i].bannerstand.value
+
+                        // Pull the SLC data
+                        if(data.facility.destination == "Salt Lake City"){
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.slc;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.slc == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.slc;
+
+                        // Pull the WXM data
+                        }else if(data.facility.destination == "Wixom"){
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.wxm;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.wxm == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.wxm;
+
+                        // If it's not SLC or WXM.
+                        }else{
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.global;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.global;
+                        }
                     }
+                };
+
+                if(orderArray[i].replacement){
+                    product.customLabel.value = "Replacement: " + product.customLabel.value
                 }
 
-                // Tension Stands
+                // Tension Stands Templates
                 if(product.subprocess.name == "TensionStand"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
@@ -1673,6 +1730,11 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                 }
 
+                // Retractable Templates, Bannerstand hardware
+                if(product.subprocess.name == "Retractable" || "TableTop" || "MiniBannerStand"){
+                    product.dieDesignName = orderArray[i].bannerstand.template.name
+                }
+
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
                     if(product.doubleSided){
@@ -1686,7 +1748,21 @@ runParser = function(s, job){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     }
-                    product.dieDesignName = "angledFlag_" + product.width + "x" + product.height + "_F";
+                    db.general.execute("SELECT * FROM digital_room.angled_flag WHERE width = '" + product.width + "' AND height = '" + product.height + "';");
+                    if(!db.general.isRowAvailable()){
+                        data.notes.push([product.itemNumber,"Removed",'No template found in lookup table.']);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",product.itemNumber]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Not in lookup table."]
+                        ]))
+                        continue;
+                    }
+                    db.general.fetchRow();
+                    product.subprocess.template = db.general.getString(3)
+                    product.dieDesignName = "angledFlag_" + product.subprocess.template + "_F";
                 }
 
                 // Specific gang adjustments ----------------------------------------------------------
@@ -1864,7 +1940,7 @@ runParser = function(s, job){
                 if(product.subprocess.name == "AngledFlag"){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
-                        product.dieDesignName = "angledFlag_" + product.width + "x" + product.height + "_B";
+                        product.dieDesignName = "angledFlag_" + product.subprocess.template + "_B";
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
                         writeCSV(s, csvFile, infoArray, 1);
@@ -2123,6 +2199,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "cutMethod", matInfo.cutMethod);
         addNode_db(theXML, miscNode, "targetLayoutCount", matInfo.layoutCount.target);
         addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
+        addNode_db(theXML, miscNode, "mixedLam", data.mixedLam);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -2150,6 +2227,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 			addNode_db(theXML, productNode, "nametag", product.nametag);
             addNode_db(theXML, productNode, "subprocess", product.subprocess.name);
             addNode_db(theXML, productNode, "cutLayerName", product.cutLayerName);
+            addNode_db(theXML, productNode, "doubleSided", product.doubleSided);
 	}
 	
 	if(writeProducts){
