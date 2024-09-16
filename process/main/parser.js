@@ -258,6 +258,7 @@ runParser = function(s, job){
                 },
                 subprocess: [],
                 mixed: null,
+                mixedLam: false,
                 prodMatFileName: null,
                 cropGang: null,
                 rotateFront: null,
@@ -367,8 +368,6 @@ runParser = function(s, job){
                     ["page", "1"],
                     ["status", "Initiated"]
                 ]));	
-
-                s.log(2, "Start")
 
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
@@ -524,7 +523,7 @@ runParser = function(s, job){
 
                 // Items larger than 140" in either dim can't go to VN.
                 if(data.facility.destination == "Van Nuys"){
-                    if(orderSpecs.width >= 140 || orderSpecs.height >= 140){
+                    if(orderSpecs.width >= 144 || orderSpecs.height >= 144){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Item over 140\" assigned to VN."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
@@ -819,6 +818,13 @@ runParser = function(s, job){
                         continue;
                     }
                 }
+
+                // If we are allowing the laminate to mix with non lam, throw a flag for the file name.
+                if(matInfo.prodName == "Magnet" && data.facility.destination == "Salt Lake City"){
+                    if((data.laminate.active != orderSpecs.laminate.active) || (data.coating.active != orderSpecs.coating.active)){
+                        data.mixedLam = true
+                    }
+                }
                 
                 // Check if mount deviation
                 if(data.mount.active != orderSpecs.mount.active){
@@ -969,7 +975,8 @@ runParser = function(s, job){
                         exists: false,
                         mixed: false,
                         undersize: false,
-                        orientationCheck: true
+                        orientationCheck: true,
+                        template: null
                     },
                     nametag: "",
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
@@ -1123,11 +1130,26 @@ runParser = function(s, job){
                     }
                 }
 
+                // If it's DS product for VN, skip it and send an email.
+                if(data.facility.destination == "Van Nuys"){
+                    if(orderArray[i].doubleSided){
+                        data.notes.push([product.itemNumber,"Removed","DS product assigned to VN."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",product.itemNumber]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Can't produce in VN."]
+                        ]))
+                        continue;
+                    }
+                }
+
                 // Long banners with weld in ARL need to go somewhere else.
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
-                            if(orderArray[i].width >= 240 || orderArray[i].height >= 240){
+                            if(orderArray[i].width >= 241 || orderArray[i].height >= 241){
                                 data.notes.push([product.itemNumber,"Removed","Welded banner over 168\" assigned to ARL."]);
                                 db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                                     ["project-id",data.projectID],
@@ -1673,6 +1695,11 @@ runParser = function(s, job){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
                 }
 
+                // Table Runner Templates
+                if(product.subprocess.name == "Retractable"){
+                    product.dieDesignName = "retractable_" + product.width + "x" + product.height;
+                }
+
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
                     if(product.doubleSided){
@@ -1686,7 +1713,21 @@ runParser = function(s, job){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     }
-                    product.dieDesignName = "angledFlag_" + product.width + "x" + product.height + "_F";
+                    db.general.execute("SELECT * FROM digital_room.angled_flag WHERE width = '" + product.width + "' AND height = '" + product.height + "';");
+                    if(!db.general.isRowAvailable()){
+                        data.notes.push([product.itemNumber,"Removed",'No template found in lookup table.']);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",product.itemNumber]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Not in lookup table."]
+                        ]))
+                        continue;
+                    }
+                    db.general.fetchRow();
+                    product.subprocess.template = db.general.getString(3)
+                    product.dieDesignName = "angledFlag_" + product.subprocess.template + "_F";
                 }
 
                 // Specific gang adjustments ----------------------------------------------------------
@@ -1864,7 +1905,7 @@ runParser = function(s, job){
                 if(product.subprocess.name == "AngledFlag"){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
-                        product.dieDesignName = "angledFlag_" + product.width + "x" + product.height + "_B";
+                        product.dieDesignName = "angledFlag_" + product.subprocess.template + "_B";
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
                         writeCSV(s, csvFile, infoArray, 1);
@@ -2123,6 +2164,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "cutMethod", matInfo.cutMethod);
         addNode_db(theXML, miscNode, "targetLayoutCount", matInfo.layoutCount.target);
         addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
+        addNode_db(theXML, miscNode, "mixedLam", data.mixedLam);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -2150,6 +2192,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 			addNode_db(theXML, productNode, "nametag", product.nametag);
             addNode_db(theXML, productNode, "subprocess", product.subprocess.name);
             addNode_db(theXML, productNode, "cutLayerName", product.cutLayerName);
+            addNode_db(theXML, productNode, "doubleSided", product.doubleSided);
 	}
 	
 	if(writeProducts){
