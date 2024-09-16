@@ -368,8 +368,6 @@ runParser = function(s, job){
                     ["status", "Initiated"]
                 ]));	
 
-                s.log(2, "Start")
-
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
                 
@@ -535,6 +533,19 @@ runParser = function(s, job){
                         ]))
                         continue;
                     }
+                }
+
+                // If bannerstands aren't enabled for produciton, remove them from the gang.
+                if(!orderSpecs.bannerstand.enabled){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Bannerstand not approved for production."]
+                    ]))
+                    continue;
                 }
 
                 // Enable the force laminate override
@@ -956,7 +967,8 @@ runParser = function(s, job){
                     },
                     customLabel:{
                         apply: false,
-                        value: ""
+                        value: "",
+                        size: ""
                     },
                     script:{
                         name: [],
@@ -1474,15 +1486,16 @@ runParser = function(s, job){
                 }
                 
                 // Retractable undersizing so it fits in the stand easier.
+                // Undersizing has been disabled due to size happening with the templates now.
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "UV-Greyback"){
                     if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
                         if(product.width == 24){
-                            scale.width = 23.25/product.width*100;
-                            data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
+                            //scale.width = 23.25/product.width*100;
+                            //data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
                         }
                         if(product.width == 33){
-                            scale.width = 33/product.width*100;
-                            data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
+                            //scale.width = 33/product.width*100;
+                            //data.notes.push([product.itemNumber,"Notes",'Retractable width scaled. (' + Math.round(scale.width) + '%)']);
                         }
                     }
                 }
@@ -1647,13 +1660,33 @@ runParser = function(s, job){
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
-                    // For bannerstands, use the bannerstand value instead.
+                    
+                    // For bannerstands, Retractables use the bannerstand value instead.
                     if(orderArray[i].bannerstand.active){
-                        product.customLabel.value = product.width + 'x' + product.height + ' - ' + orderArray[i].bannerstand.value
+
+                        // Pull the SLC data
+                        if(data.facility.destination == "Salt Lake City"){
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.slc;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.slc == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.slc;
+
+                        // Pull the WXM data
+                        }else if(data.facility.destination == "Wixom"){
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.wxm;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.wxm == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.wxm;
+
+                        // If it's not SLC or WXM.
+                        }else{
+                            product.customLabel.value = orderArray[i].bannerstand.nickname.global;
+                            product.customLabel.size = orderArray[i].bannerstand.displaySize.global;
+                        }
                     }
+                };
+
+                if(orderArray[i].replacement){
+                    product.customLabel.value = "Replacement: " + product.customLabel.value
                 }
 
-                // Tension Stands
+                // Tension Stands Templates
                 if(product.subprocess.name == "TensionStand"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
@@ -1671,6 +1704,11 @@ runParser = function(s, job){
                 // Table Runner Templates
                 if(product.subprocess.name == "TableRunner"){
                     product.dieDesignName = product.width + "x" + product.height + "_" + scale.modifier + "x";
+                }
+
+                // Retractable Templates, Bannerstand hardware
+                if(product.subprocess.name == "Retractable" || "TableTop" || "MiniBannerStand"){
+                    product.dieDesignName = orderArray[i].bannerstand.template.name
                 }
 
                 // Rectangle Flag Templates
