@@ -1,17 +1,17 @@
 {
-    "description":"Product labels, beneath the print.",
-    "name":"Labels",
+    "description":"Custom marks to help sort banners.",
+    "name":"Banner Sorting Orange",
     "key":"None",
     "parameters":[
         {
-            "description": "Product labels.",
+            "description": "Orange Square in Product",
             "type": "Product Label",
             "key":"None",
             "facility": [
                 {
                     "name": "Salt Lake City",
                     "id": 28,
-                    "enabled": true
+                    "enabled": false
                 },
                 {
                     "name": "Arlington",
@@ -31,37 +31,25 @@
             ],
             "process":{
                 "requirements":[
-                    "All"
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS",
+                    "18oz-Matte"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
-                    "A-Frame",
-                    "Breakaway",
-                    "None",
-                    "Busmark",
-                    "FloorDecal",
-                    "UV-Greyback",
-                    "Retractable",
-                    "Backdrop",
-                    "IndoorOnlyBanner",
-                    "Max Width Perf",
-                    "MiniBannerStand",
-                    "StretchTableCover",
-                    "TableCloth",
-                    "TableTop",
-                    "X-Stand",
-                    "Dry Erase A-Frame",
-                    "Tension Stand",
-                    "Billboard A-Frame"
+                    "X-Stand"
                 ],
-                "rejections":[
-                    "ButtWeld",
-                    "ButtCut",
-                    "FullSheet",
-                    "TableRunner"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
@@ -69,13 +57,22 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "product":{
+                        "doubleSided":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true
+                        }
+                    }
+                }
             },
             "settings": [
                 {
                     "group": "Global",
-                    "name": "Label",
-                    "dir": "/Product Info/"
+                    "name": "Orange_Outside-Trim",
+                    "dir": "/Banner Sorting/"
                 }
             ]
         }
