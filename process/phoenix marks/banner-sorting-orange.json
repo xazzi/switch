@@ -47,30 +47,31 @@
             },
             "subprocess":{
                 "requirements":[
-                    "Retractable"
+                    "X-Stand"
                 ],
-                "rejections":[
-                    "ButtWeld"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
                     "advancedSettings":{
                         "productLabel":true
-                    },
-                    "orderArray":{
-                        "banerstand":{
-                            "sorting":true
-                        }
                     }
                 },
                 "rejections":{
+                    "product":{
+                        "doubleSided":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true
+                        }
+                    }
                 }
             },
             "settings": [
                 {
                     "group": "Global",
-                    "name": "Product-Orange",
+                    "name": "Orange_Outside-Trim",
                     "dir": "/Banner Sorting/"
                 }
             ]

@@ -47,10 +47,9 @@
             },
             "subprocess":{
                 "requirements":[
+                    "None"
                 ],
-                "rejections":[
-                    "ButtWeld"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
@@ -60,19 +59,21 @@
                     "orderArray":{
                         "hem":{
                             "method":"None"
-                        },
-                        "pocket":{
-                            "method":"Active"
                         }
                     }
                 },
                 "rejections":{
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true
+                        }
+                    }
                 }
             },
             "settings": [
                 {
                     "group": "Global",
-                    "name": "Product-Purple",
+                    "name": "Purple_Outside-Trim",
                     "dir": "/Banner Sorting/"
                 }
             ]

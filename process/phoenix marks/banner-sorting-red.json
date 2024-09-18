@@ -4,7 +4,7 @@
     "key":"None",
     "parameters":[
         {
-            "description": "Red Square in Product",
+            "description": "Red mark inside hem",
             "type": "Product Label",
             "key":"None",
             "facility": [
@@ -47,20 +47,16 @@
             },
             "subprocess":{
                 "requirements":[
-                    "Breakaway",
+                    "ButtWeld",
                     "None"
                 ],
-                "rejections":[
-                    "ButtWeld"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
                     "advancedSettings":{
                         "productLabel":true,
-                        "size":{
-                            "standard":true
-                        }
+                        "bannerSorting":"Standard"
                     },
                     "orderArray":{
                         "hem":{
@@ -71,13 +67,18 @@
                 "rejections":{
                     "product":{
                         "doubleSided":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true
+                        }
                     }
                 }
             },
             "settings": [
                 {
                     "group": "Global",
-                    "name": "Product-Red",
+                    "name": "Red_Inside-Hem",
                     "dir": "/Banner Sorting/"
                 }
             ]

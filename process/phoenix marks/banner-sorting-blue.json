@@ -4,7 +4,7 @@
     "key":"None",
     "parameters":[
         {
-            "description": "Blue Square in Product",
+            "description": "Blue mark inside hem",
             "type": "Product Label",
             "key":"None",
             "facility": [
@@ -47,20 +47,16 @@
             },
             "subprocess":{
                 "requirements":[
-                    "Breakaway",
+                    "ButtWeld",
                     "None"
                 ],
-                "rejections":[
-                    "ButtWeld"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
                     "advancedSettings":{
                         "productLabel":true,
-                        "size":{
-                            "oversize":true
-                        }
+                        "bannerSorting":"Oversize"
                     },
                     "orderArray":{
                         "hem":{
@@ -71,13 +67,18 @@
                 "rejections":{
                     "product":{
                         "doubleSided":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true
+                        }
                     }
                 }
             },
             "settings": [
                 {
                     "group": "Global",
-                    "name": "Product-Blue",
+                    "name": "Blue_Inside-Hem",
                     "dir": "/Banner Sorting/"
                 }
             ]

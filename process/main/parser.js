@@ -31,6 +31,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/load-module-settings.js"));
             eval(File.read(dir.support + "/sql-statements.js"));
             eval(File.read(dir.support + "/get-target-height.js"));
+            eval(File.read(dir.support + "/set-banner-storting.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -367,8 +368,6 @@ runParser = function(s, job){
                     ["page", "1"],
                     ["status", "Initiated"]
                 ]));	
-
-                s.log(2, "Start")
 
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
@@ -1603,7 +1602,7 @@ runParser = function(s, job){
                         product.allowedRotations = 0;
                     }
                 }
-
+                
                 // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
                 if(data.facility.destination == "Wixom"){
                     if(product.doubleSided){
@@ -1698,7 +1697,7 @@ runParser = function(s, job){
                         }
                     }
                 }
-
+                
                 // For VN LFP, add 10% min overrun to files over qty 20
                 if(data.facility.destination == "Van Nuys"){
                     if(product.quantity >= 20){
@@ -1799,7 +1798,7 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
+
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
 

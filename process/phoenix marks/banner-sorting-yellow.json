@@ -47,26 +47,270 @@
             },
             "subprocess":{
                 "requirements":[
-                    "Breakaway",
+                    "ButtWeld",
+                    "Backdrop",
                     "None"
                 ],
-                "rejections":[
-                    "ButtWeld"
-                ]
+                "rejections":[]
             },
             "specs":{
                 "requirements":{
                     "advancedSettings":{
                         "productLabel":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true,
+                            "side":{
+                                "top":true
+                            }
+                        }
                     }
                 },
                 "rejections":{
+                    "product":{
+                        "doubleSided":true
+                    }
                 }
             },
             "settings": [
                 {
                     "group": "Global",
-                    "name": "Product-Yellow",
+                    "name": "Yellow_Inside-Pocket_Top",
+                    "dir": "/Banner Sorting/"
+                }
+            ]
+        },
+        {
+            "description": "Yellow Square in Product",
+            "type": "Product Label",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                },
+                {
+                    "name": "Van Nuys",
+                    "id": 1,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS",
+                    "18oz-Matte"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "ButtWeld",
+                    "Backdrop",
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true,
+                            "side":{
+                                "bottom":true
+                            }
+                        }
+                    }
+                },
+                "rejections":{
+                    "product":{
+                        "doubleSided":true
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "name": "Yellow_Inside-Pocket_Bottom",
+                    "dir": "/Banner Sorting/"
+                }
+            ]
+        },
+        {
+            "description": "Yellow Square in Product",
+            "type": "Product Label",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                },
+                {
+                    "name": "Van Nuys",
+                    "id": 1,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS",
+                    "18oz-Matte"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "ButtWeld",
+                    "Backdrop",
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true,
+                            "side":{
+                                "left":true
+                            }
+                        }
+                    }
+                },
+                "rejections":{
+                    "product":{
+                        "doubleSided":true
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "name": "Yellow_Inside-Pocket_Left",
+                    "dir": "/Banner Sorting/"
+                }
+            ]
+        },
+        {
+            "description": "Yellow Square in Product",
+            "type": "Product Label",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                },
+                {
+                    "name": "Van Nuys",
+                    "id": 1,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS",
+                    "18oz-Matte"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "ButtWeld",
+                    "Backdrop",
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true,
+                            "side":{
+                                "right":true
+                            }
+                        }
+                    }
+                },
+                "rejections":{
+                    "product":{
+                        "doubleSided":true
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "name": "Yellow_Inside-Pocket_Right",
                     "dir": "/Banner Sorting/"
                 }
             ]
