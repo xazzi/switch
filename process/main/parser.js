@@ -537,16 +537,18 @@ runParser = function(s, job){
                 }
 
                 // If bannerstands aren't enabled for produciton, remove them from the gang.
-                if(!orderSpecs.bannerstand.enabled){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
-                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                        ["project-id",data.projectID],
-                        ["item-number",orderSpecs.jobItemId]
-                    ],[
-                        ["status","Removed from Gang"],
-                        ["note","Bannerstand not approved for production."]
-                    ]))
-                    continue;
+                if(orderSpecs.bannerstand.active){
+                    if(!orderSpecs.bannerstand.enabled){
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Bannerstand not approved for production."]
+                        ]))
+                        continue;
+                    }
                 }
 
                 // Enable the force laminate override
