@@ -1,0 +1,87 @@
+{
+    "description":"Custom marks to help sort banners.",
+    "name":"Banner Sorting Blue",
+    "key":"None",
+    "parameters":[
+        {
+            "description": "Blue mark inside hem",
+            "type": "Product Label",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                },
+                {
+                    "name": "Van Nuys",
+                    "id": 1,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "13ozBanner",
+                    "18ozBanner",
+                    "13oz-Matte",
+                    "13oz-Gloss",
+                    "13oz-Smooth",
+                    "DSS",
+                    "18oz-Matte"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "ButtWeld",
+                    "None"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true,
+                        "bannerSorting":"Oversize"
+                    },
+                    "orderArray":{
+                        "hem":{
+                            "method":"Weld"
+                        }
+                    }
+                },
+                "rejections":{
+                    "product":{
+                        "doubleSided":true
+                    },
+                    "orderArray":{
+                        "pocket":{
+                            "enable":true
+                        }
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "name": "Blue_Inside-Hem",
+                    "dir": "/Banner Sorting/"
+                }
+            ]
+        }
+    ]
+}

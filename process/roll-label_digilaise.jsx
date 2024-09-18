@@ -62,6 +62,9 @@ try{
                 if(allPaths[ii].fillColor.spot.name == "Eyemark"){
                     allPaths[ii].remove();
                 }
+                if(allPaths[ii].fillColor.spot.name == "Dieline"){
+                    allPaths[ii].remove();
+                }
             }
         }
     }

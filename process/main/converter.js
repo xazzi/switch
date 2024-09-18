@@ -62,13 +62,29 @@ runParser = function(s, job){
             var map = doc.createDefaultMap();
 
             var data = {
-                //projectID: skuGenerator_projectID(db),
+                projectID: skuGenerator_projectID(db),
                 gangNumber: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: module.fileSource,
                 repository: "//10.21.71.213/File Repository/"
             }
+
+            var layout = {
+                stock: null
+            }
+
+            // Add the gang info to the table
+            db.history.execute(generateSqlStatement_Insert(s, "history.converter_gang", [
+                ["project-id",data.projectID],
+                ["gang-number",data.gangNumber]
+            ]));
+
+            // Add the gang info to the table
+            s.log(2, generateSqlStatement_Insert(s, "history.converter_gang", [
+                ["project-id",data.projectID],
+                ["gang-number",data.gangNumber]
+            ]));
             
             var theNewToken = getNewToken(s, data.environment);
             
@@ -101,6 +117,7 @@ runParser = function(s, job){
                     width: node.getAttributeValue('FinishedTrimWidth'),
                     height: node.getAttributeValue('FinishedTrimHeight'),
                     quantity: node.getAttributeValue('RequiredQuantity'),
+                    notes: node.getAttributeValue('Notes'),
                     stock: orderSpecsAPI.paper.value.replace(/\,/g,'').toString()
                 }
 
@@ -133,6 +150,11 @@ runParser = function(s, job){
                         type:"Margins",
                         base:".0625"
                     }
+                }
+
+                // This is a temporary fix, this needs to happen at a layout level.
+                if(layout.stock == null){
+                    layout.stock = orderArray[i].stock;
                 }
                 
                 /*
@@ -198,6 +220,15 @@ runParser = function(s, job){
                 }
                 */
 
+                db.history.execute(generateSqlStatement_Insert(s, "history.converter_item", [
+                    ["project-id", data.projectID],
+                    ["gang-number", data.gangNumber],
+                    ["order-number", product.orderNumber],
+                    ["item-number", product.itemNumber],
+                    ["notes", orderArray[i].notes],
+                    ["status", "Initiated"]
+                ]));
+
                 if(s.getServerName() == 'Switch-Dev'){
                     if(i>=49){
                         break;
@@ -215,6 +246,15 @@ runParser = function(s, job){
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
 
             job.sendToNull(job.getPath())
+
+            db.history.execute(generateSqlStatement_Update(s, "history.converter_gang", [
+                ["project-id", data.projectID]
+            ],[
+                ["notes",data.projectNotes],
+                ["press","PressName"],
+                ["prism-stock",layout.stock],
+                ["status","Parse Complete"]
+            ]))
                         
         }catch(e){
             s.log(3, "Critical Error!: " + e);

@@ -31,6 +31,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/load-module-settings.js"));
             eval(File.read(dir.support + "/sql-statements.js"));
             eval(File.read(dir.support + "/get-target-height.js"));
+            eval(File.read(dir.support + "/set-banner-storting.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -537,16 +538,18 @@ runParser = function(s, job){
                 }
 
                 // If bannerstands aren't enabled for produciton, remove them from the gang.
-                if(!orderSpecs.bannerstand.enabled){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
-                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                        ["project-id",data.projectID],
-                        ["item-number",orderSpecs.jobItemId]
-                    ],[
-                        ["status","Removed from Gang"],
-                        ["note","Bannerstand not approved for production."]
-                    ]))
-                    continue;
+                if(orderSpecs.bannerstand.active){
+                    if(!orderSpecs.bannerstand.enabled){
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Bannerstand not approved for production."]
+                        ]))
+                        continue;
+                    }
                 }
 
                 // Enable the force laminate override
@@ -1640,7 +1643,7 @@ runParser = function(s, job){
                         product.allowedRotations = 0;
                     }
                 }
-
+                
                 // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
                 if(data.facility.destination == "Wixom"){
                     if(product.doubleSided){
@@ -1668,7 +1671,8 @@ runParser = function(s, job){
                 // Set advanced settings for the marks
                 var advancedSettings = {
                     hemLabel: setHemLabels(s, orderArray[i]),
-                    productLabel: setProductLabel(s, orderArray[i])
+                    productLabel: setProductLabel(s, orderArray[i]),
+                    bannerSorting: setBannerSorting(s, orderArray[i])
                 }
 
                 // If it's contour at all, override the bleed type to margins, regardless of any facility or product.
@@ -1773,7 +1777,7 @@ runParser = function(s, job){
                         }
                     }
                 }
-
+                
                 // For VN LFP, add 10% min overrun to files over qty 20
                 if(data.facility.destination == "Van Nuys"){
                     if(product.quantity >= 20){
@@ -1874,7 +1878,7 @@ runParser = function(s, job){
                         }
                     }
                 }
-                
+
                 // Compile the data into an array.
                 var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
 
