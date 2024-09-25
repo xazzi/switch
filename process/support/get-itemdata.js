@@ -270,7 +270,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			if(dataDump.order_specs[k].code == "WIND"){
 				specs.unwind = addToTable(s, db, "options_unwind", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
-			if(dataDump.order_specs[k].code == "BANNERSTAND" || dataDump.order_specs[k].code == "BASEATT"){
+			if(dataDump.order_specs[k].code == "BANNERSTAND" || dataDump.order_specs[k].code == "BASEATT" || dataDump.order_specs[k].code == "DISPOPT"){
 				specs.bannerstand = addToTable(s, db, "options_bannerstand", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, specs);
 
 				// Pull the rectactable template name from the database.
@@ -294,10 +294,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.mount = addToTable(s, db, "options_mount", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "BASEATT"){
-				specs.base = addToTable(s, db, "options_base", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				//specs.base = addToTable(s, db, "options_base", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "DISPOPT"){
-				specs.display = addToTable(s, db, "options_display", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				//specs.display = addToTable(s, db, "options_display", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "VIEWDIR"){
 				specs.viewDir = addToTable(s, db, "options_view-direction", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);

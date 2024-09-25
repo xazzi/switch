@@ -1140,7 +1140,7 @@ runParser = function(s, job){
                                 ["item-number",product.itemNumber]
                             ],[
                                 ["status","Removed from Gang"],
-                                ["note","Can't produce in SLC."]
+                                ["note","Can not produce in SLC."]
                             ]))
                             continue;
                         }
@@ -1156,7 +1156,7 @@ runParser = function(s, job){
                             ["item-number",product.itemNumber]
                         ],[
                             ["status","Removed from Gang"],
-                            ["note","Can't produce in VN."]
+                            ["note","Can not produce in VN."]
                         ]))
                         continue;
                     }
@@ -1173,7 +1173,7 @@ runParser = function(s, job){
                                     ["item-number",product.itemNumber]
                                 ],[
                                     ["status","Removed from Gang"],
-                                    ["note","Can't produce in ARL."]
+                                    ["note","Can not produce in ARL."]
                                 ]))
                                 continue;
                             }
@@ -1358,8 +1358,8 @@ runParser = function(s, job){
 
                                 product.orientation.status = "Failed"
                                 file.usableData = false;
-                                data.notes.push([product.itemNumber,"Notes","Can't confirm orientation or scale, verify in gang."])
-                                data.notes.push([product.itemNumber,"Priority","Can't confirm orientation or scale, verify in gang."]);
+                                data.notes.push([product.itemNumber,"Notes","Can not confirm orientation or scale, verify in gang."])
+                                data.notes.push([product.itemNumber,"Priority","Can not confirm orientation or scale, verify in gang."]);
                             }
 
                             // I have no idea what this does.
@@ -1735,7 +1735,7 @@ runParser = function(s, job){
                 }
 
                 // Retractable Templates, Bannerstand hardware
-                if(product.subprocess.name == "Retractable" || "TableTop" || "MiniBannerStand"){
+                if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
                     product.dieDesignName = orderArray[i].bannerstand.template.name
                 }
 

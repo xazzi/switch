@@ -25,7 +25,7 @@ runProcessor = function(s, job){
             }
 
             // Force user dev settings.
-            if(true){
+            if(false){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
                 job.setUserEmail("bret.c@digitalroominc.com");
@@ -86,7 +86,7 @@ runProcessor = function(s, job){
             }
             */
 
-            db.general.execute("SELECT * FROM history.`converter_gang` WHERE `gang-number` = '" + job.getNameProper().split('_')[2] + "';");
+            db.general.execute("SELECT * FROM history.`converter_gang` WHERE `gang-number` = '" + job.getNameProper() + "';");
             if(!db.general.isRowAvailable()){
                 return
             }
@@ -147,10 +147,11 @@ runProcessor = function(s, job){
 							}else{
 								// Email the failure of the prism post.
 								s.log(2, handoffData.gangNumber + " failed to post to PRISM.");
-								sendEmail_db(s, handoffData, null, getEmailResponse("Prism Post Fail", null, null, handoffData, userInfo), userInfo);
+								//sendEmail_db(s, handoffData, null, getEmailResponse("Prism Post Fail", null, null, handoffData, userInfo), userInfo);
 								newXML.setPrivateData("Status","Fail");
 								newXML.setHierarchyPath([userInfo.dir])
 								newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
+								s.log(2, "End")
 							}
 						//}
 					//}
@@ -206,7 +207,7 @@ runProcessor = function(s, job){
             job.sendToNull(job.getPath());
             
         }catch(e){
-            s.log(2, "Critical Error: Processor -- " + e)
+            s.log(3, "Critical Error: Processor -- " + e)
             job.sendToNull(job.getPath())
         }
     }
@@ -239,6 +240,8 @@ function getFileType(name, environment){
 }
 
 function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
+
+	s.log(2, "Start")
 	
 	var bearerToken = getNewToken(s, endPoint);
 	//var doc = new Document(phoenixDir.absPath + "/" + phoenixXml);	
@@ -321,7 +324,7 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 							//break;
 						//}
 
-                        db.general.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper().split('_')[2] + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
+                        db.general.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper() + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
                         if(!db.general.isRowAvailable()){
                             s.log(2, "Return 2")
                             return
