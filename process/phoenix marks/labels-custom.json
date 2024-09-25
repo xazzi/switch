@@ -227,7 +227,8 @@
                 "requirements":[
                     "Retractable",
                     "TableTop",
-                    "UV-Greyback"
+                    "UV-Greyback",
+                    "MiniBannerStand"
                 ],
                 "rejections":[]
             },
@@ -283,7 +284,8 @@
             "subprocess":{
                 "requirements":[
                     "Retractable",
-                    "UV-Greyback"
+                    "UV-Greyback",
+                    "MiniBannerStand"
                 ],
                 "rejections":[]
             },

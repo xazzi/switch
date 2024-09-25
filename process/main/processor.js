@@ -131,7 +131,13 @@ runProcessor = function(s, job){
 				["status",status],
 				["prism-response",response],
 				["post-to-prism",validation.post.prism]
-			])) 
+			]))
+
+			db.history.execute(generateSqlStatement_Update(s, "history.details_layout", [
+                ["project-id", handoffData.projectID]
+            ],[
+                ["status",status]
+            ])) 
             
 			// Log that it was approved.
             if(handoffData.status == "approved"){

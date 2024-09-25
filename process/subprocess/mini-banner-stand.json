@@ -33,6 +33,7 @@
                 "product": {
                     "stock": "Roll_125",
                     "pageHandling": "OnePerPage",
+                    "dieDesignSource":"DieDesignLibrary",
                     "customLabel": {
                         "apply": true
                     }
@@ -69,6 +70,7 @@
                 "product": {
                     "stock": "Roll_124",
                     "pageHandling": "OnePerPage",
+                    "dieDesignSource":"DieDesignLibrary",
                     "customLabel": {
                         "apply": true
                     }
