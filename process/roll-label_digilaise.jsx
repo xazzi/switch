@@ -61,9 +61,11 @@ try{
             if(allPaths[ii].fillColor.typename == "SpotColor"){
                 if(allPaths[ii].fillColor.spot.name == "Eyemark"){
                     allPaths[ii].remove();
+                    continue;
                 }
                 if(allPaths[ii].fillColor.spot.name == "Dieline"){
                     allPaths[ii].remove();
+                    continue;
                 }
             }
         }
@@ -126,9 +128,7 @@ try{
 
     $doc.activeLayer.name = "DieLine"
 
-}catch(e){
-    alert(e)
-}
+}catch(e){}
 
 function createLayer(name, print){
     var $doc = app.activeDocument;
