@@ -247,7 +247,8 @@ runParser = function(s, job){
                 paper: null,
                 prismStock: null,
                 facility:{
-                    original: null
+                    original: null,
+                    destination: null
                 },
                 date:{
                     due: null
@@ -1218,7 +1219,7 @@ runParser = function(s, job){
                 // If the order is a replacement, send an email to the user.
                 if(orderArray[i].replacement){
                     data.notes.push([product.itemNumber,"Notes","Replacement. Automated undersizing has been disabled."]);
-                    data.notes.push([product.itemNumber,"Priority","Replacement. Automated undersizing has been disabled."]);
+                    //data.notes.push([product.itemNumber,"Priority","Replacement. Automated undersizing has been disabled."]);
                     product.subprocess.undersize = false;
                 }
                 
@@ -1359,7 +1360,7 @@ runParser = function(s, job){
                                 product.orientation.status = "Failed"
                                 file.usableData = false;
                                 data.notes.push([product.itemNumber,"Notes","Can not confirm orientation or scale, verify in gang."])
-                                data.notes.push([product.itemNumber,"Priority","Can not confirm orientation or scale, verify in gang."]);
+                                //data.notes.push([product.itemNumber,"Priority","Can not confirm orientation or scale, verify in gang."]);
                             }
 
                             // I have no idea what this does.

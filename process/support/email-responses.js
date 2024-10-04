@@ -10,6 +10,14 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
         archie: "archimedes.t@digitalroominc.com"
     }
 
+    if(query == "Empty Gang"){
+        if(matInfo == null){
+            matInfo = {
+                prodName: "Failed"
+            }
+        }
+    }
+
     switch(query){
         case "Undefined User":
             active = true;

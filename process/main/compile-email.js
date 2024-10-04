@@ -10,6 +10,7 @@ compileEmail = function(s, job){
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
+            eval(File.read(dir.support + "/sql-statements.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -89,7 +90,6 @@ compileEmail = function(s, job){
                 emailDatabase_write(s, db, "parsed_data", "Phoenix", handoffData, entry)
             }else{
                 email.header += "\nStatus: Failed in Phoenix!" + "\n";
-                //email.bcc = "bret.c@digitalroominc.com";
             }
 
             // Pull any notes from the email table, including what was just posted.

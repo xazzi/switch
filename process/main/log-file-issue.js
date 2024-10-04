@@ -10,6 +10,7 @@ runMissingFiles = function(s, job){
             eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
+            eval(File.read(dir.support + "/sql-statements.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -30,6 +31,7 @@ runMissingFiles = function(s, job){
             // Load in the Handoff Data dataset
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
+                projectID: handoffDataDS.evalToString("//base/projectID"),
                 gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 sku: handoffDataDS.evalToString("//base/sku"),
                 contentFile: handoffDataDS.evalToString("//product/contentFile"),

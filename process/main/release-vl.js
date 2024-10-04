@@ -53,7 +53,7 @@ runRelease = function(s){
                     line = line.split(';');
                 
                 // Find the index of the columns we need to splice.
-                if(line[0] == "Name"){
+                if(line[0] == "Project ID"){
                     for(var j in line){
                         if(line[j] == "Name"){
                             replacement.name = j
@@ -73,12 +73,11 @@ runRelease = function(s){
                 }
 
                 // Search the folder for the matching files.
-                var filesReady = repository.entryList(line[0].split('.pdf')[0] + "*.pdf", Dir.Files, Dir.Name);
+                var filesReady = repository.entryList(line[1].split('.pdf')[0] + "*.pdf", Dir.Files, Dir.Name);
                 var color, width, layoutType
 
                 // Splice in the replacement information.
                 for(var k in filesReady){
-
                     color = filesReady[k].split('_')[filesReady[k].split('_').length-1].split('.')[0];
                     filename = filesReady[k].split('_' + color)[0]
 
