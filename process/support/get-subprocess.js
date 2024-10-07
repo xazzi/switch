@@ -24,7 +24,7 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
             }
         }
 
-        if(db.general.getString(7) == 'n'){
+        if(db.general.getString(6) == 'n'){
             return "Reject"
         }
 

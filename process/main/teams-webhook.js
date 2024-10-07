@@ -96,7 +96,7 @@ runPost = function(s, job){
             job.sendToSingle(job.getPath()) 
             
         }catch(e){
-            s.log(2, "Critical Error: Teams Message:" + e)
+            s.log(3, "Critical Error: Teams Message:" + e)
             job.fail(e);
         }
     }
