@@ -386,7 +386,7 @@ runParser = function(s, job){
                     ]))
                     continue;
                 }
-
+                
                 // Check if facility information exists
                 if(orderSpecs.facility == undefined || orderSpecs.facilityId == undefined){
                     data.notes.push([orderSpecs.jobItemId,"Removed","No facility assigned."]);
