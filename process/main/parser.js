@@ -1,4 +1,3 @@
-//chelsea was here
 runParser = function(s, job){
     function parser(s, job){
         try{
@@ -118,7 +117,7 @@ runParser = function(s, job){
                     submit.override.mixedHem = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
-                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
+                // Lam and non-lam finishing separation field. -CM
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix lam?"){
                     submit.override.mixedLam = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
@@ -433,6 +432,7 @@ runParser = function(s, job){
 
                 // Material overrides
                 // -----------------------------------------------------------------------------------------
+                
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
                 if(data.doubleSided == null || data.doubleSided == orderSpecs.doubleSided){
                     if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
@@ -552,6 +552,22 @@ runParser = function(s, job){
                         continue;
                     }
                 }
+
+                //If bannerstands are enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
+                if(orderSpecs.bannerstand.active){
+                    if(product.subprocess.name == "Retractable" || "TableTop" || "MiniBannerStand" && orderSpecs.bannerstand.template.id == null){
+                            //TODO ^check which works: null, "null", undefined
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Template ID not assigned."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderSpecs.jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Template ID not assigned."]
+                        ]))
+                        continue;
+                    }
+                } 
 
                 // Enable the force laminate override
                 if(matInfo.forceLam){
