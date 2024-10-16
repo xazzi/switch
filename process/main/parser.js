@@ -555,7 +555,7 @@ runParser = function(s, job){
 
                 //If bannerstands are enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
                 if(orderSpecs.bannerstand.active){
-                    if(product.subprocess.name == "Retractable" || "TableTop" || "MiniBannerStand" && orderSpecs.bannerstand.template.id == null){
+                    if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand" && orderSpecs.bannerstand.template.id == null){
                             //TODO ^check which works: null, "null", undefined
                         data.notes.push([orderSpecs.jobItemId,"Removed","Template ID not assigned."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
