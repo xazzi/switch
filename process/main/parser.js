@@ -551,22 +551,6 @@ runParser = function(s, job){
                         ]))
                         continue;
                     }
-                }
-
-                //If bannerstands are enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
-                if(orderSpecs.bannerstand.active){
-                    if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand" && orderSpecs.bannerstand.template.id == null){
-                            //TODO ^check which works: null, "null", undefined
-                        data.notes.push([orderSpecs.jobItemId,"Removed","Template ID not assigned."]);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",orderSpecs.jobItemId]
-                        ],[
-                            ["status","Removed from Gang"],
-                            ["note","Template ID not assigned."]
-                        ]))
-                        continue;
-                    }
                 } 
 
                 // Enable the force laminate override
@@ -1145,6 +1129,24 @@ runParser = function(s, job){
                     sendEmail_db(s, data, matInfo, getEmailResponse("Rejected Subprocess", product, matInfo, data, userInfo, null), userInfo);
                     job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                     return
+                }
+
+                //If bannerstands are enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
+                if(orderArray[i].bannerstand.active){
+                    if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
+                        if(orderArray[i].bannerstand.template.id == null){
+                            //TODO ^check which works: null, "null", undefined
+                            data.notes.push([orderArray[i].jobItemId,"Removed","Template ID not assigned."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",orderArray[i].jobItemId]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Template ID not assigned."]
+                            ]))
+                            continue;
+                        }
+                    }
                 }
 
                 // If it's DS 13ozBanner for SLC, skip it and send an email.
