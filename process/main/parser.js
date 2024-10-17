@@ -1135,7 +1135,6 @@ runParser = function(s, job){
                 if(orderArray[i].bannerstand.active){
                     if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
                         if(orderArray[i].bannerstand.template.id == null){
-                            //TODO ^check which works: null, "null", undefined
                             data.notes.push([orderArray[i].jobItemId,"Removed","Template ID not assigned."]);
                             db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                                 ["project-id",data.projectID],
