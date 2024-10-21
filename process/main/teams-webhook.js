@@ -9,19 +9,6 @@ runPost = function(s, job){
             eval(File.read(dir.support + "/general-functions.js"));
 
             var handoffDataDS = loadDatasetNoFail_db("Handoff Data");
-            var handoffObj = {}
-            
-            if(handoffDataDS == "Dataset Missing"){
-                handoffObj.projectID = job.getNameProper()
-                handoffObj.gangNumber = "Unknown"
-                handoffObj.process = "Unknown"
-                handoffObj.subprocess = "Unknown"
-            }else{
-                handoffObj.projectID = handoffDataDS.evalToString("//base/projectID")
-                handoffObj.gangNumber = handoffDataDS.evalToString("//base/gangNumber")
-                handoffObj.process = handoffDataDS.evalToString("//base/process")
-                handoffObj.subprocess = handoffDataDS.evalToString("//base/subprocess")
-            }
 
             var newJob = s.createNewJob();
             var xmlfile = newJob.createPathWithName("Submit" + ".json", false);
@@ -33,49 +20,70 @@ runPost = function(s, job){
                 messageCard.summary = s.getServerName();
                 messageCard.sections = sections;
 
-            var structure = {
-                facts: [
-                    {
-                        "name": "Element: ",
-                        "value": s.getPropertyValue("element")
-                    },
-                    {
-                        "name": "Server: ",
-                        "value": s.getServerName()
-                    },
-                    {
-                        "name": "Flow: ",
-                        "value": s.getPropertyValue("flow")
-                    },
-                    {
-                        "name": "Gang: ",
-                        "value": handoffObj.gangNumber
-                    },
-                    {
-                        "name": "Process: ",
-                        "value": handoffObj.process
-                    },
-                    {
-                        "name": "Subprocess: ",
-                        "value": handoffObj.subprocess
-                    },
-                    {
-                        "name": "File: ",
-                        "value": job.getName()
-                    },
-                    {
-                        "name": "User: ",
-                        "value": job.getUserFullName()
-                    }
-                ],
-                activityTitle: s.getPropertyValue("message")
-            }
-                    
-                messageCard.sections.push(structure);
+            // Create the array of items you want to post to the webhook.
+            var query = [
+                ["Element", s.getPropertyValue("element")],
+                ["Server", s.getServerName()],
+                ["Flow", s.getPropertyValue("flow")],
+                ["File", job.getName()],
+                ["User", job.getUserFullName()]
+            ]
 
-                xmlF.open(File.Append);
-                xmlF.writeLine(JSON.stringify(messageCard));
-                xmlF.close();
+            var temp
+
+            // Check for gangNumber, in a failsafe try/catch
+            try{
+                temp = handoffDataDS.evalToString("//base/gangNumber")
+            }catch(e){
+                temp = "Unknown"
+            }
+            query.push(["Gang", temp])
+
+            // Check for process, in a failsafe try/catch
+            try{
+                temp = handoffDataDS.evalToString("//base/process")
+            }catch(e){
+                temp = "Unknown"
+            }
+            query.push(["Process", temp])
+
+            // Check for subprocess, in a failsafe try/catch
+            try{
+                temp = handoffDataDS.evalToString("//base/subprocess")
+            }catch(e){
+                temp = "Unknown"
+            }
+            query.push(["Subprocess", temp])
+
+            // Create the structure that we pass into the webhook
+            var structure = {
+                facts: []
+            }
+
+            // Loop through the queries, cleaning up any errors, and push the final answer to the attributes.
+            for(var i=0; i<query.length; i++){
+                var temp
+
+                try{
+                    temp = query[i][1]
+                }catch(e){
+                    temp = "Unknown"
+                }
+
+                var attributes = {
+                    name:query[i][0],
+                    value:temp
+                }
+                structure["facts"].push(attributes)
+            }
+
+            structure.activityTitle = s.getPropertyValue("message")
+                    
+            messageCard.sections.push(structure);
+
+            xmlF.open(File.Append);
+            xmlF.writeLine(JSON.stringify(messageCard));
+            xmlF.close();
                 
             // Post the above json to the API.
             var theHTTP = new HTTP(HTTP.SSL);
