@@ -97,6 +97,37 @@
                     "sideMix": 1
                 }
             }
+        },
+        {
+            "facility": {
+                "name": "Van Nuys",
+                "id": 1,
+                "enabled": true
+            },
+            "processes": [
+                "PolyFilm"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": "Default",
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                },
+                "product": {
+                    "pageHandling":"OnePerPage",
+                    "dieDesignSource":"DieDesignLibrary",
+                    "customLabel": {
+                        "apply": true
+                    },
+                    "rotation":"Custom",
+                    "allowedRotations":0
+                },
+                "data": {
+                    "sideMix": 1
+                }
+            }
         }
     ]
 }

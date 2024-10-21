@@ -101,7 +101,7 @@ runProcessor = function(s, job){
                 //gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 gangNumber: db.general.getString(2),
                 //facility: handoffDataDS.evalToString("//misc/facility"),
-                facility: "Van Nuys",
+                facility: "Arlington",
                 //status: job.getPrivateData("status"),
                 status: "approved",
                 exportFolder: null,
@@ -262,8 +262,8 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 		xmlString += ("<?xml version='1.0' encoding='UTF-8'?>");
 		
 		writeXmlNode(xmlFile, "job");
-			//writeXmlString(xmlFile, "id", doc.evalToString('//job/id', map));
-            writeXmlString(xmlFile, "id", '3863660');
+			//writeXmlString(xmlFile, "id", handoffData.gangNumber);
+            writeXmlString(xmlFile, "id", handoffData.gangNumber);
 			writeXmlString(xmlFile, "name", "House Stock");
 			//writeXmlString(xmlFile, "notes", handoffDataDS.evalToString("//base/projectNotes"));
             writeXmlString(xmlFile, "notes", handoffData.notes);
@@ -302,7 +302,7 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 								writeXmlString(xmlFile, "id", layoutNodes.at(i).evalToString('//surfaces/surface/stock/id'));
 							writeXmlNode(xmlFile, "/stock");
 							writeXmlNode(xmlFile, "grade");
-								writeXmlString(xmlFile, "name", layoutNodes.at(i).evalToString('//surfaces/surface/grade/name'));
+								writeXmlString(xmlFile, "name", layoutNodes.at(i).evalToString('//surfaces/surface/grade/name').replace(/\"/g,"&quot;"));
 								writeXmlString(xmlFile, "weight", layoutNodes.at(i).evalToString('//surfaces/surface/grade/weight'));
 							writeXmlNode(xmlFile, "/grade");
 							writeXmlNode(xmlFile, "sheet");
@@ -370,13 +370,13 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 		
 		// Create the json file for uploading to the endpoints.
 		var newJSON = s.createNewJob();
-		var jsonPath = newJSON.createPathWithName(doc.evalToString('//job/id', map) + ".json", false);
+		var jsonPath = newJSON.createPathWithName(handoffData.gangNumber + ".json", false);
 		var jsonFile = new File(jsonPath);
-		//var jsonFile = new File("C://Switch//Development//" + doc.evalToString('//job/id', map) + ".json");
+		//var jsonFile = new File("C://Switch//Development//" + handoffData.gangNumber + ".json");
 			jsonFile.open(File.Append);
 			jsonFile.writeLine('{');
 			
-			jsonFile.writeLine('"xml_id": ' + doc.evalToString('//job/id', map) + ',');
+			jsonFile.writeLine('"xml_id": ' + handoffData.gangNumber + ',');
 			jsonFile.writeLine('"xml": "' + xmlString + '"');
 		
 			jsonFile.write('}');
