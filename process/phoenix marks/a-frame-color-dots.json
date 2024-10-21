@@ -42,7 +42,8 @@
                 "requirements": {
                     "orderArray": {
                         "frame":{
-                            "color": "Cyan"
+                            "color": "White",
+                            "type": "Standard"
                         }
                     }
                 },
@@ -64,7 +65,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Arlington",
@@ -95,7 +96,8 @@
                 "requirements": {
                     "orderArray": {
                         "frame":{
-                            "color": "Green"
+                            "color": "Black",
+                            "type": "Standard"
                         }
                     }
                 },
@@ -117,7 +119,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Arlington",
@@ -148,7 +150,8 @@
                 "requirements": {
                     "orderArray": {
                         "frame":{
-                            "color": "Red"
+                            "color": "Black",
+                            "type": "Deluxe"
                         }
                     }
                 },
@@ -170,7 +173,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Arlington",
@@ -201,7 +204,8 @@
                 "requirements": {
                     "orderArray": {
                         "frame":{
-                            "color": "Yellow"
+                            "color": "White",
+                            "type": "Deluxe"
                         }
                     }
                 },

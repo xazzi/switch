@@ -13,7 +13,9 @@ runPost = function(s, job){
             
             if(handoffDataDS == "Dataset Missing"){
                 handoffObj.projectID = job.getNameProper()
+                handoffObj.gangNumber = "Unknown"
                 handoffObj.process = "Unknown"
+                handoffObj.subprocess = "Unknown"
             }else{
                 handoffObj.projectID = handoffDataDS.evalToString("//base/projectID")
                 handoffObj.gangNumber = handoffDataDS.evalToString("//base/gangNumber")
