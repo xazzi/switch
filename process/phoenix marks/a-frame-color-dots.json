@@ -11,7 +11,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Arlington",
@@ -41,9 +41,9 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "frame":{
+                        "frame": {
                             "color": "White",
-                        "type": "Standard"
+                            "type": "Standard"
                         }
                     }
                 },
@@ -56,7 +56,7 @@
                     "name": "Cyan-Standard-White"
                 }
             ]
-        }, 
+        },
         {
             "description": "Green-Standard-Black",
             "type": "Custom Mark",
@@ -65,7 +65,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Arlington",
@@ -95,9 +95,9 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "frame":{
+                        "frame": {
                             "color": "Black",
-                        "type": "Standard"
+                            "type": "Standard"
                         }
                     }
                 },
@@ -119,7 +119,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Arlington",
@@ -149,9 +149,9 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "frame":{
+                        "frame": {
                             "color": "Black",
-                        "type": "Deluxe"
+                            "type": "Deluxe"
                         }
                     }
                 },
@@ -173,7 +173,7 @@
                 {
                     "name": "Salt Lake City",
                     "id": "28",
-                    "enabled": false
+                    "enabled": true
                 },
                 {
                     "name": "Arlington",
@@ -203,9 +203,9 @@
             "specs": {
                 "requirements": {
                     "orderArray": {
-                        "frame":{
+                        "frame": {
                             "color": "White",
-                        "type": "Deluxe"
+                            "type": "Deluxe"
                         }
                     }
                 },
@@ -216,6 +216,60 @@
                     "group": "Global",
                     "dir": "/A-Frames/",
                     "name": "Yellow-Deluxe-White"
+                }
+            ]
+        },
+        {
+            "description": "None-Null-Null",
+            "type": "Custom Mark",
+            "key": "None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": "28",
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": "5",
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": "37",
+                    "enabled": false
+                }
+            ],
+            "process": {
+                "requirements": [
+                    "All"
+                ],
+                "rejections": []
+            },
+            "subprocess": {
+                "requirements": [
+                    "A-Frame",
+                    "Billboard A-Frame",
+                    "Dry Erase A-Frame"
+                ],
+                "rejections": []
+            },
+            "specs": {
+                "requirements": {
+                    "orderArray": {
+                        "frame": {
+                            "color": "null",
+                            "type": "null"
+                        }
+                    }
+                },
+                "rejections": {}
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/A-Frames/",
+                    "name": "None-Null-Null"
                 }
             ]
         }
