@@ -584,17 +584,6 @@ runParser = function(s, job){
                     }
                 }
 
-                // Reassign printers and associated data based on various criteria.
-                if(data.facility.destination == "Salt Lake City"){
-                    if(matInfo.prodName == "Foamboard"){
-                        if(orderSpecs.doubleSided){
-                            matInfo.width = 48;
-                            matInfo.height = 96;
-                            matInfo.phoenixStock = "Mat_Foamboard";
-                        }
-                    }
-                }
-
                 // Override all of the above
                 if(submit.material.active){
                     matInfo.width = submit.material.width;
@@ -691,6 +680,17 @@ runParser = function(s, job){
                     if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
                         if(data.doubleSided || orderSpecs.doubleSided){
                             matInfo.height = 190;
+                        }
+                    }
+                }
+
+                // Reassign printers and associated data based on various criteria.
+                if(data.facility.destination == "Salt Lake City"){
+                    if(matInfo.prodName == "Foamboard"){
+                        if(orderSpecs.doubleSided){
+                            matInfo.width = 48;
+                            matInfo.height = 96;
+                            data.phoenixStock = "Mat_Foamboard"
                         }
                     }
                 }
