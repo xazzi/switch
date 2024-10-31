@@ -34,6 +34,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				value: null,
 				applyProductLabel: null
 			},
+			cut: {
+				active: false,
+				method: null,
+				value: null
+			},
 			grommet: {
 				active: false,
                 key: null
@@ -341,7 +346,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					specs.cvColors.push(temp[r].replace(/^\s+/g, ''))
 				}
 			}
-			if(dataDump.order_specs[k].code == "CUT"){
+			if(dataDump.order_specs[k].code == "CUT" || dataDump.order_specs[k].code == "CUTTING"){
 				specs.cut = addToTable(s, db, "options_cut", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "DESC"){
