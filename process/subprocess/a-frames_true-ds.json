@@ -25,7 +25,8 @@
                     "allowedRotations": 90,
                     "pageHandling": "OnePerTwoPages",
                     "overrunMax": 20,
-                    "shapeSearch": "Multiple"
+                    "shapeSearch": "Multiple",
+                    "spacingBottom": 0.75
                 },
                 "data": {
                     "impositionProfile": {
