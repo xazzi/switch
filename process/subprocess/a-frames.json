@@ -25,7 +25,8 @@
                     "allowedRotations": 90,
                     "pageHandling": "OnePerPage",
                     "overrunMax": 20,
-                    "shapeSearch": "Multiple"
+                    "shapeSearch": "Multiple",
+                    "spacingBottom": 0.75
                 },
                 "data": {
                     "impositionProfile": {
@@ -58,7 +59,8 @@
                     "allowedRotations": 90,
                     "pageHandling": "OnePerPage",
                     "overrunMax": 20,
-                    "shapeSearch": "Multiple"
+                    "shapeSearch": "Multiple",
+                    "spacingBottom": 0.75
                 },
                 "data": {
                     "impositionProfile": {
