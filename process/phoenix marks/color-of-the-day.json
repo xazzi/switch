@@ -10,17 +10,17 @@
             "facility": [
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -48,10 +48,10 @@
                     "TableTop",
                     "X-Stand",
                     "Dry Erase A-Frame",
-                    "Tension Stand",
                     "Billboard A-Frame"
                 ],
                 "rejections":[
+                    "Tension Stand",
                     "ButtWeld",
                     "ButtCut",
                     "FullSheet",
@@ -62,7 +62,7 @@
                 "requirements":{
                     "product":{
                         "date":{
-                            "dayID":"0"
+                            "dayID":0
                         }
                     },
                     "advancedSettings":{
@@ -86,17 +86,17 @@
             "facility": [
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -138,7 +138,7 @@
                 "requirements":{
                     "product":{
                         "date":{
-                            "dayID":"1"
+                            "dayID":1
                         }
                     },
                     "advancedSettings":{
@@ -162,17 +162,17 @@
             "facility": [
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -214,7 +214,7 @@
                 "requirements":{
                     "product":{
                         "date":{
-                            "dayID":"2"
+                            "dayID":2
                         }
                     },
                     "advancedSettings":{
@@ -238,17 +238,17 @@
             "facility": [
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -290,7 +290,7 @@
                 "requirements":{
                     "product":{
                         "date":{
-                            "dayID":"3"
+                            "dayID":3
                         }
                     },
                     "advancedSettings":{
@@ -314,17 +314,17 @@
             "facility": [
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -366,7 +366,7 @@
                 "requirements":{
                     "product":{
                         "date":{
-                            "dayID":"4"
+                            "dayID":4
                         }
                     },
                     "advancedSettings":{
@@ -390,17 +390,17 @@
             "facility": [
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -442,7 +442,7 @@
                 "requirements":{
                     "product":{
                         "date":{
-                            "dayID":"5"
+                            "dayID":5
                         }
                     },
                     "advancedSettings":{
@@ -466,17 +466,17 @@
             "facility": [
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": true
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": true
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": true
                 }
             ],
@@ -518,7 +518,7 @@
                 "requirements":{
                     "product":{
                         "date":{
-                            "dayID":"6"
+                            "dayID":6
                         }
                     },
                     "advancedSettings":{
@@ -542,17 +542,17 @@
             "facility": [
                 {
                     "name": "Salt Lake City",
-                    "id": "28",
+                    "id": 28,
                     "enabled": false
                 },
                 {
                     "name": "Arlington",
-                    "id": "5",
+                    "id": 5,
                     "enabled": false
                 },
                 {
                     "name": "Wixom",
-                    "id": "37",
+                    "id": 37,
                     "enabled": false
                 }
             ],
@@ -594,7 +594,7 @@
                 "requirements":{
                     "product":{
                         "date":{
-                            "dayID":"2"
+                            "dayID":2
                         }
                     },
                     "advancedSettings":{
