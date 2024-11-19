@@ -12,7 +12,8 @@
             "processes": [
                 "13ozBanner",
                 "DSS",
-                "UV Fabric"
+                "UV Fabric",
+                "18ozBanner"
             ],
             "properties": {
                 "mixed": false,
@@ -44,7 +45,8 @@
                 "13oz-Matte",
                 "13oz-Smooth",
                 "UV-Fabric",
-                "13oz-PolyFilm"
+                "13oz-PolyFilm",
+                "18oz-Matte"
             ],
             "properties": {
                 "mixed": true,
@@ -76,7 +78,8 @@
                 "13oz-Matte",
                 "13oz-Smooth",
                 "UV-Fabric",
-                "13oz-PolyFilm"
+                "13oz-PolyFilm",
+                "18oz-Vinyl"
             ],
             "properties": {
                 "mixed": true,
