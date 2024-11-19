@@ -234,6 +234,7 @@ runParser = function(s, job){
                     method: null,
                     value: null
                 },
+                reprint: false,
                 prodName: null,
                 scaled: false,
                 scale: "",
@@ -429,6 +430,10 @@ runParser = function(s, job){
                         lam: db.general.getString(5) == 'y'
                     }
                 }
+
+                if(orderSpecs.reprint)[
+                    data.reprint = true
+                ]
 
                 // Material overrides
                 // -----------------------------------------------------------------------------------------

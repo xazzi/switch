@@ -10,12 +10,12 @@
             "facility": [
                 {
                     "name": "Van Nuys",
-                    "id": "1",
+                    "id": 1,
                     "enabled": true
                 },
                 {
                     "name": "Solon",
-                    "id": "25",
+                    "id": 25,
                     "enabled": true
                 }
             ],
@@ -59,12 +59,12 @@
             "facility": [
                 {
                     "name": "Van Nuys",
-                    "id": "1",
+                    "id": 1,
                     "enabled": true
                 },
                 {
                     "name": "Solon",
-                    "id": "25",
+                    "id": 25,
                     "enabled": true
                 }
             ],
@@ -84,7 +84,7 @@
                 "requirements":{
                     "product":{
                         "unwind":{
-                            "rotation":"270"
+                            "rotation":270
                         },
                         "rollLabel":{
                             "eyeMark":true
@@ -108,12 +108,12 @@
             "facility": [
                 {
                     "name": "Van Nuys",
-                    "id": "1",
+                    "id": 1,
                     "enabled": true
                 },
                 {
                     "name": "Solon",
-                    "id": "25",
+                    "id": 25,
                     "enabled": true
                 }
             ],
@@ -157,12 +157,12 @@
             "facility": [
                 {
                     "name": "Van Nuys",
-                    "id": "1",
+                    "id": 1,
                     "enabled": true
                 },
                 {
                     "name": "Solon",
-                    "id": "25",
+                    "id": 25,
                     "enabled": true
                 }
             ],
@@ -206,12 +206,12 @@
             "facility": [
                 {
                     "name": "Van Nuys",
-                    "id": "1",
+                    "id": 1,
                     "enabled": true
                 },
                 {
                     "name": "Solon",
-                    "id": "25",
+                    "id": 25,
                     "enabled": false
                 }
             ],
@@ -255,12 +255,12 @@
             "facility": [
                 {
                     "name": "Van Nuys",
-                    "id": "1",
+                    "id": 1,
                     "enabled": true
                 },
                 {
                     "name": "Solon",
-                    "id": "25",
+                    "id": 25,
                     "enabled": false
                 }
             ],
@@ -280,7 +280,7 @@
                 "requirements":{
                     "product":{
                         "unwind":{
-                            "rotation":"270"
+                            "rotation":270
                         },
                         "rollLabel":{
                             "eyeMark":true
@@ -304,12 +304,12 @@
             "facility": [
                 {
                     "name": "Van Nuys",
-                    "id": "1",
+                    "id": 1,
                     "enabled": true
                 },
                 {
                     "name": "Solon",
-                    "id": "25",
+                    "id": 25,
                     "enabled": false
                 }
             ],
@@ -353,12 +353,12 @@
             "facility": [
                 {
                     "name": "Van Nuys",
-                    "id": "1",
+                    "id": 1,
                     "enabled": true
                 },
                 {
                     "name": "Solon",
-                    "id": "25",
+                    "id": 25,
                     "enabled": false
                 }
             ],
