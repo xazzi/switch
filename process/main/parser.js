@@ -1,4 +1,3 @@
-//chelsea was here
 runParser = function(s, job){
     function parser(s, job){
         try{
@@ -118,7 +117,7 @@ runParser = function(s, job){
                     submit.override.mixedHem = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
-                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
+                // Lam and non-lam finishing separation field. -CM
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix lam?"){
                     submit.override.mixedLam = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
@@ -438,6 +437,7 @@ runParser = function(s, job){
 
                 // Material overrides
                 // -----------------------------------------------------------------------------------------
+                
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
                 if(data.doubleSided == null || data.doubleSided == orderSpecs.doubleSided){
                     if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
@@ -556,7 +556,7 @@ runParser = function(s, job){
                         ]))
                         continue;
                     }
-                }
+                } 
 
                 // Enable the force laminate override
                 if(matInfo.forceLam){
@@ -685,6 +685,17 @@ runParser = function(s, job){
                     if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
                         if(data.doubleSided || orderSpecs.doubleSided){
                             matInfo.height = 190;
+                        }
+                    }
+                }
+
+                // Reassign printers and associated data based on various criteria.
+                if(data.facility.destination == "Salt Lake City"){
+                    if(matInfo.prodName == "Foamboard"){
+                        if(orderSpecs.doubleSided){
+                            matInfo.width = 48;
+                            matInfo.height = 96;
+                            data.phoenixStock = "Mat_Foamboard"
                         }
                     }
                 }
@@ -1134,6 +1145,23 @@ runParser = function(s, job){
                     sendEmail_db(s, data, matInfo, getEmailResponse("Rejected Subprocess", product, matInfo, data, userInfo, null), userInfo);
                     job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                     return
+                }
+
+                //If bannerstands are enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
+                if(orderArray[i].bannerstand.active){
+                    if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
+                        if(orderArray[i].bannerstand.template.id == null){
+                            data.notes.push([orderArray[i].jobItemId,"Removed","Template ID not assigned."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",orderArray[i].jobItemId]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Template ID not assigned."]
+                            ]))
+                            continue;
+                        }
+                    }
                 }
 
                 // If it's DS 13ozBanner for SLC, skip it and send an email.
