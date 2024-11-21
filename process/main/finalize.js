@@ -154,7 +154,7 @@ runFinalize = function(s, job){
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-CUT" + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + phoenixPlan.qty + "-CUT" + ".pdf";
                 }
                 
                 if(data.processType == "Summary"){				
