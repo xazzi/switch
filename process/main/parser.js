@@ -2188,6 +2188,13 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, coatingNode, "active", data.coating.active ? true : false);
         addNode_db(theXML, coatingNode, "method", data.coating.method);
         addNode_db(theXML, coatingNode, "value", data.coating.value);
+
+    var coatingNode = theXML.createElement("frontCoating", null);
+		handoffNode.appendChild(coatingNode);
+
+        addNode_db(theXML, coatingNode, "active", data.frontCoating.active ? true : false);
+        addNode_db(theXML, coatingNode, "method", data.frontCoating.method);
+        addNode_db(theXML, coatingNode, "value", data.frontCoating.value);
 	
 	var mountNode = theXML.createElement("mount", null);
 		handoffNode.appendChild(mountNode);	

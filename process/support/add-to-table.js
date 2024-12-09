@@ -237,6 +237,15 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
             }
         }
 
+        // Coating options
+        if(table == "options_front-coating"){
+            return specs = {
+                active: db.general.getString(4) == "None" ? false : true,
+                method: db.general.getString(4),
+                value: db.general.getString(1)
+            }
+        }
+
         // Edge options
         if(table == "options_edge"){
             return specs = {
