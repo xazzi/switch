@@ -36,6 +36,11 @@ runFinalize = function(s, job){
                     active: handoffDataDS.evalToString("//coating/active") == "true",
                     method: handoffDataDS.evalToString("//coating/method"),
                     value: handoffDataDS.evalToString("//coating/value")
+                },
+                frontCoating: {
+                    active: handoffDataDS.evalToString("//frontCoating/active") == "true",
+                    method: handoffDataDS.evalToString("//frontCoating/method"),
+                    value: handoffDataDS.evalToString("//frontCoating/value")
                 }
             }
             
@@ -139,10 +144,35 @@ runFinalize = function(s, job){
             // Solon ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Solon"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
-                if(handoffData.laminate.method == "null"){
-                    name.laminate = ""
-                }else{
-                    name.laminate = "_" + handoffData.laminate.method
+
+                name.laminate = getCoatLamSLN(s, handoffData)
+
+                function getCoatLamSLN(s, handoffData){
+                    var temp = ""
+
+                    // If it has lam data then we ignore the coating
+                    if(handoffData.laminate.method != "null"){
+                        temp = "-" + handoffData.laminate.method
+                        return temp
+                    }
+
+                    // If it's SP, use the frontCoating method.
+                    if(handoffData.frontCoating.method != "null"){
+                        if(product == "-SP"){
+                            temp = "-" + handoffData.frontCoating.method
+                            return temp
+                        }
+                    }
+
+                    // If it's RP, use the general Coating method.
+                    if(handoffData.coating.method != "null"){
+                        if(product == "-RP"){
+                            temp = "-" + handoffData.coating.method
+                            return temp
+                        }
+                    }
+
+                    return temp
                 }
                 
                 if(data.processType == "Print"){
