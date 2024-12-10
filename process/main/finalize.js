@@ -38,8 +38,8 @@ runFinalize = function(s, job){
                     value: handoffDataDS.evalToString("//coating/value")
                 },
                 frontCoating: {
-                    active: handoffDataDS.evalToString("//frontCoating/active") == "true",
-                    method: handoffDataDS.evalToString("//frontCoating/method"),
+                    enabled: handoffDataDS.evalToString("//frontCoating/active") == "true",
+                    label: handoffDataDS.evalToString("//frontCoating/method"),
                     value: handoffDataDS.evalToString("//frontCoating/value")
                 }
             }
@@ -53,7 +53,7 @@ runFinalize = function(s, job){
             var name = {
                 process: handoffData.prodMatFileName,
                 subprocess: "",
-                laminate: null
+                laminate: ""
             }
             
             var fileStat = new FileStatistics(job.getPath());
@@ -145,34 +145,8 @@ runFinalize = function(s, job){
             if(handoffData.facility == "Solon"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
 
-                name.laminate = getCoatLamSLN(s, handoffData)
-
-                function getCoatLamSLN(s, handoffData){
-                    var temp = ""
-
-                    // If it has lam data then we ignore the coating
-                    if(handoffData.laminate.method != "null"){
-                        temp = "-" + handoffData.laminate.method
-                        return temp
-                    }
-
-                    // If it's SP, use the frontCoating method.
-                    if(handoffData.frontCoating.method != "null"){
-                        if(product == "-SP"){
-                            temp = "-" + handoffData.frontCoating.method
-                            return temp
-                        }
-                    }
-
-                    // If it's RP, use the general Coating method.
-                    if(handoffData.coating.method != "null"){
-                        if(product == "-RP"){
-                            temp = "-" + handoffData.coating.method
-                            return temp
-                        }
-                    }
-
-                    return temp
+                if(handoffData.type == "roll-label" || handoffData.type == "roll-sticker"){
+                    name.laminate = getCoatLamSLN(s, handoffData)
                 }
                 
                 if(data.processType == "Print"){
@@ -256,4 +230,32 @@ runFinalize = function(s, job){
         }
     }
     finalize(s, job)
+}
+
+function getCoatLamSLN(s, handoffData){
+    var temp = "-Uncoated"
+
+    // If it has lam data then we ignore the coating
+    if(handoffData.laminate.method != "null"){
+        temp = "-" + handoffData.laminate.method
+        return temp
+    }
+
+    // If it's RP, use the general Coating method.
+    if(handoffData.coating.method != "null"){
+        if(handoffData.paper.match(new RegExp("- RP","g"))){
+            temp = "-" + handoffData.coating.method
+            return temp
+        }
+    }
+
+    // If it's SP, use the frontCoating method.
+    if(handoffData.frontCoating.enabled){
+        if(handoffData.paper.match(new RegExp("- SP","g"))){
+            temp = "-" + handoffData.frontCoating.value
+            return temp
+        }
+    }
+
+    return temp
 }

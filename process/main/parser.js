@@ -224,6 +224,11 @@ runParser = function(s, job){
                     method: null,
                     value: null
                 },
+                frontCoating:{
+                    enabled: false,
+                    label: null,
+                    value: null
+                },
                 laminate:{
                     active: false,
                     method: null,
@@ -628,6 +633,9 @@ runParser = function(s, job){
                     data.coating.active = orderSpecs.coating.active;
                     data.coating.method = orderSpecs.coating.method;
                     data.coating.value = orderSpecs.coating.value;
+                    data.frontCoating.enabled = orderSpecs.frontCoating.enabled;
+                    data.frontCoating.label = orderSpecs.frontCoating.label;
+                    data.frontCoating.value = orderSpecs.frontCoating.value;
                     data.mount.active = orderSpecs.mount.active;
 
                     data.impositionProfile = {
@@ -2197,8 +2205,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
     var frontCoatingNode = theXML.createElement("frontCoating", null);
 		handoffNode.appendChild(frontCoatingNode);
 
-        addNode_db(theXML, frontCoatingNode, "active", data.frontCoating.active ? true : false);
-        addNode_db(theXML, frontCoatingNode, "method", data.frontCoating.method);
+        addNode_db(theXML, frontCoatingNode, "enabled", data.frontCoating.enabled);
+        addNode_db(theXML, frontCoatingNode, "label", data.frontCoating.label);
         addNode_db(theXML, frontCoatingNode, "value", data.frontCoating.value);
 	
 	var mountNode = theXML.createElement("mount", null);

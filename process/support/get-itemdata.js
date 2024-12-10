@@ -94,8 +94,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				value: null
 			},
 			frontCoating: {
-				active: false,
-				method: null,
+				enabled: false,
+				label: null,
 				value: null
 			},
 			impInstructions: {
@@ -273,7 +273,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.material = addToTable(s, db, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
-				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
 			}
 			if(dataDump.order_specs[k].code == "FCOAT"){
 				specs.frontCoating = addToTable(s, db, "options_front-coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
