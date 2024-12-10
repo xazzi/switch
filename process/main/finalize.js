@@ -36,6 +36,11 @@ runFinalize = function(s, job){
                     active: handoffDataDS.evalToString("//coating/active") == "true",
                     method: handoffDataDS.evalToString("//coating/method"),
                     value: handoffDataDS.evalToString("//coating/value")
+                },
+                frontCoating: {
+                    enabled: handoffDataDS.evalToString("//frontCoating/active") == "true",
+                    label: handoffDataDS.evalToString("//frontCoating/method"),
+                    value: handoffDataDS.evalToString("//frontCoating/value")
                 }
             }
             
@@ -48,7 +53,7 @@ runFinalize = function(s, job){
             var name = {
                 process: handoffData.prodMatFileName,
                 subprocess: "",
-                laminate: null
+                laminate: ""
             }
             
             var fileStat = new FileStatistics(job.getPath());
@@ -139,10 +144,9 @@ runFinalize = function(s, job){
             // Solon ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Solon"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
-                if(handoffData.laminate.method == "null"){
-                    name.laminate = ""
-                }else{
-                    name.laminate = "_" + handoffData.laminate.method
+
+                if(handoffData.type == "roll-label" || handoffData.type == "roll-sticker"){
+                    name.laminate = getCoatLamSLN(s, handoffData)
                 }
                 
                 if(data.processType == "Print"){
@@ -226,4 +230,32 @@ runFinalize = function(s, job){
         }
     }
     finalize(s, job)
+}
+
+function getCoatLamSLN(s, handoffData){
+    var temp = "-Uncoated"
+
+    // If it has lam data then we ignore the coating
+    if(handoffData.laminate.method != "null"){
+        temp = "-" + handoffData.laminate.method
+        return temp
+    }
+
+    // If it's RP, use the general Coating method.
+    if(handoffData.coating.method != "null"){
+        if(handoffData.paper.match(new RegExp("- RP","g"))){
+            temp = "-" + handoffData.coating.method
+            return temp
+        }
+    }
+
+    // If it's SP, use the frontCoating method.
+    if(handoffData.frontCoating.enabled){
+        if(handoffData.paper.match(new RegExp("- SP","g"))){
+            temp = "-" + handoffData.frontCoating.value
+            return temp
+        }
+    }
+
+    return temp
 }

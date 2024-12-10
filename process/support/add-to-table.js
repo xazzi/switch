@@ -1,4 +1,4 @@
-addToTable = function(s, db, table, parameter, example, data, userInfo, object){
+addToTable = function(s, db, table, parameter, example, data, userInfo, object, orderSpecs){
     var original = parameter
     
         parameter = parameter.replace(/"/g,'\\"');
@@ -16,6 +16,10 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
     // For bannerstands, run a specific query.
     if(table == "options_bannerstand"){
         db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE parameter = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';");
+
+    // For the new table style
+    }else if(table == "options_front-coating"){
+        db.general.execute("SELECT * FROM digital_room.`" + table + "` WHERE `prism-value` = '" + parameter + "';");
 
     // For everything else, run a generic query.
     }else{
@@ -237,6 +241,15 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
             }
         }
 
+        // Coating options
+        if(table == "options_front-coating"){
+            return specs = {
+                enabled: db.general.getString(7) == 'y',
+                label: db.general.getString(2),
+                value: db.general.getString(4) != null ? db.general.getString(4) : db.general.getString(3) != null ? db.general.getString(3) : null
+            }
+        }
+
         // Edge options
         if(table == "options_edge"){
             return specs = {
@@ -301,6 +314,10 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object){
         if(table == "options_bannerstand"){
             db.general.execute("INSERT INTO digital_room.options_bannerstand" + "(`example-item`, parameter, `item-name`, width, height) VALUES ('" + object.jobItemId + "','" + parameter + "','" + object.itemName + "','" + object.width + "','" + object.height + "');");
         
+        // For the new table style
+        }else if(table == "options_front-coating"){
+            db.general.execute("INSERT INTO digital_room.`" + table + "` (`prism-code`, `prism-label`, `prism-value`, `date-added`, `example-item`) VALUES ('" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + new Date() + "','" + example + "');");
+
         // All of the other options tables.
         }else{
             db.general.execute("INSERT INTO digital_room.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');");
