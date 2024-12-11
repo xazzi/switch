@@ -38,8 +38,8 @@ runFinalize = function(s, job){
                     value: handoffDataDS.evalToString("//coating/value")
                 },
                 frontCoating: {
-                    enabled: handoffDataDS.evalToString("//frontCoating/active") == "true",
-                    label: handoffDataDS.evalToString("//frontCoating/method"),
+                    enabled: handoffDataDS.evalToString("//frontCoating/enabled") == "true",
+                    label: handoffDataDS.evalToString("//frontCoating/label"),
                     value: handoffDataDS.evalToString("//frontCoating/value")
                 }
             }
