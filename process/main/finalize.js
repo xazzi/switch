@@ -233,7 +233,13 @@ runFinalize = function(s, job){
 }
 
 function getCoatLamSLN(s, handoffData){
-    var temp = "-Uncoated"
+    var temp = ""
+    
+    // If all laminate and coating options are false, return uncoated.
+    if(handoffData.laminate.method == "null" && handoffData.coating.method == "null" && !handoffData.frontCoating.enabled){
+        temp = "-Uncoated"
+        return temp
+    }
 
     // If it has lam data then we ignore the coating
     if(handoffData.laminate.method != "null"){
