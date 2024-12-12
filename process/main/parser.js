@@ -1677,7 +1677,7 @@ runParser = function(s, job){
                         product.allowedRotations = 0;
                     }
                     // Change the text value for frames without hardware.
-                    if(product.frame.color == null && product.frame.type == null){
+                    if(orderArray[i].frame.color == null && orderArray[i].frame.type == null){
                         orderArray[i].frame.value = "No Frame";
                     }
                 }
