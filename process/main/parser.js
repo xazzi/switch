@@ -1676,6 +1676,10 @@ runParser = function(s, job){
                         product.rotation = "Custom";
                         product.allowedRotations = 0;
                     }
+                    // Change the text value for frames without hardware.
+                    if(product.frame.color == null && product.frame.type == null){
+                        orderArray[i].frame.value = "No Frame";
+                    }
                 }
                 
                 // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
