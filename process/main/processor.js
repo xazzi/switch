@@ -54,7 +54,10 @@ runProcessor = function(s, job){
 				projectID: handoffDataDS.evalToString("//base/projectID"),
                 gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 facility: handoffDataDS.evalToString("//misc/facility"),
+				workstyle: handoffDataDS.evalToString("//misc/workstyle"),
                 status: job.getPrivateData("status"),
+				type: handoffDataDS.evalToString("//base/type"),
+				doubleSided: handoffDataDS.evalToString("//settings/doublesided") == "true" ? true : false,
                 exportFolder: null,
                 sku: handoffDataDS.evalToString("//base/sku"),
                 process: handoffDataDS.evalToString("//base/process"),
@@ -91,7 +94,7 @@ runProcessor = function(s, job){
 					status = "Approved"
 					if(validation.post.prism == 'y'){
 						if(files[i].split("_")[2] == handoffData.gangNumber + ".xml"){
-							response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, handoffData, module.prismEndpoint, validation);
+							response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, handoffData, module.prismEndpoint, validation, workstyle);
 							if(response == "Success"){
 								// Email the success of the prism post.
 								s.log(2, handoffData.gangNumber + " posted to PRISM successfully!");
@@ -189,7 +192,7 @@ function getFileType(name, environment){
 	return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/Print")
 }
 
-function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, handoffData, endPoint, validation){
+function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, handoffData, endPoint, validation, workstyle){
 	
 	var bearerToken = getNewToken(s, endPoint);
 	var doc = new Document(phoenixDir.absPath + "/" + phoenixXml);	
@@ -225,11 +228,11 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, hando
 					writeXmlString(xmlFile, "id", layoutNodes.at(i).evalToString('id'));
 					writeXmlString(xmlFile, "index", layoutNodes.at(i).evalToString('index'));
 					writeXmlString(xmlFile, "name", layoutNodes.at(i).evalToString('name'));
-					writeXmlString(xmlFile, "workstyle", layoutNodes.at(i).evalToString('workstyle'));
+					writeXmlString(xmlFile, "workstyle", workstyle);
 					writeXmlString(xmlFile, "run-length", layoutNodes.at(i).evalToString('run-length'));
 					writeXmlString(xmlFile, "waste", layoutNodes.at(i).evalToString('waste'));
 					writeXmlString(xmlFile, "plates", layoutNodes.at(i).evalToString('plates'));
-					writeXmlString(xmlFile, "sheet-usage", layoutNodes.at(i).evalToString('sheet-usage'));
+					writeXmlString(xmlFile, "sheet-usage", (layoutNodes.at(i).evalToString('sheet-usage')*100));
 					writeXmlString(xmlFile, "default-bleed", "0.25");
 					writeXmlString(xmlFile, "placed", layoutNodes.at(i).evalToString('placed'));
 					writeXmlString(xmlFile, "overrun", layoutNodes.at(i).evalToString('overrun'));

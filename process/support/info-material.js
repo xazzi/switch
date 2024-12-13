@@ -78,6 +78,11 @@ getMatInfo = function(orderSpecs, db){
             }
         },
 
+        workstyle:{
+            simplex: db.general.getString(70),
+            duplex: db.general.getString(71)
+        },
+
         forceLam: db.general.getString(23) == "0" ? false : true,
         cropGang: db.general.getString(24) == "0" ? false : true,
         whiteElements: db.general.getString(25) == "0" ? false : true,
