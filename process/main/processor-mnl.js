@@ -101,6 +101,7 @@ runProcessor = function(s, job){
                 //gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
                 gangNumber: db.general.getString(2),
                 //facility: handoffDataDS.evalToString("//misc/facility"),
+				doubleSided: s.getPropertyValue("sides") == 2,
                 facility: "Arlington",
                 //status: job.getPrivateData("status"),
                 status: "approved",
@@ -112,6 +113,11 @@ runProcessor = function(s, job){
                 notes: db.general.getString(3),
                 press: db.general.getString(4)
             }
+
+			var workstyle = "OneSided"
+			if(handoffData.doubleSided){
+				workstyle = "Sheetwise"
+			}
 
             /*
 			if(handoffData.status != "approved"){
@@ -151,7 +157,6 @@ runProcessor = function(s, job){
 								newXML.setPrivateData("Status","Fail");
 								newXML.setHierarchyPath([userInfo.dir])
 								newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
-								s.log(2, "End")
 							}
 						//}
 					//}
@@ -280,11 +285,11 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 					writeXmlString(xmlFile, "id", layoutNodes.at(i).evalToString('id'));
 					writeXmlString(xmlFile, "index", layoutNodes.at(i).evalToString('index'));
 					writeXmlString(xmlFile, "name", layoutNodes.at(i).evalToString('name'));
-					writeXmlString(xmlFile, "workstyle", layoutNodes.at(i).evalToString('workstyle'));
+					writeXmlString(xmlFile, "workstyle", workstyle);
 					writeXmlString(xmlFile, "run-length", layoutNodes.at(i).evalToString('run-length'));
 					writeXmlString(xmlFile, "waste", layoutNodes.at(i).evalToString('waste'));
 					writeXmlString(xmlFile, "plates", layoutNodes.at(i).evalToString('plates'));
-					writeXmlString(xmlFile, "sheet-usage", layoutNodes.at(i).evalToString('sheet-usage'));
+					writeXmlString(xmlFile, "sheet-usage", layoutNodes.at(i).evalToString('sheet-usage')*100);
 					writeXmlString(xmlFile, "default-bleed", "0.25");
 					writeXmlString(xmlFile, "placed", layoutNodes.at(i).evalToString('placed'));
 					writeXmlString(xmlFile, "overrun", layoutNodes.at(i).evalToString('overrun'));

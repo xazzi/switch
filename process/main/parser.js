@@ -1684,6 +1684,10 @@ runParser = function(s, job){
                         product.rotation = "Custom";
                         product.allowedRotations = 0;
                     }
+                    // Change the text value for frames without hardware.
+                    //if(orderArray[i].frame.color == null && orderArray[i].frame.type == null){
+                    //    orderArray[i].frame.value = "No Frame";
+                    //}
                 }
                 
                 // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
@@ -2253,6 +2257,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "targetLayoutCount", matInfo.layoutCount.target);
         addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
         addNode_db(theXML, miscNode, "mixedLam", data.mixedLam);
+        addNode_db(theXML, miscNode, "workstyle", data.doubleSided ? matInfo.workstyle.duplex : matInfo.workstyle.simplex);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
