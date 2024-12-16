@@ -1,12 +1,12 @@
 //chelsea was here
-runParser = function(s, job){
-    function parser(s, job){
+runParser = function(s, job, codebase){
+    function parser(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
-                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/"),
-                phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
-                phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
+                support: "C:/Scripts/" + codebase + "/switch/process/support/",
+                subprocess: new Dir("C:/Scripts/" + codebase + "/switch/process/subprocess/"),
+                phoenixMarks: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix marks/"),
+                phoenixScripts: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix scripts/")
             }
             
             // Load in all of the supporting libraries and functions
@@ -37,7 +37,7 @@ runParser = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -94,11 +94,11 @@ runParser = function(s, job){
             }
 
             var userInfo = {
-                first: db.general.getString(1),
-                last: db.general.getString(2),
-                email: db.general.getString(3),
-                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4),
-                fileSource: getFileSource(db.general.getString(9))
+                first: db.settings.getString(1),
+                last: db.settings.getString(2),
+                email: db.settings.getString(3),
+                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4),
+                fileSource: getFileSource(db.settings.getString(9))
             }
                 
             // Loop through the items, pull the data from the API, then post it to the array.
@@ -262,7 +262,7 @@ runParser = function(s, job){
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
         }
     }
-    parser(s, job)
+    parser(s, job, codebase)
 }
 
 // -------------------------------------------------------

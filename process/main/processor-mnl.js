@@ -1,8 +1,8 @@
-runProcessor = function(s, job){
-    function processor(s, job){
+runProcessor = function(s, job, codebase){
+    function processor(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -19,7 +19,7 @@ runProcessor = function(s, job){
 			// Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
 				history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -32,8 +32,8 @@ runProcessor = function(s, job){
             }
                 
             // Pull the user information.
-            db.general.execute("SELECT * FROM digital_room.users WHERE email = '" + job.getUserEmail() + "';");
-            if(!db.general.isRowAvailable()){
+            db.settings.execute("SELECT * FROM settings.users WHERE email = '" + job.getUserEmail() + "';");
+            if(!db.settings.isRowAvailable()){
                 sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
                 job.sendToNull(job.getPath());
                 /*
@@ -46,13 +46,13 @@ runProcessor = function(s, job){
                 */
                 return;
             }
-                db.general.fetchRow();
+                db.settings.fetchRow();
                 
             var userInfo = {
-                first: db.general.getString(1),
-                last: db.general.getString(2),
-                email: db.general.getString(3),
-                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4)
+                first: db.settings.getString(1),
+                last: db.settings.getString(2),
+                email: db.settings.getString(3),
+                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4)
             }
             
             /*
@@ -86,20 +86,20 @@ runProcessor = function(s, job){
             }
             */
 
-            db.general.execute("SELECT * FROM history.`converter_gang` WHERE `gang-number` = '" + job.getNameProper() + "';");
-            if(!db.general.isRowAvailable()){
+            db.settings.execute("SELECT * FROM history.`converter_gang` WHERE `gang-number` = '" + job.getNameProper() + "';");
+            if(!db.settings.isRowAvailable()){
                 return
             }
 
-                db.general.fetchRow();
+                db.settings.fetchRow();
         
-                //slc: Number(db.general.getString(4)),
+                //slc: Number(db.settings.getString(4)),
             
 			//var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-				projectID: db.general.getString(1),
+				projectID: db.settings.getString(1),
                 //gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
-                gangNumber: db.general.getString(2),
+                gangNumber: db.settings.getString(2),
                 //facility: handoffDataDS.evalToString("//misc/facility"),
 				doubleSided: s.getPropertyValue("sides") == 2,
                 facility: "Arlington",
@@ -109,9 +109,9 @@ runProcessor = function(s, job){
                 //sku: handoffDataDS.evalToString("//base/sku"), //unused
                 //process: handoffDataDS.evalToString("//base/process"), //unused
                 projectNotes: "",
-                stock: db.general.getString(5),
-                notes: db.general.getString(3),
-                press: db.general.getString(4)
+                stock: db.settings.getString(5),
+                notes: db.settings.getString(3),
+                press: db.settings.getString(4)
             }
 
 			var workstyle = "OneSided"
@@ -216,7 +216,7 @@ runProcessor = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    processor(s, job)
+    processor(s, job, codebase)
 }
 
 function getFileType(name, environment){
@@ -329,22 +329,22 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 							//break;
 						//}
 
-                        db.general.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper() + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
-                        if(!db.general.isRowAvailable()){
+                        db.settings.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper() + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
+                        if(!db.settings.isRowAvailable()){
                             s.log(2, "Return 2")
                             return
                         }
 
-                        db.general.fetchRow();
+                        db.settings.fetchRow();
 
 						writeXmlNode(xmlFile, "product");
 							writeXmlString(xmlFile, "index", productNodes.at(j).evalToString('index'));
 							writeXmlString(xmlFile, "name", productNodes.at(j).evalToString('name'));
 							writeXmlString(xmlFile, "color", productNodes.at(j).evalToString('color'));
 							writeXmlString(xmlFile, "ordered", productNodes.at(j).evalToString('ordered'));
-							writeXmlString(xmlFile, "description", db.general.getString(4));
+							writeXmlString(xmlFile, "description", db.settings.getString(4));
 							//writeXmlString(xmlFile, "notes", handoffDataNodes.at(n).evalToString('notes'));
-                            writeXmlString(xmlFile, "notes", db.general.getString(5));
+                            writeXmlString(xmlFile, "notes", db.settings.getString(5));
 							writeXmlString(xmlFile, "width", productNodes.at(j).evalToString('width').replace(/\"/g,"&quot;"));
 							writeXmlString(xmlFile, "height", productNodes.at(j).evalToString('height').replace(/\"/g,"&quot;"));
 							writeXmlString(xmlFile, "placed", productNodes.at(j).evalToString('placed'));
@@ -354,7 +354,7 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 							writeXmlNode(xmlFile, "properties");
 								writeXmlNode(xmlFile, "property");
 									//writeXmlString(xmlFile, "value", handoffDataNodes.at(n).evalToString('orderNumber'));
-                                    writeXmlString(xmlFile, "value", db.general.getString(3));
+                                    writeXmlString(xmlFile, "value", db.settings.getString(3));
 								writeXmlNode(xmlFile, "/property");
 							writeXmlNode(xmlFile, "/properties");
 							writeXmlNode(xmlFile, "layouts");

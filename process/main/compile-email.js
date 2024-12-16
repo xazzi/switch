@@ -1,8 +1,8 @@
-compileEmail = function(s, job){
-    function email(s, job){
+compileEmail = function(s, job, codebase){
+    function email(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -18,7 +18,7 @@ compileEmail = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 email: new Statement(connections.email)
             }
 
@@ -163,7 +163,7 @@ compileEmail = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    email(s, job)
+    email(s, job, codebase)
 }
 
 createEmail = function(s,  email, handoffData, body){

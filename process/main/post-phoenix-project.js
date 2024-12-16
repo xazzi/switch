@@ -24,7 +24,7 @@ runPost = function(s, job, codebase){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -114,8 +114,8 @@ runPost = function(s, job, codebase){
             
             var newJob = s.createNewJob();
             var xmlfile = newJob.createPathWithName(doc.evalToString('//job/id', map) + ".json", false);
-            //var xmlF = new File(xmlfile);
-            var xmlF = new File("C://Switch//Development//" + doc.evalToString('//job/id', map) + ".json");
+            var xmlF = new File(xmlfile);
+            //var xmlF = new File("C://Switch//Development//" + doc.evalToString('//job/id', map) + ".json");
 
                 xmlF.open(File.Append);
                 xmlF.writeLine('{');

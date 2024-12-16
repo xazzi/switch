@@ -1,8 +1,8 @@
-runMissingFiles = function(s, job){
-    function missingFiles(s, job){
+runMissingFiles = function(s, job, codebase){
+    function missingFiles(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -18,7 +18,7 @@ runMissingFiles = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 email: new Statement(connections.email),
                 history: new Statement(connections.history)
             }
@@ -47,5 +47,5 @@ runMissingFiles = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    missingFiles(s, job)
+    missingFiles(s, job, codebase)
 }

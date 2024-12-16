@@ -1,8 +1,8 @@
-runProcessor = function(s, job){
-    function processor(s, job){
+runProcessor = function(s, job, codebase){
+    function processor(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -19,7 +19,7 @@ runProcessor = function(s, job){
 			// Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
 				history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -94,7 +94,7 @@ runProcessor = function(s, job){
 					status = "Approved"
 					if(validation.post.prism == 'y'){
 						if(files[i].split("_")[2] == handoffData.gangNumber + ".xml"){
-							response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, handoffData, module.prismEndpoint, validation, workstyle);
+							response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, handoffData, module.prismEndpoint, validation);
 							if(response == "Success"){
 								// Email the success of the prism post.
 								s.log(2, handoffData.gangNumber + " posted to PRISM successfully!");
@@ -164,7 +164,7 @@ runProcessor = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    processor(s, job)
+    processor(s, job, codebase)
 }
 
 function getFileType(name, environment){
@@ -192,7 +192,7 @@ function getFileType(name, environment){
 	return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/Print")
 }
 
-function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, handoffData, endPoint, validation, workstyle){
+function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, handoffData, endPoint, validation){
 	
 	var bearerToken = getNewToken(s, endPoint);
 	var doc = new Document(phoenixDir.absPath + "/" + phoenixXml);	
@@ -228,7 +228,7 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, hando
 					writeXmlString(xmlFile, "id", layoutNodes.at(i).evalToString('id'));
 					writeXmlString(xmlFile, "index", layoutNodes.at(i).evalToString('index'));
 					writeXmlString(xmlFile, "name", layoutNodes.at(i).evalToString('name'));
-					writeXmlString(xmlFile, "workstyle", workstyle);
+					writeXmlString(xmlFile, "workstyle", handoffData.workstyle);
 					writeXmlString(xmlFile, "run-length", layoutNodes.at(i).evalToString('run-length'));
 					writeXmlString(xmlFile, "waste", layoutNodes.at(i).evalToString('waste'));
 					writeXmlString(xmlFile, "plates", layoutNodes.at(i).evalToString('plates'));

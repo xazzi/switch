@@ -7,11 +7,11 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
         orderArray.itemName = orderArray.itemName.replace(/'/g,"\\'");
         orderArray.itemName = orderArray.itemName.replace(/,/g,'\\,');
 
-        db.general.execute("SELECT * FROM digital_room.`specs_item-name` WHERE parameter = '" + orderArray.itemName + "';");
-        db.general.fetchRow();
+        db.settings.execute("SELECT * FROM settings.`specs_item-name` WHERE parameter = '" + orderArray.itemName + "';");
+        db.settings.fetchRow();
 
         if(subprocess == null){
-            subprocess = db.general.getString(4);
+            subprocess = db.settings.getString(4);
         }
 
         if(subprocess == undefined){
@@ -19,12 +19,12 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
                 name: "None",
                 exists: false,
                 mixed: true,
-                undersize: db.general.getString(5) == 'n' ? false : true,
+                undersize: db.settings.getString(5) == 'n' ? false : true,
                 orientationCheck: true
             }
         }
 
-        if(db.general.getString(7) == 'n'){
+        if(db.settings.getString(7) == 'n'){
             return "Reject"
         }
 
@@ -66,7 +66,7 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
                                     name: dump.name,
                                     exists: true,
                                     mixed: dump.parameters[j].properties.mixed,
-                                    undersize: dump.parameters[j].properties.undersize == true ? true : dump.parameters[j].properties.undersize == false ? false : db.general.getString(5) == 'y' ? true : false,
+                                    undersize: dump.parameters[j].properties.undersize == true ? true : dump.parameters[j].properties.undersize == false ? false : db.settings.getString(5) == 'y' ? true : false,
                                     orientationCheck: dump.parameters[j].properties.orientationCheck
                                 }
                             }
@@ -81,7 +81,7 @@ getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, 
             name: "None",
             exists: false,
             mixed: true,
-            undersize: db.general.getString(5) == 'y' ? true : false,
+            undersize: db.settings.getString(5) == 'y' ? true : false,
             orientationCheck: true
         }
     }

@@ -19,118 +19,118 @@ getMatInfo = function(orderSpecs, db){
     }
 
     // Pull the material defaults based on the facility mapping ID.
-        db.general.execute('CALL digital_room.getMaterial(' + paperMapId + ')');
-    if(!db.general.isRowAvailable()){
+        db.settings.execute('CALL settings.getMaterial(' + paperMapId + ')');
+    if(!db.settings.isRowAvailable()){
         return "Material Data Missing";
     }
-        db.general.fetchRow();
+        db.settings.fetchRow();
 
     var matInfo = {
 
-        id: db.general.getString(0),
-        prodName: db.general.getString(1),
-        prodMatFileName: db.general.getString(34),
-        type: db.general.getString(2),
-        width: Number(db.general.getString(3)),
-        height: Number(db.general.getString(4)),
-        dynamicHeightIncrement: db.general.getString(66),
-        phoenixStock: db.general.getString(5),
+        id: db.settings.getString(0),
+        prodName: db.settings.getString(1),
+        prodMatFileName: db.settings.getString(34),
+        type: db.settings.getString(2),
+        width: Number(db.settings.getString(3)),
+        height: Number(db.settings.getString(4)),
+        dynamicHeightIncrement: db.settings.getString(66),
+        phoenixStock: db.settings.getString(5),
 
         spacing: {
-            type: db.general.getString(7),
-            base: db.general.getString(8),
-            top: db.general.getString(9),
-            bottom: db.general.getString(10),
-            left: db.general.getString(11),
-            right: db.general.getString(12)
+            type: db.settings.getString(7),
+            base: db.settings.getString(8),
+            top: db.settings.getString(9),
+            bottom: db.settings.getString(10),
+            left: db.settings.getString(11),
+            right: db.settings.getString(12)
         },
 
         bleed: {
-            type: db.general.getString(17),
-            base: db.general.getString(13),
-            top: db.general.getString(53),
-            bottom: db.general.getString(54),
-            left: db.general.getString(55),
-            right: db.general.getString(56)
+            type: db.settings.getString(17),
+            base: db.settings.getString(13),
+            top: db.settings.getString(53),
+            bottom: db.settings.getString(54),
+            left: db.settings.getString(55),
+            right: db.settings.getString(56)
         },
 
         offcut: {
-            top: db.general.getString(61),
-            bottom: db.general.getString(62),
-            left: db.general.getString(63),
-            right: db.general.getString(64)
+            top: db.settings.getString(61),
+            bottom: db.settings.getString(62),
+            left: db.settings.getString(63),
+            right: db.settings.getString(64)
         },
 
-        rotation: db.general.getString(6),
-        allowedRotations: db.general.getString(14),
-        impositionProfile: db.general.getString(15),
-        phoenixMethod: db.general.getString(35),
-        phoenixMethodUserFriendly: db.general.getString(36),
-        grade: db.general.getString(16),
+        rotation: db.settings.getString(6),
+        allowedRotations: db.settings.getString(14),
+        impositionProfile: db.settings.getString(15),
+        phoenixMethod: db.settings.getString(35),
+        phoenixMethodUserFriendly: db.settings.getString(36),
+        grade: db.settings.getString(16),
 
         printer: {
-            name: db.general.getString(18),
+            name: db.settings.getString(18),
             margin: {
-                top: db.general.getString(19),
-                bottom: db.general.getString(20),
-                left: db.general.getString(21),
-                right: db.general.getString(22)
+                top: db.settings.getString(19),
+                bottom: db.settings.getString(20),
+                left: db.settings.getString(21),
+                right: db.settings.getString(22)
             }
         },
 
         workstyle:{
-            simplex: db.general.getString(70),
-            duplex: db.general.getString(71)
+            simplex: db.settings.getString(70),
+            duplex: db.settings.getString(71)
         },
 
-        forceLam: db.general.getString(23) == "0" ? false : true,
-        cropGang: db.general.getString(24) == "0" ? false : true,
-        whiteElements: db.general.getString(25) == "0" ? false : true,
-        pageHandling: db.general.getString(26),
-        overrunMax: db.general.getString(27),
-        forceUndersize: db.general.getString(28) == "0" ? false : true,
-        sideMix: db.general.getString(29) == "0" ? false : true,
-        lamMix: db.general.getString(45) == 'y' ? true : false,
-        approved: db.general.getString(46) == 'y' ? true : false,
-        duplicateHoles: db.general.getString(47) == 'y' ? true : false,
-        standardPrint: db.general.getString(51) == 'y' ? true : false,   //1st surface
-        reversePrint: db.general.getString(50) == 'y' ? true : false,    //2nd surface
-        rotateFront: db.general.getString(37) == 'y' ? true : false,
-        rotateBack: db.general.getString(38) == 'y' ? true : false,
-        rotate90: db.general.getString(39) == 'y' ? true : false,
-        splitDSLayouts: db.general.getString(52) == 'y' ? true : false,
-        cutAdjustments: db.general.getString(58) == 'y' ? true : false,
-        labelOffset: db.general.getString(57) == 'NULL' ? null : db.general.getString(57) + " Offset",
-        addKeyline: db.general.getString(59) == 'y' ? true : false,
-        cutMethod: db.general.getString(60),
+        forceLam: db.settings.getString(23) == "0" ? false : true,
+        cropGang: db.settings.getString(24) == "0" ? false : true,
+        whiteElements: db.settings.getString(25) == "0" ? false : true,
+        pageHandling: db.settings.getString(26),
+        overrunMax: db.settings.getString(27),
+        forceUndersize: db.settings.getString(28) == "0" ? false : true,
+        sideMix: db.settings.getString(29) == "0" ? false : true,
+        lamMix: db.settings.getString(45) == 'y' ? true : false,
+        approved: db.settings.getString(46) == 'y' ? true : false,
+        duplicateHoles: db.settings.getString(47) == 'y' ? true : false,
+        standardPrint: db.settings.getString(51) == 'y' ? true : false,   //1st surface
+        reversePrint: db.settings.getString(50) == 'y' ? true : false,    //2nd surface
+        rotateFront: db.settings.getString(37) == 'y' ? true : false,
+        rotateBack: db.settings.getString(38) == 'y' ? true : false,
+        rotate90: db.settings.getString(39) == 'y' ? true : false,
+        splitDSLayouts: db.settings.getString(52) == 'y' ? true : false,
+        cutAdjustments: db.settings.getString(58) == 'y' ? true : false,
+        labelOffset: db.settings.getString(57) == 'NULL' ? null : db.settings.getString(57) + " Offset",
+        addKeyline: db.settings.getString(59) == 'y' ? true : false,
+        cutMethod: db.settings.getString(60),
         
         layoutCount:{
-            target: db.general.getString(67),
-            max: db.general.getString(68)
+            target: db.settings.getString(67),
+            max: db.settings.getString(68)
         },
 
         dsIndicator:{
-            top: db.general.getString(40) == 'y' ? true : false,
-            bottom: db.general.getString(41) == 'y' ? true : false
+            top: db.settings.getString(40) == 'y' ? true : false,
+            bottom: db.settings.getString(41) == 'y' ? true : false
         },
 
         rip: {
-            enable: db.general.getString(48) == 'y' ? true : false,
-            device: db.general.getString(30),
-            hotfolder: db.general.getString(31) == 'empty' ? '' : db.general.getString(31)
+            enable: db.settings.getString(48) == 'y' ? true : false,
+            device: db.settings.getString(30),
+            hotfolder: db.settings.getString(31) == 'empty' ? '' : db.settings.getString(31)
         },
 
         cutter: {
-            enable: db.general.getString(49) == 'y' ? true : false,
-            device: db.general.getString(32),
-            hotfolder: db.general.getString(33),
-            layerName: db.general.getString(42),
-            organizeLayouts: db.general.getString(44) == 'y' ? true : false
+            enable: db.settings.getString(49) == 'y' ? true : false,
+            device: db.settings.getString(32),
+            hotfolder: db.settings.getString(33),
+            layerName: db.settings.getString(42),
+            organizeLayouts: db.settings.getString(44) == 'y' ? true : false
         },
 
         phoenix:{
-            printExport: db.general.getString(65),
-            cutExport: db.general.getString(43)
+            printExport: db.settings.getString(65),
+            cutExport: db.settings.getString(43)
         }
     }
     
