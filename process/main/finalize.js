@@ -1,8 +1,8 @@
-runFinalize = function(s, job){
-    function finalize(s, job){
+runFinalize = function(s, job, codebase){
+    function finalize(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -229,7 +229,7 @@ runFinalize = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    finalize(s, job)
+    finalize(s, job, codebase)
 }
 
 function getCoatLamSLN(s, handoffData){

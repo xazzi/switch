@@ -1,12 +1,12 @@
 //chelsea was here
-getUserInfo = function(s, job){
-    function run(s, job){
+getUserInfo = function(s, job, codebase){
+    function run(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
-                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/"),
-                phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
-                phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
+                support: "C:/Scripts/" + codebase + "/switch/process/support/",
+                subprocess: new Dir("C:/Scripts/" + codebase + "/switch/process/subprocess/"),
+                phoenixMarks: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix marks/"),
+                phoenixScripts: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix scripts/")
             }
             
             // Load in all of the supporting libraries and functions
@@ -38,7 +38,7 @@ getUserInfo = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -51,8 +51,8 @@ getUserInfo = function(s, job){
             }
                 
             // Pull the user information.
-            db.general.execute("SELECT * FROM digital_room.users WHERE email = '" + job.getUserEmail() + "';");
-            if(!db.general.isRowAvailable()){
+            db.settings.execute("SELECT * FROM settings.users WHERE email = '" + job.getUserEmail() + "';");
+            if(!db.settings.isRowAvailable()){
                 sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
                 job.sendToNull(job.getPath());
                 db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
@@ -63,14 +63,14 @@ getUserInfo = function(s, job){
                 ]))
                 return;
             }
-                db.general.fetchRow();
+                db.settings.fetchRow();
                 
             var userInfo = {
-                first: db.general.getString(1),
-                last: db.general.getString(2),
-                email: db.general.getString(3),
-                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4),
-                fileSource: getFileSource(db.general.getString(9))
+                first: db.settings.getString(1),
+                last: db.settings.getString(2),
+                email: db.settings.getString(3),
+                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4),
+                fileSource: getFileSource(db.settings.getString(9))
             }
 
         }catch(e){
