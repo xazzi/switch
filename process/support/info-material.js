@@ -84,6 +84,7 @@ getMatInfo = function(orderSpecs, db){
         pageHandling: db.general.getString(26),
         overrunMax: db.general.getString(27),
         forceUndersize: db.general.getString(28) == "0" ? false : true,
+        allowUndersize: db.general.getString(69) == "y" ? true : false,
         sideMix: db.general.getString(29) == "0" ? false : true,
         lamMix: db.general.getString(45) == 'y' ? true : false,
         approved: db.general.getString(46) == 'y' ? true : false,

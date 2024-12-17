@@ -32,6 +32,7 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/sql-statements.js"));
             eval(File.read(dir.support + "/get-target-height.js"));
             eval(File.read(dir.support + "/set-banner-storting.js"));
+            eval(File.read(dir.support + "/dart-template-check.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -200,6 +201,7 @@ runParser = function(s, job){
             var adjustmentArray = [];
             var matInfo = null;
             var matInfoCheck = false;
+            var dartInfo
             var misc = {
                 rejectPress: true
             }
@@ -603,6 +605,8 @@ runParser = function(s, job){
                         }
                     }
                 }
+
+                orderSpecs.dartInfo = dartTemplateCheck(s, orderSpecs, data, db, matInfo)
                 
                 // Set the processes and subprocesses values and check if following items match it.
                 if(data.prodName == null){
@@ -655,6 +659,20 @@ runParser = function(s, job){
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
                     }
+                }
+
+                // If something set an item to a different imposition profile within Phoenix, remove it from the gang.
+                // We can't mix things that want to call different profiles.
+                if(data.impositionProfile.name != matInfo.impositionProfile){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different Phoenix profile: " + matInfo.impositionProfile + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different Phoenix profile: " + matInfo.impositionProfile + "."]
+                    ]))
+                    continue;
                 }
 
                 // Check for side deviation.
@@ -938,6 +956,7 @@ runParser = function(s, job){
                     quantity: orderArray[i].qty,
                     width: round(Number(orderArray[i].width)),
                     height: round(Number(orderArray[i].height)),
+                    description: null,
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
                     laminate: orderArray[i].laminate.active ? true : false,
@@ -1446,37 +1465,39 @@ runParser = function(s, job){
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
                 // Not for undersizing to force better yield.
-                if(!scale.locked){
-                    if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
-                        if(!data.oversize && !data.scaled){
-                            if(product.width > product.height){
-                                if(product.width >= usableArea.height){
-                                    scale.width = ((usableArea.height-.25)/product.width)*100;
-                                    scale.adjusted.width = true;
-                                    if(product.width == product.height){
-                                        scale.height = scale.width
+                if(matInfo.allowUndersize){
+                    if(!scale.locked){
+                        if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+                            if(!data.oversize && !data.scaled){
+                                if(product.width > product.height){
+                                    if(product.width >= usableArea.height){
+                                        scale.width = ((usableArea.height-.25)/product.width)*100;
+                                        scale.adjusted.width = true;
+                                        if(product.width == product.height){
+                                            scale.height = scale.width
+                                        }
                                     }
-                                }
-                                if(product.height >= usableArea.width){
-                                    scale.height = ((usableArea.width-.25)/product.height)*100;
-                                    scale.adjusted.height = true;
-                                    if(product.width == product.height){
-                                        scale.width = scale.height
+                                    if(product.height >= usableArea.width){
+                                        scale.height = ((usableArea.width-.25)/product.height)*100;
+                                        scale.adjusted.height = true;
+                                        if(product.width == product.height){
+                                            scale.width = scale.height
+                                        }
                                     }
-                                }
-                            }else{
-                                if(product.height >= usableArea.height){
-                                    scale.height = ((usableArea.height-.25)/product.height)*100;
-                                    scale.adjusted.height = true;
-                                    if(product.width == product.height){
-                                        scale.width = scale.height
+                                }else{
+                                    if(product.height >= usableArea.height){
+                                        scale.height = ((usableArea.height-.25)/product.height)*100;
+                                        scale.adjusted.height = true;
+                                        if(product.width == product.height){
+                                            scale.width = scale.height
+                                        }
                                     }
-                                }
-                                if(product.width >= usableArea.width){
-                                    scale.width = ((usableArea.width-.25)/product.width)*100;
-                                    scale.adjusted.width = true;
-                                    if(product.width == product.height){
-                                        scale.height = scale.width
+                                    if(product.width >= usableArea.width){
+                                        scale.width = ((usableArea.width-.25)/product.width)*100;
+                                        scale.adjusted.width = true;
+                                        if(product.width == product.height){
+                                            scale.height = scale.width
+                                        }
                                     }
                                 }
                             }
@@ -1685,6 +1706,11 @@ runParser = function(s, job){
                 marksArray = [];
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, advancedSettings);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
+
+                if(matInfo.type == "packaging"){
+                    product.description = orderArray[i].box.length + "x" + orderArray[i].box.width + "x" + orderArray[i].box.depth
+                    marksArray.push(data.facility.destination + "/QR Codes/MailerBox/1up/" + dartInfo.qrCode);
+                }
 
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){

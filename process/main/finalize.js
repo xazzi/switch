@@ -146,7 +146,11 @@ runFinalize = function(s, job){
                 }
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + name.laminate + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
+                    if(handoffData.type == "packaging"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_C500_Highcon_" + phoenixPlan.qty + "qty_" + data.dateID + ".pdf";
+                    }else{
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + name.laminate + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
+                    }
                 }
 
                 if(data.processType == "CSV"){
@@ -154,7 +158,11 @@ runFinalize = function(s, job){
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-CUT" + ".pdf";
+                    if(handoffData.type == "packaging"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-CUT_" +  phoenixPlan.qty + "qty_" + data.dateID + ".pdf";
+                    }else{
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-CUT" + ".pdf";
+                    }
                 }
                 
                 if(data.processType == "Summary"){				

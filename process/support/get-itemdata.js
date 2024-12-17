@@ -166,6 +166,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					hem: false
 				}
 			},
+			box: {
+				length: null,
+				width: null,
+				depth: null
+			},
 			secondSurface: false,
 			doubleSided: false,
 			facility: null,
@@ -347,6 +352,15 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("replacement","g"))){
 					specs.replacement = true;
 				}
+			}
+			if(dataDump.order_specs[k].code == "BXL"){
+				specs.box.length = dataDump.order_specs[k].value;
+			}
+			if(dataDump.order_specs[k].code == "BXW"){
+				specs.box.width = dataDump.order_specs[k].value;
+			}
+			if(dataDump.order_specs[k].code == "BXD"){
+				specs.box.depth = dataDump.order_specs[k].value;
 			}
 		}
 

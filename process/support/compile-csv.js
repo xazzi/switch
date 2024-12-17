@@ -31,7 +31,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Scale Height",scale.height],
 		["View Width",product.width],
 		["View Height",product.height],
-		["Description","Description"],
+		["Description",product.description],
 		["Shape Search",product.shapeSearch],
 		["Notes","SheetLevelData"], //Unused?
 		["Page Handling",product.pageHandling],
