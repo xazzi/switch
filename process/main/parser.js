@@ -1,12 +1,11 @@
-//chelsea was here
-runParser = function(s, job){
-    function parser(s, job){
+runParser = function(s, job, codebase){
+    function parser(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
-                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/"),
-                phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
-                phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
+                support: "C:/Scripts/" + codebase + "/switch/process/support/",
+                subprocess: new Dir("C:/Scripts/" + codebase + "/switch/process/subprocess/"),
+                phoenixMarks: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix marks/"),
+                phoenixScripts: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix scripts/")
             }
             
             // Load in all of the supporting libraries and functions
@@ -40,7 +39,7 @@ runParser = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -119,7 +118,7 @@ runParser = function(s, job){
                     submit.override.mixedHem = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
 
-                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
+                // Lam and non-lam finishing separation field. -CM
                 if(submit.nodes.getItem(i).evalToString('tag') == "Mix lam?"){
                     submit.override.mixedLam = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
@@ -169,12 +168,12 @@ runParser = function(s, job){
                         submit.material.name = submit.nodes.getItem(i).evalToString("field-list/field/field-list/field/value");
                         submit.material.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
 
-                        db.general.execute("SELECT * FROM digital_room.`override_material-size` WHERE name = '" + submit.material.name + "';");
-                        db.general.fetchRow();
+                        db.settings.execute("SELECT * FROM settings.`override_material-size` WHERE name = '" + submit.material.name + "';");
+                        db.settings.fetchRow();
 
-                        submit.material.width = db.general.getString(2);
-                        submit.material.height = db.general.getString(3);
-                        submit.material.stock = db.general.getString(4);
+                        submit.material.width = db.settings.getString(2);
+                        submit.material.height = db.settings.getString(3);
+                        submit.material.stock = db.settings.getString(4);
                     }
                 }
                 
@@ -227,6 +226,11 @@ runParser = function(s, job){
                     method: null,
                     value: null
                 },
+                frontCoating:{
+                    enabled: false,
+                    label: null,
+                    value: null
+                },
                 laminate:{
                     active: false,
                     method: null,
@@ -237,6 +241,7 @@ runParser = function(s, job){
                     method: null,
                     value: null
                 },
+                reprint: false,
                 prodName: null,
                 scaled: false,
                 scale: "",
@@ -304,17 +309,17 @@ runParser = function(s, job){
                     rotation: submit.rotation[i].split(':')[1]
                 }
                 
-                db.general.execute("SELECT * FROM digital_room.rotate WHERE item_number = '" + temp.item + "';");
-                if(db.general.isRowAvailable()){
+                db.settings.execute("SELECT * FROM settings.rotate WHERE item_number = '" + temp.item + "';");
+                if(db.settings.isRowAvailable()){
                     if(temp.rotation == "default"){
                         data.notes.push([temp.item,"Submit","Updating database to the default rotation."]); //remove
                     }else{
                         data.notes.push([temp.item,"Submit","Updating database to " + temp.rotation + " degrees."]); //remove
                     }
-                    db.general.execute("UPDATE digital_room.rotate SET rotation = '" + temp.rotation + "' WHERE item_number = '" + temp.item + "';")
+                    db.settings.execute("UPDATE settings.rotate SET rotation = '" + temp.rotation + "' WHERE item_number = '" + temp.item + "';")
                 }else{
                     data.notes.push([temp.item,"Submit","Forced rotation of " + temp.rotation + " degrees."]);
-                    db.general.execute("INSERT INTO digital_room.rotate (item_number, rotation) VALUES ('" + temp.item + "','" + temp.rotation + "');");
+                    db.settings.execute("INSERT INTO settings.rotate (item_number, rotation) VALUES ('" + temp.item + "','" + temp.rotation + "');");
                 }
             }
             
@@ -326,8 +331,8 @@ runParser = function(s, job){
             }
                 
             // Pull the user information.
-            db.general.execute("SELECT * FROM digital_room.users WHERE email = '" + job.getUserEmail() + "';");
-            if(!db.general.isRowAvailable()){
+            db.settings.execute("SELECT * FROM settings.users WHERE email = '" + job.getUserEmail() + "';");
+            if(!db.settings.isRowAvailable()){
                 sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
                 job.sendToNull(job.getPath());
                 db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
@@ -338,14 +343,14 @@ runParser = function(s, job){
                 ]))
                 return;
             }
-                db.general.fetchRow();
+                db.settings.fetchRow();
                 
             var userInfo = {
-                first: db.general.getString(1),
-                last: db.general.getString(2),
-                email: db.general.getString(3),
-                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4),
-                fileSource: getFileSource(db.general.getString(9))
+                first: db.settings.getString(1),
+                last: db.settings.getString(2),
+                email: db.settings.getString(3),
+                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4),
+                fileSource: getFileSource(db.settings.getString(9))
             }
 
             // If the module is set to choose the fileSource based on user.
@@ -421,20 +426,25 @@ runParser = function(s, job){
                     data.facility.destination = submit.route.active ? submit.route.facility : orderSpecs.facility;
 
                     // Pull the facility information.
-                    db.general.execute("SELECT * FROM digital_room.facility WHERE facility = '" + data.facility.destination + "';");
-                    db.general.fetchRow();
+                    db.settings.execute("SELECT * FROM settings.facility WHERE facility = '" + data.facility.destination + "';");
+                    db.settings.fetchRow();
 
-                    orderSpecs.facilityId = db.general.getString(3);
-                    data.facility.id = db.general.getString(3);
+                    orderSpecs.facilityId = db.settings.getString(3);
+                    data.facility.id = db.settings.getString(3);
 
                     // Set any facility level breakers to disable processes
                     data.facility.breaker = {
-                        lam: db.general.getString(5) == 'y'
+                        lam: db.settings.getString(5) == 'y'
                     }
                 }
 
+                if(orderSpecs.reprint)[
+                    data.reprint = true
+                ]
+
                 // Material overrides
                 // -----------------------------------------------------------------------------------------
+                
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
                 if(data.doubleSided == null || data.doubleSided == orderSpecs.doubleSided){
                     if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
@@ -553,7 +563,7 @@ runParser = function(s, job){
                         ]))
                         continue;
                     }
-                }
+                } 
 
                 // Enable the force laminate override
                 if(matInfo.forceLam){
@@ -627,6 +637,9 @@ runParser = function(s, job){
                     data.coating.active = orderSpecs.coating.active;
                     data.coating.method = orderSpecs.coating.method;
                     data.coating.value = orderSpecs.coating.value;
+                    data.frontCoating.enabled = orderSpecs.frontCoating.enabled;
+                    data.frontCoating.label = orderSpecs.frontCoating.label;
+                    data.frontCoating.value = orderSpecs.frontCoating.value;
                     data.mount.active = orderSpecs.mount.active;
 
                     data.impositionProfile = {
@@ -698,6 +711,17 @@ runParser = function(s, job){
                     if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
                         if(data.doubleSided || orderSpecs.doubleSided){
                             matInfo.height = 190;
+                        }
+                    }
+                }
+
+                // Reassign printers and associated data based on various criteria.
+                if(data.facility.destination == "Salt Lake City"){
+                    if(matInfo.prodName == "Foamboard"){
+                        if(orderSpecs.doubleSided){
+                            matInfo.width = 48;
+                            matInfo.height = 96;
+                            data.phoenixStock = "Mat_Foamboard"
                         }
                     }
                 }
@@ -1091,8 +1115,8 @@ runParser = function(s, job){
                     if(data.facility.destination == "Salt Lake City"){
                         if(orderArray[i].shape.method == "Rect"){
                             // Turn buttcut off if required.
-                            db.general.execute("SELECT * FROM digital_room.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
-                            if(db.general.isRowAvailable()){
+                            db.settings.execute("SELECT * FROM settings.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
+                            if(db.settings.isRowAvailable()){
                                 data.notes.push([product.itemNumber,"Notes","Butt cut disabled."]);
 
                             // Otherwise check the scenarios...
@@ -1148,6 +1172,23 @@ runParser = function(s, job){
                     sendEmail_db(s, data, matInfo, getEmailResponse("Rejected Subprocess", product, matInfo, data, userInfo, null), userInfo);
                     job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                     return
+                }
+
+                //If bannerstands are enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
+                if(orderArray[i].bannerstand.active){
+                    if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
+                        if(orderArray[i].bannerstand.template.id == null){
+                            data.notes.push([orderArray[i].jobItemId,"Removed","Template ID not assigned."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",orderArray[i].jobItemId]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Template ID not assigned."]
+                            ]))
+                            continue;
+                        }
+                    }
                 }
 
                 // If it's DS 13ozBanner for SLC, skip it and send an email.
@@ -1444,8 +1485,8 @@ runParser = function(s, job){
                 }
                 
                 // Check if the item_number can be undersized.
-                db.general.execute("SELECT * FROM digital_room.item_number_fullsize WHERE item_number = '" + product.itemNumber + "';");
-                if(db.general.isRowAvailable()){
+                db.settings.execute("SELECT * FROM settings.item_number_fullsize WHERE item_number = '" + product.itemNumber + "';");
+                if(db.settings.isRowAvailable()){
                     product.subprocess.undersize = false;
                 }
 
@@ -1514,20 +1555,20 @@ runParser = function(s, job){
 
                         // If the width hasn't already been undersized automatically to fit on the material.
                         if(!scale.adjusted.width){
-                            db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
-                            if(db.general.isRowAvailable()){
-                                db.general.fetchRow();
-                                scale.width = db.general.getString(3)/db.general.getString(2)*100;
+                            db.settings.execute("SELECT * FROM settings.undersize WHERE type = 'width' and base = " + product.width + ";");
+                            if(db.settings.isRowAvailable()){
+                                db.settings.fetchRow();
+                                scale.width = db.settings.getString(3)/db.settings.getString(2)*100;
                                 scale.adjusted.width = true;
                             }
                         }
                         
                         // If the height hasn't already been undersized automatically to fit on the material.
                         if(!scale.adjusted.height){
-                            db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
-                            if(db.general.isRowAvailable()){
-                                db.general.fetchRow();
-                                scale.height = db.general.getString(3)/db.general.getString(2)*100;
+                            db.settings.execute("SELECT * FROM settings.undersize WHERE type = 'height' and base = " + product.height + ";");
+                            if(db.settings.isRowAvailable()){
+                                db.settings.fetchRow();
+                                scale.height = db.settings.getString(3)/db.settings.getString(2)*100;
                                 scale.adjusted.height = true;
                             }
                         }
@@ -1664,6 +1705,10 @@ runParser = function(s, job){
                         product.rotation = "Custom";
                         product.allowedRotations = 0;
                     }
+                    // Change the text value for frames without hardware.
+                    //if(orderArray[i].frame.color == null && orderArray[i].frame.type == null){
+                    //    orderArray[i].frame.value = "No Frame";
+                    //}
                 }
                 
                 // Disable rotation for DS roll banners with pockets top or bottom for wixom, where possible.
@@ -1779,8 +1824,8 @@ runParser = function(s, job){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     }
-                    db.general.execute("SELECT * FROM digital_room.angled_flag WHERE width = '" + product.width + "' AND height = '" + product.height + "';");
-                    if(!db.general.isRowAvailable()){
+                    db.settings.execute("SELECT * FROM settings.angled_flag WHERE width = '" + product.width + "' AND height = '" + product.height + "';");
+                    if(!db.settings.isRowAvailable()){
                         data.notes.push([product.itemNumber,"Removed",'No template found in lookup table.']);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
@@ -1791,8 +1836,8 @@ runParser = function(s, job){
                         ]))
                         continue;
                     }
-                    db.general.fetchRow();
-                    product.subprocess.template = db.general.getString(3)
+                    db.settings.fetchRow();
+                    product.subprocess.template = db.settings.getString(3)
                     product.dieDesignName = "angledFlag_" + product.subprocess.template + "_F";
                 }
 
@@ -1851,13 +1896,13 @@ runParser = function(s, job){
                 
                 // Check for custom rotations assigned in the database.
                 // This overrides any defaults assigned to the product or subprocess.
-                db.general.execute("SELECT * FROM digital_room.rotate WHERE item_number = " + product.itemNumber + ";");
-                if(db.general.isRowAvailable()){
-                    db.general.fetchRow();
-                    if(db.general.getString(2) != "default"){
+                db.settings.execute("SELECT * FROM settings.rotate WHERE item_number = " + product.itemNumber + ";");
+                if(db.settings.isRowAvailable()){
+                    db.settings.fetchRow();
+                    if(db.settings.getString(2) != "default"){
                         product.rotation = "Custom";
-                        product.allowedRotations = db.general.getString(2);
-                        //data.notes.push([product.itemNumber,"Notes","Rotation pulled from database, " + db.general.getString(2) + " degrees."]);
+                        product.allowedRotations = db.settings.getString(2);
+                        //data.notes.push([product.itemNumber,"Notes","Rotation pulled from database, " + db.settings.getString(2) + " degrees."]);
                     }
                 }
             
@@ -2032,7 +2077,7 @@ runParser = function(s, job){
                 
                 // Write the gang number to the database.
                 db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.gangNumber + "' AND item_number = '" + product.itemNumber + "';");
-                if(!db.general.isRowAvailable()){
+                if(!db.settings.isRowAvailable()){
                     db.history.execute("INSERT INTO history.data_item_number (gang_number, item_number) VALUES ('" + data.gangNumber + "', '" + product.itemNumber + "');");
                 }
 
@@ -2127,7 +2172,7 @@ runParser = function(s, job){
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
         }
     }
-    parser(s, job)
+    parser(s, job, codebase)
 }
 
 // -------------------------------------------------------
@@ -2186,6 +2231,13 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, coatingNode, "active", data.coating.active ? true : false);
         addNode_db(theXML, coatingNode, "method", data.coating.method);
         addNode_db(theXML, coatingNode, "value", data.coating.value);
+
+    var frontCoatingNode = theXML.createElement("frontCoating", null);
+		handoffNode.appendChild(frontCoatingNode);
+
+        addNode_db(theXML, frontCoatingNode, "enabled", data.frontCoating.enabled);
+        addNode_db(theXML, frontCoatingNode, "label", data.frontCoating.label);
+        addNode_db(theXML, frontCoatingNode, "value", data.frontCoating.value);
 	
 	var mountNode = theXML.createElement("mount", null);
 		handoffNode.appendChild(mountNode);	
@@ -2231,6 +2283,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "targetLayoutCount", matInfo.layoutCount.target);
         addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
         addNode_db(theXML, miscNode, "mixedLam", data.mixedLam);
+        addNode_db(theXML, miscNode, "workstyle", data.doubleSided ? matInfo.workstyle.duplex : matInfo.workstyle.simplex);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);

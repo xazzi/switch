@@ -193,6 +193,11 @@
                     "group": "Facility",
                     "name":"OrderItemInfo",
                     "dir":"/Master Labels/Custom/Tension Stands/"
+                },
+                {
+                    "group": "Facility",
+                    "name":"ItemInfo",
+                    "dir":"/Master Labels/Custom/Tension Stands/"
                 }
             ]
         },

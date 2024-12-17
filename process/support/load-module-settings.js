@@ -2,14 +2,11 @@ loadModuleSettings = function(s){
 
     // Set all of the settings from the module itself
     var module = {
-        scriptSource: s.hasProperty("scriptSource") ? s.getPropertyValue("scriptSource") : undefined,
+        codebase: s.hasProperty("codebase") ? s.getPropertyValue("codebase") == "other" ? s.getPropertyValue("branch") : s.getPropertyValue("codebase") : undefined,
         fileSource: s.hasProperty("fileSource") ? s.getPropertyValue("fileSource") : undefined,
         enabled: s.hasProperty("enabled") ? s.getPropertyValue("enabled") == "Yes" : undefined,
         database: {
-            selection: s.hasProperty("databases") ? s.getPropertyValue("databases") : undefined,
-            general: s.hasProperty("databaseGeneral") ? s.getPropertyValue("databaseGeneral") : undefined,
-            history: s.hasProperty("databaseHistory") ? s.getPropertyValue("databaseHistory") : undefined,
-            email: s.hasProperty("databaseEmail") ? s.getPropertyValue("databaseEmail") : undefined
+            imposition: s.hasProperty("database") ? s.getPropertyValue("database") : undefined
         },
         devSettings: {
             modified: s.hasProperty("devSettings") ? s.getPropertyValue("devSettings") == "Modified" : undefined,
@@ -21,19 +18,6 @@ loadModuleSettings = function(s){
         prismPost: s.hasProperty("prismPost") ? s.getPropertyValue("prismPost") == "Yes" : undefined,
         prismEndpoint: s.hasProperty("prismEndpoint") ? s.getPropertyValue("prismEndpoint") : undefined,
         timezone: s.hasProperty("timezone") ? s.getPropertyValue("timezone") : undefined
-    }
-
-    // Database options
-    if(module.database.selection == "prod"){
-        module.database.general = "prod"
-        module.database.history = "prod"
-        module.database.email = "prod"
-    }
-
-    if(module.database.selection == "dev"){
-        module.database.general = "dev"
-        module.database.history = "dev"
-        module.database.email = "dev"
     }
 
     // Dev Settings options

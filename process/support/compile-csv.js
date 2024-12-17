@@ -62,6 +62,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Dash Offset",typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
 		["Late",product.late],
 		["Reprint",product.reprint],
+		["Gang Reprint",data.reprint],
         ["Script Name",product.script.name],
 		["Script Parameters",product.script.parameters],
 		["Script Dynamic",product.script.dynamic],

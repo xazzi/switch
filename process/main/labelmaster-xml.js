@@ -1,8 +1,8 @@
-runLabelmasterXml = function(s, job){
-    function labelmasterXml(s, job){
+runLabelmasterXml = function(s, job, codebase){
+    function labelmasterXml(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -66,7 +66,7 @@ runLabelmasterXml = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    labelmasterXml(s, job)
+    labelmasterXml(s, job, codebase)
 }
 
 function generateXml(s, job, handoffData, phoenixPlan, xmlFile, moduleStep, library){

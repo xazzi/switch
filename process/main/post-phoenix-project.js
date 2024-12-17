@@ -33,13 +33,13 @@ runPost = function(s, job, codebase){
 
             switch(module.prismEndpoint){
                 case "qa":
-                    server = "https://gang.digitalroomapi-qa.io/v1/project/";
+                    server = "https://gang.digitalroomapi-qa.io/v1/phoenixproject/";
                 break;
                 case "stage":
-                    server = "https://gang.digitalroomapi-stage.io/v1/project/";
+                    server = "https://gang.digitalroomapi-stage.io/v1/phoenixproject/";
                 break;
                 case "prod":
-                    server = "https://gang.digitalroomapi.io/v1/project/";
+                    server = "https://gang.digitalroomapi.io/v1/phoenixproject/";
                 break;
                 default:
                     return false
@@ -86,6 +86,7 @@ runPost = function(s, job, codebase){
             var doc = new Document(job.getPath());	
             var map = doc.createDefaultMap();
             var layoutNodes = doc.evalToNodes('//job/layouts/layout', map);
+            var productNodes = doc.evalToNodes('//job/products/product', map);
 
             // Check if it's actually DS or SS printing. (2 pages)
             for(var i=0; i<layoutNodes.length; i++){
@@ -115,6 +116,7 @@ runPost = function(s, job, codebase){
             var xmlfile = newJob.createPathWithName(doc.evalToString('//job/id', map) + ".json", false);
             var xmlF = new File(xmlfile);
             //var xmlF = new File("C://Switch//Development//" + doc.evalToString('//job/id', map) + ".json");
+
                 xmlF.open(File.Append);
                 xmlF.writeLine('{');
                 
@@ -132,12 +134,28 @@ runPost = function(s, job, codebase){
                 
                 //layout loop starts here
                 xmlF.writeLine('"Layouts": ' + '[' + '');	
-                for(var i=0; i<layoutNodes.length; i++){
+                for(var i=0; i<productNodes.length; i++){
                     xmlF.writeLine('{');
+
+                    // Extract the itemNumber from the properties list.
+                    var propertyNodes = productNodes.at(i).evalToNodes('properties/property')
+                    for(var ii=0; ii<propertyNodes.length; ii++){
+                        if(propertyNodes.at(ii).evalToString('name') == "Item Number"){
+                            xmlF.writeLine('"JobItem": ' + propertyNodes.at(ii).evalToString('value') + ',');
+                            break;
+                        }
+                    }
                     
-                    xmlF.writeLine('"GangNo": "' + doc.evalToString('//job/id', map) + "-" + layoutNodes.at(i).evalToString('index') + '"');
+                    // Loop through all of the index/placed values in the layouts sub nodes
+                    // Assign the necessary values.
+                    var indexPlacedNodes = productNodes.at(i).evalToNode("layouts").getChildNodes();
+                    for(var k=0; k<indexPlacedNodes.length; k++){
+                        xmlF.writeLine('"GangNo": "' + doc.evalToString('//job/id', map) + "-" + indexPlacedNodes.at(k).getAttributeValue('index') + '",');
+                        xmlF.writeLine('"PhoenixProductIndex": ' + productNodes.at(i).evalToString('index') + ',');
+                        xmlF.writeLine('"NumberUp": ' + indexPlacedNodes.at(k).getAttributeValue('placed') + '');
+                    }
                     
-                    if(i != layoutNodes.length-1){
+                    if(i != productNodes.length-1){
                         xmlF.writeLine('},');
                     }else{
                         xmlF.writeLine('}');

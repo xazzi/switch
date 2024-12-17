@@ -1,15 +1,3 @@
-connectToDatabase_db = function(database){
-	var dbConn = new DataSource();
-		dbConn.connect(database,"bret.c","e4gPM^VJ(3t/K?D/");
-	
-	if(dbConn.isConnected()){
-		return dbConn;
-	}else{
-		s.log(2, "Connection to " + database + " failed!");
-		return;
-	}
-}
-
 redownloadFrom = function(value, submit){
 	if(value == "S3 Bucket"){
 		submit.override.redownload.bool = true

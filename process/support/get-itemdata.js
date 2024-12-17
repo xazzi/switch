@@ -34,6 +34,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				value: null,
 				applyProductLabel: null
 			},
+			cut: {
+				active: false,
+				method: null,
+				value: null
+			},
 			grommet: {
 				active: false,
                 key: null
@@ -88,6 +93,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				method: null,
 				value: null
 			},
+			frontCoating: {
+				enabled: false,
+				label: null,
+				value: null
+			},
 			impInstructions: {
 				active: false,
 				value: null
@@ -128,7 +138,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				active: false,
 				method: null,
 				value: null,
-				color: null
+				color: null,
+				type: null
 			},
 			side: {
 				active: false,
@@ -267,7 +278,10 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.material = addToTable(s, db, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
-				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
+			}
+			if(dataDump.order_specs[k].code == "FCOAT"){
+				specs.frontCoating = addToTable(s, db, "options_front-coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
 			}
 			if(dataDump.order_specs[k].code == "LAM"){
 				specs.laminate = addToTable(s, db, "options_laminate", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
@@ -279,11 +293,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.bannerstand = addToTable(s, db, "options_bannerstand", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, specs);
 
 				// Pull the rectactable template name from the database.
-				db.general.execute("SELECT * FROM digital_room.`bannerstand_retractable` WHERE id = '" + specs.bannerstand.template.id + "';");
-				if(db.general.isRowAvailable()){
-					db.general.fetchRow();
+				db.settings.execute("SELECT * FROM settings.`bannerstand_retractable` WHERE id = '" + specs.bannerstand.template.id + "';");
+				if(db.settings.isRowAvailable()){
+					db.settings.fetchRow();
 					specs.bannerstand.template.active = true;
-					specs.bannerstand.template.name = db.general.getString(1)
+					specs.bannerstand.template.name = db.settings.getString(1)
 				}
 			}
 			if(dataDump.order_specs[k].code == "EDGE"){
@@ -345,7 +359,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					specs.cvColors.push(temp[r].replace(/^\s+/g, ''))
 				}
 			}
-			if(dataDump.order_specs[k].code == "CUT"){
+			if(dataDump.order_specs[k].code == "CUT" || dataDump.order_specs[k].code == "CUTTING"){
 				specs.cut = addToTable(s, db, "options_cut", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "DESC"){
