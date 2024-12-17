@@ -2069,6 +2069,15 @@ runParser = function(s, job, codebase){
                 }
             }
 
+            // If it's laminated sintra in SLC, adjust the cut hotfolder name.
+            if(data.facility.destination == "Salt Lake City"){
+                if(matInfo.prodName == "3mm-Sintra"){
+                    if(data.laminate.active || data.coating.active){
+                        matInfo.cutter.hotfolder = "Lam_" + matInfo.cutter.hotfolder;
+                    }
+                }
+            }
+
             // Adjust the imposition profile based on overrides from the user.
             if(data.impositionProfile.name == "Sheet" || data.impositionProfile.name == "Roll"){
                 if(submit.override.gangMethod == "Default"){
