@@ -7,12 +7,35 @@ runPost = function(s, job, codebase){
 
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
+            eval(File.read(dir.support + "/connect-to-db.js"));
+            eval(File.read(dir.support + "/load-module-settings.js"));
 
             var handoffDataDS = loadDatasetNoFail_db("Handoff Data");
 
             var newJob = s.createNewJob();
             var xmlfile = newJob.createPathWithName("Submit" + ".json", false);
             var xmlF = new File(xmlfile);
+
+            // Load settings from the module
+            var module = loadModuleSettings(s)
+
+            // Establist connection to the databases
+            var connections = establishDatabases(s, module)
+            var db = {
+                settings: new Statement(connections.settings),
+                history: new Statement(connections.history),
+                email: new Statement(connections.email)
+            }
+
+            // Pull the URL from the database.
+            db.settings.execute("SELECT * FROM settings.webhooks_teams WHERE channel = '" + s.getPropertyValue("channel") + "';");
+            if(!db.settings.isRowAvailable()){
+                job.fail("Teams Channel Not Found!")
+                return
+            }
+
+            db.settings.fetchRow();
+            var url = db.settings.getString(2);
 
             var messageCard = {};
             var sections = [];
@@ -77,6 +100,8 @@ runPost = function(s, job, codebase){
                 structure["facts"].push(attributes)
             }
 
+            s.log(2, s.getPropertyValue("message"))
+
             structure.activityTitle = s.getPropertyValue("message")
                     
             messageCard.sections.push(structure);
@@ -87,7 +112,7 @@ runPost = function(s, job, codebase){
                 
             // Post the above json to the API.
             var theHTTP = new HTTP(HTTP.SSL);
-                theHTTP.url = s.getPropertyValue("url");
+                theHTTP.url = url;
                 theHTTP.enableMime = false;
                 theHTTP.setAttachedFile(xmlfile);
                 theHTTP.timeOut = 300;
