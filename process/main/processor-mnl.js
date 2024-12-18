@@ -25,7 +25,7 @@ runProcessor = function(s, job, codebase){
             }
 
             // Force user dev settings.
-            if(false){
+            if(true){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
                 job.setUserEmail("bret.c@digitalroominc.com");
@@ -34,7 +34,8 @@ runProcessor = function(s, job, codebase){
             // Pull the user information.
             db.settings.execute("SELECT * FROM settings.users WHERE email = '" + job.getUserEmail() + "';");
             if(!db.settings.isRowAvailable()){
-                sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
+				s.log(2, "No User")
+                //sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
                 job.sendToNull(job.getPath());
                 /*
                 db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
@@ -86,20 +87,21 @@ runProcessor = function(s, job, codebase){
             }
             */
 
-            db.settings.execute("SELECT * FROM history.`converter_gang` WHERE `gang-number` = '" + job.getNameProper() + "';");
-            if(!db.settings.isRowAvailable()){
+            db.history.execute("SELECT * FROM history.`converter_gang` WHERE `gang-number` = '" + job.getNameProper().split('_')[2] + "';");
+			if(!db.history.isRowAvailable()){
+				s.log(2, "No gang data available.")
                 return
             }
 
-                db.settings.fetchRow();
+                db.history.fetchRow();
         
                 //slc: Number(db.settings.getString(4)),
             
 			//var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-				projectID: db.settings.getString(1),
+				projectID: db.history.getString(1),
                 //gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
-                gangNumber: db.settings.getString(2),
+                gangNumber: db.history.getString(2),
                 //facility: handoffDataDS.evalToString("//misc/facility"),
 				doubleSided: s.getPropertyValue("sides") == 2,
                 facility: "Arlington",
@@ -109,12 +111,12 @@ runProcessor = function(s, job, codebase){
                 //sku: handoffDataDS.evalToString("//base/sku"), //unused
                 //process: handoffDataDS.evalToString("//base/process"), //unused
                 projectNotes: "",
-                stock: db.settings.getString(5),
-                notes: db.settings.getString(3),
-                press: db.settings.getString(4)
+                stock: db.history.getString(5),
+                notes: db.history.getString(3),
+                press: db.history.getString(4)
             }
 
-			var workstyle = "OneSided"
+			//var workstyle = "OneSided"
 			if(handoffData.doubleSided){
 				workstyle = "Sheetwise"
 			}
@@ -329,22 +331,22 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 							//break;
 						//}
 
-                        db.settings.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper() + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
-                        if(!db.settings.isRowAvailable()){
+                        db.history.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper().split('_')[2] + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
+                        if(!db.history.isRowAvailable()){
                             s.log(2, "Return 2")
                             return
                         }
 
-                        db.settings.fetchRow();
+                        db.history.fetchRow();
 
 						writeXmlNode(xmlFile, "product");
 							writeXmlString(xmlFile, "index", productNodes.at(j).evalToString('index'));
 							writeXmlString(xmlFile, "name", productNodes.at(j).evalToString('name'));
 							writeXmlString(xmlFile, "color", productNodes.at(j).evalToString('color'));
 							writeXmlString(xmlFile, "ordered", productNodes.at(j).evalToString('ordered'));
-							writeXmlString(xmlFile, "description", db.settings.getString(4));
+							writeXmlString(xmlFile, "description", db.history.getString(4));
 							//writeXmlString(xmlFile, "notes", handoffDataNodes.at(n).evalToString('notes'));
-                            writeXmlString(xmlFile, "notes", db.settings.getString(5));
+                            writeXmlString(xmlFile, "notes", db.history.getString(5));
 							writeXmlString(xmlFile, "width", productNodes.at(j).evalToString('width').replace(/\"/g,"&quot;"));
 							writeXmlString(xmlFile, "height", productNodes.at(j).evalToString('height').replace(/\"/g,"&quot;"));
 							writeXmlString(xmlFile, "placed", productNodes.at(j).evalToString('placed'));
@@ -354,7 +356,7 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 							writeXmlNode(xmlFile, "properties");
 								writeXmlNode(xmlFile, "property");
 									//writeXmlString(xmlFile, "value", handoffDataNodes.at(n).evalToString('orderNumber'));
-                                    writeXmlString(xmlFile, "value", db.settings.getString(3));
+                                    writeXmlString(xmlFile, "value", db.history.getString(3));
 								writeXmlNode(xmlFile, "/property");
 							writeXmlNode(xmlFile, "/properties");
 							writeXmlNode(xmlFile, "layouts");
