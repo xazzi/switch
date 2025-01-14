@@ -258,8 +258,8 @@
                 "requirements": {
                     "orderArray": {
                         "frame": {
-                            "color": "null",
-                            "type": "null"
+                            "color": null,
+                            "type": null
                         }
                     }
                 },
