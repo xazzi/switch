@@ -548,16 +548,16 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                // If bannerstands aren't enabled for produciton, remove them from the gang.
-                if(orderSpecs.bannerstand.active){
-                    if(!orderSpecs.bannerstand.enabled){
-                        data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
+                // If hardware isn't enabled for produciton, remove them from the gang.
+                if(orderSpecs.hardware.active){
+                    if(!orderSpecs.hardware.enabled){
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Hardware not approved for production."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
                             ["item-number",orderSpecs.jobItemId]
                         ],[
                             ["status","Removed from Gang"],
-                            ["note","Bannerstand not approved for production."]
+                            ["note","Hardware not approved for production."]
                         ]))
                         continue;
                     }
@@ -1155,10 +1155,10 @@ runParser = function(s, job, codebase){
                     return
                 }
 
-                //If bannerstands are enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
-                if(orderArray[i].bannerstand.active){
+                //If hardware is enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
+                if(orderArray[i].hardware.active){
                     if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
-                        if(orderArray[i].bannerstand.template.id == null){
+                        if(orderArray[i].hardware.template.id == null){
                             data.notes.push([orderArray[i].jobItemId,"Removed","Template ID not assigned."]);
                             db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                                 ["project-id",data.projectID],
@@ -1735,23 +1735,23 @@ runParser = function(s, job, codebase){
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
                     
-                    // For bannerstands, Retractables use the bannerstand value instead.
-                    if(orderArray[i].bannerstand.active){
+                    // For specific hardware, some use a custom value instead.
+                    if(orderArray[i].hardware.active){
 
                         // Pull the SLC data
                         if(data.facility.destination == "Salt Lake City"){
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.slc;
-                            product.customLabel.size = orderArray[i].bannerstand.displaySize.slc == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.slc;
+                            product.customLabel.value = orderArray[i].hardware.nickname.slc == undefined ? orderArray[i].hardware.nickname.global : orderArray[i].hardware.nickname.slc;
+                            product.customLabel.size = orderArray[i].hardware.displaySize.slc == undefined ? orderArray[i].hardware.displaySize.global : orderArray[i].hardware.displaySize.slc;
 
                         // Pull the WXM data
                         }else if(data.facility.destination == "Wixom"){
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.wxm;
-                            product.customLabel.size = orderArray[i].bannerstand.displaySize.wxm == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.wxm;
+                            product.customLabel.value = orderArray[i].hardware.nickname.wxm == undefined ? orderArray[i].hardware.nickname.global : orderArray[i].hardware.nickname.wxm;
+                            product.customLabel.size = orderArray[i].hardware.displaySize.wxm == undefined ? orderArray[i].hardware.displaySize.global : orderArray[i].hardware.displaySize.wxm;
 
                         // If it's not SLC or WXM.
                         }else{
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.global;
-                            product.customLabel.size = orderArray[i].bannerstand.displaySize.global;
+                            product.customLabel.value = orderArray[i].hardware.nickname.global;
+                            product.customLabel.size = orderArray[i].hardware.displaySize.global;
                         }
                     }
                 };
@@ -1782,7 +1782,7 @@ runParser = function(s, job, codebase){
 
                 // Retractable Templates, Bannerstand hardware
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
-                    product.dieDesignName = orderArray[i].bannerstand.template.name
+                    product.dieDesignName = orderArray[i].hardware.template.name
                 }
 
                 // Rectangle Flag Templates
@@ -1813,6 +1813,14 @@ runParser = function(s, job, codebase){
                     db.settings.fetchRow();
                     product.subprocess.template = db.settings.getString(3)
                     product.dieDesignName = "angledFlag_" + product.subprocess.template + "_F";
+                }
+
+                // Feather Flag Templates
+                if(product.subprocess.name == "FeatherFlag"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    }
+                    product.dieDesignName = orderArray[i].hardware.template.name + "_F"
                 }
 
                 // Specific gang adjustments ----------------------------------------------------------
@@ -1991,6 +1999,27 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                         product.dieDesignName = "angledFlag_" + product.subprocess.template + "_B";
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                            
+                        writeCSV(s, csvFile, infoArray, 1);
+
+                        // Write the extra line to the database
+                        db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                            ["project-id", data.projectID],
+                            ["gang-number", data.gangNumber],
+                            ["order-number", product.orderNumber],
+                            ["item-number", product.itemNumber],
+                            ["page", "2"],
+                            ["status", "Initiated"]
+                        ]));
+                    }
+                }
+
+                // Feather Flag Templates
+                if(product.subprocess.name == "FeatherFlag"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                        product.dieDesignName = orderArray[i].hardware.template.name + "_B"
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
                             
                         writeCSV(s, csvFile, infoArray, 1);

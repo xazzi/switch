@@ -232,7 +232,7 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, hando
 					writeXmlString(xmlFile, "run-length", layoutNodes.at(i).evalToString('run-length'));
 					writeXmlString(xmlFile, "waste", layoutNodes.at(i).evalToString('waste'));
 					writeXmlString(xmlFile, "plates", layoutNodes.at(i).evalToString('plates'));
-					writeXmlString(xmlFile, "sheet-usage", (layoutNodes.at(i).evalToString('sheet-usage')*100));
+					writeXmlString(xmlFile, "sheet-usage", (layoutNodes.at(i).evalToString('sheet-usage')));
 					writeXmlString(xmlFile, "default-bleed", "0.25");
 					writeXmlString(xmlFile, "placed", layoutNodes.at(i).evalToString('placed'));
 					writeXmlString(xmlFile, "overrun", layoutNodes.at(i).evalToString('overrun'));
