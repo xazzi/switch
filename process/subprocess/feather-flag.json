@@ -1,0 +1,37 @@
+{
+    "subprocess": "feather-flag",
+    "name": "FeatherFlag",
+    "id": 25,
+    "parameters": [
+        {
+            "facility": {
+                "name": "Salt Lake City",
+                "id": "28",
+                "enabled": true
+            },
+            "processes": [
+                "Flag"
+            ],
+            "properties": {
+                "mixed": false,
+                "undersize": "Default",
+                "orientationCheck": false
+            },
+            "overrides": {
+                "matInfo": {
+                    "cutter": {
+                        "hotfolder": "Tension Fabric no comp"
+                    }
+                },
+                "product": {
+                    "rotation": "None",
+                    "pageHandling": "OnePerPage",
+                    "dieDesignSource": "DieDesignLibrary"
+                },
+                "data": {
+                    "prodMatFileName": "FeatherFlags"
+                }
+            }
+        }
+    ]
+}

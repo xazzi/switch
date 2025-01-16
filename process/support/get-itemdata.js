@@ -114,9 +114,13 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				key: null,
 				rotation: null
 			},
-			bannerstand: {
+			hardware: {
 				active: false,
-				value: null,
+				prism:{
+					code: null,
+					label: null,
+					value: null
+				},
 				template:{
                     id: null,
                     active: false,
@@ -285,14 +289,26 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.unwind = addToTable(s, db, "options_unwind", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "BANNERSTAND" || dataDump.order_specs[k].code == "BASEATT" || dataDump.order_specs[k].code == "DISPOPT"){
-				specs.bannerstand = addToTable(s, db, "options_bannerstand", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, specs);
+				specs.hardware = addToTable(s, db, "options_hardware", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, specs);
+
+				if(specs.hardware.dateAdded === undefined){
+					db.settings.execute("UPDATE settings.`options_hardware` SET `date-added` = '" + new Date() + "' WHERE `prism-value` = '" + dataDump.order_specs[k].value + "' AND width = '" + specs.width + "' AND height = '" + specs.height + "';");
+				}
+
+				if(specs.hardware.prism.code === undefined){
+					db.settings.execute("UPDATE settings.`options_hardware` SET `prism-code` = '" + dataDump.order_specs[k].code + "' WHERE `prism-value` = '" + dataDump.order_specs[k].value + "' AND width = '" + specs.width + "' AND height = '" + specs.height + "';");
+				}
+
+				if(specs.hardware.prism.label === undefined){
+					db.settings.execute("UPDATE settings.`options_hardware` SET `prism-label` = '" + dataDump.order_specs[k].label + "' WHERE `prism-value` = '" + dataDump.order_specs[k].value + "' AND width = '" + specs.width + "' AND height = '" + specs.height + "';");
+				}
 
 				// Pull the rectactable template name from the database.
-				db.settings.execute("SELECT * FROM settings.`bannerstand_retractable` WHERE id = '" + specs.bannerstand.template.id + "';");
+				db.settings.execute("SELECT * FROM settings.`hardware_templates` WHERE id = '" + specs.hardware.template.id + "';");
 				if(db.settings.isRowAvailable()){
 					db.settings.fetchRow();
-					specs.bannerstand.template.active = true;
-					specs.bannerstand.template.name = db.settings.getString(1)
+					specs.hardware.template.active = true;
+					specs.hardware.template.name = db.settings.getString(1)
 				}
 			}
 			if(dataDump.order_specs[k].code == "EDGE"){

@@ -13,9 +13,9 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         }
     }
 
-    // For bannerstands, run a specific query.
-    if(table == "options_bannerstand"){
-        db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE parameter = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';");
+    // For items with hardware, run a specific query.
+    if(table == "options_hardware"){
+        db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';");
 
     // For the new table style
     }else if(table == "options_front-coating"){
@@ -271,27 +271,33 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             }
         }
 
-        // Bannerstand hardware
-        if(table == "options_bannerstand"){
+        // General hardware
+        if(table == "options_hardware"){
             return specs = {
                 active: true,
-                value: db.settings.getString(2).replace(/"/g,''),
+                prism:{
+                    code: db.settings.getString(1),
+                    label: db.settings.getString(2),
+                    value: db.settings.getString(3).replace(/"/g,'')
+                },
                 template:{
-                    id: db.settings.getString(6),
+                    id: db.settings.getString(7),
                     active: false,
                     name: null
                 },
                 nickname: {
-                    global: db.settings.getString(7),
-                    slc: db.settings.getString(8),
-					wxm: db.settings.getString(9)
+                    global: db.settings.getString(8),
+                    slc: db.settings.getString(9),
+					wxm: db.settings.getString(10)
                 },
                 displaySize: {
-                    global: db.settings.getString(10),
-                    slc: db.settings.getString(11),
-                    wxm: db.settings.getString(12)
+                    global: db.settings.getString(11),
+                    slc: db.settings.getString(12),
+                    wxm: db.settings.getString(13)
                 },
-                enabled: db.settings.getString(13) == "y" ? true : false
+                enabled: db.settings.getString(14) == "y" ? true : false,
+                example: db.settings.getString(15),
+                dateAdded: db.settings.getString(16)
             }
         }
 
@@ -311,9 +317,9 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
     }
 
         // If it makes it this far, the entry doesn't exist in the table yet. Add it
-        // New options bannerstand table, nickname check
-        if(table == "options_bannerstand"){
-            db.settings.execute("INSERT INTO settings.options_bannerstand" + "(`example-item`, parameter, `item-name`, width, height) VALUES ('" + object.jobItemId + "','" + parameter + "','" + object.itemName + "','" + object.width + "','" + object.height + "');");
+        // Add new hardware info to the hardware table
+        if(table == "options_hardware"){
+            db.settings.execute("INSERT INTO settings.options_hardware" + "(`example-item`, `prism-code`, `prism-label`, `prism-value`, `item-name`, width, height, `date-added`) VALUES ('" + object.jobItemId + "','" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + object.itemName + "','" + object.width + "','" + object.height + "','" + new Date() + "');");
         
         // For the new table style
         }else if(table == "options_front-coating"){

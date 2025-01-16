@@ -228,12 +228,6 @@ runParser = function(s, job, codebase){
                     ["notes", orderArray[i].notes],
                     ["status", "Initiated"]
                 ]));
-
-                if(s.getServerName() == 'Switch-Dev'){
-                    if(i>=49){
-                        break;
-                    }
-                }
             }
             
             csvFile.close();
