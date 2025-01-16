@@ -25,7 +25,7 @@ runProcessor = function(s, job, codebase){
             }
 
             // Force user dev settings.
-            if(true){
+            if(false){
                 job.setUserName("Administrator");
                 job.setUserFullName("Bret Combe");
                 job.setUserEmail("bret.c@digitalroominc.com");
@@ -87,7 +87,7 @@ runProcessor = function(s, job, codebase){
             }
             */
 
-            db.history.execute("SELECT * FROM history.`converter_gang` WHERE `gang-number` = '" + job.getNameProper().split('_')[2] + "';");
+            db.history.execute("SELECT * FROM history.`converter_gang` WHERE `gang-number` = '" + job.getNameProper() + "';");
 			if(!db.history.isRowAvailable()){
 				s.log(2, "No gang data available.")
                 return
@@ -291,7 +291,7 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 					writeXmlString(xmlFile, "run-length", layoutNodes.at(i).evalToString('run-length'));
 					writeXmlString(xmlFile, "waste", layoutNodes.at(i).evalToString('waste'));
 					writeXmlString(xmlFile, "plates", layoutNodes.at(i).evalToString('plates'));
-					writeXmlString(xmlFile, "sheet-usage", layoutNodes.at(i).evalToString('sheet-usage')*100);
+					writeXmlString(xmlFile, "sheet-usage", layoutNodes.at(i).evalToString('sheet-usage'));
 					writeXmlString(xmlFile, "default-bleed", "0.25");
 					writeXmlString(xmlFile, "placed", layoutNodes.at(i).evalToString('placed'));
 					writeXmlString(xmlFile, "overrun", layoutNodes.at(i).evalToString('overrun'));
@@ -331,7 +331,7 @@ function sendToPrismApi(s, job, xmlFile, handoffData, endPoint, validation, db){
 							//break;
 						//}
 
-                        db.history.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper().split('_')[2] + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
+                        db.history.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper() + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
                         if(!db.history.isRowAvailable()){
                             s.log(2, "Return 2")
                             return
