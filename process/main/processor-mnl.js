@@ -314,9 +314,7 @@ function sendToPrismApi(s, job, xmlFile, data, endPoint, db){
 						//}
 
                         db.history.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper() + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
-                        db.history.execute("SELECT * FROM history.`converter_item` WHERE `gang-number` = '" + job.getNameProper() + "' AND `item-number` = '" + productNodes.at(j).evalToString('name').split('_')[0] + "';");
                         if(!db.history.isRowAvailable()){
-                            s.log(2, "Return 2")
                             return
                         }
 
