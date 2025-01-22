@@ -320,7 +320,6 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         // Add new hardware info to the hardware table
         if(table == "options_hardware"){
             db.settings.execute("INSERT INTO settings.options_hardware" + "(`example-item`, `prism-code`, `prism-label`, `prism-value`, `item-name`, width, height, `date-added`) VALUES ('" + object.jobItemId + "','" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + object.itemName + "','" + object.width + "','" + object.height + "','" + new Date() + "');");
-        
         // For the new table style
         }else if(table == "options_front-coating"){
             db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-code`, `prism-label`, `prism-value`, `date-added`, `example-item`) VALUES ('" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + new Date() + "','" + example + "');");
@@ -359,6 +358,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             slc: null,
             wxm: null
         },
-        enabled: false
+        enabled: false,
+        example: null,
+        dateAdded: new Date()
     }
 }

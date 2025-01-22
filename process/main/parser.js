@@ -2044,7 +2044,7 @@ runParser = function(s, job, codebase){
                     
                     injectXML.setUserEmail(userInfo.email);
                     
-                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
+                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale);
                     
                     writeInjectJSON(injectFile, orderArray[i], product);
                     
@@ -2059,7 +2059,7 @@ runParser = function(s, job, codebase){
                     var cvPath = cvXML.createPathWithName(product.itemNumber + ".xml", false);
                     var cvFile = new File(cvPath);
                     
-                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
+                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale);
                     
                     writeInjectXML(cvFile, product);
                     
@@ -2148,7 +2148,7 @@ runParser = function(s, job, codebase){
 
             emailDatabase_write(s, db, "parsed_data", "Parser", data, data.notes)
         
-            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now);
+            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now, null);
             newCSV.setHierarchyPath([data.environment,data.projectID]);
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
@@ -2156,7 +2156,7 @@ runParser = function(s, job, codebase){
             newCSV.setPriority(submit.override.priority);
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
             
-            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now);
+            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now, null);
             job.setHierarchyPath([data.gangNumber]);
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
@@ -2189,7 +2189,7 @@ runParser = function(s, job, codebase){
 
 // -------------------------------------------------------
 
-function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now){
+function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now, scale){
 	
 	var theXML = new Document();
 
@@ -2296,6 +2296,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
         addNode_db(theXML, miscNode, "mixedLam", data.mixedLam);
         addNode_db(theXML, miscNode, "workstyle", data.doubleSided ? matInfo.workstyle.duplex : matInfo.workstyle.simplex);
+        addNode_db(theXML, miscNode, "optimizeForDFE", matInfo.optimizeForDFE);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -2324,6 +2325,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
             addNode_db(theXML, productNode, "subprocess", product.subprocess.name);
             addNode_db(theXML, productNode, "cutLayerName", product.cutLayerName);
             addNode_db(theXML, productNode, "doubleSided", product.doubleSided);
+            addNode_db(theXML, productNode, "scaleModifier", scale.modifier);
+
 	}
 	
 	if(writeProducts){
