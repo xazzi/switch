@@ -136,7 +136,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					slc: null,
 					wxm: null
 				},		
-				enabled: false
+				enabled: false,
+				example: null,
+				dateAdded: null
 			},
 			frame: {
 				active: false,
@@ -289,7 +291,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.unwind = addToTable(s, db, "options_unwind", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "BANNERSTAND" || dataDump.order_specs[k].code == "BASEATT" || dataDump.order_specs[k].code == "DISPOPT"){
-				specs.hardware = addToTable(s, db, "options_hardware", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, specs);
+				specs.hardware = addToTable(s, db, "options_hardware", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, specs, dataDump.order_specs[k]);
 
 				if(specs.hardware.dateAdded === undefined){
 					db.settings.execute("UPDATE settings.`options_hardware` SET `date-added` = '" + new Date() + "' WHERE `prism-value` = '" + dataDump.order_specs[k].value + "' AND width = '" + specs.width + "' AND height = '" + specs.height + "';");
