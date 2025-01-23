@@ -27,7 +27,8 @@ runFileHandlerVL = function(s, job, codebase){
 
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
-                facility: handoffDataDS.evalToString("//misc/facility")
+                facility: handoffDataDS.evalToString("//misc/facility"),
+                status: job.getPrivateData("send")
             }
 
             dir.holdVL = new Dir("//amz-impsw-data/IMPSW_DATA/.Live Services/VL Hold/" + handoffData.facility)
@@ -43,9 +44,13 @@ runFileHandlerVL = function(s, job, codebase){
 
                 var files = dir.holdVL.entryList("*" + itemNumber + "*", Dir.Files, Dir.Name);
                 for(var i=0; i<files.length; i++){
-                    s.move(dir.holdVL.path + "/" + files[i], dir.transferVL + "/" + handoffData.facility + "/" + files[i], true);
+                    if(handoffData.status == "approved"){
+                        s.move(dir.holdVL.path + "/" + files[i], dir.transferVL + "/" + handoffData.facility + "/" + files[i], true);
+                    }else{
+                        s.log(2, "Removing held file: " + dir.holdVL.path + "/" + files[i])
+                        new File(dir.holdVL.path + "/" + files[i]).remove();
+                    }
                 }
-            
             }
             
             job.sendToNull(job.getPath());

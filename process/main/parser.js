@@ -1649,12 +1649,24 @@ runParser = function(s, job, codebase){
                 // We use this data inside the marks requirements.
                 if(product.unwind.active){
                     product.rotation = "Custom";
+
+                    // Force a rotation based on the unwind direction of SEI and ABG
                     if(product.unwind.key == 'NI'){
                         if(product.width >= product.height){
                             product.unwind.rotation = 270;
                         }
                     }
+
+                    // For the labelmaster, force a rotation based on the specs of the file.
+                    if(matInfo.cutMethod == 'LabelMaster'){
+                        if(product.width >= product.height){
+                            product.unwind.rotation = 270;
+                        }
+                    }
+
+                    // Set the allowedRotations to the unwind directin.
                     product.allowedRotations = product.unwind.rotation;
+                    
                     // Activate the custom eyemarks based on the height of the image when rotated.
                     if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
                         if(product.height >= 5.62){
