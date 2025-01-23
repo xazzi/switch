@@ -1,8 +1,8 @@
-runFileHandlerVL = function(s, job){
-    function fileHandlerVL(s, job){
+runFileHandlerVL = function(s, job, codebase){
+    function fileHandlerVL(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
+                support: "C:/Scripts/" + codebase + "/switch/process/support/",
                 transferVL: "C:/Switch/Depository/transferVL"
             }
 
@@ -20,7 +20,7 @@ runFileHandlerVL = function(s, job){
 			// Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
 				history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -48,12 +48,12 @@ runFileHandlerVL = function(s, job){
             
             }
             
-            //job.sendToNull(job.getPath());
+            job.sendToNull(job.getPath());
             
         }catch(e){
             s.log(2, "Critical Error: Processor -- " + e)
-            //job.sendToNull(job.getPath())
+            job.sendToNull(job.getPath())
         }
     }
-    fileHandlerVL(s, job)
+    fileHandlerVL(s, job, codebase)
 }

@@ -121,13 +121,13 @@ runFinalize = function(s, job, codebase){
                 job.sendToSingle(job.getPath(), savename.toString());
             }
             
-            // Brighton ------------------------------------------------------------------------------------------------
+            // Wixom ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Wixom"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
                 data.side = numberOfPages == 1 ? "_SS" : "_DS";
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + handoffData.surface + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
