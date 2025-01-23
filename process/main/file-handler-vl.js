@@ -48,7 +48,7 @@ runFileHandlerVL = function(s, job, codebase){
                         s.move(dir.holdVL.path + "/" + files[i], dir.transferVL + "/" + handoffData.facility + "/" + files[i], true);
                     }else{
                         s.log(2, "Removing held file: " + dir.holdVL.path + "/" + files[i])
-                        //new File(dir.holdVL.path + "/" + files[i]).remove();
+                        new File(dir.holdVL.path + "/" + files[i]).remove();
                     }
                 }
             }
