@@ -1657,13 +1657,6 @@ runParser = function(s, job, codebase){
                         }
                     }
 
-                    // For the labelmaster, force a rotation based on the specs of the file.
-                    if(matInfo.cutMethod == 'LabelMaster'){
-                        if(product.width >= product.height){
-                            product.unwind.rotation = 270;
-                        }
-                    }
-
                     // Set the allowedRotations to the unwind directin.
                     product.allowedRotations = product.unwind.rotation;
                     
@@ -1677,6 +1670,17 @@ runParser = function(s, job, codebase){
                     if(product.unwind.rotation == 0 || product.unwind.rotation == 180){
                         if(product.width >= 5.62){
                             product.rollLabel.eyeMark = true;
+                        }
+                    }
+                }
+
+                // For the labelmaster, force a rotation based on the specs of the file.
+                if(!product.unwind.active){
+                    if(matInfo.cutMethod == 'LabelMaster'){
+                        if(product.width >= product.height){
+                            product.rotation = "Custom";
+                            product.unwind.rotation = 270;
+                            product.allowedRotations = product.unwind.rotation;
                         }
                     }
                 }
