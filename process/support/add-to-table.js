@@ -343,6 +343,11 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         key: null,
         rotation: null,
         color: null,
+        prism:{
+            code: null,
+            label: null,
+            value: null
+        },
         template:{
             id: null,
             active: false,
