@@ -17,6 +17,16 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				active: false,
 				value: null
 			},
+			materialThickness: {
+				enabled: false,
+				label: null,
+				value: null
+			},
+			printFinish: {
+				enabled: false,
+				label: null,
+				value: null
+			},
 			shape: {
 				active: false,
 				method: null,
@@ -183,6 +193,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					hem: false
 				}
 			},
+			box: {
+				length: null,
+				width: null,
+				depth: null
+			},
 			secondSurface: false,
 			doubleSided: false,
 			facility: null,
@@ -273,10 +288,17 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				}
 			}
 			if(dataDump.order_specs[k].code == "PPR"){
+				s.log(2, dataDump.order_specs[k].value)
 				specs.paper = addToTable(s, db, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "MATRL"){
 				specs.material = addToTable(s, db, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
+			}
+			if(dataDump.order_specs[k].code == "MATRLTH"){
+				specs.materialThickness = addToTable(s, db, "options_material-thickness", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
+			}
+			if(dataDump.order_specs[k].code == "PRINTFIN"){
+				specs.printFinish = addToTable(s, db, "options_print-finish", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
 				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
@@ -379,6 +401,15 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				if(dataDump.order_specs[k].value.toLowerCase().match(new RegExp("replacement","g"))){
 					specs.replacement = true;
 				}
+			}
+			if(dataDump.order_specs[k].code == "BXL"){
+				specs.box.length = dataDump.order_specs[k].value;
+			}
+			if(dataDump.order_specs[k].code == "BXW"){
+				specs.box.width = dataDump.order_specs[k].value;
+			}
+			if(dataDump.order_specs[k].code == "BXD"){
+				specs.box.depth = dataDump.order_specs[k].value;
 			}
 		}
 

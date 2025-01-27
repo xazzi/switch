@@ -35,7 +35,8 @@ runProcessor = function(s, job, codebase){
                 removals: {
                     items: "",
                     layouts: ""
-                }
+                },
+				issue: ""
             }
                 
             for(var i=0; i<validation.nodes.length; i++){
@@ -46,6 +47,11 @@ runProcessor = function(s, job, codebase){
 				// Check if the user wants to post to prism.
                 if(validation.nodes.getItem(i).evalToString('tag') == "Post to Prism?"){
                     validation.post.prism = validation.nodes.getItem(i).evalToString('value') == "No" ? 'n' : 'y';
+                }
+
+				// Check if we should notify the teams webhook of an issue.
+                if(validation.nodes.getItem(i).evalToString('tag') == "Send Notification?"){
+                    validation.issue = validation.nodes.getItem(i).evalToString('value') == "No" ? 'n' : 'y';
                 }
             }
             
@@ -119,13 +125,16 @@ runProcessor = function(s, job, codebase){
 				}else{
 					status = "Rejected"
 					// Create or get the destination path.
-					var phoenixRejected = getDirectory("C:/Switch/Depository/phoenixRejected/" + module.localEnvironment)
+					var phoenixRejected = new Dir("C:/Switch/Depository/phoenixRejected/" + module.localEnvironment)
 
 					// Move the file to the rejected directory
 					s.move(phoenixOutput.path + "/" + files[i], phoenixRejected.path + "/" + files[i], true);
-
 				}
             }
+
+			if(validation.issue = 'y'){
+				sendEmail_db(s, handoffData, null, getEmailResponse("Phoenix Product Notification", null, null, handoffData, userInfo), userInfo);
+			}
 
 			// Update the database to reflect the status
 			db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
@@ -142,7 +151,7 @@ runProcessor = function(s, job, codebase){
                 ["status",status]
             ])) 
             
-			// Log that it was approved.
+			// Log that it processed.
             if(handoffData.status == "approved"){
                 s.log(2, handoffData.gangNumber + " approved by " + userInfo.first + " " + userInfo.last + ".");
             }else{
