@@ -89,7 +89,7 @@ getMatInfo = function(orderSpecs, db){
         pageHandling: db.settings.getString(26),
         overrunMax: db.settings.getString(27),
         forceUndersize: db.settings.getString(28) == "0" ? false : true,
-        allowUndersize: db.general.getString(69) == "y" ? true : false,
+        allowUndersize: db.settings.getString(69) == "y" ? true : false,
         sideMix: db.settings.getString(29) == "0" ? false : true,
         lamMix: db.settings.getString(45) == 'y' ? true : false,
         approved: db.settings.getString(46) == 'y' ? true : false,
@@ -104,6 +104,7 @@ getMatInfo = function(orderSpecs, db){
         labelOffset: db.settings.getString(57) == 'NULL' ? null : db.settings.getString(57) + " Offset",
         addKeyline: db.settings.getString(59) == 'y' ? true : false,
         cutMethod: db.settings.getString(60),
+        cutPathExistsCheck: db.settings.getString(73) == 'y' ? true : false,
         
         layoutCount:{
             target: db.settings.getString(67),

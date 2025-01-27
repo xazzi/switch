@@ -500,6 +500,18 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // Pull the thickness info if it's present and enabled.
+                if(orderSpecs.materialThickness.enabled){
+                    matInfo.prodMatFileName = orderSpecs.materialThickness.value + matInfo.prodMatFileName
+                }
+
+                if(orderSpecs.printFinish.enabled){
+                    if(orderSpecs.material.customValue !== undefined){
+                        orderSpecs.printFinish.value = orderSpecs.material.customValue
+                    }
+                    matInfo.prodMatFileName = matInfo.prodMatFileName + orderSpecs.printFinish.value
+                }
+
                 // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
                 if(orderSpecs.facility != data.facility.destination){
                     if(!submit.route.active){
@@ -1753,8 +1765,9 @@ runParser = function(s, job, codebase){
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
 
                 if(matInfo.type == "packaging"){
-                    product.description = orderArray[i].box.length + "x" + orderArray[i].box.width + "x" + orderArray[i].box.depth
-                    marksArray.push(data.facility.destination + "/QR Codes/MailerBox/1up/" + dartInfo.qrCode);
+                    product.description = orderArray[i].box.length + "x" + orderArray[i].box.width + "x" + orderArray[i].box.depth;
+                    marksArray.push(data.facility.destination + "/Watermark/QR Code/QR-" + orderArray[i].dartInfo.qrCode);
+                    marksArray.push(data.facility.destination + "/Watermark/Text/Text-" + orderArray[i].dartInfo.qrCode);
                 }
 
                 // If the product requires a custom label, apply it.
@@ -2168,7 +2181,7 @@ runParser = function(s, job, codebase){
             
         }catch(e){
             s.log(3, "Critical Error!: " + e);
-            job.setPrivateData("error",e);
+            job.setPrivateData("error", "Critical " + e);
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
         }
     }
@@ -2284,6 +2297,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
         addNode_db(theXML, miscNode, "mixedLam", data.mixedLam);
         addNode_db(theXML, miscNode, "workstyle", data.doubleSided ? matInfo.workstyle.duplex : matInfo.workstyle.simplex);
+        addNode_db(theXML, miscNode, "cutPathExistsCheck", matInfo.cutPathExistsCheck);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
