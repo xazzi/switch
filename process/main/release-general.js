@@ -1,8 +1,8 @@
-runRelease = function(s){
-    function release(s){
+runRelease = function(s, codebase){
+    function release(s, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -27,7 +27,7 @@ runRelease = function(s){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -71,7 +71,7 @@ runRelease = function(s){
             s.log(2, "Critical Error!: " + e);
         }
     }
-    release(s)
+    release(s, codebase)
 }
 
 function checkCSV(s, db, statuses, csvFile){

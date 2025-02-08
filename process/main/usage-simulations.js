@@ -1,8 +1,8 @@
-runUsage = function(s, job){
-    function runUsage(s, job){
+runUsage = function(s, job, codebase){
+    function runUsage(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
             
             // Read in any support directories
@@ -16,7 +16,7 @@ runUsage = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 email: new Statement(connections.email),
                 history: new Statement(connections.history)
             }
@@ -91,7 +91,7 @@ runUsage = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    runUsage(s, job)
+    runUsage(s, job, codebase)
 }
 
 function generateSqlStatement(s, table, gangArray){

@@ -1,8 +1,8 @@
-runPost = function(s, job){
-    function post(s, job){
+runPost = function(s, job, codebase){
+    function post(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -265,7 +265,7 @@ runPost = function(s, job){
             job.sendTo(findConnectionByName(s, "Error"), job.getPath());
         }
     }
-    post(s, job)
+    post(s, job, codebase)
 }
 
 function findConnectionByName(s, inName){

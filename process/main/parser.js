@@ -1,11 +1,11 @@
-runParser = function(s, job){
-    function parser(s, job){
+runParser = function(s, job, codebase){
+    function parser(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
-                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/"),
-                phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
-                phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
+                support: "C:/Scripts/" + codebase + "/switch/process/support/",
+                subprocess: new Dir("C:/Scripts/" + codebase + "/switch/process/subprocess/"),
+                phoenixMarks: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix marks/"),
+                phoenixScripts: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix scripts/")
             }
             
             // Load in all of the supporting libraries and functions
@@ -38,7 +38,7 @@ runParser = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
@@ -167,12 +167,12 @@ runParser = function(s, job){
                         submit.material.name = submit.nodes.getItem(i).evalToString("field-list/field/field-list/field/value");
                         submit.material.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
 
-                        db.general.execute("SELECT * FROM digital_room.`override_material-size` WHERE name = '" + submit.material.name + "';");
-                        db.general.fetchRow();
+                        db.settings.execute("SELECT * FROM settings.`override_material-size` WHERE name = '" + submit.material.name + "';");
+                        db.settings.fetchRow();
 
-                        submit.material.width = db.general.getString(2);
-                        submit.material.height = db.general.getString(3);
-                        submit.material.stock = db.general.getString(4);
+                        submit.material.width = db.settings.getString(2);
+                        submit.material.height = db.settings.getString(3);
+                        submit.material.stock = db.settings.getString(4);
                     }
                 }
                 
@@ -239,6 +239,7 @@ runParser = function(s, job){
                     method: null,
                     value: null
                 },
+                reprint: false,
                 prodName: null,
                 scaled: false,
                 scale: "",
@@ -306,17 +307,17 @@ runParser = function(s, job){
                     rotation: submit.rotation[i].split(':')[1]
                 }
                 
-                db.general.execute("SELECT * FROM digital_room.rotate WHERE item_number = '" + temp.item + "';");
-                if(db.general.isRowAvailable()){
+                db.settings.execute("SELECT * FROM settings.rotate WHERE item_number = '" + temp.item + "';");
+                if(db.settings.isRowAvailable()){
                     if(temp.rotation == "default"){
                         data.notes.push([temp.item,"Submit","Updating database to the default rotation."]); //remove
                     }else{
                         data.notes.push([temp.item,"Submit","Updating database to " + temp.rotation + " degrees."]); //remove
                     }
-                    db.general.execute("UPDATE digital_room.rotate SET rotation = '" + temp.rotation + "' WHERE item_number = '" + temp.item + "';")
+                    db.settings.execute("UPDATE settings.rotate SET rotation = '" + temp.rotation + "' WHERE item_number = '" + temp.item + "';")
                 }else{
                     data.notes.push([temp.item,"Submit","Forced rotation of " + temp.rotation + " degrees."]);
-                    db.general.execute("INSERT INTO digital_room.rotate (item_number, rotation) VALUES ('" + temp.item + "','" + temp.rotation + "');");
+                    db.settings.execute("INSERT INTO settings.rotate (item_number, rotation) VALUES ('" + temp.item + "','" + temp.rotation + "');");
                 }
             }
             
@@ -328,8 +329,8 @@ runParser = function(s, job){
             }
                 
             // Pull the user information.
-            db.general.execute("SELECT * FROM digital_room.users WHERE email = '" + job.getUserEmail() + "';");
-            if(!db.general.isRowAvailable()){
+            db.settings.execute("SELECT * FROM settings.users WHERE email = '" + job.getUserEmail() + "';");
+            if(!db.settings.isRowAvailable()){
                 sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
                 job.sendToNull(job.getPath());
                 db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
@@ -340,14 +341,14 @@ runParser = function(s, job){
                 ]))
                 return;
             }
-                db.general.fetchRow();
+                db.settings.fetchRow();
                 
             var userInfo = {
-                first: db.general.getString(1),
-                last: db.general.getString(2),
-                email: db.general.getString(3),
-                dir: db.general.getString(4) == null ? "Unknown User" : db.general.getString(1) + " " + db.general.getString(2) + " - " + db.general.getString(4),
-                fileSource: getFileSource(db.general.getString(9))
+                first: db.settings.getString(1),
+                last: db.settings.getString(2),
+                email: db.settings.getString(3),
+                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4),
+                fileSource: getFileSource(db.settings.getString(9))
             }
 
             // If the module is set to choose the fileSource based on user.
@@ -423,17 +424,21 @@ runParser = function(s, job){
                     data.facility.destination = submit.route.active ? submit.route.facility : orderSpecs.facility;
 
                     // Pull the facility information.
-                    db.general.execute("SELECT * FROM digital_room.facility WHERE facility = '" + data.facility.destination + "';");
-                    db.general.fetchRow();
+                    db.settings.execute("SELECT * FROM settings.facility WHERE facility = '" + data.facility.destination + "';");
+                    db.settings.fetchRow();
 
-                    orderSpecs.facilityId = db.general.getString(3);
-                    data.facility.id = db.general.getString(3);
+                    orderSpecs.facilityId = db.settings.getString(3);
+                    data.facility.id = db.settings.getString(3);
 
                     // Set any facility level breakers to disable processes
                     data.facility.breaker = {
-                        lam: db.general.getString(5) == 'y'
+                        lam: db.settings.getString(5) == 'y'
                     }
                 }
+
+                if(orderSpecs.reprint)[
+                    data.reprint = true
+                ]
 
                 // Material overrides
                 // -----------------------------------------------------------------------------------------
@@ -543,16 +548,16 @@ runParser = function(s, job){
                     }
                 }
 
-                // If bannerstands aren't enabled for produciton, remove them from the gang.
-                if(orderSpecs.bannerstand.active){
-                    if(!orderSpecs.bannerstand.enabled){
-                        data.notes.push([orderSpecs.jobItemId,"Removed","Bannerstand not approved for production."]);
+                // If hardware isn't enabled for produciton, remove them from the gang.
+                if(orderSpecs.hardware.active){
+                    if(!orderSpecs.hardware.enabled){
+                        data.notes.push([orderSpecs.jobItemId,"Removed","Hardware not approved for production."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
                             ["item-number",orderSpecs.jobItemId]
                         ],[
                             ["status","Removed from Gang"],
-                            ["note","Bannerstand not approved for production."]
+                            ["note","Hardware not approved for production."]
                         ]))
                         continue;
                     }
@@ -1091,8 +1096,8 @@ runParser = function(s, job){
                     if(data.facility.destination == "Salt Lake City"){
                         if(orderArray[i].shape.method == "Rect"){
                             // Turn buttcut off if required.
-                            db.general.execute("SELECT * FROM digital_room.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
-                            if(db.general.isRowAvailable()){
+                            db.settings.execute("SELECT * FROM settings.buttcut_disable WHERE item_number = '" + orderArray[i].jobItemId + "';");
+                            if(db.settings.isRowAvailable()){
                                 data.notes.push([product.itemNumber,"Notes","Butt cut disabled."]);
 
                             // Otherwise check the scenarios...
@@ -1150,10 +1155,10 @@ runParser = function(s, job){
                     return
                 }
 
-                //If bannerstands are enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
-                if(orderArray[i].bannerstand.active){
+                //If hardware is enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
+                if(orderArray[i].hardware.active){
                     if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
-                        if(orderArray[i].bannerstand.template.id == null){
+                        if(orderArray[i].hardware.template.id == null){
                             data.notes.push([orderArray[i].jobItemId,"Removed","Template ID not assigned."]);
                             db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                                 ["project-id",data.projectID],
@@ -1461,8 +1466,8 @@ runParser = function(s, job){
                 }
                 
                 // Check if the item_number can be undersized.
-                db.general.execute("SELECT * FROM digital_room.item_number_fullsize WHERE item_number = '" + product.itemNumber + "';");
-                if(db.general.isRowAvailable()){
+                db.settings.execute("SELECT * FROM settings.item_number_fullsize WHERE item_number = '" + product.itemNumber + "';");
+                if(db.settings.isRowAvailable()){
                     product.subprocess.undersize = false;
                 }
 
@@ -1529,20 +1534,20 @@ runParser = function(s, job){
 
                         // If the width hasn't already been undersized automatically to fit on the material.
                         if(!scale.adjusted.width){
-                            db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'width' and base = " + product.width + ";");
-                            if(db.general.isRowAvailable()){
-                                db.general.fetchRow();
-                                scale.width = db.general.getString(3)/db.general.getString(2)*100;
+                            db.settings.execute("SELECT * FROM settings.undersize WHERE type = 'width' and base = " + product.width + ";");
+                            if(db.settings.isRowAvailable()){
+                                db.settings.fetchRow();
+                                scale.width = db.settings.getString(3)/db.settings.getString(2)*100;
                                 scale.adjusted.width = true;
                             }
                         }
                         
                         // If the height hasn't already been undersized automatically to fit on the material.
                         if(!scale.adjusted.height){
-                            db.general.execute("SELECT * FROM digital_room.undersize WHERE type = 'height' and base = " + product.height + ";");
-                            if(db.general.isRowAvailable()){
-                                db.general.fetchRow();
-                                scale.height = db.general.getString(3)/db.general.getString(2)*100;
+                            db.settings.execute("SELECT * FROM settings.undersize WHERE type = 'height' and base = " + product.height + ";");
+                            if(db.settings.isRowAvailable()){
+                                db.settings.fetchRow();
+                                scale.height = db.settings.getString(3)/db.settings.getString(2)*100;
                                 scale.adjusted.height = true;
                             }
                         }
@@ -1644,12 +1649,17 @@ runParser = function(s, job){
                 // We use this data inside the marks requirements.
                 if(product.unwind.active){
                     product.rotation = "Custom";
+
+                    // Force a rotation based on the unwind direction of SEI and ABG
                     if(product.unwind.key == 'NI'){
                         if(product.width >= product.height){
                             product.unwind.rotation = 270;
                         }
                     }
+
+                    // Set the allowedRotations to the unwind directin.
                     product.allowedRotations = product.unwind.rotation;
+                    
                     // Activate the custom eyemarks based on the height of the image when rotated.
                     if(product.unwind.rotation == 90 || product.unwind.rotation == 270){
                         if(product.height >= 5.62){
@@ -1660,6 +1670,17 @@ runParser = function(s, job){
                     if(product.unwind.rotation == 0 || product.unwind.rotation == 180){
                         if(product.width >= 5.62){
                             product.rollLabel.eyeMark = true;
+                        }
+                    }
+                }
+
+                // For the labelmaster, force a rotation based on the specs of the file.
+                if(!product.unwind.active){
+                    if(matInfo.cutMethod == 'LabelMaster'){
+                        if(product.width >= product.height){
+                            product.rotation = "Custom";
+                            product.unwind.rotation = 270;
+                            product.allowedRotations = product.unwind.rotation;
                         }
                     }
                 }
@@ -1678,6 +1699,10 @@ runParser = function(s, job){
                     if((product.width == 22 && product.height == 28) || (product.width == 28 && product.height == 22)){
                         product.rotation = "Custom";
                         product.allowedRotations = 0;
+                    }
+                    // Change the text value for frames without hardware.
+                    if(orderArray[i].frame.color === undefined && orderArray[i].frame.type === undefined){
+                        orderArray[i].frame.value = "No Frame";
                     }
                 }
                 
@@ -1726,23 +1751,23 @@ runParser = function(s, job){
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
                     
-                    // For bannerstands, Retractables use the bannerstand value instead.
-                    if(orderArray[i].bannerstand.active){
+                    // For specific hardware, some use a custom value instead.
+                    if(orderArray[i].hardware.active){
 
                         // Pull the SLC data
                         if(data.facility.destination == "Salt Lake City"){
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.slc == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.slc;
-                            product.customLabel.size = orderArray[i].bannerstand.displaySize.slc == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.slc;
+                            product.customLabel.value = orderArray[i].hardware.nickname.slc == undefined ? orderArray[i].hardware.nickname.global : orderArray[i].hardware.nickname.slc;
+                            product.customLabel.size = orderArray[i].hardware.displaySize.slc == undefined ? orderArray[i].hardware.displaySize.global : orderArray[i].hardware.displaySize.slc;
 
                         // Pull the WXM data
                         }else if(data.facility.destination == "Wixom"){
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.wxm == undefined ? orderArray[i].bannerstand.nickname.global : orderArray[i].bannerstand.nickname.wxm;
-                            product.customLabel.size = orderArray[i].bannerstand.displaySize.wxm == undefined ? orderArray[i].bannerstand.displaySize.global : orderArray[i].bannerstand.displaySize.wxm;
+                            product.customLabel.value = orderArray[i].hardware.nickname.wxm == undefined ? orderArray[i].hardware.nickname.global : orderArray[i].hardware.nickname.wxm;
+                            product.customLabel.size = orderArray[i].hardware.displaySize.wxm == undefined ? orderArray[i].hardware.displaySize.global : orderArray[i].hardware.displaySize.wxm;
 
                         // If it's not SLC or WXM.
                         }else{
-                            product.customLabel.value = orderArray[i].bannerstand.nickname.global;
-                            product.customLabel.size = orderArray[i].bannerstand.displaySize.global;
+                            product.customLabel.value = orderArray[i].hardware.nickname.global;
+                            product.customLabel.size = orderArray[i].hardware.displaySize.global;
                         }
                     }
                 };
@@ -1773,7 +1798,7 @@ runParser = function(s, job){
 
                 // Retractable Templates, Bannerstand hardware
                 if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
-                    product.dieDesignName = orderArray[i].bannerstand.template.name
+                    product.dieDesignName = orderArray[i].hardware.template.name
                 }
 
                 // Rectangle Flag Templates
@@ -1789,8 +1814,8 @@ runParser = function(s, job){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     }
-                    db.general.execute("SELECT * FROM digital_room.angled_flag WHERE width = '" + product.width + "' AND height = '" + product.height + "';");
-                    if(!db.general.isRowAvailable()){
+                    db.settings.execute("SELECT * FROM settings.angled_flag WHERE width = '" + product.width + "' AND height = '" + product.height + "';");
+                    if(!db.settings.isRowAvailable()){
                         data.notes.push([product.itemNumber,"Removed",'No template found in lookup table.']);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
@@ -1801,9 +1826,17 @@ runParser = function(s, job){
                         ]))
                         continue;
                     }
-                    db.general.fetchRow();
-                    product.subprocess.template = db.general.getString(3)
+                    db.settings.fetchRow();
+                    product.subprocess.template = db.settings.getString(3)
                     product.dieDesignName = "angledFlag_" + product.subprocess.template + "_F";
+                }
+
+                // Feather Flag Templates
+                if(product.subprocess.name == "FeatherFlag"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
+                    }
+                    product.dieDesignName = orderArray[i].hardware.template.name + "_F"
                 }
 
                 // Specific gang adjustments ----------------------------------------------------------
@@ -1861,13 +1894,13 @@ runParser = function(s, job){
                 
                 // Check for custom rotations assigned in the database.
                 // This overrides any defaults assigned to the product or subprocess.
-                db.general.execute("SELECT * FROM digital_room.rotate WHERE item_number = " + product.itemNumber + ";");
-                if(db.general.isRowAvailable()){
-                    db.general.fetchRow();
-                    if(db.general.getString(2) != "default"){
+                db.settings.execute("SELECT * FROM settings.rotate WHERE item_number = " + product.itemNumber + ";");
+                if(db.settings.isRowAvailable()){
+                    db.settings.fetchRow();
+                    if(db.settings.getString(2) != "default"){
                         product.rotation = "Custom";
-                        product.allowedRotations = db.general.getString(2);
-                        //data.notes.push([product.itemNumber,"Notes","Rotation pulled from database, " + db.general.getString(2) + " degrees."]);
+                        product.allowedRotations = db.settings.getString(2);
+                        //data.notes.push([product.itemNumber,"Notes","Rotation pulled from database, " + db.settings.getString(2) + " degrees."]);
                     }
                 }
             
@@ -1997,6 +2030,27 @@ runParser = function(s, job){
                         ]));
                     }
                 }
+
+                // Feather Flag Templates
+                if(product.subprocess.name == "FeatherFlag"){
+                    if(product.doubleSided){
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                        product.dieDesignName = orderArray[i].hardware.template.name + "_B"
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                            
+                        writeCSV(s, csvFile, infoArray, 1);
+
+                        // Write the extra line to the database
+                        db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                            ["project-id", data.projectID],
+                            ["gang-number", data.gangNumber],
+                            ["order-number", product.orderNumber],
+                            ["item-number", product.itemNumber],
+                            ["page", "2"],
+                            ["status", "Initiated"]
+                        ]));
+                    }
+                }
                 
                 // Create the xml to inject the file into the flow.
                 if(product.transfer){
@@ -2006,7 +2060,7 @@ runParser = function(s, job){
                     
                     injectXML.setUserEmail(userInfo.email);
                     
-                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
+                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale);
                     
                     writeInjectJSON(injectFile, orderArray[i], product);
                     
@@ -2021,7 +2075,7 @@ runParser = function(s, job){
                     var cvPath = cvXML.createPathWithName(product.itemNumber + ".xml", false);
                     var cvFile = new File(cvPath);
                     
-                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now);
+                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale);
                     
                     writeInjectXML(cvFile, product);
                     
@@ -2042,7 +2096,7 @@ runParser = function(s, job){
                 
                 // Write the gang number to the database.
                 db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.gangNumber + "' AND item_number = '" + product.itemNumber + "';");
-                if(!db.general.isRowAvailable()){
+                if(!db.settings.isRowAvailable()){
                     db.history.execute("INSERT INTO history.data_item_number (gang_number, item_number) VALUES ('" + data.gangNumber + "', '" + product.itemNumber + "');");
                 }
 
@@ -2117,7 +2171,7 @@ runParser = function(s, job){
 
             emailDatabase_write(s, db, "parsed_data", "Parser", data, data.notes)
         
-            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now);
+            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now, null);
             newCSV.setHierarchyPath([data.environment,data.projectID]);
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
@@ -2125,7 +2179,7 @@ runParser = function(s, job){
             newCSV.setPriority(submit.override.priority);
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
             
-            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now);
+            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now, null);
             job.setHierarchyPath([data.gangNumber]);
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
@@ -2153,12 +2207,12 @@ runParser = function(s, job){
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
         }
     }
-    parser(s, job)
+    parser(s, job, codebase)
 }
 
 // -------------------------------------------------------
 
-function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now){
+function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now, scale){
 	
 	var theXML = new Document();
 
@@ -2265,6 +2319,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "targetLayoutCount", matInfo.layoutCount.target);
         addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
         addNode_db(theXML, miscNode, "mixedLam", data.mixedLam);
+        addNode_db(theXML, miscNode, "workstyle", data.doubleSided ? matInfo.workstyle.duplex : matInfo.workstyle.simplex);
+        addNode_db(theXML, miscNode, "optimizeForDFE", matInfo.optimizeForDFE);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -2293,6 +2349,8 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
             addNode_db(theXML, productNode, "subprocess", product.subprocess.name);
             addNode_db(theXML, productNode, "cutLayerName", product.cutLayerName);
             addNode_db(theXML, productNode, "doubleSided", product.doubleSided);
+            addNode_db(theXML, productNode, "scaleModifier", scale.modifier);
+
 	}
 	
 	if(writeProducts){

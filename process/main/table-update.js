@@ -1,8 +1,10 @@
-runTableUpdate = function(s, job){
-    function tableUpdate(s, job){
+// This code is unused as of 12/13/24
+
+runTableUpdate = function(s, job, codebase){
+    function tableUpdate(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
             
             // Read in any support directories
@@ -17,7 +19,7 @@ runTableUpdate = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 email: new Statement(connections.email),
                 history: new Statement(connections.history)
             }
@@ -57,5 +59,5 @@ runTableUpdate = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    tableUpdate(s, job)
+    tableUpdate(s, job, codebase)
 }
