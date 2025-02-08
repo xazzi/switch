@@ -1,8 +1,8 @@
-runTableEntry = function(s, job){
-    function runTableEntry(s, job){
+runTableEntry = function(s, job, codebase){
+    function runTableEntry(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
             
             // Read in any support directories
@@ -16,7 +16,7 @@ runTableEntry = function(s, job){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 email: new Statement(connections.email),
                 history: new Statement(connections.history)
             }
@@ -49,5 +49,5 @@ runTableEntry = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    runTableEntry(s, job)
+    runTableEntry(s, job, codebase)
 }

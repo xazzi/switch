@@ -1,8 +1,8 @@
-runHierarchy = function(s, job){
-    function hierarchy(s, job){
+runHierarchy = function(s, job, codebase){
+    function hierarchy(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -34,5 +34,5 @@ runHierarchy = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    hierarchy(s, job)
+    hierarchy(s, job, codebase)
 }

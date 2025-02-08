@@ -1,8 +1,8 @@
-runFinalize = function(s, job){
-    function finalize(s, job){
+runFinalize = function(s, job, codebase){
+    function finalize(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -121,13 +121,13 @@ runFinalize = function(s, job){
                 job.sendToSingle(job.getPath(), savename.toString());
             }
             
-            // Brighton ------------------------------------------------------------------------------------------------
+            // Wixom ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Wixom"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
                 data.side = numberOfPages == 1 ? "_SS" : "_DS";
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + handoffData.surface + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
@@ -158,7 +158,7 @@ runFinalize = function(s, job){
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-CUT" + ".pdf";
+                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + phoenixPlan.qty + "-CUT" + ".pdf";
                 }
                 
                 if(data.processType == "Summary"){				
@@ -229,7 +229,7 @@ runFinalize = function(s, job){
             job.sendToNull(job.getPath())
         }
     }
-    finalize(s, job)
+    finalize(s, job, codebase)
 }
 
 function getCoatLamSLN(s, handoffData){

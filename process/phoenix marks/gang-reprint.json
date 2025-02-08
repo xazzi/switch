@@ -1,0 +1,57 @@
+{
+    "description":"Sheet level labels for reprints.",
+    "name":"Gang Reprint",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": false
+                },
+                {
+                    "name": "Solon",
+                    "id": 25,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{}
+            },
+            "settings":[
+                {
+                    "group": "Facility",
+                    "name":"Label-GangReprint",
+                    "dir":"/Misc/"
+                }
+            ]
+        }
+    ]
+}

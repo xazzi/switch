@@ -1,8 +1,8 @@
-runRelease = function(s){
-    function release(s){
+runRelease = function(s, codebase){
+    function release(s, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/"
+                support: "C:/Scripts/" + codebase + "/switch/process/support/"
             }
 
             // Read in any support directories
@@ -16,7 +16,7 @@ runRelease = function(s){
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
             var db = {
-                general: new Statement(connections.general),
+                settings: new Statement(connections.settings),
                 email: new Statement(connections.email),
                 history: new Statement(connections.history)
             }
@@ -81,9 +81,9 @@ runRelease = function(s){
                     color = filesReady[k].split('_')[filesReady[k].split('_').length-1].split('.')[0];
                     filename = filesReady[k].split('_' + color)[0]
 
-                    db.general.execute("SELECT * FROM digital_room.`cut-vinyl_library` where `name` = '" + color + "';");
-                    db.general.fetchRow();
-                    width = db.general.getString(4);
+                    db.settings.execute("SELECT * FROM settings.`cut-vinyl_library` where `name` = '" + color + "';");
+                    db.settings.fetchRow();
+                    width = db.settings.getString(4);
 
                     db.history.execute("SELECT * FROM history.`vinyl_lettering` where `project-id` = '" + handoffData.projectID + "' AND `phoenix-filename` = '" + filename + "' AND `color` = '" + color + "';");
                     db.history.fetchRow();
@@ -114,7 +114,7 @@ runRelease = function(s){
             s.log(2, "Critical Error!: " + e);
         }
     }
-    release(s)
+    release(s, codebase)
 }
 
 function writeCSV(s, file, array){
