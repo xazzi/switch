@@ -2060,6 +2060,13 @@ runParser = function(s, job){
                 }
             }
 
+            // If it's 2nd Surface in WXM then append that to the hot folder name.
+            if(data.facility.destination == "Wixom"){
+                if(data.secondSurface){
+                    matInfo.rip.hotfolder = "Second Surface";
+                }
+            }
+
             // If it's laminated sintra in SLC, adjust the cut hotfolder name.
             if(data.facility.destination == "Salt Lake City"){
                 if(matInfo.prodName == "3mm-Sintra"){
@@ -2161,6 +2168,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 	var baseNode = theXML.createElement("base", null);
 		handoffNode.appendChild(baseNode);
 		
+        addNode_db(theXML, baseNode, "matInfoId", matInfo.id);
         addNode_db(theXML, baseNode, "projectID", data.projectID);
 		addNode_db(theXML, baseNode, "gangNumber", data.gangNumber);
 		addNode_db(theXML, baseNode, "projectNotes", data.projectNotes);

@@ -27,7 +27,7 @@
                     "sideMix": 1,
                     "rip":{
                         "device":"P5350HS",
-                        "hotfolder":"P5350HS"
+                        "hotfolder":"Standard"
                     }
                 },
                 "product": {
@@ -65,7 +65,11 @@
                     "printer": {
                         "name": "Epson"
                     },
-                    "sideMix": 1
+                    "sideMix": 1,
+                    "rip":{
+                        "device":"5R1",
+                        "hotfolder":"Standard"
+                    }
                 },
                 "product": {
                     "stock": "Roll_124",

@@ -193,6 +193,11 @@
                     "group": "Facility",
                     "name":"OrderItemInfo",
                     "dir":"/Master Labels/Custom/Tension Stands/"
+                },
+                {
+                    "group": "Facility",
+                    "name":"ItemInfo",
+                    "dir":"/Master Labels/Custom/Tension Stands/"
                 }
             ]
         },
@@ -272,7 +277,7 @@
                 {
                     "name": "Wixom",
                     "id": 37,
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
