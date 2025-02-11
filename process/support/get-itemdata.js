@@ -15,7 +15,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			},
 			material: {
 				active: false,
-				value: null
+				value: null,
+				customValue: null
 			},
 			materialThickness: {
 				enabled: false,
