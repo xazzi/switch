@@ -19,6 +19,10 @@
             },
             "overrides": {
                 "matInfo": {
+                    "workstyle":{
+                        "simplex": "Flatwork",
+                        "duplex": "Flatwork"
+                    }
                 },
                 "product": {
                     "rotation": "Custom",
