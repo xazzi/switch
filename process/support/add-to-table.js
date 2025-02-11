@@ -365,6 +365,11 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         },
         enabled: false,
         example: null,
-        dateAdded: new Date()
+        dateAdded: new Date(),
+        side: {
+            active: false,
+            method: null,
+            value: null
+        }
     }
 }
