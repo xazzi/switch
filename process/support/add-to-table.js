@@ -71,7 +71,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
                     arl: null,
                     wix: null,
                     vn: Number(db.settings.getString(4))
-                }
+                },
+                customValue: db.settings.getString(6)
             }
         }
 

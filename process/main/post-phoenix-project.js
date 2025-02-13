@@ -117,53 +117,52 @@ runPost = function(s, job, codebase){
             var xmlF = new File(xmlfile);
             //var xmlF = new File("C://Switch//Development//" + doc.evalToString('//job/id', map) + ".json");
 
-                xmlF.open(File.Append);
-                xmlF.writeLine('{');
-                
-                xmlF.writeLine('"Description": "' + handoffObj.gangNumber + '",');
-                xmlF.writeLine('"Workspace": "' + handoffObj.printer + '",');
-                xmlF.writeLine('"Material": "' + handoffObj.material + '",');
-                xmlF.writeLine('"Status": ' + '1' + ',');
-                xmlF.writeLine('"CodeType": ' + '1' + ',');
-                xmlF.writeLine('"Rush": ' + false + ',');
-                xmlF.writeLine('"WhiteInk": ' + handoffObj.whiteink + ',');
-                xmlF.writeLine('"DoubleSided": ' + handoffObj.doublesided + ',');
-                xmlF.writeLine('"SecondSurface": ' + handoffObj.secondsurface + ',');
-                xmlF.writeLine('"Laminate": ' + data.laminate + ',');
-                xmlF.writeLine('"Premask": ' + false + ',');
-                
-                //layout loop starts here
-                xmlF.writeLine('"Layouts": ' + '[' + '');	
-                for(var i=0; i<productNodes.length; i++){
-                    xmlF.writeLine('{');
+            // Create the main object and assign some base parameters.
+            var mainObject = {
+                "Description": handoffObj.gangNumber,
+                "Workspace": handoffObj.printer,
+                "Material": handoffObj.material,
+                "Status": '1',
+                "CodeType": '1',
+                "Rush": false,
+                "WhiteInk": handoffObj.whiteink,
+                "DoubleSided": handoffObj.doublesided,
+                "SecondSurface": handoffObj.secondsurface,
+                "Laminate": data.laminate,
+                "Premask": false,
+                "Layouts":[]
+            }
 
-                    // Extract the itemNumber from the properties list.
-                    var propertyNodes = productNodes.at(i).evalToNodes('properties/property')
-                    for(var ii=0; ii<propertyNodes.length; ii++){
-                        if(propertyNodes.at(ii).evalToString('name') == "Item Number"){
-                            xmlF.writeLine('"JobItem": ' + propertyNodes.at(ii).evalToString('value') + ',');
-                            break;
-                        }
-                    }
-                    
-                    // Loop through all of the index/placed values in the layouts sub nodes
-                    // Assign the necessary values.
-                    var indexPlacedNodes = productNodes.at(i).evalToNode("layouts").getChildNodes();
-                    for(var k=0; k<indexPlacedNodes.length; k++){
-                        xmlF.writeLine('"GangNo": "' + doc.evalToString('//job/id', map) + "-" + indexPlacedNodes.at(k).getAttributeValue('index') + '",');
-                        xmlF.writeLine('"PhoenixProductIndex": ' + productNodes.at(i).evalToString('index') + ',');
-                        xmlF.writeLine('"NumberUp": ' + indexPlacedNodes.at(k).getAttributeValue('placed') + '');
-                    }
-                    
-                    if(i != productNodes.length-1){
-                        xmlF.writeLine('},');
-                    }else{
-                        xmlF.writeLine('}');
+            // Loop through the products and assign each of those.
+            for(var i=0; i<productNodes.length; i++){
+
+                var itemNumber
+
+                // Extract the itemNumber from the properties list.
+                var propertyNodes = productNodes.at(i).evalToNodes('properties/property')
+                for(var ii=0; ii<propertyNodes.length; ii++){
+                    if(propertyNodes.at(ii).evalToString('name') == "Item Number"){
+                        itemNumber = propertyNodes.at(ii).evalToString('value')
+                        break;
                     }
                 }
-    
-                xmlF.writeLine(']');	
-                xmlF.writeLine('}');
+                
+                // Loop through all of the index/placed values in the layouts sub nodes
+                // Assign the necessary values.
+                var indexPlacedNodes = productNodes.at(i).evalToNode("layouts").getChildNodes();
+                for(var k=0; k<indexPlacedNodes.length; k++){
+                    var temp = {
+                        JobItem: itemNumber,
+                        GangNo: doc.evalToString('//job/id', map) + "-" + indexPlacedNodes.at(k).getAttributeValue('index'),
+                        PhoenixProductIndex: productNodes.at(i).evalToString('index'),
+                        NumberUp: indexPlacedNodes.at(k).getAttributeValue('placed')
+                    }
+                    mainObject.Layouts.push(temp)
+                }
+            }
+
+                xmlF.open(File.Append);
+                xmlF.writeLine(JSON.stringify(mainObject))
                 xmlF.close();
                 
             // Post the above json to the API.
@@ -179,43 +178,36 @@ runPost = function(s, job, codebase){
             while(!theHTTP.waitForFinished(10)){
                 s.log(5, "Posting Phoenix data...", theHTTP.progress());
             }
-            
+
                 File.remove(xmlfile);
             
             if(theHTTP.finishedStatus == HTTP.Failed || theHTTP.statusCode !== 201){
                 // Log the status of the prism post.
-                /*
                 db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                    ["project-id", handoffData.projectID]
+                    ["project-id", handoffObj.projectID]
                 ],[
                     ["ppq-response","Fail"]
                 ])) 
-                    */
                 s.log(3, "Phoenix API post failed: " + theHTTP.lastError);
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
 
-            /*
             // Log the status of the prism post.
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                ["project-id", handoffData.projectID]
+                ["project-id", handoffObj.projectID]
             ],[
                 ["ppq-response","Success"]
             ])) 
-                */
-                    
             job.sendTo(findConnectionByName(s, "Success"), job.getPath());       
             
         }catch(e){
-            /*
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                ["project-id", handoffData.projectID]
+                ["project-id", handoffObj.projectID]
             ],[
                 ["ppq-response","Error"]
             ])) 
-                */
-            s.log(2, "Critical Error: Post-Project")
+            s.log(2, "Critical Error: Post-Project: " + e)
             job.sendTo(findConnectionByName(s, "Error"), job.getPath());
         }
     }
