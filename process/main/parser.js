@@ -628,7 +628,10 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                orderSpecs.dartInfo = dartTemplateCheck(s, orderSpecs, data, db, matInfo)
+                // If it's packaging product, check the templates.
+                if(matInfo.type == "packaging"){
+                    orderSpecs.dartInfo = dartTemplateCheck(s, orderSpecs, data, db, matInfo)
+                }
                 
                 // Set the processes and subprocesses values and check if following items match it.
                 if(data.prodName == null){
@@ -1889,9 +1892,11 @@ runParser = function(s, job, codebase){
                 
                 // For VN LFP, add 10% min overrun to files over qty 20
                 if(data.facility.destination == "Van Nuys"){
-                    if(product.quantity >= 20){
-                        product.overrunMin = 10;
-                        product.overrunMax = 20;
+                    if(matInfo.type == "roll"){
+                        if(product.quantity >= 20){
+                            product.overrunMin = 10;
+                            product.overrunMax = 20;
+                        }
                     }
                 }
 

@@ -36,7 +36,7 @@ runProcessor = function(s, job, codebase){
                     items: "",
                     layouts: ""
                 },
-				issue: ""
+				issue: false
             }
                 
             for(var i=0; i<validation.nodes.length; i++){
@@ -51,7 +51,7 @@ runProcessor = function(s, job, codebase){
 
 				// Check if we should notify the teams webhook of an issue.
                 if(validation.nodes.getItem(i).evalToString('tag') == "Send Notification?"){
-                    validation.issue = validation.nodes.getItem(i).evalToString('value') == "No" ? 'n' : 'y';
+                    validation.issue = validation.nodes.getItem(i).evalToString('value') == "Yes";
                 }
             }
             
@@ -132,7 +132,7 @@ runProcessor = function(s, job, codebase){
 				}
             }
 
-			if(validation.issue = 'y'){
+			if(validation.issue){
 				sendEmail_db(s, handoffData, null, getEmailResponse("Phoenix Product Notification", null, null, handoffData, userInfo), userInfo);
 			}
 
