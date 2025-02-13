@@ -31,6 +31,7 @@ runParser = function(s, job, codebase){
             eval(File.read(dir.support + "/sql-statements.js"));
             eval(File.read(dir.support + "/get-target-height.js"));
             eval(File.read(dir.support + "/set-banner-storting.js"));
+            eval(File.read(dir.support + "/dart-template-check.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -199,6 +200,7 @@ runParser = function(s, job, codebase){
             var adjustmentArray = [];
             var matInfo = null;
             var matInfoCheck = false;
+            var dartInfo
             var misc = {
                 rejectPress: true
             }
@@ -498,6 +500,18 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // Pull the thickness info if it's present and enabled.
+                if(orderSpecs.materialThickness.enabled){
+                    matInfo.prodMatFileName = orderSpecs.materialThickness.value + matInfo.prodMatFileName
+                }
+
+                if(orderSpecs.printFinish.enabled){
+                    if(orderSpecs.material.customValue !== undefined){
+                        orderSpecs.printFinish.value = orderSpecs.material.customValue
+                    }
+                    matInfo.prodMatFileName = matInfo.prodMatFileName + orderSpecs.printFinish.value
+                }
+
                 // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
                 if(orderSpecs.facility != data.facility.destination){
                     if(!submit.route.active){
@@ -613,6 +627,11 @@ runParser = function(s, job, codebase){
                         }
                     }
                 }
+
+                // If it's packaging product, check the templates.
+                if(matInfo.type == "packaging"){
+                    orderSpecs.dartInfo = dartTemplateCheck(s, orderSpecs, data, db, matInfo)
+                }
                 
                 // Set the processes and subprocesses values and check if following items match it.
                 if(data.prodName == null){
@@ -668,6 +687,20 @@ runParser = function(s, job, codebase){
                     if(data.mount.active){
                         data.phoenix.gangLabel.push("Mount");
                     }
+                }
+
+                // If something set an item to a different imposition profile within Phoenix, remove it from the gang.
+                // We can't mix things that want to call different profiles.
+                if(data.impositionProfile.name != matInfo.impositionProfile){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different Phoenix profile: " + matInfo.impositionProfile + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different Phoenix profile: " + matInfo.impositionProfile + "."]
+                    ]))
+                    continue;
                 }
 
                 // Check for side deviation.
@@ -962,6 +995,7 @@ runParser = function(s, job, codebase){
                     quantity: orderArray[i].qty,
                     width: round(Number(orderArray[i].width)),
                     height: round(Number(orderArray[i].height)),
+                    description: null,
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
                     laminate: orderArray[i].laminate.active ? true : false,
@@ -1487,37 +1521,39 @@ runParser = function(s, job, codebase){
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
                 // Not for undersizing to force better yield.
-                if(!scale.locked){
-                    if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
-                        if(!data.oversize && !data.scaled){
-                            if(product.width > product.height){
-                                if(product.width >= usableArea.height){
-                                    scale.width = ((usableArea.height-.25)/product.width)*100;
-                                    scale.adjusted.width = true;
-                                    if(product.width == product.height){
-                                        scale.height = scale.width
+                if(matInfo.allowUndersize){
+                    if(!scale.locked){
+                        if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+                            if(!data.oversize && !data.scaled){
+                                if(product.width > product.height){
+                                    if(product.width >= usableArea.height){
+                                        scale.width = ((usableArea.height-.25)/product.width)*100;
+                                        scale.adjusted.width = true;
+                                        if(product.width == product.height){
+                                            scale.height = scale.width
+                                        }
                                     }
-                                }
-                                if(product.height >= usableArea.width){
-                                    scale.height = ((usableArea.width-.25)/product.height)*100;
-                                    scale.adjusted.height = true;
-                                    if(product.width == product.height){
-                                        scale.width = scale.height
+                                    if(product.height >= usableArea.width){
+                                        scale.height = ((usableArea.width-.25)/product.height)*100;
+                                        scale.adjusted.height = true;
+                                        if(product.width == product.height){
+                                            scale.width = scale.height
+                                        }
                                     }
-                                }
-                            }else{
-                                if(product.height >= usableArea.height){
-                                    scale.height = ((usableArea.height-.25)/product.height)*100;
-                                    scale.adjusted.height = true;
-                                    if(product.width == product.height){
-                                        scale.width = scale.height
+                                }else{
+                                    if(product.height >= usableArea.height){
+                                        scale.height = ((usableArea.height-.25)/product.height)*100;
+                                        scale.adjusted.height = true;
+                                        if(product.width == product.height){
+                                            scale.width = scale.height
+                                        }
                                     }
-                                }
-                                if(product.width >= usableArea.width){
-                                    scale.width = ((usableArea.width-.25)/product.width)*100;
-                                    scale.adjusted.width = true;
-                                    if(product.width == product.height){
-                                        scale.height = scale.width
+                                    if(product.width >= usableArea.width){
+                                        scale.width = ((usableArea.width-.25)/product.width)*100;
+                                        scale.adjusted.width = true;
+                                        if(product.width == product.height){
+                                            scale.height = scale.width
+                                        }
                                     }
                                 }
                             }
@@ -1747,6 +1783,12 @@ runParser = function(s, job, codebase){
                 setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, advancedSettings);
                 setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
 
+                if(matInfo.type == "packaging"){
+                    product.description = orderArray[i].box.length + "x" + orderArray[i].box.width + "x" + orderArray[i].box.depth;
+                    marksArray.push(data.facility.destination + "/Watermark/QR Code/QR-" + orderArray[i].dartInfo.qrCode);
+                    marksArray.push(data.facility.destination + "/Watermark/Text/Text-" + orderArray[i].dartInfo.qrCode);
+                }
+
                 // If the product requires a custom label, apply it.
                 if(product.customLabel.apply){
                     product.customLabel.value = product.width + '"x' + product.height + '" ' + product.itemName
@@ -1850,9 +1892,11 @@ runParser = function(s, job, codebase){
                 
                 // For VN LFP, add 10% min overrun to files over qty 20
                 if(data.facility.destination == "Van Nuys"){
-                    if(product.quantity >= 20){
-                        product.overrunMin = 10;
-                        product.overrunMax = 20;
+                    if(matInfo.type == "roll"){
+                        if(product.quantity >= 20){
+                            product.overrunMin = 10;
+                            product.overrunMax = 20;
+                        }
                     }
                 }
 
@@ -2203,7 +2247,7 @@ runParser = function(s, job, codebase){
             
         }catch(e){
             s.log(3, "Critical Error!: " + e);
-            job.setPrivateData("error",e);
+            job.setPrivateData("error", "Critical " + e);
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
         }
     }
@@ -2320,6 +2364,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "maxLayoutCount", matInfo.layoutCount.max);
         addNode_db(theXML, miscNode, "mixedLam", data.mixedLam);
         addNode_db(theXML, miscNode, "workstyle", data.doubleSided ? matInfo.workstyle.duplex : matInfo.workstyle.simplex);
+        addNode_db(theXML, miscNode, "cutPathExistsCheck", matInfo.cutPathExistsCheck);
         addNode_db(theXML, miscNode, "optimizeForDFE", matInfo.optimizeForDFE);
 		
 	var userNode = theXML.createElement("user", null);

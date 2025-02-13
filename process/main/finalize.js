@@ -144,13 +144,18 @@ runFinalize = function(s, job, codebase){
             // Solon ------------------------------------------------------------------------------------------------
             if(handoffData.facility == "Solon"){
                 data.dateID = handoffData.dueDate.split('-')[1] + handoffData.dueDate.split('-')[2];
+                data.side = data.filename.match(new RegExp("S1","g")) ? "-F" : data.filename.match(new RegExp("S2","g")) ? "-B" : '';
 
                 if(handoffData.type == "roll-label" || handoffData.type == "roll-sticker"){
                     name.laminate = getCoatLamSLN(s, handoffData)
                 }
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + name.laminate + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
+                    if(handoffData.type == "packaging"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_C500_Highcon_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
+                    }else{
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + name.laminate + "_" + phoenixPlan.qty + "Frames_" + data.dateID + ".pdf";
+                    }
                 }
 
                 if(data.processType == "CSV"){
@@ -158,7 +163,11 @@ runFinalize = function(s, job, codebase){
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + phoenixPlan.qty + "-CUT" + ".pdf";
+                    if(handoffData.type == "packaging"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-CUT_" +  phoenixPlan.qty + "qty_" + data.dateID + ".pdf";
+                    }else{
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + phoenixPlan.qty + "-CUT" + ".pdf";
+                    }
                 }
                 
                 if(data.processType == "Summary"){				

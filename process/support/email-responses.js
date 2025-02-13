@@ -132,6 +132,14 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
             cc = []
             bcc = [];
         break;
+        case "Phoenix Product Notification":
+            active = true;
+            subject = "Product setup needs attention!";
+            body = "A new packaging size or style needs to be setup.";
+            to = [sendTo.bret,sendTo.chelsea]
+            cc = []
+            bcc = [];
+        break;
         default:
             subject = "Oops...";
             body = "This is a generic error because Bret didn't do his job very well and now we have a problem."
