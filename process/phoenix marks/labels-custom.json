@@ -339,7 +339,8 @@
             },
             "subprocess":{
                 "requirements":[
-                    "A-Frame"
+                    "A-Frame",
+                    "Dry Erase A-Frame"
                 ],
                 "rejections":[]
             },
