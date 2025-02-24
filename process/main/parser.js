@@ -419,7 +419,7 @@ runParser = function(s, job, codebase){
                     ]))
                     continue;
                 }
-                
+
                 // Set facility information
                 if(data.facility.original == null){
                     data.facility.original = orderSpecs.facility;
@@ -970,11 +970,14 @@ runParser = function(s, job, codebase){
 
             var dynamic = getTargetHeight(s, matInfo, orderArray, data)
 
+            // This is moved to below the getSubprocess() funtion.
+            // If no issues arise from this change, this can be removed.
+            // 2/21 -bc
             // Set the usableArea
-            var usableArea = {
-                width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
-                height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
-            }
+            //var usableArea = {
+            //    width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
+            //    height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
+            //}
                 
             // Special label for gang level info that prints on the sheet.
             if(data.phoenix.gangLabel.length == 0){
@@ -1517,6 +1520,12 @@ runParser = function(s, job, codebase){
                 if(product.width == 24 && product.height == 6){
                     product.subprocess.undersize = false;
                 }
+
+                // Set the usableArea
+                var usableArea = {
+                    width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
+                    height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
+                }
                 
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
@@ -1562,7 +1571,7 @@ runParser = function(s, job, codebase){
                     if(scale.width > 100){scale.width = 100}
                     if(scale.height > 100){scale.height = 100}
                 }
-                
+
                 // If the product can be undersized...
                 // This checks if the material info database is asking to undersize.
                 if(product.subprocess.undersize && product.forceUndersize == true){
