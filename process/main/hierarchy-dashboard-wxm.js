@@ -37,11 +37,9 @@ runHierarchy = function(s, job){
 
                 // Let the user override the press.
                 if(input.nodes.getItem(i).evalToString('tag') == "Press"){
-                    if(input.nodes.getItem(i).evalToString('value') != "Default"){
                         input.device.enabled = true;
                         handoffData.device = input.nodes.getItem(i).evalToString('value')
-                    }
-                }
+}
 
                 // Set the resolution where applicable.
                 if(input.nodes.getItem(i).evalToString('tag') == "Resolution"){
