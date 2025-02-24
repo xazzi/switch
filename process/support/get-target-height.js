@@ -61,7 +61,7 @@ getTargetHeight = function(s, matInfo, orderArray, data){
         }
 
         // Set the max length for Wixom at 130.
-        if(data.facility = "Wixom"){
+        if(data.facility.destination == "Wixom"){
             if(matInfo.prodName == "Magnet"){
                 if(minimum > 130){
                     minimum = 130;
