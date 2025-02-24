@@ -289,7 +289,6 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				}
 			}
 			if(dataDump.order_specs[k].code == "PPR"){
-				s.log(2, dataDump.order_specs[k].value)
 				specs.paper = addToTable(s, db, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "MATRL"){
