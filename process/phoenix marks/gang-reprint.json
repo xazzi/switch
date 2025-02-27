@@ -42,7 +42,14 @@
                 "rejections":[]
             },
             "specs":{
-                "requirements":{},
+                "requirements":{
+                    "data":{
+                        "reprint":true
+                    },
+                    "matInfo":{
+                        "type":"packaging"
+                    }
+                },
                 "rejections":{}
             },
             "settings":[
