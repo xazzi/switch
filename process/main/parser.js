@@ -483,7 +483,6 @@ runParser = function(s, job, codebase){
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.gangNumber + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
-                        job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID]
                         ],[
@@ -1024,7 +1023,7 @@ runParser = function(s, job, codebase){
                     },
                     grade: matInfo.grade,
                     shapeSearch: "Largest",
-                    dieDesignSource: "ArtworkPaths",
+                    dieDesignSource: matInfo.dieDesignSource,
                     dieDesignName: "",
                     overrunMax: matInfo.overrunMax,
                     overrunMin: 0,
@@ -1176,6 +1175,11 @@ runParser = function(s, job, codebase){
                         product.subprocess.undersize = false;
                         scale.locked = true;
                     }
+                }
+
+                // Add 20 to the quantity for web orders.
+                if(matInfo.type == "web"){
+                    product.quantity = Number(product.quantity) + 20;
                 }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
@@ -1374,7 +1378,7 @@ runParser = function(s, job, codebase){
                         }
 
                         // Perform the orientation and scale logic
-                        if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+                        if(matInfo.orientationCheck){
                             
                             // Check for standard orientation of the file.
                             compareToFile(s, round(product.height + product.edge.top.allowance + product.edge.bottom.allowance), file.height, product, scale, "height", "standard")
@@ -1756,7 +1760,6 @@ runParser = function(s, job, codebase){
                 
                 // Cut Vinyl adjustments (These should be moved to the database in the future)
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
-                    product.dieDesignSource = "ArtworkTrimbox";
                     product.transfer = true;
                     data.repository = "//10.21.71.213/Repository_VL/";
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
@@ -1993,8 +1996,13 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                var size = {
+                    width: matInfo.type == "web" ? orderArray[i].size.width : scale.width + "%",
+                    height: matInfo.type == "web" ? orderArray[i].size.height : scale.height + "%"
+                }
+
                 // Compile the data into an array.
-                var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
 
                 // Write the compiled data into the CSV.
                 if(writeHeader){
@@ -2007,7 +2015,7 @@ runParser = function(s, job, codebase){
                 if(product.subprocess.name == "Breakaway"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf";
                     marksArray.push(data.facility.destination + "/Master Labels/Custom/Breakaway/Velcro" + data.scale);
-                    infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                    infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                         
                     writeCSV(s, csvFile, infoArray, 1);
                 }
@@ -2017,7 +2025,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf";
                         product.customLabel.value = (i+1)+"-B";
-                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
 
@@ -2038,7 +2046,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                         product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_B";
-                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
 
@@ -2059,7 +2067,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                         product.dieDesignName = "angledFlag_" + product.subprocess.template + "_B";
-                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
 
@@ -2080,7 +2088,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                         product.dieDesignName = orderArray[i].hardware.template.name + "_B"
-                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
 
@@ -2175,7 +2183,7 @@ runParser = function(s, job, codebase){
             }
 
             // Adjust the imposition profile based on overrides from the user.
-            if(data.impositionProfile.name == "Sheet" || data.impositionProfile.name == "Roll"){
+            if(data.impositionProfile.name == "Sheet" || data.impositionProfile.name == "Roll" ||  data.impositionProfile.name == "Web"){
                 if(submit.override.gangMethod == "Default"){
                     data.impositionProfile.name += "_" + matInfo.phoenixMethod;
                 }
@@ -2242,7 +2250,8 @@ runParser = function(s, job, codebase){
                 ["due-date",data.date.due],
                 ["dynamic-height-enabled",dynamic.height.enabled],
                 ["height-value",dynamic.height.value],
-                ["status","Parse Complete"]
+                ["status","Parse Complete"],
+                ["rip-hotfolder",matInfo.rip.hotfolder]
             ]))
             
         }catch(e){
@@ -2366,6 +2375,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "workstyle", data.doubleSided ? matInfo.workstyle.duplex : matInfo.workstyle.simplex);
         addNode_db(theXML, miscNode, "cutPathExistsCheck", matInfo.cutPathExistsCheck);
         addNode_db(theXML, miscNode, "optimizeForDFE", matInfo.optimizeForDFE);
+        addNode_db(theXML, miscNode, "reversePages", matInfo.reversePages);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);

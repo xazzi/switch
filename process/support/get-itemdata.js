@@ -199,6 +199,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				width: null,
 				depth: null
 			},
+			pages: null,
 			secondSurface: false,
 			doubleSided: false,
 			facility: null,
@@ -238,13 +239,25 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 		var dataDump = JSON.parse(response).job_item;
 		
 			specs.qty = dataDump.qty;
+			specs.pageQty = dataDump.page_qty;
 			specs.jobItemId = dataDump.job_item_id;
 			specs.jobOrderId = dataDump.job_order_id;
 			specs.itemName = dataDump.item_name;
 			specs.width = dataDump.width;
 			specs.height = dataDump.height;
+			specs.size = {
+				raw: dataDump.size.split('x'),
+				width: null,
+				height: null
+			};
 			specs.facilityId = "facility_id" in dataDump ? dataDump.facility_id : undefined;
 			specs.facility = "facility" in dataDump ? dataDump.facility : undefined;
+
+			// parse the specs.size.raw data into a width and height.
+			if(specs.size.raw.length === 2) {
+				specs.size.width = parseFloat(specs.size.raw[0].replace(/[^0-9.]/g, ''));
+				specs.size.height = parseFloat(specs.size.raw[1].replace(/[^0-9.]/g, ''));
+			}
 
 			try{
 				specs.ship = {
@@ -289,7 +302,6 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				}
 			}
 			if(dataDump.order_specs[k].code == "PPR"){
-				s.log(2, dataDump.order_specs[k].value)
 				specs.paper = addToTable(s, db, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null);
 			}
 			if(dataDump.order_specs[k].code == "MATRL"){

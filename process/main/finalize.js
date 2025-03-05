@@ -190,7 +190,12 @@ runFinalize = function(s, job, codebase){
                 }
                 
                 if(data.processType == "Print"){
-                    savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
+                    if(handoffData.type == "web"){
+                        phoenixPlan.itemNumber = phoenixPlanDS.evalToString("//products/product/properties/property[6]/value");
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + phoenixPlan.itemNumber + ".pdf";
+                    }else{
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
+                    }
                 }
                 
                 if(data.processType == "Cut"){

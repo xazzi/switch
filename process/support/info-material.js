@@ -94,8 +94,8 @@ getMatInfo = function(orderSpecs, db){
         lamMix: db.settings.getString(45) == 'y' ? true : false,
         approved: db.settings.getString(46) == 'y' ? true : false,
         duplicateHoles: db.settings.getString(47) == 'y' ? true : false,
-        standardPrint: db.settings.getString(51) == 'y' ? true : false,   //1st surface
-        reversePrint: db.settings.getString(50) == 'y' ? true : false,    //2nd surface
+        standardPrint: db.settings.getString(51) == 'y' ? true : false, //1st surface
+        reversePrint: db.settings.getString(50) == 'y' ? true : false, //2nd surface
         rotateFront: db.settings.getString(37) == 'y' ? true : false,
         rotateBack: db.settings.getString(38) == 'y' ? true : false,
         rotate90: db.settings.getString(39) == 'y' ? true : false,
@@ -106,6 +106,9 @@ getMatInfo = function(orderSpecs, db){
         cutMethod: db.settings.getString(60),
         optimizeForDFE: db.settings.getString(72) == 'y' ? true : false,
         cutPathExistsCheck: db.settings.getString(73) == 'y' ? true : false,
+        reversePages: db.settings.getString(74) == 'y' ? true : false,
+        orientationCheck: db.settings.getString(75) == 'y' ? true : false,
+        dieDesignSource: db.settings.getString(76) == 'y' ? true : false,
         
         layoutCount:{
             target: db.settings.getString(67),
