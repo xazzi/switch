@@ -69,7 +69,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {
@@ -145,7 +149,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {
@@ -221,7 +229,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {
@@ -297,7 +309,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {
@@ -373,7 +389,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {
@@ -449,7 +469,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {
@@ -525,7 +549,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {
@@ -601,7 +629,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {
