@@ -11,7 +11,8 @@ runHierarchy = function(s, job){
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
                 device: handoffDataDS.evalToString("//rip/device"),
-                hotfolder: handoffDataDS.evalToString("//rip/hotfolder")
+                hotfolder: handoffDataDS.evalToString("//rip/hotfolder"),
+                resolution: handoffDataDS.evalToString("//rip/resolution")
             }
 
             var inputDS = loadDataset_db("Input");
@@ -37,24 +38,21 @@ runHierarchy = function(s, job){
 
                 // Let the user override the press.
                 if(input.nodes.getItem(i).evalToString('tag') == "Press"){
-                        input.device.enabled = true;
-                        handoffData.device = input.nodes.getItem(i).evalToString('value')
-}
-
-                // Set the resolution where applicable.
-                if(input.nodes.getItem(i).evalToString('tag') == "Resolution"){
-                    if(input.nodes.getItem(i).evalToString('value') != "Default"){
-                        input.hotfolder.enabled = true;
-                        handoffData.hotfolder = input.nodes.getItem(i).evalToString('value')
-                    }
+                    input.device.enabled = true;
+                    handoffData.device = input.nodes.getItem(i).evalToString('value')
                 }
             }
 
-            if(input.device.enabled){
-                if(!input.hotfolder.enabled){
-                    if(handoffData.hotfolder != "First Surface" && handoffData.hotfolder != "Second Surface"){
-                        handoffData.hotfolder = "Standard"
-                    }
+            // If a press that requires a resolution is required, change the hotfolder to the resolution.
+            // Doing it this way allows the override to work.
+            if(handoffData.device == "GSR2" || handoffData.device == "GS" || handoffData.device == "H5" || handoffData.device == "HS" || handoffData.device == "HS100"){
+                handoffData.hotfolder = handoffData.resolution;
+            }
+
+            // If a press has a standard structure, assign accordingly.
+            if(handoffData.device == "5R1" || handoffData.device == "5R2" || handoffData.device == "P5350HS"){
+                if(handoffData.hotfolder != "First Surface" && handoffData.hotfolder != "Second Surface"){
+                    handoffData.hotfolder = "Standard"
                 }
             }
 

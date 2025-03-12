@@ -70,10 +70,10 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Item Name",product.itemName],
 		["Facility",data.facility.destination],
 		["Pages",orderArray.pageQty],
-		["Folding Patterns","F4-2"],
-		["Type","Bound"],
-		["Binding Method","Saddle Stitch"],
-		["Binding Edge","Left"],
+		["Folding Patterns",product.foldingPatterns],
+		["Type",product.type],
+		["Binding Method",product.bindingMethod],
+		["Binding Edge",product.bindingEdge],
 		["Marks",marksArray]// Keep this one last so it's easier to read the CSV
 	];
 }
