@@ -108,7 +108,7 @@ getMatInfo = function(orderSpecs, db){
         cutPathExistsCheck: db.settings.getString(73) == 'y' ? true : false,
         reversePages: db.settings.getString(74) == 'y' ? true : false,
         orientationCheck: db.settings.getString(75) == 'y' ? true : false,
-        dieDesignSource: db.settings.getString(76) == 'y' ? true : false,
+        dieDesignSource: db.settings.getString(76),
         
         layoutCount:{
             target: db.settings.getString(67),
@@ -123,7 +123,8 @@ getMatInfo = function(orderSpecs, db){
         rip: {
             enable: db.settings.getString(48) == 'y' ? true : false,
             device: db.settings.getString(30),
-            hotfolder: db.settings.getString(31) == 'empty' ? '' : db.settings.getString(31)
+            hotfolder: db.settings.getString(31) == 'empty' ? '' : db.settings.getString(31),
+            resolution: db.settings.getString(77)
         },
 
         cutter: {

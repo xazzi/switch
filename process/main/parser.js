@@ -1099,7 +1099,11 @@ runParser = function(s, job, codebase){
                         value: orderArray[i].unwind.value,
                         key: orderArray[i].unwind.key,
                         rotation: orderArray[i].unwind.rotation
-                    }
+                    },
+                    foldingPatterns: "",
+                    type: "",
+                    bindingMethod: "",
+                    bindingEdge: ""
                 }
                 
                 var scale = {
@@ -1180,9 +1184,14 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                // Add 20 to the quantity for web orders.
+                // Make some direct adjustments to web orders.
+                // Depending on how this has to scale in the future, it should probably be moved to a database.
                 if(matInfo.type == "web"){
                     product.quantity = Number(product.quantity) + 20;
+                    product.foldingPatterns = "F4-2";
+                    product.type = "Bound";
+                    product.bindingMethod = "Saddle Stitch";
+                    product.bindingEdge = "Left";
                 }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
@@ -1990,6 +1999,12 @@ runParser = function(s, job, codebase){
                             data.thing += " (" + dynamic.height.value + ")";
                         }
                     }
+                    if(matInfo.type == "web"){
+                        if(product.width == 12 && product.height == 6){
+                            data.thing += " (13)"
+                            product.stock += "_13"
+                        }
+                    }
                 }
 
                 // For small product on the router(s), reassign the layer name.
@@ -2357,6 +2372,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, ripNode, "autorip", matInfo.rip.enable);
 		addNode_db(theXML, ripNode, "device", matInfo.rip.device);
 		addNode_db(theXML, ripNode, "hotfolder", matInfo.rip.hotfolder);
+        addNode_db(theXML, ripNode, "resolution", matInfo.rip.resolution);
 	
 	var miscNode = theXML.createElement("misc", null);
 		handoffNode.appendChild(miscNode);
