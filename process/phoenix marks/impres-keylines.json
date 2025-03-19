@@ -1,0 +1,74 @@
+{
+    "description":"Adding keylines to the Impres",
+    "name":"Keylines",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"All sides.",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":28,
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":5,
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":37,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None",
+                    "Backdrop",
+                    "TableRunner"
+                ],
+                "rejections":[
+                    "StretchTableCover",
+                    "TableCloth",
+                    "RectangleFlag",
+                    "AngledFlag",
+                    "FeatherFlag"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-Height",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                },
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-Width",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                }
+            ]
+        }
+    ]
+}
