@@ -420,6 +420,24 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                //var enabled = enabledCheck(s, data, orderSpecs)
+
+                //s.log(2, JSON.parse(enabled))
+
+                /*
+                if(!orderSpecs.bindPlace.enabled){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Binding edge not assigned."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Binding edge not assigned."]
+                    ]))
+                    continue;
+                }
+                    */
+
                 // Set facility information
                 if(data.facility.original == null){
                     data.facility.original = orderSpecs.facility;
@@ -483,7 +501,6 @@ runParser = function(s, job, codebase){
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.gangNumber + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
-                        job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID]
                         ],[
@@ -1027,7 +1044,7 @@ runParser = function(s, job, codebase){
                     },
                     grade: matInfo.grade,
                     shapeSearch: "Largest",
-                    dieDesignSource: "ArtworkPaths",
+                    dieDesignSource: matInfo.dieDesignSource,
                     dieDesignName: "",
                     overrunMax: matInfo.overrunMax,
                     overrunMin: 0,
@@ -1100,7 +1117,14 @@ runParser = function(s, job, codebase){
                         value: orderArray[i].unwind.value,
                         key: orderArray[i].unwind.key,
                         rotation: orderArray[i].unwind.rotation
-                    }
+                    },
+                    foldingPatterns: "",
+                    type: "",
+                    bindingMethod: "",
+                    bindingEdge: orderArray[i].bindPlace.value,
+                    readingOrder: "Normal",
+                    nUp: "",
+                    nUpGap: ""
                 }
                 
                 var scale = {
@@ -1178,6 +1202,26 @@ runParser = function(s, job, codebase){
                         product.query = "21";
                         product.subprocess.undersize = false;
                         scale.locked = true;
+                    }
+                }
+
+                // Make some direct adjustments to web orders.
+                // Depending on how this has to scale in the future, it should probably be moved to a database.
+                if(matInfo.type == "web"){
+                    product.quantity = Number(product.quantity) + 20;
+                    product.foldingPatterns = "F4-2";
+                    product.type = "Bound";
+                    product.bindingMethod = "Saddle Stitch";
+
+                    // If the size has been requested to be 2up.
+                    if((product.width == '9.5' && product.height == '4.75') || (product.width == '17' && product.height == '5.5')){
+                        product.nUp = 2;
+                        product.nUpGap = 0.5;
+                    }
+
+                    // Adjustment for calendars
+                    if(product.bindingEdge == "Top"){
+                        product.readingOrder = "Calendar"
                     }
                 }
                 
@@ -1377,7 +1421,7 @@ runParser = function(s, job, codebase){
                         }
 
                         // Perform the orientation and scale logic
-                        if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+                        if(matInfo.orientationCheck){
                             
                             // Check for standard orientation of the file.
                             compareToFile(s, round(product.height + product.edge.top.allowance + product.edge.bottom.allowance), file.height, product, scale, "height", "standard")
@@ -1765,7 +1809,6 @@ runParser = function(s, job, codebase){
                 
                 // Cut Vinyl adjustments (These should be moved to the database in the future)
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
-                    product.dieDesignSource = "ArtworkTrimbox";
                     product.transfer = true;
                     data.repository = "//10.21.71.213/Repository_VL/";
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
@@ -1987,6 +2030,12 @@ runParser = function(s, job, codebase){
                             data.thing += " (" + dynamic.height.value + ")";
                         }
                     }
+                    if(matInfo.type == "web"){
+                        if(product.width == 12 && product.height == 6){
+                            data.thing += " (13)"
+                            product.stock += "_13"
+                        }
+                    }
                 }
 
                 // For small product on the router(s), reassign the layer name.
@@ -2002,8 +2051,13 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                var size = {
+                    width: matInfo.type == "web" ? orderArray[i].size.width : scale.width + "%",
+                    height: matInfo.type == "web" ? orderArray[i].size.height : scale.height + "%"
+                }
+
                 // Compile the data into an array.
-                var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                var infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
 
                 // Write the compiled data into the CSV.
                 if(writeHeader){
@@ -2016,7 +2070,7 @@ runParser = function(s, job, codebase){
                 if(product.subprocess.name == "Breakaway"){
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf";
                     marksArray.push(data.facility.destination + "/Master Labels/Custom/Breakaway/Velcro" + data.scale);
-                    infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                    infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                         
                     writeCSV(s, csvFile, infoArray, 1);
                 }
@@ -2026,7 +2080,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf";
                         product.customLabel.value = (i+1)+"-B";
-                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
 
@@ -2047,7 +2101,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                         product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_B";
-                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
 
@@ -2068,7 +2122,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                         product.dieDesignName = "angledFlag_" + product.subprocess.template + "_B";
-                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
 
@@ -2089,7 +2143,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
                         product.dieDesignName = orderArray[i].hardware.template.name + "_B"
-                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo);
+                        infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
 
@@ -2184,7 +2238,7 @@ runParser = function(s, job, codebase){
             }
 
             // Adjust the imposition profile based on overrides from the user.
-            if(data.impositionProfile.name == "Sheet" || data.impositionProfile.name == "Roll"){
+            if(data.impositionProfile.name == "Sheet" || data.impositionProfile.name == "Roll" ||  data.impositionProfile.name == "Web"){
                 if(submit.override.gangMethod == "Default"){
                     data.impositionProfile.name += "_" + matInfo.phoenixMethod;
                 }
@@ -2251,7 +2305,8 @@ runParser = function(s, job, codebase){
                 ["due-date",data.date.due],
                 ["dynamic-height-enabled",dynamic.height.enabled],
                 ["height-value",dynamic.height.value],
-                ["status","Parse Complete"]
+                ["status","Parse Complete"],
+                ["rip-hotfolder",matInfo.rip.hotfolder]
             ]))
             
         }catch(e){
@@ -2348,6 +2403,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, ripNode, "autorip", matInfo.rip.enable);
 		addNode_db(theXML, ripNode, "device", matInfo.rip.device);
 		addNode_db(theXML, ripNode, "hotfolder", matInfo.rip.hotfolder);
+        addNode_db(theXML, ripNode, "resolution", matInfo.rip.resolution);
 	
 	var miscNode = theXML.createElement("misc", null);
 		handoffNode.appendChild(miscNode);
@@ -2375,6 +2431,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "workstyle", data.doubleSided ? matInfo.workstyle.duplex : matInfo.workstyle.simplex);
         addNode_db(theXML, miscNode, "cutPathExistsCheck", matInfo.cutPathExistsCheck);
         addNode_db(theXML, miscNode, "optimizeForDFE", matInfo.optimizeForDFE);
+        addNode_db(theXML, miscNode, "reversePages", matInfo.reversePages);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -2495,4 +2552,18 @@ function writeXmlLine(xmlFile, xmlLabel, xmlVariable){
     xmlFile.write("<" + xmlLabel + ">");
     xmlFile.write(xmlVariable);
     xmlFile.writeLine("</" + xmlLabel + ">");
+}
+
+function enabledCheck(s, data, orderSpecs){
+    var results = {}
+    for(var key in orderSpecs){
+        if(typeof orderSpecs[key] === 'object'){
+            if(typeof orderSpecs[key]['enabled'] === 'boolean'){
+                s.log(2, key)
+                s.log(2, orderSpecs[key]['enabled'])
+                results[key] = orderSpecs[key]['enabled']
+            }
+        }
+    }
+    return results;
 }

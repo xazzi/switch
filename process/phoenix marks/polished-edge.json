@@ -70,7 +70,11 @@
                         "productLabel":true
                     }
                 },
-                "rejections":{}
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
             },
             "settings": [
                 {

@@ -1,4 +1,4 @@
-compileCSV = function(product, matInfo, scale, orderArray, data){
+compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, dashInfo, size){
 	// Compile the CSV information.	
 	return infoArray = [
 		["Project ID", data.projectID],
@@ -25,8 +25,8 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Bleed Right",product.bleed.right],
 		["Rotation",product.rotation],
 		["Allowed Rotations",product.allowedRotations],
-		["Width",scale.width + "%"],
-		["Height",scale.height + "%"],
+		["Width",size.width],
+		["Height",size.height],
         ["Scale Width",scale.width],
 		["Scale Height",scale.height],
 		["View Width",product.width],
@@ -69,6 +69,14 @@ compileCSV = function(product, matInfo, scale, orderArray, data){
 		["Script Pockets",product.script.pockets],
 		["Item Name",product.itemName],
 		["Facility",data.facility.destination],
+		["Pages",orderArray.pageQty],
+		["Folding Patterns",product.foldingPatterns],
+		["Type",product.type],
+		["Binding Method",product.bindingMethod],
+		["Binding Edge",product.bindingEdge],
+		["Reading Order",product.readingOrder],
+		["N-Up",product.nUp],
+		["N-Up Gap",product.nUpGap],
 		["Marks",marksArray]// Keep this one last so it's easier to read the CSV
 	];
 }

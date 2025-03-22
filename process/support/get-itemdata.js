@@ -28,6 +28,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				label: null,
 				value: null
 			},
+			bindPlace: {
+				enabled: null,
+				label: null,
+				value: null
+			},
 			shape: {
 				active: false,
 				method: null,
@@ -199,6 +204,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				width: null,
 				depth: null
 			},
+			pages: null,
 			secondSurface: false,
 			doubleSided: false,
 			facility: null,
@@ -238,13 +244,25 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 		var dataDump = JSON.parse(response).job_item;
 		
 			specs.qty = dataDump.qty;
+			specs.pageQty = dataDump.page_qty;
 			specs.jobItemId = dataDump.job_item_id;
 			specs.jobOrderId = dataDump.job_order_id;
 			specs.itemName = dataDump.item_name;
 			specs.width = dataDump.width;
 			specs.height = dataDump.height;
+			specs.size = {
+				raw: dataDump.size.split('x'),
+				width: null,
+				height: null
+			};
 			specs.facilityId = "facility_id" in dataDump ? dataDump.facility_id : undefined;
 			specs.facility = "facility" in dataDump ? dataDump.facility : undefined;
+
+			// parse the specs.size.raw data into a width and height.
+			if(specs.size.raw.length === 2) {
+				specs.size.width = parseFloat(specs.size.raw[0].replace(/[^0-9.]/g, ''));
+				specs.size.height = parseFloat(specs.size.raw[1].replace(/[^0-9.]/g, ''));
+			}
 
 			try{
 				specs.ship = {
@@ -299,6 +317,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			}
 			if(dataDump.order_specs[k].code == "PRINTFIN"){
 				specs.printFinish = addToTable(s, db, "options_print-finish", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
+			}
+			if(dataDump.order_specs[k].code == "BINDPLACE"){
+				specs.bindPlace = addToTable(s, db, "options_bindplace", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
 				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
