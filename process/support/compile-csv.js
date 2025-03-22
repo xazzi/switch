@@ -74,6 +74,9 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Type",product.type],
 		["Binding Method",product.bindingMethod],
 		["Binding Edge",product.bindingEdge],
+		["Reading Order",product.readingOrder],
+		["N-Up",product.nUp],
+		["N-Up Gap",product.nUpGap],
 		["Marks",marksArray]// Keep this one last so it's easier to read the CSV
 	];
 }

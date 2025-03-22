@@ -28,6 +28,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				label: null,
 				value: null
 			},
+			bindPlace: {
+				enabled: null,
+				label: null,
+				value: null
+			},
 			shape: {
 				active: false,
 				method: null,
@@ -312,6 +317,9 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			}
 			if(dataDump.order_specs[k].code == "PRINTFIN"){
 				specs.printFinish = addToTable(s, db, "options_print-finish", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
+			}
+			if(dataDump.order_specs[k].code == "BINDPLACE"){
+				specs.bindPlace = addToTable(s, db, "options_bindplace", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
 				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k]);

@@ -113,11 +113,7 @@
                 ]
             },
             "specs":{
-                "requirements":{
-                    "advancedSettings":{
-                        "productLabel":true
-                    }
-                },
+                "requirements":{},
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
@@ -127,12 +123,12 @@
             "settings":[
                 {
                     "group":"Facility",
-                    "name":"Keyline_Impres-TB-Stretched",
+                    "name":"Keyline_Impres-Stretched-TB",
                     "dir":"/Master Labels/Custom/Keyline/"
                 },
                 {
                     "group":"Facility",
-                    "name":"Keyline_Impres-LR-Stretched",
+                    "name":"Keyline_Impres-Stretched-LR",
                     "dir":"/Master Labels/Custom/Keyline/"
                 }
             ]

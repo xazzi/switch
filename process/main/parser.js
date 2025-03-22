@@ -420,6 +420,24 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                //var enabled = enabledCheck(s, data, orderSpecs)
+
+                //s.log(2, JSON.parse(enabled))
+
+                /*
+                if(!orderSpecs.bindPlace.enabled){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Binding edge not assigned."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Binding edge not assigned."]
+                    ]))
+                    continue;
+                }
+                    */
+
                 // Set facility information
                 if(data.facility.original == null){
                     data.facility.original = orderSpecs.facility;
@@ -1103,7 +1121,10 @@ runParser = function(s, job, codebase){
                     foldingPatterns: "",
                     type: "",
                     bindingMethod: "",
-                    bindingEdge: ""
+                    bindingEdge: orderArray[i].bindPlace.value,
+                    readingOrder: "Normal",
+                    nUp: "",
+                    nUpGap: ""
                 }
                 
                 var scale = {
@@ -1191,7 +1212,17 @@ runParser = function(s, job, codebase){
                     product.foldingPatterns = "F4-2";
                     product.type = "Bound";
                     product.bindingMethod = "Saddle Stitch";
-                    product.bindingEdge = "Left";
+
+                    // If the size has been requested to be 2up.
+                    if((product.width == '9.5' && product.height == '4.75') || (product.width == '17' && product.height == '5.5')){
+                        product.nUp = 2;
+                        product.nUpGap = 0.5;
+                    }
+
+                    // Adjustment for calendars
+                    if(product.bindingEdge == "Top"){
+                        product.readingOrder = "Calendar"
+                    }
                 }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
@@ -2521,4 +2552,18 @@ function writeXmlLine(xmlFile, xmlLabel, xmlVariable){
     xmlFile.write("<" + xmlLabel + ">");
     xmlFile.write(xmlVariable);
     xmlFile.writeLine("</" + xmlLabel + ">");
+}
+
+function enabledCheck(s, data, orderSpecs){
+    var results = {}
+    for(var key in orderSpecs){
+        if(typeof orderSpecs[key] === 'object'){
+            if(typeof orderSpecs[key]['enabled'] === 'boolean'){
+                s.log(2, key)
+                s.log(2, orderSpecs[key]['enabled'])
+                results[key] = orderSpecs[key]['enabled']
+            }
+        }
+    }
+    return results;
 }
