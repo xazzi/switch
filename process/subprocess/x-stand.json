@@ -26,6 +26,7 @@
                 "matInfo": {
                 },
                 "product": {
+                    "pageHandling": "OnePerPage"
                 },
                 "data": {
                 },
@@ -72,6 +73,7 @@
                     }
                 },
                 "product": {
+                    "pageHandling": "OnePerPage"
                 },
                 "data": {
                     "prodMatFileName": "UV-Greyback",
@@ -105,6 +107,7 @@
                 "matInfo": {
                 },
                 "product": {
+                    "pageHandling": "OnePerPage"
                 },
                 "data": {
                 },
@@ -136,6 +139,7 @@
                 "matInfo": {
                 },
                 "product": {
+                    "pageHandling": "OnePerPage"
                 },
                 "data": {
                 },
