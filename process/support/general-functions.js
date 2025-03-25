@@ -50,6 +50,15 @@ getDirectory = function(path){
 	return directory
 }
 
+checkDataset_db = function(dataset){
+    var datasetJob = job.getDataset(dataset);
+	if (datasetJob === undefined || !datasetJob.hasValidData()) {
+		return false;
+	}
+    
+    return true;
+}
+
 loadDataset_db = function(dataset){
     var datasetJob = job.getDataset(dataset);
 	if (datasetJob === undefined || !datasetJob.hasValidData()) {
