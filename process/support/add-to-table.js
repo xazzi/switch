@@ -18,7 +18,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';");
 
     // For the new table style
-    }else if(table == "options_front-coating" || table == "options_material-thickness" || table == "options_print-finish" || table == "options_bindplace"){
+    }else if(table == "options_front-coating" || table == "options_material-thickness" || table == "options_print-finish" || table == "options_bindplace" || table == "options_cover"){
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "';");
 
     // For everything else, run a generic query.
@@ -253,6 +253,15 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         }
 
         // Coating options
+        if(table == "options_cover"){
+            return specs = {
+                enabled: db.settings.getString(7) == 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) != null ? db.settings.getString(4) : db.settings.getString(3) != null ? db.settings.getString(3) : null
+            }
+        }
+
+        // Coating options
         if(table == "options_material-thickness"){
             return specs = {
                 enabled: db.settings.getString(7) == 'y',
@@ -349,7 +358,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         if(table == "options_hardware"){
             db.settings.execute("INSERT INTO settings.options_hardware" + "(`example-item`, `prism-code`, `prism-label`, `prism-value`, `item-name`, width, height, `date-added`) VALUES ('" + object.jobItemId + "','" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + object.itemName + "','" + object.width + "','" + object.height + "','" + new Date() + "');");
         // For the new table style
-        }else if(table == "options_front-coating" || table == "options_material-thickness" || table == "options_print-finish" || table == "options_bindplace"){
+        }else if(table == "options_front-coating" || table == "options_material-thickness" || table == "options_print-finish" || table == "options_bindplace" || table == "options_cover"){
             db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-code`, `prism-label`, `prism-value`, `date-added`, `example-item`) VALUES ('" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + new Date() + "','" + example + "');");
 
         // All of the other options tables.

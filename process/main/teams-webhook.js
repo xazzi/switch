@@ -100,8 +100,6 @@ runPost = function(s, job, codebase){
                 structure["facts"].push(attributes)
             }
 
-            s.log(2, s.getPropertyValue("message"))
-
             structure.activityTitle = s.getPropertyValue("message")
                     
             messageCard.sections.push(structure);

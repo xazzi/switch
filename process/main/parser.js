@@ -252,6 +252,10 @@ runParser = function(s, job, codebase){
                 notes: [],
                 tolerance: 0,
                 paper: null,
+                cover: {
+                    enabled: false,
+                    value: null
+                },
                 prismStock: null,
                 facility:{
                     original: null,
@@ -659,6 +663,10 @@ runParser = function(s, job, codebase){
                     if(data.prismStock == null){
                         data.prismStock = orderSpecs.paper.value;
                     }
+
+                    data.cover.enabled = orderSpecs.cover.enabled
+                    data.cover.value =  orderSpecs.cover.value
+
                     data.date.due = orderSpecs.date.due;
                     
                     data.doubleSided = orderSpecs.doubleSided;
@@ -1212,6 +1220,10 @@ runParser = function(s, job, codebase){
                     product.foldingPatterns = "F4-2";
                     product.type = "Bound";
                     product.bindingMethod = "Saddle Stitch";
+
+                    if(data.cover.enabled){
+                        matInfo.phoenixMethod += "-SeparateCover";
+                    }
 
                     // If the size has been requested to be 2up.
                     if((product.width == '9.5' && product.height == '4.75') || (product.width == '17' && product.height == '5.5')){
@@ -2306,7 +2318,9 @@ runParser = function(s, job, codebase){
                 ["dynamic-height-enabled",dynamic.height.enabled],
                 ["height-value",dynamic.height.value],
                 ["status","Parse Complete"],
-                ["rip-hotfolder",matInfo.rip.hotfolder]
+                ["rip-hotfolder",matInfo.rip.hotfolder],
+                ["separate-cover",(data.cover.enabled ? 'y' : 'n')],
+                ["cover-vm",data.cover.value]
             ]))
             
         }catch(e){
@@ -2361,6 +2375,12 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
         addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
 		addNode_db(theXML, settingsNode, "scaled", data.scaled);
+
+    var coverNode = theXML.createElement("cover", null);
+		handoffNode.appendChild(coverNode);
+
+        addNode_db(theXML, coverNode, "enabled", data.cover.enabled);
+        addNode_db(theXML, coverNode, "value", data.cover.value);
 
     var laminateNode = theXML.createElement("laminate", null);
 		handoffNode.appendChild(laminateNode);
