@@ -27,7 +27,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
@@ -95,7 +96,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
@@ -163,7 +165,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
@@ -231,7 +234,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
@@ -299,7 +303,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
@@ -367,7 +372,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
@@ -430,7 +436,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
