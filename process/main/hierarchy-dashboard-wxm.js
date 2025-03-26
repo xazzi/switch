@@ -15,6 +15,10 @@ runHierarchy = function(s, job){
                 resolution: handoffDataDS.evalToString("//rip/resolution")
             }
 
+            if(handoffData.resolution == ""){
+                handoffData.resolution = handoffData.hotfolder;
+            }
+
             var inputDS = loadDataset_db("Input");
             if(inputDS == "Dataset Missing"){
                 job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());

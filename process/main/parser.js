@@ -501,6 +501,7 @@ runParser = function(s, job, codebase){
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.gangNumber + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
+                        job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID]
                         ],[
