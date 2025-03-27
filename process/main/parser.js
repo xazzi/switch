@@ -505,6 +505,7 @@ runParser = function(s, job, codebase){
                     if(matInfo == "Material Data Missing"){
                         s.log(3, data.gangNumber + " :: Material entry doesn't exist, job rejected.");
                         sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
+                        job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID]
                         ],[
@@ -664,7 +665,7 @@ runParser = function(s, job, codebase){
                         data.prismStock = orderSpecs.paper.value;
                     }
 
-                    data.cover.enabled = orderSpecs.cover.enabled
+                    //data.cover.enabled = orderSpecs.cover.enabled
                     data.cover.value =  orderSpecs.cover.value
 
                     data.date.due = orderSpecs.date.due;
@@ -994,15 +995,6 @@ runParser = function(s, job, codebase){
             var writeHeader = true;
 
             var dynamic = getTargetHeight(s, matInfo, orderArray, data)
-
-            // This is moved to below the getSubprocess() funtion.
-            // If no issues arise from this change, this can be removed.
-            // 2/21 -bc
-            // Set the usableArea
-            //var usableArea = {
-            //    width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
-            //    height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
-            //}
                 
             // Special label for gang level info that prints on the sheet.
             if(data.phoenix.gangLabel.length == 0){
@@ -1221,7 +1213,8 @@ runParser = function(s, job, codebase){
                     product.type = "Bound";
                     product.bindingMethod = "Saddle Stitch";
 
-                    if(data.cover.enabled){
+                    if(data.cover.value != matInfo.rip.hotfolder){
+                        data.cover.enabled = true;
                         matInfo.phoenixMethod += "-SeparateCover";
                     }
 
@@ -2045,7 +2038,7 @@ runParser = function(s, job, codebase){
                     if(matInfo.type == "web"){
                         if(product.width == 12 && product.height == 6){
                             data.thing += " (13)"
-                            product.stock += "_13"
+                            //product.stock += "_13"
                         }
                     }
                 }
