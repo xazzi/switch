@@ -1229,7 +1229,7 @@ runParser = function(s, job, codebase){
                 // If it's a DS Rectangle Flag, swap the subprocess to the SilverBack version
                 // This code will be removed in the future once they open up SilverBack to all DS flag
                 if(orderArray[i].item.subprocess == 18 && product.doubleSided){
-                    orderArray[i].item.subprocess = 26
+                    product.query = "26"
                 }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
