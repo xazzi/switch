@@ -1225,6 +1225,10 @@ runParser = function(s, job, codebase){
                         product.readingOrder = "Calendar"
                     }
                 }
+
+                if(orderSpecs.item.subprocess == 18 && product.doubleSided){
+                    orderSpecs.item.subprocess == 26
+                }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query, dynamic);
