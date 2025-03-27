@@ -1229,6 +1229,10 @@ runParser = function(s, job, codebase){
                         product.readingOrder = "Calendar"
                     }
                 }
+
+                if(orderSpecs.item.subprocess == 18 && product.doubleSided){
+                    orderSpecs.item.subprocess == 26
+                }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query, dynamic);
@@ -1905,7 +1909,7 @@ runParser = function(s, job, codebase){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     }
-                    product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_F";
+                    product.dieDesignName = orderArray[i].hardware.template.name + "_F";
                 }
 
                 // Angled Flag Templates
@@ -2105,7 +2109,7 @@ runParser = function(s, job, codebase){
                 if(product.subprocess.name == "RectangleFlag"){
                     if(product.doubleSided){
                         product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
-                        product.dieDesignName = "rectFlag_" + product.width + "x" + product.height + "_B";
+                        product.dieDesignName = orderArray[i].hardware.template.name + "_B";
                         infoArray = compileCSV(product, matInfo, scale, orderArray[i], data, marksArray, dashInfo, size);
                             
                         writeCSV(s, csvFile, infoArray, 1);
