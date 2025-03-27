@@ -25,7 +25,7 @@
                 },
                 "product": {
                     "rotation": "None",
-                    "pageHandling": "OnePerPage",
+                    "pageHandling": "OnePerTwoPages",
                     "dieDesignSource": "DieDesignLibrary"
                 },
                 "data": {
