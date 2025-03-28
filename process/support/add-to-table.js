@@ -43,7 +43,8 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
                     lou: Number(db.settings.getString(7)),
                     arl: Number(db.settings.getString(8)),
                     wix: Number(db.settings.getString(9)),
-                    vn: Number(db.settings.getString(10))
+                    vn: Number(db.settings.getString(10)),
+                    sb: Number(db.settings.getString(11))
                 }
             }
         }

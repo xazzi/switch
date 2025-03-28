@@ -22,6 +22,9 @@
             },
             "overrides": {
                 "matInfo": {
+                    "workstyle":{
+                        "duplex":"OneSided"
+                    }
                 },
                 "product": {
                     "pageHandling": "OnePerPage",
@@ -55,6 +58,9 @@
             },
             "overrides": {
                 "matInfo": {
+                    "workstyle":{
+                        "duplex":"OneSided"
+                    }
                 },
                 "product": {
                     "pageHandling": "OnePerPage",
@@ -88,6 +94,9 @@
             },
             "overrides": {
                 "matInfo": {
+                    "workstyle":{
+                        "duplex":"OneSided"
+                    }
                 },
                 "product": {
                     "pageHandling": "OnePerPage",
@@ -117,6 +126,9 @@
             },
             "overrides": {
                 "matInfo": {
+                    "workstyle":{
+                        "duplex":"OneSided"
+                    }
                 },
                 "product": {
                     "pageHandling":"OnePerPage",

@@ -28,6 +28,9 @@
                     "rip":{
                         "device":"P5350HS",
                         "hotfolder":"Standard"
+                    },
+                    "workstyle":{
+                        "duplex":"OneSided"
                     }
                 },
                 "product": {
@@ -69,6 +72,9 @@
                     "rip":{
                         "device":"5R1",
                         "hotfolder":"Standard"
+                    },
+                    "workstyle":{
+                        "duplex":"OneSided"
                     }
                 },
                 "product": {

@@ -995,15 +995,6 @@ runParser = function(s, job, codebase){
             var writeHeader = true;
 
             var dynamic = getTargetHeight(s, matInfo, orderArray, data)
-
-            // This is moved to below the getSubprocess() funtion.
-            // If no issues arise from this change, this can be removed.
-            // 2/21 -bc
-            // Set the usableArea
-            //var usableArea = {
-            //    width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
-            //    height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
-            //}
                 
             // Special label for gang level info that prints on the sheet.
             if(data.phoenix.gangLabel.length == 0){
@@ -1222,7 +1213,6 @@ runParser = function(s, job, codebase){
                     product.type = "Bound";
                     product.bindingMethod = "Saddle Stitch";
 
-                    //if(data.cover.enabled){
                     if(data.cover.value != matInfo.rip.hotfolder){
                         data.cover.enabled = true;
                         matInfo.phoenixMethod += "-SeparateCover";
@@ -1238,6 +1228,12 @@ runParser = function(s, job, codebase){
                     if(product.bindingEdge == "Top"){
                         product.readingOrder = "Calendar"
                     }
+                }
+
+                // If it's a DS Rectangle Flag, swap the subprocess to the SilverBack version
+                // This code will be removed in the future once they open up SilverBack to all DS flag
+                if(orderArray[i].item.subprocess == 18 && product.doubleSided){
+                    product.query = "26"
                 }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
@@ -2048,7 +2044,7 @@ runParser = function(s, job, codebase){
                     if(matInfo.type == "web"){
                         if(product.width == 12 && product.height == 6){
                             data.thing += " (13)"
-                            product.stock += "_13"
+                            //product.stock += "_13"
                         }
                     }
                 }
