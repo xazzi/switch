@@ -1205,6 +1205,11 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                var size = {
+                    width: matInfo.type == "web" ? orderArray[i].size.width : scale.width + "%",
+                    height: matInfo.type == "web" ? orderArray[i].size.height : scale.height + "%"
+                }
+
                 // Make some direct adjustments to web orders.
                 // Depending on how this has to scale in the future, it should probably be moved to a database.
                 if(matInfo.type == "web"){
@@ -1219,9 +1224,14 @@ runParser = function(s, job, codebase){
                     }
 
                     // If the size has been requested to be 2up.
-                    if((product.width == '9.5' && product.height == '4.75') || (product.width == '17' && product.height == '5.5')){
+                    if((size.width == '4.75' && size.height == '4.75') || (size.width == '8.5' && size.height == '5.5')){
                         product.nUp = 2;
-                        product.nUpGap = 0.5;
+                        product.nUpGap = 0.4724;
+                    }
+
+                    // If the size has been requested to be 2up.
+                    if(size.width == '4.75' && size.height == '4.75'){
+                        product.stock += "_Opt2"
                     }
 
                     // Adjustment for calendars
@@ -2028,6 +2038,7 @@ runParser = function(s, job, codebase){
                 
                 // Set the Phoenix printer (thing).
                 data.thing = data.facility.destination + "/" + data.printer;
+
                 if(data.printer != "None"){	
                     if(matInfo.type == "roll-sticker"){
                         data.thing += "-LabelMaster"
@@ -2042,10 +2053,10 @@ runParser = function(s, job, codebase){
                         }
                     }
                     if(matInfo.type == "web"){
-                        if(product.width == 12 && product.height == 6){
-                            data.thing += " (13)"
+                        //if((product.width == '12' && product.height == '6') || (product.width == '9.5' && product.height == '4.75') || (product.width == '11' && product.height == '8.5')){
+                            data.thing += " (Compact)"
                             //product.stock += "_13"
-                        }
+                        //}
                     }
                 }
 
@@ -2060,11 +2071,6 @@ runParser = function(s, job, codebase){
                             }
                         }
                     }
-                }
-
-                var size = {
-                    width: matInfo.type == "web" ? orderArray[i].size.width : scale.width + "%",
-                    height: matInfo.type == "web" ? orderArray[i].size.height : scale.height + "%"
                 }
 
                 // Compile the data into an array.
