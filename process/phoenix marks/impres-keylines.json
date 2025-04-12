@@ -27,7 +27,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
@@ -40,6 +41,7 @@
                 "rejections":[
                     "StretchTableCover",
                     "TableCloth",
+                    "TensionStand",
                     "RectangleFlag",
                     "AngledFlag",
                     "FeatherFlag"
@@ -71,7 +73,7 @@
             ]
         },
         {
-            "description":"All sides.",
+            "description":"Stretch Table - All sides.",
             "type":"Label",
             "key":"None",
             "facility":[
@@ -94,7 +96,8 @@
             "process":{
                 "requirements":[
                     "CeltecBanner",
-                    "Celtec"
+                    "Celtec",
+                    "Flag"
                 ],
                 "rejections":[]
             },
@@ -107,6 +110,7 @@
                     "Backdrop",
                     "TableRunner",
                     "TableCloth",
+                    "TensionStand",
                     "RectangleFlag",
                     "AngledFlag",
                     "FeatherFlag"
@@ -129,6 +133,337 @@
                 {
                     "group":"Facility",
                     "name":"Keyline_Impres-Stretched-LR",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                }
+            ]
+        },
+        {
+            "description":"Table Cloth - All sides.",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":28,
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":5,
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":37,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec",
+                    "Flag"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "TableCloth"
+                ],
+                "rejections":[
+                    "None",
+                    "Backdrop",
+                    "TableRunner",
+                    "StretchTableCover",
+                    "TensionStand",
+                    "RectangleFlag",
+                    "AngledFlag",
+                    "FeatherFlag"
+                ]
+            },
+            "specs":{
+                "requirements":{},
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-TableCloth-TB",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                },
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-TableCloth-LR",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                }
+            ]
+        },
+        {
+            "description":"Tension Stand - All sides.",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":28,
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":5,
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":37,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec",
+                    "Flag"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "TensionStand"
+                ],
+                "rejections":[
+                    "None",
+                    "Backdrop",
+                    "TableRunner",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "RectangleFlag",
+                    "AngledFlag",
+                    "FeatherFlag"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-Tension-TB",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                },
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-Tension-LR",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                }
+            ]
+        },
+        {
+            "description":"Rectangle Flag - All sides.",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":28,
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":5,
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":37,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec",
+                    "Flag"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "RectangleFlag"
+                ],
+                "rejections":[
+                    "None",
+                    "Backdrop",
+                    "TableRunner",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TensionStand",
+                    "AngledFlag",
+                    "FeatherFlag"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-RectFlag-TB",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                },
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-RectFlag-LR",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                }
+            ]
+        },
+        {
+            "description":"Angled Flag - Left and Right sides only.",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":28,
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":5,
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":37,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec",
+                    "Flag"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "AngledFlag"
+                ],
+                "rejections":[
+                    "None",
+                    "Backdrop",
+                    "TableRunner",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TensionStand",
+                    "RectangleFlag",
+                    "FeatherFlag"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-AngleFlag-LR",
+                    "dir":"/Master Labels/Custom/Keyline/"
+                }
+            ]
+        },
+        {
+            "description":"Feather Flag - Left and Right sides only.",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":28,
+                    "enabled": true
+                },
+                {
+                    "name":"Arlington",
+                    "id":5,
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":37,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "CeltecBanner",
+                    "Celtec",
+                    "Flag"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "FeatherFlag"
+                ],
+                "rejections":[
+                    "None",
+                    "Backdrop",
+                    "TableRunner",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TensionStand",
+                    "RectangleFlag",
+                    "AngledFlag"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Impres-Feather-LR",
                     "dir":"/Master Labels/Custom/Keyline/"
                 }
             ]

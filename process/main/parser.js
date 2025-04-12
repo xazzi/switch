@@ -252,6 +252,10 @@ runParser = function(s, job, codebase){
                 notes: [],
                 tolerance: 0,
                 paper: null,
+                cover: {
+                    enabled: false,
+                    value: null
+                },
                 prismStock: null,
                 facility:{
                     original: null,
@@ -660,6 +664,10 @@ runParser = function(s, job, codebase){
                     if(data.prismStock == null){
                         data.prismStock = orderSpecs.paper.value;
                     }
+
+                    //data.cover.enabled = orderSpecs.cover.enabled
+                    data.cover.value =  orderSpecs.cover.value
+
                     data.date.due = orderSpecs.date.due;
                     
                     data.doubleSided = orderSpecs.doubleSided;
@@ -987,15 +995,6 @@ runParser = function(s, job, codebase){
             var writeHeader = true;
 
             var dynamic = getTargetHeight(s, matInfo, orderArray, data)
-
-            // This is moved to below the getSubprocess() funtion.
-            // If no issues arise from this change, this can be removed.
-            // 2/21 -bc
-            // Set the usableArea
-            //var usableArea = {
-            //    width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
-            //    height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
-            //}
                 
             // Special label for gang level info that prints on the sheet.
             if(data.phoenix.gangLabel.length == 0){
@@ -1206,6 +1205,11 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                var size = {
+                    width: matInfo.type == "web" ? orderArray[i].size.width : scale.width + "%",
+                    height: matInfo.type == "web" ? orderArray[i].size.height : scale.height + "%"
+                }
+
                 // Make some direct adjustments to web orders.
                 // Depending on how this has to scale in the future, it should probably be moved to a database.
                 if(matInfo.type == "web"){
@@ -1214,10 +1218,20 @@ runParser = function(s, job, codebase){
                     product.type = "Bound";
                     product.bindingMethod = "Saddle Stitch";
 
+                    if(data.cover.value != matInfo.rip.hotfolder){
+                        data.cover.enabled = true;
+                        matInfo.phoenixMethod += "-SeparateCover";
+                    }
+
                     // If the size has been requested to be 2up.
-                    if((product.width == '9.5' && product.height == '4.75') || (product.width == '17' && product.height == '5.5')){
+                    if((size.width == '4.75' && size.height == '4.75') || (size.width == '8.5' && size.height == '5.5')){
                         product.nUp = 2;
-                        product.nUpGap = 0.5;
+                        product.nUpGap = 0.4724;
+                    }
+
+                    // If the size has been requested to be 2up.
+                    if(size.width == '4.75' && size.height == '4.75'){
+                        product.stock += "_Opt2"
                     }
 
                     // Adjustment for calendars
@@ -2024,6 +2038,7 @@ runParser = function(s, job, codebase){
                 
                 // Set the Phoenix printer (thing).
                 data.thing = data.facility.destination + "/" + data.printer;
+
                 if(data.printer != "None"){	
                     if(matInfo.type == "roll-sticker"){
                         data.thing += "-LabelMaster"
@@ -2038,10 +2053,10 @@ runParser = function(s, job, codebase){
                         }
                     }
                     if(matInfo.type == "web"){
-                        if(product.width == 12 && product.height == 6){
-                            data.thing += " (13)"
-                            product.stock += "_13"
-                        }
+                        //if((product.width == '12' && product.height == '6') || (product.width == '9.5' && product.height == '4.75') || (product.width == '11' && product.height == '8.5')){
+                            data.thing += " (Compact)"
+                            //product.stock += "_13"
+                        //}
                     }
                 }
 
@@ -2056,11 +2071,6 @@ runParser = function(s, job, codebase){
                             }
                         }
                     }
-                }
-
-                var size = {
-                    width: matInfo.type == "web" ? orderArray[i].size.width : scale.width + "%",
-                    height: matInfo.type == "web" ? orderArray[i].size.height : scale.height + "%"
                 }
 
                 // Compile the data into an array.
@@ -2313,7 +2323,9 @@ runParser = function(s, job, codebase){
                 ["dynamic-height-enabled",dynamic.height.enabled],
                 ["height-value",dynamic.height.value],
                 ["status","Parse Complete"],
-                ["rip-hotfolder",matInfo.rip.hotfolder]
+                ["rip-hotfolder",matInfo.rip.hotfolder],
+                ["separate-cover",(data.cover.enabled ? 'y' : 'n')],
+                ["cover-vm",data.cover.value]
             ]))
             
         }catch(e){
@@ -2368,6 +2380,12 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
         addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
 		addNode_db(theXML, settingsNode, "scaled", data.scaled);
+
+    var coverNode = theXML.createElement("cover", null);
+		handoffNode.appendChild(coverNode);
+
+        addNode_db(theXML, coverNode, "enabled", data.cover.enabled);
+        addNode_db(theXML, coverNode, "value", data.cover.value);
 
     var laminateNode = theXML.createElement("laminate", null);
 		handoffNode.appendChild(laminateNode);
