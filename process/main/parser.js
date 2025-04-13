@@ -1205,11 +1205,6 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                var size = {
-                    width: matInfo.type == "web" ? orderArray[i].size.width : scale.width + "%",
-                    height: matInfo.type == "web" ? orderArray[i].size.height : scale.height + "%"
-                }
-
                 // Make some direct adjustments to web orders.
                 // Depending on how this has to scale in the future, it should probably be moved to a database.
                 if(matInfo.type == "web"){
@@ -1224,13 +1219,13 @@ runParser = function(s, job, codebase){
                     }
 
                     // If the size has been requested to be 2up.
-                    if((size.width == '4.75' && size.height == '4.75') || (size.width == '8.5' && size.height == '5.5')){
+                    if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
                         product.nUp = 2;
                         product.nUpGap = 0.4724;
                     }
 
                     // If the size has been requested to be 2up.
-                    if(size.width == '4.75' && size.height == '4.75'){
+                    if(orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75'){
                         product.stock += "_Opt2"
                     }
 
@@ -2071,6 +2066,11 @@ runParser = function(s, job, codebase){
                             }
                         }
                     }
+                }
+
+                var size = {
+                    width: matInfo.type == "web" ? orderArray[i].size.width : scale.width + "%",
+                    height: matInfo.type == "web" ? orderArray[i].size.height : scale.height + "%"
                 }
 
                 // Compile the data into an array.
