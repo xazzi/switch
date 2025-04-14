@@ -1222,6 +1222,9 @@ runParser = function(s, job, codebase){
                     if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
                         product.nUp = 2;
                         product.nUpGap = 0.4724;
+                        product.spacingTop = .5;
+                        product.spacingBottom = .5;
+                        matInfo.spacing.type = "Margins"
                     }
 
                     // If the size has been requested to be 2up.
