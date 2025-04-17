@@ -1225,10 +1225,6 @@ runParser = function(s, job, codebase){
                         product.spacingTop = .5;
                         product.spacingBottom = .5;
                         matInfo.spacing.type = "Margins"
-                    }
-
-                    // If the size has been requested to be 2up.
-                    if(orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75'){
                         product.stock += "_Opt2"
                     }
 
