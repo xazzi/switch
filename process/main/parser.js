@@ -1239,6 +1239,15 @@ runParser = function(s, job, codebase){
                 if(orderArray[i].item.subprocess == 18 && product.doubleSided){
                     product.query = "26"
                 }
+
+                // Hard code the silverback name onto 2 items.
+                // This code should be deleted in the future when SLC enables the product on a paper level.
+                // bc 4/17/25
+                if(orderArray[i].itemName == "Custom Pole Flags" || orderArray[i].itemName == "Spirit Flags"){
+                    if(product.doubleSided){
+                        data.prodMatFileName = "SilverBack-" + data.prodMatFileName;
+                    }
+                }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
                 product.subprocess = getSubprocess(dir.subprocess, db, orderArray[i], matInfo, product, data, scale, product.query, dynamic);
