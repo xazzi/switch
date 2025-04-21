@@ -1219,6 +1219,7 @@ runParser = function(s, job, codebase){
                     }
 
                     // If the size has been requested to be 2up.
+                    /*
                     if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
                         product.nUp = 2;
                         product.nUpGap = 0.4724;
@@ -1227,10 +1228,20 @@ runParser = function(s, job, codebase){
                         matInfo.spacing.type = "Margins"
                         product.stock += "_Opt2"
                     }
+                    */
 
                     // Adjustment for calendars
                     if(product.bindingEdge == "Top"){
                         product.readingOrder = "Calendar"
+
+                    // If it's not top binding, check to see if we should use a special setup.
+                    }else if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
+                        product.nUp = 2;
+                        product.nUpGap = 0.4724;
+                        product.spacingTop = .5;
+                        product.spacingBottom = .5;
+                        matInfo.spacing.type = "Margins"
+                        product.stock += "_Opt2"
                     }
                 }
 
