@@ -1,5 +1,5 @@
 runParser = function(s, job, codebase){
-    function parser(s, job, codebase){
+    function parser(s, job, codebase, retried){
         try{
             var dir = {
                 support: "C:/Scripts/" + codebase + "/switch/process/support/",
@@ -30,6 +30,7 @@ runParser = function(s, job, codebase){
             eval(File.read(dir.support + "/load-module-settings.js"));
             eval(File.read(dir.support + "/sql-statements.js"));
             eval(File.read(dir.support + "/get-target-height.js"));
+            eval(File.read(dir.support + "/get-target-width.js"));
             eval(File.read(dir.support + "/set-banner-storting.js"));
             eval(File.read(dir.support + "/dart-template-check.js"));
 
@@ -243,9 +244,9 @@ runParser = function(s, job, codebase){
                 },
                 reprint: false,
                 prodName: null,
-                scaled: false,
+                scaleGang: false,
                 scale: "",
-                oversize: false,
+                maxWidth: false, // Not sure we need this variable anymore. 4/15/25
                 thing: null,
                 printer: null,
                 dateID: null,
@@ -440,7 +441,7 @@ runParser = function(s, job, codebase){
                     ]))
                     continue;
                 }
-                    */
+                */
 
                 // Set facility information
                 if(data.facility.original == null){
@@ -609,13 +610,8 @@ runParser = function(s, job, codebase){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderSpecs.width > 59 && orderSpecs.height > 59){
                             matInfo.width = 125;
+                            matInfo.maxWidth = null;
                             matInfo.phoenixStock = "Roll_125";
-                        }
-                    }
-                    if(matInfo.prodName == "13oz-PolyFilm"){
-                        if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
-                            //matInfo.width = 53;
-                            //matInfo.phoenixStock = "Roll_53";
                         }
                     }
                 }
@@ -625,6 +621,7 @@ runParser = function(s, job, codebase){
                     if(matInfo.prodName == "PolyFilm"){
                         if(orderSpecs.width >= 59 && orderSpecs.height >= 59){
                             matInfo.width = 125;
+                            matInfo.maxWidth = null;
                             matInfo.phoenixStock = "Roll_125";
                         }
                     }
@@ -633,21 +630,12 @@ runParser = function(s, job, codebase){
                 // Override all of the above
                 if(submit.material.active){
                     matInfo.width = submit.material.width;
+                    matInfo.maxWidth = null;
                     if(submit.material.height != null && submit.material.height != 0){
                         matInfo.height = submit.material.height;
+                        matInfo.maxHeight = null;
                     }
                     matInfo.phoenixStock = submit.material.stock;
-                }
-
-                // Move large rolled product from the P10 to the 350.
-                if(data.facility.destination == "Salt Lake City"){
-                    if(matInfo.printer.name == "P10"){
-                        if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
-                            //matInfo.printer.name = "P5-350-HS";
-                            //data.printer = "P5-350-HS";
-                            //misc.rejectPress = false;
-                        }
-                    }
                 }
 
                 // If it's packaging product, check the templates.
@@ -752,6 +740,7 @@ runParser = function(s, job, codebase){
                     if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
                         if(data.doubleSided || orderSpecs.doubleSided){
                             matInfo.height = 190;
+                            matInfo.maxHeight = 190;
                         }
                     }
                 }
@@ -994,7 +983,10 @@ runParser = function(s, job, codebase){
                 
             var writeHeader = true;
 
-            var dynamic = getTargetHeight(s, matInfo, orderArray, data)
+            var dynamic = {
+                height: getTargetHeight(s, matInfo, orderArray, data),
+                width: getTargetWidth(s, matInfo, orderArray, data)
+            }
                 
             // Special label for gang level info that prints on the sheet.
             if(data.phoenix.gangLabel.length == 0){
@@ -1022,7 +1014,7 @@ runParser = function(s, job, codebase){
                     coating: orderArray[i].coating.active ? true : false,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
-                    stock: data.phoenixStock,
+                    stock: data.maxWidth ? "MaxWidth_" + dynamic.width.value : data.phoenixStock,
                     spacingBase: matInfo.spacing.base,
                     spacingTop: matInfo.spacing.top == undefined ? matInfo.spacing.base : matInfo.spacing.top,
                     spacingBottom: matInfo.spacing.bottom == undefined ? matInfo.spacing.base : matInfo.spacing.bottom,
@@ -1576,47 +1568,53 @@ runParser = function(s, job, codebase){
                     product.subprocess.undersize = false;
                 }
 
-                // Set the usableArea
-                var usableArea = {
-                    width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
-                    height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
-                }
                 
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
                 // Not for undersizing to force better yield.
+                // If the material can be undersized.
                 if(matInfo.allowUndersize){
+                    // If the scale wasn't locked above.
                     if(!scale.locked){
-                        if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
-                            if(!data.oversize && !data.scaled){
-                                if(product.width > product.height){
-                                    if(product.width >= usableArea.height){
-                                        scale.width = ((usableArea.height-.25)/product.width)*100;
-                                        scale.adjusted.width = true;
-                                        if(product.width == product.height){
-                                            scale.height = scale.width
+                        // If the gang level user override wasn't used.
+                        if(!submit.override.fullsize.gang){
+                            // If the item level user override wasn't used.
+                            if(!contains(submit.override.fullsize.items, product.itemNumber)){
+                                // If we aren't scaling the whole gang down to 10%
+                                if(!data.scaleGang){
+
+                                    // If the width is the longest dim...
+                                    if(product.width > product.height){
+                                        if(product.width >= dynamic.height.usable){
+                                            scale.width = ((dynamic.height.usable)/product.width)*100;
+                                            scale.adjusted.width = true;
+                                            if(product.width == product.height){
+                                                scale.height = scale.width
+                                            }
                                         }
-                                    }
-                                    if(product.height >= usableArea.width){
-                                        scale.height = ((usableArea.width-.25)/product.height)*100;
-                                        scale.adjusted.height = true;
-                                        if(product.width == product.height){
-                                            scale.width = scale.height
+                                        if(product.height >= dynamic.width.usable){
+                                            scale.height = ((dynamic.width.usable)/product.height)*100;
+                                            scale.adjusted.height = true;
+                                            if(product.width == product.height){
+                                                scale.width = scale.height
+                                            }
                                         }
-                                    }
-                                }else{
-                                    if(product.height >= usableArea.height){
-                                        scale.height = ((usableArea.height-.25)/product.height)*100;
-                                        scale.adjusted.height = true;
-                                        if(product.width == product.height){
-                                            scale.width = scale.height
+
+                                    // If the height is the longest dim...
+                                    }else{
+                                        if(product.height >= dynamic.height.usable){
+                                            scale.height = ((dynamic.height.usable)/product.height)*100;
+                                            scale.adjusted.height = true;
+                                            if(product.width == product.height){
+                                                scale.width = scale.height
+                                            }
                                         }
-                                    }
-                                    if(product.width >= usableArea.width){
-                                        scale.width = ((usableArea.width-.25)/product.width)*100;
-                                        scale.adjusted.width = true;
-                                        if(product.width == product.height){
-                                            scale.height = scale.width
+                                        if(product.width >= dynamic.width.usable){
+                                            scale.width = ((dynamic.width.usable)/product.width)*100;
+                                            scale.adjusted.width = true;
+                                            if(product.width == product.height){
+                                                scale.height = scale.width
+                                            }
                                         }
                                     }
                                 }
@@ -1737,7 +1735,7 @@ runParser = function(s, job, codebase){
                 // Coroplast rotation
                 if(data.prodName == "Coroplast"){
                     if(product.subprocess.name != "FullSheet"){
-                        if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
+                        if(Math.round((product.width*(scale.width/100))*100)/100 > dynamic.width.usable){
                             product.rotation = "Custom";
                             product.allowedRotations = 90;
                         }
@@ -1787,7 +1785,7 @@ runParser = function(s, job, codebase){
                 
                 // Brushed Silver rotation
                 if(data.prodName == "BrushedSilver"){ // BrushedSilver rotates 90 degrees by default
-                    if((product.height*(scale.width/100)) > usableArea.width){
+                    if((product.height*(scale.width/100)) > dynamic.width.usable){
                         product.rotation = "Orthogonal";
                         product.allowedRotations = 0;
                     }
@@ -1801,7 +1799,7 @@ runParser = function(s, job, codebase){
                         product.allowedRotations = 0;
                     }
                     // Change the text value for frames without hardware.
-                    if(orderArray[i].frame.color === undefined && orderArray[i].frame.type === undefined){
+                    if((orderArray[i].frame.color === undefined && orderArray[i].frame.type === undefined) || (orderArray[i].hardware.prism.value == "Sign Only")){
                         orderArray[i].frame.value = "No Frame";
                     }
                 }
@@ -1810,7 +1808,7 @@ runParser = function(s, job, codebase){
                 if(data.facility.destination == "Wixom"){
                     if(product.doubleSided){
                         if(orderArray[i].pocket.enable || orderArray[i].itemName == "Pole Banners" || orderArray[i].itemName == "Replacement Pole Banners"){
-                            if(product.width*(scale.width/100) < usableArea.width){
+                            if(product.width*(scale.width/100) < dynamic.width.usable){
                                 product.rotation = "None";
                                 product.allowedRotations = 0;
                             }
@@ -1890,7 +1888,7 @@ runParser = function(s, job, codebase){
                         product.customLabel.value += "+Blank"
                     }
                     //data.impositionProfile.name = "TensionStands";
-                    if((product.width*(scale.width/100)) > usableArea.width){
+                    if((product.width*(scale.width/100)) > dynamic.width.usable){
                         product.rotation = "Orthogonal";
                         product.allowedRotations = 0;
                     }
@@ -1975,7 +1973,7 @@ runParser = function(s, job, codebase){
                 
                 // Various Overrides ----------------------------------------------------------
                 // If the product is to utilize the 10pct scaled process in Phoenix
-                if(data.scaled){
+                if(data.scaleGang){
                     scale.width = scale.width/10;
                     scale.height = scale.height/10;
                     product.spacingBase = product.spacingBase/10;
@@ -2017,26 +2015,23 @@ runParser = function(s, job, codebase){
                 scale.height = scale.height*scale.modifier;
                 
                 // GSM option to determine which paper size to use. 250 is usually default.
-                if(data.oversize){product.grade = "251"}
                 if(data.mount.active){product.grade = "252"}
-                if(data.scaled){product.grade = "253"}
+                if(data.scaleGang){product.grade = "253"}
                 
                 // Item based override for calling very wide material.
-                if(product.width >= 115 && product.height >= 115 && !data.scaled){
+                if(product.width >= 115 && product.height >= 115 && !data.scaleGang){
                     product.grade = "254"
                 }
-                
+
                 // Set the Phoenix printer (thing).
                 data.thing = data.facility.destination + "/" + data.printer;
                 if(data.printer != "None"){	
                     if(matInfo.type == "roll-sticker"){
                         data.thing += "-LabelMaster"
-                    }	 
+                    }
                     if(matInfo.type == "roll" || matInfo.type == "roll-sticker" || matInfo.type == "roll-label"){
-                        if(data.scaled){
+                        if(data.scaleGang){
                             data.thing += " (Scaled)";
-                        }else if(data.oversize){
-                            // Send the base printer name
                         }else{
                             data.thing += " (" + dynamic.height.value + ")";
                         }
@@ -2044,7 +2039,6 @@ runParser = function(s, job, codebase){
                     if(matInfo.type == "web"){
                         if(product.width == 12 && product.height == 6){
                             data.thing += " (13)"
-                            //product.stock += "_13"
                         }
                     }
                 }
@@ -2314,8 +2308,8 @@ runParser = function(s, job, codebase){
                 ["processed-time",now.time],
                 ["processed-date",now.date],
                 ["due-date",data.date.due],
-                ["dynamic-height-enabled",dynamic.height.enabled],
-                ["height-value",dynamic.height.value],
+                ["dynamic-height-enabled",dynamic.height.increment.enabled],
+                ["height-value",dynamic.height.increment.value],
                 ["status","Parse Complete"],
                 ["rip-hotfolder",matInfo.rip.hotfolder],
                 ["separate-cover",(data.cover.enabled ? 'y' : 'n')],
@@ -2323,12 +2317,16 @@ runParser = function(s, job, codebase){
             ]))
             
         }catch(e){
+            if(!retried){
+                s.log(2, "Retrying...")
+                parser(s, job, codebase, true)
+            }
             s.log(3, "Critical Error!: " + e);
             job.setPrivateData("error", "Critical " + e);
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
         }
     }
-    parser(s, job, codebase)
+    parser(s, job, codebase, false)
 }
 
 // -------------------------------------------------------
@@ -2373,7 +2371,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, settingsNode, "mount", data.mount.active);
 		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
         addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
-		addNode_db(theXML, settingsNode, "scaled", data.scaled);
+		addNode_db(theXML, settingsNode, "scaled", data.scaleGang);
 
     var coverNode = theXML.createElement("cover", null);
 		handoffNode.appendChild(coverNode);

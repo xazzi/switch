@@ -2,75 +2,65 @@ getTargetHeight = function(s, matInfo, orderArray, data){
 
     function run(s, matInfo, orderArray, data){
 
+        matInfo.height = 200
+
         // Set the targets to return out to the main process
-        var dynamic = {
-            height:{
-                value: matInfo.height,
-                enabled: matInfo.dynamicHeightIncrement == null ? 'n' : 'y'
+        var height = {
+            value: matInfo.height,
+            target: matInfo.height,
+            max: matInfo.maxHeight != null ? Number(matInfo.maxHeight) : 380,
+            usable: matInfo.height - Number(matInfo.printer.margin.top) - Number(matInfo.printer.margin.bottom),
+            increment:{
+                enabled: matInfo.dynamicHeightIncrement != null,
+                value: matInfo.dynamicHeightIncrement
             }
         }
 
-        // If the value in the table is null, check some other data and return it out immediately.
+        // If files are greater than the maximum size Phoenix will gang, enable the 10th Scale logic in Phoenix and disable dynamic height.
         for(var i=0; i<orderArray.length; i++){
-
-            // Enable the 10th Scale logic in Phoenix and disable dynamic height.
-            if(orderArray[i].width >= 380 || orderArray[i].height >= 380){
-                data.scaled = true;
+            if(orderArray[i].width > 380 || orderArray[i].height > 380){
+                data.scaleGang = true;
                 data.scale = "-10pct";
-                dynamic.height.enabled = 'n'
-                return dynamic;
-            }
-
-            // Check if it should enable long oversize rolls (251gsm) and disable dynamic height
-            if(matInfo.type == "roll" && !data.scaled){
-                if((orderArray[i].width > matInfo.width && orderArray[i].width > matInfo.height) || 
-                    (orderArray[i].height > matInfo.width && orderArray[i].height > matInfo.height)){ 
-                    data.oversize = true;
-                    dynamic.height.enabled = 'n'
-                    return dynamic;
-                }
+                height.increment.enabled = false;
+                return height;
             }
         }
-
-        // If dynamic height is disabled in general, return the default height.
-        if(dynamic.height.enabled == 'n'){
-            return dynamic;
-        }
-
-        // Set the increment used for deciding the roll length.
-        var increment = Number(matInfo.dynamicHeightIncrement);
 
         // Loop through the products to find the length needed.
         for(var i=0; i<orderArray.length; i++){
-            
-            // Set the minimum height based on the height of the product.
-            minimum = Number(orderArray[i].height)
 
-            // If the product will be rotated, set the minimum based on the width.
+            // Set a temp value based off of the height.
+            var minimumRequired = Number(orderArray[i].height) + 10
+
+            // if we know it's going to be rotated then adjust the temp value to use the width (rotated to height)
             if(round(Number(orderArray[i].width)) > matInfo.width){
-                minimum = Number(orderArray[i].width)
+                minimumRequired = Number(orderArray[i].width) + 10
             }
-
-            // Account for the top and bottom material margins in the minimum
-            minimum += Number(matInfo.printer.margin.top) + Number(matInfo.printer.margin.bottom)
 
             // Increment the target up until we go over the minumum needed.
-            while(dynamic.height.value < (minimum)){
-                dynamic.height.value += increment
-            }
-        }
+            if(height.increment.enabled){
+                while(height.usable < minimumRequired){
+                    height.usable += Number(height.increment.value);
+                    height.value += Number(height.increment.value);
+                    if(height.value > 380){
+                        data.scaleGang = true;
+                        data.scale = "-10pct";
+                        height.increment.enabled = false;
+                        return height;
+                    }
+                }
 
-        // Set the max length for Wixom at 130.
-        if(data.facility.destination == "Wixom"){
-            if(matInfo.prodName == "Magnet"){
-                if(minimum > 130){
-                    minimum = 130;
+            // If there is no incrementing enabled
+            }else{
+                if(height.usable < minimumRequired){
+                    height.usable = height.max;
+                    height.value = height.max;
                 }
             }
         }
 
         // Return the value out.
-        return dynamic;
+        return height;
     }
     
     return run(s, matInfo, orderArray, data);
