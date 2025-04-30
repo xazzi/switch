@@ -1,4 +1,4 @@
-addToTable = function(s, db, table, parameter, example, data, userInfo, object, orderSpecs){
+addToTable = function(s, db, table, parameter, example, data, userInfo, object, orderSpecs, tableFormat){
     var original = parameter
     
         parameter = parameter.replace(/"/g,'\\"');
@@ -18,7 +18,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';");
 
     // For the new table style
-    }else if(table == "options_front-coating" || table == "options_material-thickness" || table == "options_print-finish" || table == "options_bindplace" || table == "options_cover"){
+    }else if(tableFormat == "new"){
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "';");
 
     // For everything else, run a generic query.
@@ -29,6 +29,16 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
     // If the parameter is found in the tables, return out of the function.
     if(db.settings.isRowAvailable()){
         db.settings.fetchRow();
+
+        // Run this to update missing values in the tables due to the transition to the new table format.
+        if(tableFormat == "new"){
+            if(db.settings.getString(1) == null){
+                db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-code`) VALUES ('" + orderSpecs.code + "');");
+            }
+            if(db.settings.getString(2) == null){
+                db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-label`) VALUES ('" + orderSpecs.label + "');");
+            }
+        }
 
         // Paper mapping
         // These map options need to match the material maps below, this allows the process to work when there isn't a paper assigned to the item.
@@ -238,9 +248,10 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         // Coating options
         if(table == "options_coating"){
             return specs = {
-                active: db.settings.getString(4) == "None" ? false : true,
-                method: db.settings.getString(4),
-                value: db.settings.getString(1)
+                enabled: db.settings.getString(7) == 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) != null ? db.settings.getString(4) : db.settings.getString(3) != null ? db.settings.getString(3) : null,
+                key: db.settings.getString(8)
             }
         }
 
@@ -358,8 +369,9 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         // Add new hardware info to the hardware table
         if(table == "options_hardware"){
             db.settings.execute("INSERT INTO settings.options_hardware" + "(`example-item`, `prism-code`, `prism-label`, `prism-value`, `item-name`, width, height, `date-added`) VALUES ('" + object.jobItemId + "','" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + object.itemName + "','" + object.width + "','" + object.height + "','" + new Date() + "');");
+        
         // For the new table style
-        }else if(table == "options_front-coating" || table == "options_material-thickness" || table == "options_print-finish" || table == "options_bindplace" || table == "options_cover"){
+        }else if(tableFormat == "new"){
             db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-code`, `prism-label`, `prism-value`, `date-added`, `example-item`) VALUES ('" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + new Date() + "','" + example + "');");
 
         // All of the other options tables.
