@@ -255,7 +255,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             }
         }
 
-        // Coating options
+        // FrontCoating options
         if(table == "options_front-coating"){
             return specs = {
                 enabled: db.settings.getString(7) == 'y',
@@ -264,7 +264,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             }
         }
 
-        // Coating options
+        // Cover options
         if(table == "options_cover"){
             return specs = {
                 enabled: db.settings.getString(7) == 'y',
@@ -273,7 +273,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             }
         }
 
-        // Coating options
+        // Material Thickness options
         if(table == "options_material-thickness"){
             return specs = {
                 enabled: db.settings.getString(7) == 'y',
@@ -282,7 +282,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             }
         }
 
-        // Coating options
+        // Print Finish options
         if(table == "options_print-finish"){
             return specs = {
                 enabled: db.settings.getString(7) == 'y',
@@ -291,7 +291,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             }
         }
 
-        // Coating options
+        // BindPlace options
         if(table == "options_bindplace"){
             return specs = {
                 enabled: db.settings.getString(7) == 'y',

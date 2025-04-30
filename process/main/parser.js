@@ -675,9 +675,10 @@ runParser = function(s, job, codebase){
                     data.laminate.active = orderSpecs.laminate.active;
                     data.laminate.method = orderSpecs.laminate.method;
                     data.laminate.value = orderSpecs.laminate.value;
-                    data.coating.active = orderSpecs.coating.active;
-                    data.coating.method = orderSpecs.coating.method;
+                    data.coating.enabled = orderSpecs.coating.enabled;
                     data.coating.value = orderSpecs.coating.value;
+                    data.coating.label = orderSpecs.coating.label;
+                    data.coating.key = orderSpecs.coating.key;
                     data.frontCoating.enabled = orderSpecs.frontCoating.enabled;
                     data.frontCoating.label = orderSpecs.frontCoating.label;
                     data.frontCoating.value = orderSpecs.frontCoating.value;
@@ -704,7 +705,7 @@ runParser = function(s, job, codebase){
                     // Apply special labels.
                     // For LFP products (roll and sheet), apply coating as a laminate option.
                     if(matInfo.type == "roll" || matInfo.type == "sheet"){
-                        if(data.coating.active || data.laminate.active){
+                        if(data.coating.enabled || data.laminate.active){
                             data.phoenix.gangLabel.push("Lam");
                         }
                     }
@@ -859,8 +860,8 @@ runParser = function(s, job, codebase){
                 if(!data.facility.breaker.lam){
                     
                     // Check if coating deviation
-                    if(data.coating.active != orderSpecs.coating.active){
-                        var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
+                    if(data.coating.enabled != orderSpecs.coating.enabled){
+                        var type = orderSpecs.coating.enabled ? "Coated" : "Uncoated"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
@@ -891,8 +892,8 @@ runParser = function(s, job, codebase){
                 if(!matInfo.lamMix && !submit.override.mixedLam){
 
                     // Check if coating deviation
-                    if(data.coating.active != orderSpecs.coating.active){
-                        var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
+                    if(data.coating.enabled != orderSpecs.coating.enabled){
+                        var type = orderSpecs.coating.enabled ? "Coated" : "Uncoated"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
@@ -921,7 +922,7 @@ runParser = function(s, job, codebase){
 
                 // If we are allowing the laminate to mix with non lam, throw a flag for the file name.
                 if(matInfo.prodName == "Magnet" && data.facility.destination == "Salt Lake City"){
-                    if((data.laminate.active != orderSpecs.laminate.active) || (data.coating.active != orderSpecs.coating.active)){
+                    if((data.laminate.active != orderSpecs.laminate.active) || (data.coating.enabled != orderSpecs.coating.enabled)){
                         data.mixedLam = true
                     }
                 }
@@ -1019,7 +1020,7 @@ runParser = function(s, job, codebase){
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
                     laminate: orderArray[i].laminate.active ? true : false,
-                    coating: orderArray[i].coating.active ? true : false,
+                    coating: orderArray[i].coating.enabled ? true : false,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
                     stock: data.phoenixStock,
@@ -2267,7 +2268,7 @@ runParser = function(s, job, codebase){
             // If it's laminated sintra in SLC, adjust the cut hotfolder name.
             if(data.facility.destination == "Salt Lake City"){
                 if(matInfo.prodName == "3mm-Sintra"){
-                    if(data.laminate.active || data.coating.active){
+                    if(data.laminate.active || data.coating.enabled){
                         matInfo.cutter.hotfolder = "Lam_" + matInfo.cutter.hotfolder;
                     }
                 }
@@ -2416,9 +2417,10 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
     var coatingNode = theXML.createElement("coating", null);
 		handoffNode.appendChild(coatingNode);
 
-        addNode_db(theXML, coatingNode, "active", data.coating.active ? true : false);
-        addNode_db(theXML, coatingNode, "method", data.coating.method);
+        addNode_db(theXML, coatingNode, "active", data.coating.enabled ? true : false);
+        addNode_db(theXML, coatingNode, "label", data.coating.label);
         addNode_db(theXML, coatingNode, "value", data.coating.value);
+        addNode_db(theXML, coatingNode, "key", data.coating.key);
 
     var frontCoatingNode = theXML.createElement("frontCoating", null);
 		handoffNode.appendChild(frontCoatingNode);
