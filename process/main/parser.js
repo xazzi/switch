@@ -1248,7 +1248,7 @@ runParser = function(s, job, codebase){
                 // If it's a DS Rectangle Flag, swap the subprocess to the SilverBack version
                 // This code will be removed in the future once they open up SilverBack to all DS flag
                 if(orderArray[i].item.subprocess == 18 && product.doubleSided){
-                    product.query = "26"
+                    //product.query = "26"
                 }
 
                 // Hard code the silverback name onto 2 items.
@@ -1932,9 +1932,7 @@ runParser = function(s, job, codebase){
 
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
-                    if(product.doubleSided){
-                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
-                    }
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = orderArray[i].hardware.template.name + "_F";
                 }
 
