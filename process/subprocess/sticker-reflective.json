@@ -19,10 +19,11 @@
             },
             "overrides": {
                 "matInfo": {
-                    "prodName": "Sticker-Reflective"
+                    "cutter": {
+                        "name": "Hydra"
+                    }
                 },
-                "product": {
-                },
+                "product": {},
                 "data": {
                     "prodMatFileName": "Sticker-Reflective"
                 }
