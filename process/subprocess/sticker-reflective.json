@@ -20,7 +20,7 @@
             "overrides": {
                 "matInfo": {
                     "cutter": {
-                        "name": "Hydra"
+                        "device": "Hydra"
                     }
                 },
                 "product": {},
