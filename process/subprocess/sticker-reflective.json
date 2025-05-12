@@ -1,0 +1,34 @@
+{
+    "subprocess": "sticker-reflective",
+    "name": "Sticker-Reflective",
+    "id": 27,
+    "parameters": [
+        {
+            "facility": {
+                "name": "Salt Lake City",
+                "id": 28,
+                "enabled": true
+            },
+            "processes": [
+                "ReflectiveVinyl"
+            ],
+            "properties": {
+                "mixed": false,
+                "undersize": false,
+                "orientationCheck": true
+            },
+            "overrides": {
+                "matInfo": {
+                    "cutter": {
+                        "device": "Hydra",
+                        "enable": true
+                    }
+                },
+                "product": {},
+                "data": {
+                    "prodMatFileName": "Sticker-Reflective"
+                }
+            }
+        }
+    ]
+}
