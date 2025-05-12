@@ -1,0 +1,68 @@
+{
+    "description":"Adding keylines to roll labels for VN production",
+    "name":"Keylines",
+    "key":"None",
+    "parameters":[
+        {
+            "description":"All sides.",
+            "type":"Label",
+            "key":"None",
+            "facility":[
+                {
+                    "name":"Salt Lake City",
+                    "id":28,
+                    "enabled": false
+                },
+                {
+                    "name":"Arlington",
+                    "id":5,
+                    "enabled": false
+                },
+                {
+                    "name":"Wixom",
+                    "id":37,
+                    "enabled": false
+                },
+                {
+                    "name":"Van Nuys",
+                    "id":1,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "WPSP"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "None"
+                ],
+                "rejections":[
+                ]
+            },
+            "specs":{
+                "requirements":{
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings":[
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Height",
+                    "dir":"/Roll Label/"
+                },
+                {
+                    "group":"Facility",
+                    "name":"Keyline_Width",
+                    "dir":"/Roll Label/"
+                }
+            ]
+        }
+    ]
+}

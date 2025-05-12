@@ -2527,6 +2527,9 @@ function compareToFile(s, expected, actual, product, scale, axis, type){
 
 function writeCSV(s, file, array, index){
 	for(var n=0; n<array.length; n++){
+        if(array[n][1] == '' || array[n][1] == null || array[n][1] == undefined || array[n][1] == 'undefined'){
+            continue;
+        }
 		file.write(array[n][index]);
 		if(n != array.length-1){
 			file.write(";");
