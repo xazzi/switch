@@ -63,7 +63,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Flush-Top",
                     "dir":"/Grommets/"
                 }
@@ -128,7 +128,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Flush-Bottom",
                     "dir":"/Grommets/"
                 }
@@ -196,7 +196,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Flush-AllCorners",
                     "dir":"/Grommets/"
                 }
@@ -261,7 +261,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Flush-LeftCorners",
                     "dir":"/Grommets/"
                 }
@@ -325,7 +325,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Weld-Top",
                     "dir":"/Grommets/"
                 }
@@ -389,7 +389,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Weld-Bottom",
                     "dir":"/Grommets/"
                 }
@@ -459,7 +459,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Weld-AllCorners",
                     "dir":"/Grommets/"
                 }
@@ -523,7 +523,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Weld-LeftCorners",
                     "dir":"/Grommets/"
                 }
@@ -538,18 +538,40 @@
                     "name": "Salt Lake City",
                     "id": 28,
                     "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
                 }
             ],
             "process":{
                 "requirements":[
                     "13ozBanner",
-                    "Mesh"
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "18oz-Matte",
+                    "Coroplast",
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -566,7 +588,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Weld-Top",
                     "dir":"/Grommets/Webbing/"
                 }
@@ -581,18 +603,40 @@
                     "name": "Salt Lake City",
                     "id": 28,
                     "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
                 }
             ],
             "process":{
                 "requirements":[
                     "13ozBanner",
-                    "Mesh"
+                    "13oz-Matte",
+                    "18ozBanner",
+                    "18oz-Matte",
+                    "Coroplast",
+                    "Mesh",
+                    "8oz-Mesh",
+                    "9oz-Mesh",
+                    "12oz-Mesh",
+                    "CeltecBanner",
+                    "Celtec",
+                    "DSS",
+                    "13oz-Smooth"
                 ],
                 "rejections":[]
             },
             "subprocess":{
                 "requirements":[
-                    "None"
+                    "None",
+                    "ButtWeld"
                 ],
                 "rejections":[]
             },
@@ -609,7 +653,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group":"Global",
                     "name":"Grommets-Weld-AllCorners",
                     "dir":"/Grommets/Webbing/"
                 }

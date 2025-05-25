@@ -37,6 +37,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Page Handling",product.pageHandling],
 		["METRIX_NAME",product.orderNumber],
 		["Item Number",product.itemNumber],
+		["Coating",data.coating.value],
 		["Product Notes",orderArray.productNotes],
 		["A-Frame Type",orderArray.frame.value],
 		["Mount Info",orderArray.mount.value],
@@ -49,6 +50,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Abbr Date",product.date.abbr],
         ["Ship Type",product.shipType],
 		["Due Date",data.date.due],
+		["Abbr Due Date",data.date.due.split('-')[2]],
 		["Item Due Date",product.date.due],
 		["Gang Info",data.phoenix.gangLabel],
 		["Group",product.group],
@@ -61,7 +63,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Finishing Type",orderArray.finishingType],
 		["Dash Offset",typeof(dashInfo["offset"]) == "undefined" ? "None" : dashInfo.offset],
 		["Late",product.late],
-		["Reprint",product.reprint],
+		["Reprint",product.reprint.status],
 		["Gang Reprint",data.reprint],
         ["Script Name",product.script.name],
 		["Script Parameters",product.script.parameters],
@@ -77,6 +79,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Reading Order",product.readingOrder],
 		["N-Up",product.nUp],
 		["N-Up Gap",product.nUpGap],
+		["Paper",data.paper.replace(/[,;]/g,'')],
 		["Marks",marksArray]// Keep this one last so it's easier to read the CSV
 	];
 }
