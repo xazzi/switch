@@ -289,7 +289,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			}
 
 		// Assign the item-name.
-		specs.item = addToTable(s, db, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
+		specs.item = addToTable(s, db, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo, null, null, "old");
 
 		// Loop through the order_specs and set some values based on them
 		for(var k=0; k<dataDump.order_specs.length; k++){
@@ -446,7 +446,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 		// Loop through the display specs.
 		for(var k=0; k<dataDump.display_specs.length; k++){
 			if(dataDump.display_specs[k].attribute_name == "Material"){
-				specs.material = addToTable(s, db, "options_material", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
+				specs.material = addToTable(s, db, "options_material", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.display_specs[k], "old");
 			}
 		}
 

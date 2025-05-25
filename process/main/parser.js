@@ -102,7 +102,8 @@ runParser = function(s, job, codebase){
                     },
                     gangMethod: null,
                     labelmaster: false
-                }
+                },
+                csvRequest: false
             }
                 
             for(var i=0; i<submit.nodes.length; i++){
@@ -158,6 +159,13 @@ runParser = function(s, job, codebase){
                     if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
                         submit.route.active = true;				
                         submit.route.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
+                    }
+                }
+
+                // Request only the CSV for manual ganging.
+                if(submit.nodes.getItem(i).evalToString('tag') == "Request Only CSV?"){
+                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
+                        submit.csvRequest = true;				
                     }
                 }
 
@@ -279,7 +287,8 @@ runParser = function(s, job, codebase){
                 rotate90: null,
                 rush: submit.override.rush,
                 sideMix: null,
-                labelmaster: submit.override.labelmaster
+                labelmaster: submit.override.labelmaster,
+                csvRequest: submit.csvRequest
             }
 
             db.history.execute(generateSqlStatement_Insert(s, "history.details_gang", [
@@ -676,8 +685,8 @@ runParser = function(s, job, codebase){
                     data.laminate.method = orderSpecs.laminate.method;
                     data.laminate.value = orderSpecs.laminate.value;
                     data.coating.enabled = orderSpecs.coating.enabled;
-                    data.coating.value = orderSpecs.coating.value;
                     data.coating.label = orderSpecs.coating.label;
+                    data.coating.value = orderSpecs.coating.value;
                     data.coating.key = orderSpecs.coating.key;
                     data.frontCoating.enabled = orderSpecs.frontCoating.enabled;
                     data.frontCoating.label = orderSpecs.frontCoating.label;
@@ -796,6 +805,7 @@ runParser = function(s, job, codebase){
                 }
                 
                 // Check for paper deviation
+                /*
                 if(data.paper != orderSpecs.paper.value){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material, " + orderSpecs.paper.value + "."]);
                     data.notes.push([orderSpecs.jobItemId,"Priority","Different IMS material, " + orderSpecs.paper.value + "."]);
@@ -808,6 +818,7 @@ runParser = function(s, job, codebase){
                     ]))
                     continue;
                 }
+                    */
                 
                 // If finishing hem type is different, remove them from the gang.
                 if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
@@ -859,6 +870,7 @@ runParser = function(s, job, codebase){
                 // If the laminate breaker is on, separate the laminates out.
                 if(!data.facility.breaker.lam){
                     
+                    /*
                     // Check if coating deviation
                     if(data.coating.enabled != orderSpecs.coating.enabled){
                         var type = orderSpecs.coating.enabled ? "Coated" : "Uncoated"
@@ -886,6 +898,7 @@ runParser = function(s, job, codebase){
                         ]))
                         continue;
                     }
+                        */
                 }
 
                 // Laminate and coating checks, skip if allowed to mix.
@@ -1183,7 +1196,7 @@ runParser = function(s, job, codebase){
 
                 // Max width Perf
                 if(matInfo.prodName == "Perf"){
-                    if(product.width >= 53 && product.height >= 53){
+                    if(product.width >= 51.5 && product.height >= 51.5){
                         product.query = "22"
                     }
                 }
@@ -1234,6 +1247,14 @@ runParser = function(s, job, codebase){
                     // Adjustment for calendars
                     if(product.bindingEdge == "Top"){
                         product.readingOrder = "Calendar"
+                        if(orderArray[i].size.width == '5.5' && orderArray[i].size.height == '8.5'){
+                            product.nUp = 2;
+                            product.nUpGap = 0.4724;
+                            product.spacingTop = .5;
+                            product.spacingBottom = .5;
+                            matInfo.spacing.type = "Margins"
+                            product.stock += "_Opt2"
+                    }
 
                     // If it's not top binding, check to see if we should use a special setup.
                     }else if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
@@ -2476,6 +2497,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "cutPathExistsCheck", matInfo.cutPathExistsCheck);
         addNode_db(theXML, miscNode, "optimizeForDFE", matInfo.optimizeForDFE);
         addNode_db(theXML, miscNode, "reversePages", matInfo.reversePages);
+        addNode_db(theXML, miscNode, "csvRequest", data.csvRequest);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -2552,9 +2574,6 @@ function compareToFile(s, expected, actual, product, scale, axis, type){
 
 function writeCSV(s, file, array, index){
 	for(var n=0; n<array.length; n++){
-        if(array[n][1] == '' || array[n][1] == null || array[n][1] == undefined || array[n][1] == 'undefined'){
-            continue;
-        }
 		file.write(array[n][index]);
 		if(n != array.length-1){
 			file.write(";");

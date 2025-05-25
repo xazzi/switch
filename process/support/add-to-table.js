@@ -33,10 +33,10 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         // Run this to update missing values in the tables due to the transition to the new table format.
         if(tableFormat == "new"){
             if(db.settings.getString(1) == null){
-                db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-code`) VALUES ('" + orderSpecs.code + "');");
+                db.settings.execute("UPDATE settings.`" + table + "` SET `prism-code` = '" + orderSpecs.code + "' WHERE (`prism-value` = '" + parameter + "');");
             }
             if(db.settings.getString(2) == null){
-                db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-label`) VALUES ('" + orderSpecs.label + "');");
+                db.settings.execute("UPDATE settings.`" + table + "` SET `prism-label` = '" + orderSpecs.label + "' WHERE (`prism-value` = '" + parameter + "');");
             }
         }
 
