@@ -21,7 +21,7 @@
                 {
                     "name": "Wixom",
                     "id": 37,
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
@@ -101,7 +101,7 @@
                 {
                     "name": "Wixom",
                     "id": 37,
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
@@ -181,7 +181,7 @@
                 {
                     "name": "Wixom",
                     "id": 37,
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
@@ -261,7 +261,7 @@
                 {
                     "name": "Wixom",
                     "id": 37,
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
@@ -341,7 +341,7 @@
                 {
                     "name": "Wixom",
                     "id": 37,
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
@@ -421,7 +421,7 @@
                 {
                     "name": "Wixom",
                     "id": 37,
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
@@ -501,7 +501,7 @@
                 {
                     "name": "Wixom",
                     "id": 37,
-                    "enabled": false
+                    "enabled": true
                 }
             ],
             "process":{
