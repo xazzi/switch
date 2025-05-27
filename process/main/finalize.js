@@ -33,7 +33,7 @@ runFinalize = function(s, job, codebase){
                     value: handoffDataDS.evalToString("//laminate/value")
                 },
                 coating: {
-                    enabled: handoffDataDS.evalToString("//coating/enabled") == "true",
+                    enabled: handoffDataDS.evalToString("//coating/active") == "true",
                     label: handoffDataDS.evalToString("//frontCoating/label"),
                     value: handoffDataDS.evalToString("//coating/value"),
                     key: handoffDataDS.evalToString("//coating/key")
