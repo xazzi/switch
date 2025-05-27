@@ -79,7 +79,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Reading Order",product.readingOrder],
 		["N-Up",product.nUp],
 		["N-Up Gap",product.nUpGap],
-		["Paper",data.paper.replace(/[,;]/g,'')],
+		["Paper",data.paper.replace(/[,;"']/g,'')],
 		["Marks",marksArray]// Keep this one last so it's easier to read the CSV
 	];
 }
