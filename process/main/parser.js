@@ -997,8 +997,11 @@ runParser = function(s, job, codebase){
                 return
             }
             
+            //data.dayID = new Date(Date.parse(data.date.due)).getDay()
             data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
             data.sku = skuGenerator(3, "numeric", data, db);
+
+            //s.log(2, data.dayID)
                 
             // Create the CSV and the new Job() for the project.
             var newCSV = s.createNewJob();
