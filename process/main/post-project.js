@@ -61,7 +61,7 @@ runPost = function(s, job, codebase){
                     value: handoffDataDS.evalToString("//laminate/value")
                 },
                 coating: {
-                    enabled: handoffDataDS.evalToString("//coating/enabled") == "true"
+                    enabled: handoffDataDS.evalToString("//coating/active") == "true"
                 }
             }
 
