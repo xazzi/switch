@@ -1,0 +1,647 @@
+{
+    "description":"Color of the day for individual products.",
+    "name":"Color of the Day",
+    "key":"None",
+    "parameters":[
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "dayID":0
+                        }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product Info/",
+                    "name": "ShipDate-Sunday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "dayID":1
+                        }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product Info/",
+                    "name": "ShipDate-Monday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "dayID":2
+                        }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product Info/",
+                    "name": "ShipDate-Tuesday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "dayID":3
+                        }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product Info/",
+                    "name": "ShipDate-Wednesday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "dayID":4
+                        }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product Info/",
+                    "name": "ShipDate-Thursday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "dayID":5
+                        }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product Info/",
+                    "name": "ShipDate-Friday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": true
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": true
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": true
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "dayID":6
+                        }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Global",
+                    "dir": "/Product Info/",
+                    "name": "ShipDate-Saturday"
+                }
+            ]
+        },
+        {
+            "description": "",
+            "type": "Custom Mark",
+            "key":"None",
+            "facility": [
+                {
+                    "name": "Salt Lake City",
+                    "id": 28,
+                    "enabled": false
+                },
+                {
+                    "name": "Arlington",
+                    "id": 5,
+                    "enabled": false
+                },
+                {
+                    "name": "Wixom",
+                    "id": 37,
+                    "enabled": false
+                }
+            ],
+            "process":{
+                "requirements":[
+                    "All"
+                ],
+                "rejections":[]
+            },
+            "subprocess":{
+                "requirements":[
+                    "A-Frame",
+                    "Breakaway",
+                    "None",
+                    "Busmark",
+                    "FloorDecal",
+                    "UV-Greyback",
+                    "Retractable",
+                    "Backdrop",
+                    "IndoorOnlyBanner",
+                    "Max Width Perf",
+                    "MiniBannerStand",
+                    "StretchTableCover",
+                    "TableCloth",
+                    "TableTop",
+                    "X-Stand",
+                    "Dry Erase A-Frame",
+                    "Billboard A-Frame"
+                ],
+                "rejections":[
+                    "Tension Stand",
+                    "ButtWeld",
+                    "ButtCut",
+                    "FullSheet",
+                    "TableRunner"
+                ]
+            },
+            "specs":{
+                "requirements":{
+                    "product":{
+                        "date":{
+                            "dayID":2
+                        }
+                    },
+                    "advancedSettings":{
+                        "productLabel":true
+                    }
+                },
+                "rejections":{
+                    "data":{
+                        "printer": "Canon Prostream"
+                    }
+                }
+            },
+            "settings": [
+                {
+                    "group": "Facility",
+                    "dir": "/Overrides/Product Info/",
+                    "name": "ShipDate-Tuesday-SLC"
+                }
+            ]
+        }
+    ]
+}

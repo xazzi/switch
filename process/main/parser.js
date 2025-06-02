@@ -102,7 +102,8 @@ runParser = function(s, job, codebase){
                     },
                     gangMethod: null,
                     labelmaster: false
-                }
+                },
+                csvRequest: false
             }
                 
             for(var i=0; i<submit.nodes.length; i++){
@@ -158,6 +159,13 @@ runParser = function(s, job, codebase){
                     if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
                         submit.route.active = true;				
                         submit.route.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
+                    }
+                }
+
+                // Request only the CSV for manual ganging.
+                if(submit.nodes.getItem(i).evalToString('tag') == "Request Only CSV?"){
+                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
+                        submit.csvRequest = true;				
                     }
                 }
 
@@ -279,7 +287,8 @@ runParser = function(s, job, codebase){
                 rotate90: null,
                 rush: submit.override.rush,
                 sideMix: null,
-                labelmaster: submit.override.labelmaster
+                labelmaster: submit.override.labelmaster,
+                csvRequest: submit.csvRequest
             }
 
             db.history.execute(generateSqlStatement_Insert(s, "history.details_gang", [
@@ -675,9 +684,10 @@ runParser = function(s, job, codebase){
                     data.laminate.active = orderSpecs.laminate.active;
                     data.laminate.method = orderSpecs.laminate.method;
                     data.laminate.value = orderSpecs.laminate.value;
-                    data.coating.active = orderSpecs.coating.active;
-                    data.coating.method = orderSpecs.coating.method;
+                    data.coating.enabled = orderSpecs.coating.enabled;
+                    data.coating.label = orderSpecs.coating.label;
                     data.coating.value = orderSpecs.coating.value;
+                    data.coating.key = orderSpecs.coating.key;
                     data.frontCoating.enabled = orderSpecs.frontCoating.enabled;
                     data.frontCoating.label = orderSpecs.frontCoating.label;
                     data.frontCoating.value = orderSpecs.frontCoating.value;
@@ -704,7 +714,7 @@ runParser = function(s, job, codebase){
                     // Apply special labels.
                     // For LFP products (roll and sheet), apply coating as a laminate option.
                     if(matInfo.type == "roll" || matInfo.type == "sheet"){
-                        if(data.coating.active || data.laminate.active){
+                        if(data.coating.enabled || data.laminate.active){
                             data.phoenix.gangLabel.push("Lam");
                         }
                     }
@@ -795,6 +805,7 @@ runParser = function(s, job, codebase){
                 }
                 
                 // Check for paper deviation
+                /*
                 if(data.paper != orderSpecs.paper.value){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material, " + orderSpecs.paper.value + "."]);
                     data.notes.push([orderSpecs.jobItemId,"Priority","Different IMS material, " + orderSpecs.paper.value + "."]);
@@ -807,6 +818,7 @@ runParser = function(s, job, codebase){
                     ]))
                     continue;
                 }
+                    */
                 
                 // If finishing hem type is different, remove them from the gang.
                 if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
@@ -858,9 +870,10 @@ runParser = function(s, job, codebase){
                 // If the laminate breaker is on, separate the laminates out.
                 if(!data.facility.breaker.lam){
                     
+                    /*
                     // Check if coating deviation
-                    if(data.coating.active != orderSpecs.coating.active){
-                        var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
+                    if(data.coating.enabled != orderSpecs.coating.enabled){
+                        var type = orderSpecs.coating.enabled ? "Coated" : "Uncoated"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
@@ -885,14 +898,15 @@ runParser = function(s, job, codebase){
                         ]))
                         continue;
                     }
+                        */
                 }
 
                 // Laminate and coating checks, skip if allowed to mix.
                 if(!matInfo.lamMix && !submit.override.mixedLam){
 
                     // Check if coating deviation
-                    if(data.coating.active != orderSpecs.coating.active){
-                        var type = orderSpecs.coating.active ? "Coated" : "Uncoated"
+                    if(data.coating.enabled != orderSpecs.coating.enabled){
+                        var type = orderSpecs.coating.enabled ? "Coated" : "Uncoated"
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                             ["project-id",data.projectID],
@@ -921,7 +935,7 @@ runParser = function(s, job, codebase){
 
                 // If we are allowing the laminate to mix with non lam, throw a flag for the file name.
                 if(matInfo.prodName == "Magnet" && data.facility.destination == "Salt Lake City"){
-                    if((data.laminate.active != orderSpecs.laminate.active) || (data.coating.active != orderSpecs.coating.active)){
+                    if((data.laminate.active != orderSpecs.laminate.active) || (data.coating.enabled != orderSpecs.coating.enabled)){
                         data.mixedLam = true
                     }
                 }
@@ -983,8 +997,11 @@ runParser = function(s, job, codebase){
                 return
             }
             
+            //data.dayID = new Date(Date.parse(data.date.due)).getDay()
             data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
             data.sku = skuGenerator(3, "numeric", data, db);
+
+            //s.log(2, data.dayID)
                 
             // Create the CSV and the new Job() for the project.
             var newCSV = s.createNewJob();
@@ -1019,7 +1036,7 @@ runParser = function(s, job, codebase){
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
                     laminate: orderArray[i].laminate.active ? true : false,
-                    coating: orderArray[i].coating.active ? true : false,
+                    coating: orderArray[i].coating.enabled ? true : false,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
                     stock: data.phoenixStock,
@@ -1182,7 +1199,7 @@ runParser = function(s, job, codebase){
 
                 // Max width Perf
                 if(matInfo.prodName == "Perf"){
-                    if(product.width >= 53 && product.height >= 53){
+                    if(product.width >= 51.5 && product.height >= 51.5){
                         product.query = "22"
                     }
                 }
@@ -1219,21 +1236,53 @@ runParser = function(s, job, codebase){
                     }
 
                     // If the size has been requested to be 2up.
-                    if((product.width == '9.5' && product.height == '4.75') || (product.width == '17' && product.height == '5.5')){
+                    /*
+                    if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
                         product.nUp = 2;
-                        product.nUpGap = 0.5;
+                        product.nUpGap = 0.4724;
+                        product.spacingTop = .5;
+                        product.spacingBottom = .5;
+                        matInfo.spacing.type = "Margins"
+                        product.stock += "_Opt2"
                     }
+                    */
 
                     // Adjustment for calendars
                     if(product.bindingEdge == "Top"){
                         product.readingOrder = "Calendar"
+                        if(orderArray[i].size.width == '5.5' && orderArray[i].size.height == '8.5'){
+                            product.nUp = 2;
+                            product.nUpGap = 0.4724;
+                            product.spacingTop = .5;
+                            product.spacingBottom = .5;
+                            matInfo.spacing.type = "Margins"
+                            product.stock += "_Opt2"
+                    }
+
+                    // If it's not top binding, check to see if we should use a special setup.
+                    }else if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
+                        product.nUp = 2;
+                        product.nUpGap = 0.4724;
+                        product.spacingTop = .5;
+                        product.spacingBottom = .5;
+                        matInfo.spacing.type = "Margins"
+                        product.stock += "_Opt2"
                     }
                 }
 
                 // If it's a DS Rectangle Flag, swap the subprocess to the SilverBack version
                 // This code will be removed in the future once they open up SilverBack to all DS flag
                 if(orderArray[i].item.subprocess == 18 && product.doubleSided){
-                    product.query = "26"
+                    //product.query = "26"
+                }
+
+                // Hard code the silverback name onto 2 items.
+                // This code should be deleted in the future when SLC enables the product on a paper level.
+                // bc 4/17/25
+                if(orderArray[i].itemName == "Custom Pole Flags" || orderArray[i].itemName == "Spirit Flags"){
+                    if(product.doubleSided){
+                        data.prodMatFileName = "SilverBack-" + data.prodMatFileName;
+                    }
                 }
                 
                 // If there is a subprocess associated to the item, pull the data and reassign the parameters.
@@ -1908,9 +1957,7 @@ runParser = function(s, job, codebase){
 
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
-                    if(product.doubleSided){
-                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
-                    }
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = orderArray[i].hardware.template.name + "_F";
                 }
 
@@ -2028,6 +2075,7 @@ runParser = function(s, job, codebase){
                 
                 // Set the Phoenix printer (thing).
                 data.thing = data.facility.destination + "/" + data.printer;
+
                 if(data.printer != "None"){	
                     if(matInfo.type == "roll-sticker"){
                         data.thing += "-LabelMaster"
@@ -2042,10 +2090,10 @@ runParser = function(s, job, codebase){
                         }
                     }
                     if(matInfo.type == "web"){
-                        if(product.width == 12 && product.height == 6){
-                            data.thing += " (13)"
+                        //if((product.width == '12' && product.height == '6') || (product.width == '9.5' && product.height == '4.75') || (product.width == '11' && product.height == '8.5')){
+                            data.thing += " (Compact)"
                             //product.stock += "_13"
-                        }
+                        //}
                     }
                 }
 
@@ -2242,7 +2290,7 @@ runParser = function(s, job, codebase){
             // If it's laminated sintra in SLC, adjust the cut hotfolder name.
             if(data.facility.destination == "Salt Lake City"){
                 if(matInfo.prodName == "3mm-Sintra"){
-                    if(data.laminate.active || data.coating.active){
+                    if(data.laminate.active || data.coating.enabled){
                         matInfo.cutter.hotfolder = "Lam_" + matInfo.cutter.hotfolder;
                     }
                 }
@@ -2391,9 +2439,10 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
     var coatingNode = theXML.createElement("coating", null);
 		handoffNode.appendChild(coatingNode);
 
-        addNode_db(theXML, coatingNode, "active", data.coating.active ? true : false);
-        addNode_db(theXML, coatingNode, "method", data.coating.method);
+        addNode_db(theXML, coatingNode, "active", data.coating.enabled ? true : false);
+        addNode_db(theXML, coatingNode, "label", data.coating.label);
         addNode_db(theXML, coatingNode, "value", data.coating.value);
+        addNode_db(theXML, coatingNode, "key", data.coating.key);
 
     var frontCoatingNode = theXML.createElement("frontCoating", null);
 		handoffNode.appendChild(frontCoatingNode);
@@ -2451,6 +2500,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "cutPathExistsCheck", matInfo.cutPathExistsCheck);
         addNode_db(theXML, miscNode, "optimizeForDFE", matInfo.optimizeForDFE);
         addNode_db(theXML, miscNode, "reversePages", matInfo.reversePages);
+        addNode_db(theXML, miscNode, "csvRequest", data.csvRequest);
 		
 	var userNode = theXML.createElement("user", null);
 		handoffNode.appendChild(userNode);
@@ -2527,9 +2577,6 @@ function compareToFile(s, expected, actual, product, scale, axis, type){
 
 function writeCSV(s, file, array, index){
 	for(var n=0; n<array.length; n++){
-        if(array[n][1] == '' || array[n][1] == null || array[n][1] == undefined || array[n][1] == 'undefined'){
-            continue;
-        }
 		file.write(array[n][index]);
 		if(n != array.length-1){
 			file.write(";");

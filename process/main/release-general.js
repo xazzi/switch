@@ -36,7 +36,7 @@ runRelease = function(s, codebase){
                 s.setTimerInterval(secondInterval);
             
             // Set the threshold that the system waits
-            var threshold = 15 * 60000;
+            var threshold = 20 * 60000;
             var now = new Date();
             
             // Set some directories.

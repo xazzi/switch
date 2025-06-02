@@ -37,6 +37,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Page Handling",product.pageHandling],
 		["METRIX_NAME",product.orderNumber],
 		["Item Number",product.itemNumber],
+		["Coating",data.coating.value],
 		["Product Notes",orderArray.productNotes],
 		["A-Frame Type",orderArray.frame.value],
 		["Mount Info",orderArray.mount.value],
@@ -78,6 +79,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Reading Order",product.readingOrder],
 		["N-Up",product.nUp],
 		["N-Up Gap",product.nUpGap],
+		["Paper",data.paper.replace(/[,;"']/g,'')],
 		["Marks",marksArray]// Keep this one last so it's easier to read the CSV
 	];
 }

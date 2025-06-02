@@ -33,9 +33,10 @@ runFinalize = function(s, job, codebase){
                     value: handoffDataDS.evalToString("//laminate/value")
                 },
                 coating: {
-                    active: handoffDataDS.evalToString("//coating/active") == "true",
-                    method: handoffDataDS.evalToString("//coating/method"),
-                    value: handoffDataDS.evalToString("//coating/value")
+                    enabled: handoffDataDS.evalToString("//coating/active") == "true",
+                    label: handoffDataDS.evalToString("//frontCoating/label"),
+                    value: handoffDataDS.evalToString("//coating/value"),
+                    key: handoffDataDS.evalToString("//coating/key")
                 },
                 frontCoating: {
                     enabled: handoffDataDS.evalToString("//frontCoating/enabled") == "true",
@@ -93,7 +94,7 @@ runFinalize = function(s, job, codebase){
                 }
 
                 // Laminate
-                name.laminate = handoffData.mixedLam ? "-mixLam" : (handoffData.laminate.active || handoffData.coating.active) ? "-Lam" : "";
+                name.laminate = handoffData.mixedLam ? "-mixLam" : (handoffData.laminate.active || handoffData.coating.enabled) ? "-Lam" : "";
 
                 // FloorDecal
                 if(handoffData.process == "FloorDecal"){
@@ -250,7 +251,7 @@ function getCoatLamSLN(s, handoffData){
     var temp = ""
     
     // If all laminate and coating options are false, return uncoated.
-    if(handoffData.laminate.method == "null" && handoffData.coating.method == "null" && !handoffData.frontCoating.enabled){
+    if(handoffData.laminate.method == "null" && handoffData.coating.key == "null" && !handoffData.frontCoating.enabled){
         temp = "-Uncoated"
         return temp
     }
@@ -262,9 +263,9 @@ function getCoatLamSLN(s, handoffData){
     }
 
     // If it's RP, use the general Coating method.
-    if(handoffData.coating.method != "null"){
+    if(handoffData.coating.key != "null"){
         if(handoffData.paper.match(new RegExp("- RP","g"))){
-            temp = "-" + handoffData.coating.method
+            temp = "-" + handoffData.coating.key
             return temp
         }
     }

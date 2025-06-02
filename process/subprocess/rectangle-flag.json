@@ -15,7 +15,7 @@
             "properties": {
                 "mixed": false,
                 "undersize": "Default",
-                "orientationCheck": false
+                "orientationCheck": true
             },
             "overrides": {
                 "matInfo": {
@@ -25,7 +25,7 @@
                 },
                 "product": {
                     "rotation": "None",
-                    "pageHandling": "OnePerTwoPages",
+                    "pageHandling": "OnePerPage",
                     "dieDesignSource": "DieDesignLibrary"
                 },
                 "data": {

@@ -62,7 +62,7 @@
                 "requirements":{
                     "orderArray":{
                         "coating":{
-                            "active":true
+                            "enabled":true
                         }
                     },
                     "advancedSettings":{
