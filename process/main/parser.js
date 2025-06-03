@@ -32,6 +32,8 @@ runParser = function(s, job, codebase){
             eval(File.read(dir.support + "/get-target-height.js"));
             eval(File.read(dir.support + "/set-banner-storting.js"));
             eval(File.read(dir.support + "/dart-template-check.js"));
+            eval(File.read(dir.support + "/set-date-object.js"));
+            eval(File.read(dir.support + "/get-timezone.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -43,19 +45,10 @@ runParser = function(s, job, codebase){
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
-                
-            var localTime = new Date();
-            var hourOffset = module.timezone == "AWS" ? 7 : 0;
-            var hourAdjustment = localTime.getTime() - (3600000*hourOffset);
-            var adjustedTime = new Date(hourAdjustment).toString();
-                
-            var now = {
-                date: adjustedTime.split("T")[0],
-                time: adjustedTime.split("T")[1],
-                day: adjustedTime.split("T")[0].split("-")[2],
-                month: adjustedTime.split("T")[0].split("-")[1],
-                year: adjustedTime.split("T")[0].split("-")[0]
-            }
+
+            // Get the timezone info and set the now time per UTC
+            var times = getTimezoneInfo()
+            var now = parseDateParts(times.UTC)
                 
             var submitDS
             if(!module.devSettings.ignoreSubmit){
@@ -256,7 +249,6 @@ runParser = function(s, job, codebase){
                 oversize: false,
                 thing: null,
                 printer: null,
-                dateID: null,
                 notes: [],
                 tolerance: 0,
                 paper: null,
@@ -270,7 +262,9 @@ runParser = function(s, job, codebase){
                     destination: null
                 },
                 date:{
-                    due: null
+                    due:{
+                        iso: null
+                    }
                 },
                 phoenix:{
                     printExport: null,
@@ -996,13 +990,14 @@ runParser = function(s, job, codebase){
                 ]))
                 return
             }
-            
-            //data.dayID = new Date(Date.parse(data.date.due)).getDay()
-            data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
+
+            // Establish the date structure and information.
+            // This restrucures the data.date.due variable into an object as well.
+            data.date.due = parseDateParts(data.date.due)
+
+            // Determine the sku.
             data.sku = skuGenerator(3, "numeric", data, db);
 
-            //s.log(2, data.dayID)
-                
             // Create the CSV and the new Job() for the project.
             var newCSV = s.createNewJob();
             var csvPath = newCSV.createPathWithName(data.gangNumber + ".csv", false);
@@ -1095,11 +1090,8 @@ runParser = function(s, job, codebase){
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
                     date:{
-                        due: orderArray[i].date.due,
-                        abbr: orderArray[i].date.due.split("-")[1] + "-" + orderArray[i].date.due.split("-")[2],
-                        dayID: new Date(Date.parse(orderArray[i].date.due)).getDay()
+                        due: parseDateParts(orderArray[i].date.due)
                     },
-                    late: now.date >= orderArray[i].date.due,
                     reprint:{
                         status: orderArray[i].reprint.status,
                         reason: orderArray[i].reprint.reason
@@ -1143,6 +1135,9 @@ runParser = function(s, job, codebase){
                     nUp: "",
                     nUpGap: ""
                 }
+
+                // Set the product to late if the date unixMs is smaller than the now.unixMs
+                product.late = now.strings.yearMonthDay >= product.date.due.strings.yearMonthDay;
                 
                 var scale = {
                     width: 100,
@@ -1395,7 +1390,7 @@ runParser = function(s, job, codebase){
                 // If the order is a late.
                 if(product.late){
                     data.notes.push([product.itemNumber,"Notes","Late!"]);
-                    data.dateID = now.month + "-" + now.day
+                    data.date.due.strings.monthDay = now.month + "-" + now.day
                 }
                 
                 // If the order is a replacement, send an email to the user.
@@ -2255,10 +2250,10 @@ runParser = function(s, job, codebase){
                     ["item-number",product.itemNumber]
                 ],[
                     ["orientation",product.orientation.status],
-                    ["due-date", orderArray[i].date.due]
+                    ["due-date", product.date.due.strings.yearMonthDay]
                 ]))
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method,product.allowedRotations]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,product.date.due.strings.yearMonthDay,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method,product.allowedRotations]);
                 
                 // Write the gang number to the database.
                 db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.gangNumber + "' AND item_number = '" + product.itemNumber + "';");
@@ -2356,12 +2351,13 @@ runParser = function(s, job, codebase){
                 ["process",data.prodName],
                 ["subprocess",data.subprocess],
                 ["facility",data.facility.destination],
-                ["save-location",data.dateID],
+                ["save-location",data.date.due.strings.monthDay],
                 ["rush",data.rush],
                 ["email",userInfo.email],
-                ["processed-time",now.time],
-                ["processed-date",now.date],
-                ["due-date",data.date.due],
+                ["started_at_utc",now.iso],
+                ["started_at_mst",times.MST],
+                ["started_at_est",times.EST],
+                ["due-date",data.date.due.strings.yearMonthDay],
                 ["dynamic-height-enabled",dynamic.height.enabled],
                 ["height-value",dynamic.height.value],
                 ["status","Parse Complete"],
@@ -2395,9 +2391,9 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, baseNode, "projectID", data.projectID);
 		addNode_db(theXML, baseNode, "gangNumber", data.gangNumber);
 		addNode_db(theXML, baseNode, "projectNotes", data.projectNotes);
-		addNode_db(theXML, baseNode, "saveLocation", data.dateID);
-		addNode_db(theXML, baseNode, "dateID", data.dateID.replace('-',''));
-		addNode_db(theXML, baseNode, "dueDate", data.date.due);
+		addNode_db(theXML, baseNode, "saveLocation", data.date.due.strings.monthDay);
+		addNode_db(theXML, baseNode, "dateID", data.date.due.month + data.date.due.day);
+		addNode_db(theXML, baseNode, "dueDate", data.date.due.strings.yearMonthDay);
 		addNode_db(theXML, baseNode, "sku", data.sku);
 		addNode_db(theXML, baseNode, "process", data.prodName);
 		addNode_db(theXML, baseNode, "subprocess", data.subprocess);
@@ -2407,7 +2403,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, baseNode, "type", matInfo.type);
 		addNode_db(theXML, baseNode, "rush", data.rush);
 		addNode_db(theXML, baseNode, "processed-time", now.time);
-		addNode_db(theXML, baseNode, "processed-date", now.date);
+		addNode_db(theXML, baseNode, "processed-date", now.strings.yearMonthDay);
         addNode_db(theXML, baseNode, "approved", matInfo.approved);
 	
 	var settingsNode = theXML.createElement("settings", null);
@@ -2520,7 +2516,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 			addNode_db(theXML, productNode, "contentFile", product.contentFile);
 			addNode_db(theXML, productNode, "orderNumber", product.orderNumber);
 			addNode_db(theXML, productNode, "itemNumber", product.itemNumber);
-			addNode_db(theXML, productNode, "shipDate", orderArray.date.due);
+			addNode_db(theXML, productNode, "shipDate", product.date.due.strings.yearMonthDay);
 			addNode_db(theXML, productNode, "secondSurface", orderArray.secondSurface);
 			addNode_db(theXML, productNode, "isCutVinyl", data.prodName == "CutVinyl");
 			addNode_db(theXML, productNode, "cvFrosted", data.prodName == "CutVinyl-Frosted");

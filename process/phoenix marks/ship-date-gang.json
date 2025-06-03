@@ -60,9 +60,11 @@
             },
             "specs":{
                 "requirements":{
-                    "product":{
+                    "data":{
                         "date":{
-                            "dayID":1
+                            "due":{
+                                "weekdayId":1
+                            }
                         }
                     },
                     "advancedSettings":{
@@ -140,9 +142,11 @@
             },
             "specs":{
                 "requirements":{
-                    "product":{
+                    "data":{
                         "date":{
-                            "dayID":2
+                            "due":{
+                                "weekdayId":2
+                            }
                         }
                     },
                     "advancedSettings":{
@@ -220,9 +224,11 @@
             },
             "specs":{
                 "requirements":{
-                    "product":{
+                    "data":{
                         "date":{
-                            "dayID":3
+                            "due":{
+                                "weekdayId":3
+                            }
                         }
                     },
                     "advancedSettings":{
@@ -300,9 +306,11 @@
             },
             "specs":{
                 "requirements":{
-                    "product":{
+                    "data":{
                         "date":{
-                            "dayID":4
+                            "due":{
+                                "weekdayId":4
+                            }
                         }
                     },
                     "advancedSettings":{
@@ -380,9 +388,11 @@
             },
             "specs":{
                 "requirements":{
-                    "product":{
+                    "data":{
                         "date":{
-                            "dayID":5
+                            "due":{
+                                "weekdayId":5
+                            }
                         }
                     },
                     "advancedSettings":{
@@ -460,9 +470,11 @@
             },
             "specs":{
                 "requirements":{
-                    "product":{
+                    "data":{
                         "date":{
-                            "dayID":6
+                            "due":{
+                                "weekdayId":6
+                            }
                         }
                     },
                     "advancedSettings":{
