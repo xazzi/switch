@@ -37,6 +37,7 @@ getMatInfo = function(orderSpecs, db){
         height: Number(db.settings.getString(4)),
         dynamicHeightIncrement: db.settings.getString(66),
         phoenixStock: db.settings.getString(5),
+        phoenixPress: db.settings.getString(80),
 
         spacing: {
             type: db.settings.getString(7),

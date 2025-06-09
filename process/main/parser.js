@@ -196,7 +196,7 @@ runParser = function(s, job, codebase){
                     submit.override.labelmaster = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
                 }
             }
-            
+
             var orderArray = [];
             var adjustmentArray = [];
             var matInfo = null;
@@ -249,6 +249,7 @@ runParser = function(s, job, codebase){
                 oversize: false,
                 thing: null,
                 printer: null,
+                phoenixPress: null,
                 notes: [],
                 tolerance: 0,
                 paper: null,
@@ -259,7 +260,9 @@ runParser = function(s, job, codebase){
                 prismStock: null,
                 facility:{
                     original: null,
-                    destination: null
+                    destination: null,
+                    id: null,
+                    abbr: null
                 },
                 date:{
                     due:{
@@ -455,6 +458,7 @@ runParser = function(s, job, codebase){
                     db.settings.fetchRow();
 
                     orderSpecs.facilityId = db.settings.getString(3);
+                    data.facility.abbr = db.settings.getString(2);
                     data.facility.id = db.settings.getString(3);
 
                     // Set any facility level breakers to disable processes
@@ -463,9 +467,9 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                if(orderSpecs.reprint)[
+                if(orderSpecs.reprint)(
                     data.reprint = true
-                ]
+                )
 
                 // Material overrides
                 // -----------------------------------------------------------------------------------------
@@ -699,6 +703,7 @@ runParser = function(s, job, codebase){
                     data.rotate90 = matInfo.rotate90;
                     data.sideMix = matInfo.sideMix;
                     data.printer = matInfo.printer.name;
+                    data.phoenixPress = matInfo.phoenixPress;
                     data.phoenixStock = matInfo.phoenixStock;
                     data.phoenix.printExport = matInfo.phoenix.printExport;
                     data.phoenix.cutExport = matInfo.phoenix.cutExport;
@@ -771,7 +776,7 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                if(data.printer != matInfo.printer.name){
+                if(data.phoenixPress != matInfo.phoenixPress){
                     if(misc.rejectPress){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different printer " + matInfo.printer.name + "."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
@@ -779,7 +784,7 @@ runParser = function(s, job, codebase){
                             ["item-number",orderSpecs.jobItemId]
                         ],[
                             ["status","Removed from Gang"],
-                            ["note","Different printer: " + matInfo.printer.name]
+                            ["note","Different press: " + matInfo.printer.name]
                         ]))
                         continue;
                     }
@@ -2069,9 +2074,9 @@ runParser = function(s, job, codebase){
                 }
                 
                 // Set the Phoenix printer (thing).
-                data.thing = data.facility.destination + "/" + data.printer;
+                data.thing = data.facility.destination + "/" + data.phoenixPress + " [" + data.facility.abbr + "]";
 
-                if(data.printer != "None"){	
+                if(data.phoenixPress != "None"){	
                     if(matInfo.type == "roll-sticker"){
                         data.thing += "-LabelMaster"
                     }	 
