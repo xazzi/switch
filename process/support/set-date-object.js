@@ -13,7 +13,7 @@ parseDateParts = function(isoString){
         iso: date,
         time: date.toString().split('T')[1],
         unixMs: date.getTime(),
-        weekday: weekdays[date.getDay()],
+        weekday: weekdays[date.getDay()-1],
         weekdayId: date.getDay(),
         year: year,
         month: paddedMonth,
