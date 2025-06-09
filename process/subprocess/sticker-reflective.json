@@ -21,6 +21,7 @@
                 "matInfo": {
                     "cutter": {
                         "device": "Hydra",
+                        "hotfolder": "Stickers",
                         "enable": true
                     }
                 },
