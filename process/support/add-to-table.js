@@ -18,7 +18,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';");
 
     // For the new table style
-    }else if(tableFormat == "new"){
+    }else if(tableFormat == "new" || tableFormat == "attr"){
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "';");
 
     // For everything else, run a generic query.
@@ -59,6 +59,66 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             }
         }
 
+        // Material options
+        // These map options need to match the paper maps above, this allows the process to work when there isn't a paper assigned to the item.
+        if(table == "attr_material"){
+            return specs = {
+                enabled: true, //db.settings.getString(7) == 'y',
+                name: db.settings.getString(1),
+                value: db.settings.getString(2),
+                paperLookup: db.settings.getString(3),
+                coating:{
+                    front: db.settings.getString(4),
+                    back: db.settings.getString(5)
+                }
+            }
+        }
+
+        // Material options
+        // These map options need to match the paper maps above, this allows the process to work when there isn't a paper assigned to the item.
+        if(table == "attr_paper-type"){
+            return specs = {
+                enabled: true, //db.settings.getString(7) == 'y',
+                name: db.settings.getString(1),
+                value: db.settings.getString(2),
+                paperLookup: db.settings.getString(3),
+                coating:{
+                    front: db.settings.getString(4),
+                    back: db.settings.getString(5)
+                }
+            }
+        }
+
+        // Material options
+        // These map options need to match the paper maps above, this allows the process to work when there isn't a paper assigned to the item.
+        if(table == "attr_paper"){
+            return specs = {
+                enabled: true, //db.settings.getString(7) == 'y',
+                name: db.settings.getString(1),
+                value: db.settings.getString(2),
+                paperLookup: db.settings.getString(3),
+                coating:{
+                    front: db.settings.getString(4),
+                    back: db.settings.getString(5)
+                }
+            }
+        }
+
+        // Material options
+        // These map options need to match the paper maps above, this allows the process to work when there isn't a paper assigned to the item.
+        if(table == "attr_stock"){
+            return specs = {
+                enabled: true, //db.settings.getString(7) == 'y',
+                name: db.settings.getString(1),
+                value: db.settings.getString(2),
+                paperLookup: db.settings.getString(3),
+                coating:{
+                    front: db.settings.getString(4),
+                    back: db.settings.getString(5)
+                }
+            }
+        }
+
         // Item mapping
         if(table == "specs_item-name"){
             return specs = {
@@ -68,33 +128,16 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             }
         }
 
-        // Material options
-        // These map options need to match the paper maps above, this allows the process to work when there isn't a paper assigned to the item.
-        if(table == "options_material"){
-            return specs = {
-                active: true,
-                value: db.settings.getString(1),
-                map: {
-                    slc: null,
-                    bri: null,
-                    sln: Number(db.settings.getString(5)),
-                    lou: null,
-                    arl: null,
-                    wix: null,
-                    vn: Number(db.settings.getString(4))
-                },
-                customValue: db.settings.getString(6)
-            }
-        }
-
         // A-frame options
         if(table == "options_a-frame"){
             return specs = {
-                active: true,
-                method: db.settings.getString(4),
-                value: db.settings.getString(1).replace(/"/g,''),
-                color: db.settings.getString(5),
-                type: db.settings.getString(6)
+                enabled: db.settings.getString(7) == 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) != null ? db.settings.getString(4) : db.settings.getString(3) != null ? db.settings.getString(3) : null,
+                attributes: {
+                    color: db.settings.getString(8),
+                    type: db.settings.getString(9)
+                }
             }
         }
 
@@ -239,9 +282,32 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         // Laminate options
         if(table == "options_laminate"){
             return specs = {
-                active: true,
-                method: db.settings.getString(4),
-                value: db.settings.getString(1)
+                enabled: db.settings.getString(7) == 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) != null ? db.settings.getString(4) : db.settings.getString(3) != null ? db.settings.getString(3) : null,
+                key: db.settings.getString(8),
+                map:{
+                    fcoat: db.settings.getString(9),
+                    bcoat: db.settings.getString(10)
+                }
+            }
+        }
+
+        // Front Laminate options
+        if(table == "options_front-laminate"){
+            return specs = {
+                enabled: db.settings.getString(7) == 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) != null ? db.settings.getString(4) : db.settings.getString(3) != null ? db.settings.getString(3) : null
+            }
+        }
+
+        // Back Laminate options
+        if(table == "options_back-laminate"){
+            return specs = {
+                enabled: db.settings.getString(7) == 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) != null ? db.settings.getString(4) : db.settings.getString(3) != null ? db.settings.getString(3) : null
             }
         }
 
@@ -251,12 +317,25 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
                 enabled: db.settings.getString(7) == 'y',
                 label: db.settings.getString(2),
                 value: db.settings.getString(4) != null ? db.settings.getString(4) : db.settings.getString(3) != null ? db.settings.getString(3) : null,
-                key: db.settings.getString(8)
+                key: db.settings.getString(8),
+                map:{
+                    fcoat: db.settings.getString(9),
+                    bcoat: db.settings.getString(10)
+                }
             }
         }
 
-        // FrontCoating options
+        // Front Coating options
         if(table == "options_front-coating"){
+            return specs = {
+                enabled: db.settings.getString(7) == 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) != null ? db.settings.getString(4) : db.settings.getString(3) != null ? db.settings.getString(3) : null
+            }
+        }
+
+        // Back Coating options
+        if(table == "options_back-coating"){
             return specs = {
                 enabled: db.settings.getString(7) == 'y',
                 label: db.settings.getString(2),
@@ -373,6 +452,10 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         // For the new table style
         }else if(tableFormat == "new"){
             db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-code`, `prism-label`, `prism-value`, `date-added`, `example-item`) VALUES ('" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + new Date() + "','" + example + "');");
+
+        // For display attributes
+        }else if(tableFormat == "attr"){
+            db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-name`, `prism-value`, `date_added`, `example_item`) VALUES ('" + orderSpecs.attribute_name + "','" + orderSpecs.attr_value + "','" + new Date() + "','" + example + "');");
 
         // All of the other options tables.
         }else{

@@ -56,6 +56,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },
@@ -121,6 +124,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },
@@ -186,6 +192,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },
@@ -255,6 +264,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },
@@ -324,6 +336,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },
@@ -393,6 +408,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },
@@ -457,6 +475,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },

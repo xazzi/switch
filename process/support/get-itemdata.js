@@ -3,6 +3,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 		var specs = {
 			complete: false,
 			process: null, //This should stay null, it's to allow process/string searching elsewhere.
+			accountType: null,
+			accountTypeCode: null,
 			itemName: null,
 			item: {
 				active: false,
@@ -11,12 +13,48 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			},
 			paper: {
 				active: false,
+				lookup: null,
 				value: null
 			},
 			material: {
-				active: false,
-				value: null,
-				customValue: null
+				enabled: false,
+                name: null,
+                value: null,
+                paperLookup: null,
+                coating:{
+                    front: null,
+                    back: null
+                }
+			},
+			attrPaper: {
+				enabled: false,
+                name: null,
+                value: null,
+                paperLookup: null,
+                coating:{
+                    front: null,
+                    back: null
+                }
+			},
+			paperType: {
+				enabled: false,
+                name: null,
+                value: null,
+                paperLookup: null,
+                coating:{
+                    front: null,
+                    back: null
+                }
+			},
+			stock: {
+				enabled: false,
+                name: null,
+                value: null,
+                paperLookup: null,
+                coating:{
+                    front: null,
+                    back: null
+                }
 			},
 			materialThickness: {
 				enabled: false,
@@ -105,20 +143,48 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				value: null
 			},
 			laminate: {
-				active: false,
-				method: null,
-				value: null
+				general:{
+					enabled: false,
+					label: null,
+					value: null,
+					key: null,
+					map:{
+						fcoat: null,
+						bcoat: null
+					}
+				},
+				front:{
+					enabled: false,
+					label: null,
+					value: null
+				},
+				back: {
+					enabled: false,
+					label: null,
+					value: null
+				}
 			},
 			coating: {
-				enabled: false,
-				label: null,
-				value: null,
-				key: null
-			},
-			frontCoating: {
-				enabled: false,
-				label: null,
-				value: null
+				general:{
+					enabled: false,
+					label: null,
+					value: null,
+					key: null,
+					map:{
+						fcoat: null,
+						bcoat: null
+					}
+				},
+				front:{
+					enabled: false,
+					label: null,
+					value: null
+				},
+				back: {
+					enabled: false,
+					label: null,
+					value: null
+				}
 			},
 			impInstructions: {
 				active: false,
@@ -163,11 +229,13 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				dateAdded: null
 			},
 			frame: {
-				active: false,
-				method: null,
-				value: null,
-				color: null,
-				type: null
+				enabled: false,
+                label: null,
+                value: null,
+                attributes: {
+                    color: null,
+                    type: null
+                }
 			},
 			side: {
 				active: false,
@@ -249,6 +317,8 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 		var response = theHTTP.getServerResponse().toString( "UTF-8" );
 		var dataDump = JSON.parse(response).job_item;
 		
+			specs.accountType = dataDump.account_type;
+			specs.accountTypeCode = dataDump.account_type_code;
 			specs.qty = dataDump.qty;
 			specs.pageQty = dataDump.page_qty;
 			specs.jobItemId = dataDump.job_item_id;
@@ -306,8 +376,11 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 					specs.hem = addToTable(s, db, "options_hems", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
 				}
 			}
+			// TODO - THIS IS STUPID
 			if(dataDump.order_specs[k].code == "PPR"){
-				specs.paper = addToTable(s, db, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
+				//specs.paper = addToTable(s, db, "specs_paper", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
+				specs.paper.lookup = dataDump.order_specs[k].value
+				specs.paper.raw = dataDump.order_specs[k].value
 			}
 			if(dataDump.order_specs[k].code == "MATRL"){
 				specs.material = addToTable(s, db, "options_material", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
@@ -322,16 +395,25 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.bindPlace = addToTable(s, db, "options_bindplace", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
 			}
 			if(dataDump.order_specs[k].code == "COAT"){
-				specs.coating = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
+				specs.coating.general = addToTable(s, db, "options_coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
 			}
 			if(dataDump.order_specs[k].code == "FCOAT"){
-				specs.frontCoating = addToTable(s, db, "options_front-coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
+				specs.coating.front = addToTable(s, db, "options_front-coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
+			}
+			if(dataDump.order_specs[k].code == "BCOAT"){
+				specs.coating.back = addToTable(s, db, "options_back-coating", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
 			}
 			if(dataDump.order_specs[k].code == "COVER"){
 				specs.cover = addToTable(s, db, "options_cover", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
 			}
 			if(dataDump.order_specs[k].code == "LAM"){
-				specs.laminate = addToTable(s, db, "options_laminate", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
+				specs.laminate.general = addToTable(s, db, "options_laminate", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
+			}
+			if(dataDump.order_specs[k].code == "FLAM"){
+				specs.laminate.front = addToTable(s, db, "options_front-laminate", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
+			}
+			if(dataDump.order_specs[k].code == "BLAM"){
+				specs.laminate.back = addToTable(s, db, "options_back-laminate", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
 			}
 			if(dataDump.order_specs[k].code == "WIND"){
 				specs.unwind = addToTable(s, db, "options_unwind", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
@@ -363,7 +445,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.edge = addToTable(s, db, "options_edge", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
 			}
 			if(dataDump.order_specs[k].code == "AFRAME"){
-				specs.frame = addToTable(s, db, "options_a-frame", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
+				specs.frame = addToTable(s, db, "options_a-frame", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "new");
 			}
 			if(dataDump.order_specs[k].code == "POLPCKT"){
 				specs.pocket = addToTable(s, db, "options_pockets", dataDump.order_specs[k].value, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
@@ -436,17 +518,33 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.box.depth = dataDump.order_specs[k].value;
 			}
 		}
-
-		// TO DO - Determine if this is the best method to assign the paper if it doesn't exist in IMS.
-		// Would it be better to do a more robust check outside of this?
-		if(!specs.paper.active){
-			specs.paper = specs.material
-		}
-
+		// TODO CAN WE BUILD THIS BETTER?
 		// Loop through the display specs.
 		for(var k=0; k<dataDump.display_specs.length; k++){
 			if(dataDump.display_specs[k].attribute_name == "Material"){
-				specs.material = addToTable(s, db, "options_material", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.display_specs[k], "old");
+				specs.material = addToTable(s, db, "attr_material", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.display_specs[k], "attr");
+			}
+			if(dataDump.display_specs[k].attribute_name == "Paper Type"){
+				specs.paperType = addToTable(s, db, "attr_paper-type", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.display_specs[k], "attr");
+			}
+			if(dataDump.display_specs[k].attribute_name == "Paper"){
+				specs.attrPaper = addToTable(s, db, "attr_paper", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.display_specs[k], "attr");
+			}
+			if(dataDump.display_specs[k].attribute_name == "Stock"){
+				specs.stock = addToTable(s, db, "attr_stock", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.display_specs[k], "attr");
+			}
+		}
+
+		specs.paper.lookup = firstNonNull(specs.attrPaper.paperLookup, specs.paperType.paperLookup, specs.material.paperLookup, specs.stock.paperLookup);
+
+		if(specs.paper.lookup == null){
+			specs.paper.lookup = specs.paper.raw
+		}
+
+		// Loop through the order_specs and set some values based on them
+		for(var k=0; k<dataDump.order_specs.length; k++){
+			if(dataDump.order_specs[k].code == "PPR"){
+				specs.paper = addToTable(s, db, "specs_paper", specs.paper.lookup, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
 			}
 		}
 
