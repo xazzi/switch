@@ -62,7 +62,9 @@
                 "requirements":{
                     "orderArray":{
                         "coating":{
-                            "enabled":true
+                            "front":{
+                                "enabled":true
+                            }
                         }
                     },
                     "advancedSettings":{
@@ -72,6 +74,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },

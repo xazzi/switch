@@ -21,7 +21,7 @@ getMatInfo = function(orderSpecs, db){
     }
 
     // Pull the material defaults based on the facility mapping ID.
-        db.settings.execute('CALL settings.getMaterial(' + paperMapId + ')');
+        db.settings.execute('CALL settings.getMaterial("' + paperMapId + '","' + orderSpecs.accountTypeCode + '")');
     if(!db.settings.isRowAvailable()){
         return "Material Data Missing";
     }
@@ -29,6 +29,7 @@ getMatInfo = function(orderSpecs, db){
 
     var matInfo = {
 
+        accountType: db.settings.getString(82),
         id: db.settings.getString(0),
         prodName: db.settings.getString(1),
         prodMatFileName: db.settings.getString(34),
@@ -38,6 +39,7 @@ getMatInfo = function(orderSpecs, db){
         dynamicHeightIncrement: db.settings.getString(66),
         phoenixStock: db.settings.getString(5),
         phoenixPress: db.settings.getString(80),
+        mixDueDate: submit.override.date === true ? true : db.settings.getString(81) === 'y',
 
         spacing: {
             type: db.settings.getString(7),

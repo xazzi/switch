@@ -36,8 +36,9 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Notes","SheetLevelData"], //Unused?
 		["Page Handling",product.pageHandling],
 		["METRIX_NAME",product.orderNumber],
-		["Item Number",product.itemNumber],
-		["Coating",data.coating.value],
+		["Item Number",product.itemNumber], // TODO, ADD LAMINATE INFO
+		["Front Coat",data.coating.front.value],
+		["Back Coat",data.coating.back.value],
 		["Product Notes",orderArray.productNotes],
 		["A-Frame Type",orderArray.frame.value],
 		["Mount Info",orderArray.mount.value],
