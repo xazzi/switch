@@ -399,14 +399,14 @@ runParser = function(s, job, codebase){
 
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
-
+                
                 // TODO: CLEAN THIS UP IF POSSIBLE.
                 if(orderSpecs.coating.front.value == null){
-                    orderSpecs.coating.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front, orderSpecs.paperStock.coating.front, orderSpecs.substrate.coating.front);
+                    orderSpecs.coating.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front, orderSpecs.paperStock.coating.front, orderSpecs.substrate.coating.front, orderSpecs.paper.coating.front);
                 }
 
                 if(orderSpecs.coating.back.value == null){
-                    orderSpecs.coating.back.value = firstNonNull(orderSpecs.coating.general.map.bcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back, orderSpecs.paperStock.coating.back, orderSpecs.substrate.coating.back);
+                    orderSpecs.coating.back.value = firstNonNull(orderSpecs.coating.general.map.bcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back, orderSpecs.paperStock.coating.back, orderSpecs.substrate.coating.back, orderSpecs.paper.coating.back);
                 }
 
                 if(orderSpecs.laminate.front.value == null){

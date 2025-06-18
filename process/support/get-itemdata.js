@@ -14,7 +14,22 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			paper: {
 				active: false,
 				lookup: null,
-				value: null
+                value: null,
+                accountTypeCode: null,
+                coating:{
+                    front: null,
+                    back: null
+                },
+                map: {
+                    slc: null,
+                    bri: null,
+                    sln: null,
+                    lou: null,
+                    arl: null,
+                    wix: null,
+                    vn: null,
+                    sb: null
+                }
 			},
 			material: {
 				enabled: false,
@@ -538,6 +553,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 				specs.box.depth = dataDump.order_specs[k].value;
 			}
 		}
+		
 		// TODO CAN WE BUILD THIS BETTER?
 		// Loop through the display specs.
 		for(var k=0; k<dataDump.display_specs.length; k++){
@@ -570,7 +586,7 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 		// Loop through the order_specs and set some values based on them
 		for(var k=0; k<dataDump.order_specs.length; k++){
 			if(dataDump.order_specs[k].code == "PPR"){
-				specs.paper = addToTable(s, db, "specs_paper", specs.paper.lookup, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "old");
+				specs.paper = addToTable(s, db, "specs_paper", specs.paper.lookup, dataDump.job_item_id, data, userInfo, null, dataDump.order_specs[k], "paper", dataDump);
 			}
 		}
 

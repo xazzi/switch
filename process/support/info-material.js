@@ -21,7 +21,7 @@ getMatInfo = function(orderSpecs, db){
     }
 
     // Pull the material defaults based on the facility mapping ID.
-        db.settings.execute('CALL settings.getMaterial("' + paperMapId + '","' + orderSpecs.accountTypeCode + '")');
+        db.settings.execute('CALL settings.getMaterial("' + paperMapId + '")');
     if(!db.settings.isRowAvailable()){
         return "Material Data Missing";
     }

@@ -1,4 +1,4 @@
-addToTable = function(s, db, table, parameter, example, data, userInfo, object, orderSpecs, tableFormat){
+addToTable = function(s, db, table, parameter, example, data, userInfo, object, orderSpecs, tableFormat, dataDump){
     var original = parameter
     
         parameter = parameter.replace(/"/g,'\\"');
@@ -18,8 +18,16 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';");
 
     // For the new table style
-    }else if(tableFormat == "new" || tableFormat == "attr"){
+    }else if(tableFormat == "new"){
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "';");
+
+    // For the attr table style
+    }else if(tableFormat == "attr"){
+        db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "';");
+
+    // For the paper query
+    }else if(tableFormat == "paper"){
+        db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE prism_value = '" + parameter + "' AND account_type_code = '" + dataDump.account_type_code + "';");
 
     // For everything else, run a generic query.
     }else{
@@ -46,15 +54,20 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
             return specs = {
                 active: true,
                 value: db.settings.getString(1),
+                accountTypeCode: db.settings.getString(2),
+                coating:{
+                    front: db.settings.getString(3),
+                    back: db.settings.getString(4)
+                },
                 map: {
-                    slc: Number(db.settings.getString(4)),
-                    bri: Number(db.settings.getString(5)),
-                    sln: Number(db.settings.getString(6)),
-                    lou: Number(db.settings.getString(7)),
-                    arl: Number(db.settings.getString(8)),
-                    wix: Number(db.settings.getString(9)),
-                    vn: Number(db.settings.getString(10)),
-                    sb: Number(db.settings.getString(11))
+                    slc: Number(db.settings.getString(7)),
+                    bri: Number(db.settings.getString(8)),
+                    sln: Number(db.settings.getString(9)),
+                    lou: Number(db.settings.getString(10)),
+                    arl: Number(db.settings.getString(11)),
+                    wix: Number(db.settings.getString(12)),
+                    vn: Number(db.settings.getString(13)),
+                    sb: Number(db.settings.getString(14))
                 }
             }
         }
@@ -486,6 +499,10 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         // For display attributes
         }else if(tableFormat == "attr"){
             db.settings.execute("INSERT INTO settings.`" + table + "` (`prism-name`, `prism-value`, `date_added`, `example_item`) VALUES ('" + orderSpecs.attribute_name + "','" + orderSpecs.attr_value + "','" + new Date() + "','" + example + "');");
+
+        // For the paper query
+        }else if(tableFormat == "paper"){
+            db.settings.execute("INSERT INTO settings.`" + table + "` (prism_value, account_type_code, date_added, example_item) VALUES ('" + parameter + "','" + dataDump.account_type_code + "','" + new Date() + "','" + example + "');");
 
         // All of the other options tables.
         }else{
