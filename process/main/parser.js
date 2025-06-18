@@ -402,20 +402,22 @@ runParser = function(s, job, codebase){
 
                 // TODO: CLEAN THIS UP IF POSSIBLE.
                 if(orderSpecs.coating.front.value == null){
-                    orderSpecs.coating.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front);
+                    orderSpecs.coating.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front, orderSpecs.paperStock.coating.front);
                 }
 
                 if(orderSpecs.coating.back.value == null){
-                    orderSpecs.coating.back.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back);
+                    orderSpecs.coating.back.value = firstNonNull(orderSpecs.coating.general.map.bcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back, orderSpecs.paperStock.coating.back);
                 }
 
                 if(orderSpecs.laminate.front.value == null){
-                    orderSpecs.laminate.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front);
+                    //orderSpecs.laminate.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front, orderSpecs.paperStock.coating.front);
                 }
 
                 if(orderSpecs.laminate.back.value == null){
-                    orderSpecs.laminate.back.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back);
+                    //orderSpecs.laminate.back.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back, orderSpecs.paperStock.coating.front);
                 }
+
+                s.log(3, orderSpecs.paper.value + " : " + orderSpecs.coating.front.value + " : " + orderSpecs.coating.back.value)
                 
                 // API pull failed.
                 if(!orderSpecs.complete){
