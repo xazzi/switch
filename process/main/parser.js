@@ -402,11 +402,11 @@ runParser = function(s, job, codebase){
 
                 // TODO: CLEAN THIS UP IF POSSIBLE.
                 if(orderSpecs.coating.front.value == null){
-                    orderSpecs.coating.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front, orderSpecs.paperStock.coating.front);
+                    orderSpecs.coating.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front, orderSpecs.paperStock.coating.front, orderSpecs.substrate.coating.front);
                 }
 
                 if(orderSpecs.coating.back.value == null){
-                    orderSpecs.coating.back.value = firstNonNull(orderSpecs.coating.general.map.bcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back, orderSpecs.paperStock.coating.back);
+                    orderSpecs.coating.back.value = firstNonNull(orderSpecs.coating.general.map.bcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back, orderSpecs.paperStock.coating.back, orderSpecs.substrate.coating.back);
                 }
 
                 if(orderSpecs.laminate.front.value == null){
@@ -2381,6 +2381,8 @@ runParser = function(s, job, codebase){
                 ["separate-cover",(data.cover.enabled ? 'y' : 'n')],
                 ["cover-vm",data.cover.value]
             ]))
+
+            s.log(2, data.gangNumber + " completed successfully.")
             
         }catch(e){
             s.log(3, "Critical Error!: " + e);

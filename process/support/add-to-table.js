@@ -121,6 +121,21 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
 
         // Material options
         // These map options need to match the paper maps above, this allows the process to work when there isn't a paper assigned to the item.
+        if(table == "attr_substrate"){
+            return specs = {
+                enabled: true, //db.settings.getString(7) == 'y',
+                name: db.settings.getString(1),
+                value: db.settings.getString(2),
+                paperLookup: db.settings.getString(3),
+                coating:{
+                    front: db.settings.getString(4),
+                    back: db.settings.getString(5)
+                }
+            }
+        }
+
+        // Material options
+        // These map options need to match the paper maps above, this allows the process to work when there isn't a paper assigned to the item.
         if(table == "attr_paper-stock"){
             return specs = {
                 enabled: true, //db.settings.getString(7) == 'y',

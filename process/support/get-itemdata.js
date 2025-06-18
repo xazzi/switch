@@ -56,6 +56,16 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
                     back: null
                 }
 			},
+			substrate: {
+				enabled: false,
+                name: null,
+                value: null,
+                paperLookup: null,
+                coating:{
+                    front: null,
+                    back: null
+                }
+			},
 			paperStock: {
 				enabled: false,
                 name: null,
@@ -546,9 +556,12 @@ pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data,
 			if(dataDump.display_specs[k].attribute_name == "Paper Stock"){
 				specs.paperStock = addToTable(s, db, "attr_paper-stock", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.display_specs[k], "attr");
 			}
+			if(dataDump.display_specs[k].attribute_name == "Substrate"){
+				specs.paperStock = addToTable(s, db, "attr_substrate", dataDump.display_specs[k].attr_value, dataDump.job_item_id, data, userInfo, null, dataDump.display_specs[k], "attr");
+			}
 		}
 
-		specs.paper.lookup = firstNonNull(specs.attrPaper.paperLookup, specs.paperType.paperLookup, specs.material.paperLookup, specs.stock.paperLookup, specs.paperStock.paperLookup);
+		specs.paper.lookup = firstNonNull(specs.attrPaper.paperLookup, specs.paperType.paperLookup, specs.material.paperLookup, specs.stock.paperLookup, specs.paperStock.paperLookup, specs.substrate.paperLookup);
 
 		if(specs.paper.lookup == null){
 			specs.paper.lookup = specs.paper.raw
