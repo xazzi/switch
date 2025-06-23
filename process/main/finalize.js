@@ -66,7 +66,8 @@ runFinalize = function(s, job, codebase){
             var date = new Date();
             var data = {
                 processType: job.getPrivateData("Type"),
-                filename: job.getVariableAsString("[Job.NameProper]", s)
+                filename: job.getVariableAsString("[Job.NameProper]", s),
+                watermarked: job.getPrivateData("watermark") || false
             }
                 
             var savename = job.getName();
@@ -194,13 +195,26 @@ runFinalize = function(s, job, codebase){
                     if(handoffData.type == "web"){
                         phoenixPlan.itemNumber = phoenixPlanDS.evalToString("//products/product/properties/property[6]/value");
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + phoenixPlan.itemNumber + ".pdf";
+
+                    }else if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index
+                        if(data.watermarked){
+                            savename += '-Barcode'
+                        }
+                        savename += ".pdf"
+
                     }else{
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
                     }
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.gangNumber + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".jdf"
+
+                    }else{
+                        savename = handoffData.gangNumber + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    }
                 }
                 
                 if(data.processType == "Summary"){				

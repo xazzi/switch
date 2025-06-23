@@ -178,7 +178,7 @@ runProcessor = function(s, job, codebase){
 
 function getFileType(name, environment){
 
-	if(name.match(/die/) == "die"){
+	if(name.match(/die/) == "die" || name.match(/jdf/) == "jdf"){
 		return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/Cut")
 	}
 
@@ -245,14 +245,16 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, hando
 					writeXmlString(xmlFile, "default-bleed", "0.25");
 					writeXmlString(xmlFile, "placed", layoutNodes.at(i).evalToString('placed'));
 					writeXmlString(xmlFile, "overrun", layoutNodes.at(i).evalToString('overrun'));
+					/*
 					writeXmlNode(xmlFile, "templates");
 						writeXmlNode(xmlFile, "template");
-							writeXmlString(xmlFile, "name", layoutNodes.at(n).evalToString('//templates/template/name'));
-							writeXmlString(xmlFile, "source", layoutNodes.at(n).evalToString('//templates/template/source'));
-							writeXmlString(xmlFile, "items", layoutNodes.at(n).evalToString('//templates/template/items'));
-							writeXmlString(xmlFile, "placed", layoutNodes.at(n).evalToString('//templates/template/placed'));
+							writeXmlString(xmlFile, "name", layoutNodes.at(i).evalToString('//templates/template/name'));
+							writeXmlString(xmlFile, "source", layoutNodes.at(i).evalToString('//templates/template/source'));
+							writeXmlString(xmlFile, "items", layoutNodes.at(i).evalToString('//templates/template/items'));
+							writeXmlString(xmlFile, "placed", layoutNodes.at(i).evalToString('//templates/template/placed'));
 						writeXmlNode(xmlFile, "/template");
-							writeXmlNode(xmlFile, "/templates");
+					writeXmlNode(xmlFile, "/templates");
+					*/
 					writeXmlNode(xmlFile, "surfaces");
 						writeXmlNode(xmlFile, "surface");
 							writeXmlString(xmlFile, "side", layoutNodes.at(i).evalToString('//surfaces/surface/side'));

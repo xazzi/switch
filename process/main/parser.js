@@ -303,11 +303,6 @@ runParser = function(s, job, codebase){
             ]));
             
             var theNewToken = getNewToken(s, data.environment);
-            
-            var watermarkDrive = "T://watermarked-files";
-            if(data.environment == "QA"){
-                watermarkDrive = "Q://watermarked-files";
-            }
                     
             // Handle any custom rotation from the user.
             for(var i=0; i<submit.rotation.length; i++){
@@ -368,13 +363,7 @@ runParser = function(s, job, codebase){
                 first: db.settings.getString(1),
                 last: db.settings.getString(2),
                 email: db.settings.getString(3),
-                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4),
-                fileSource: getFileSource(db.settings.getString(9))
-            }
-
-            // If the module is set to choose the fileSource based on user.
-            if(data.fileSource == "User Defined"){
-                data.fileSource = userInfo.fileSource
+                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4)
             }
 
             // Override the fileSource if necessary.
@@ -397,27 +386,35 @@ runParser = function(s, job, codebase){
                     ["status", "Initiated"]
                 ]));	
 
+                data.mxmlStock = addToTable(s, db, "map_mxml-stock", doc.evalToString('//*[local-name()="Project"]/@Name', map), null, data, userInfo, null, null, "mxml-stock");
+
                 // Pull the item information from the API.
                 var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
+
+                // Mapping incomplete
+                if(orderSpecs.paper == null){
+                    s.log(3, data.gangNumber + " :: Mapping incomplete, job rejected.");
+                    sendEmail_db(s, data, matInfo, getEmailResponse("Mapping Incomplete", null, data.mxmlStock, data, userInfo, null), userInfo);
+                    job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID]
+                    ],[
+                        ["status","Gang Failed"],
+                        ["note","Mapping Incomplete."]
+                    ]));
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
+                        ["project-id", data.projectID]
+                    ],[
+                        ["status","Parse Failed"],
+                        ["note","Mapping Incomplete."]
+                    ]));
+                    return;
+                }
                 
-                // TODO: CLEAN THIS UP IF POSSIBLE.
-                if(orderSpecs.coating.front.value == null){
-                    orderSpecs.coating.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front, orderSpecs.paperStock.coating.front, orderSpecs.substrate.coating.front, orderSpecs.paper.coating.front);
+                orderSpecs.coating = {
+                    front: getValidCoatingValue(s, orderSpecs.coating, "front"),
+                    back: getValidCoatingValue(s, orderSpecs.coating, "back")
                 }
-
-                if(orderSpecs.coating.back.value == null){
-                    orderSpecs.coating.back.value = firstNonNull(orderSpecs.coating.general.map.bcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back, orderSpecs.paperStock.coating.back, orderSpecs.substrate.coating.back, orderSpecs.paper.coating.back);
-                }
-
-                if(orderSpecs.laminate.front.value == null){
-                    //orderSpecs.laminate.front.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.front, orderSpecs.paperType.coating.front, orderSpecs.material.coating.front, orderSpecs.stock.coating.front, orderSpecs.paperStock.coating.front);
-                }
-
-                if(orderSpecs.laminate.back.value == null){
-                    //orderSpecs.laminate.back.value = firstNonNull(orderSpecs.coating.general.map.fcoat, orderSpecs.attrPaper.coating.back, orderSpecs.paperType.coating.back, orderSpecs.material.coating.back, orderSpecs.stock.coating.back, orderSpecs.paperStock.coating.front);
-                }
-
-                s.log(3, orderSpecs.paper.value + " : " + orderSpecs.coating.front.value + " : " + orderSpecs.coating.back.value)
                 
                 // API pull failed.
                 if(!orderSpecs.complete){
@@ -494,9 +491,8 @@ runParser = function(s, job, codebase){
                     data.reprint = true
                 )
 
-                // Material overrides
                 // -----------------------------------------------------------------------------------------
-                
+                // Material overrides
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
                 if(data.doubleSided == null || data.doubleSided == orderSpecs.doubleSided){
                     if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
@@ -558,12 +554,16 @@ runParser = function(s, job, codebase){
                     matInfo.prodMatFileName = orderSpecs.materialThickness.value + matInfo.prodMatFileName
                 }
 
+                // TO DO
+                // The 'G' file name logic needs to be moved somewhere else or handled differently.
+                /*
                 if(orderSpecs.printFinish.enabled){
                     if(orderSpecs.material.customValue !== undefined){
                         orderSpecs.printFinish.value = orderSpecs.material.customValue
                     }
                     matInfo.prodMatFileName = matInfo.prodMatFileName + orderSpecs.printFinish.value
                 }
+                    */
 
                 // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
                 if(orderSpecs.facility != data.facility.destination){
@@ -686,26 +686,6 @@ runParser = function(s, job, codebase){
                 if(matInfo.type == "packaging"){
                     orderSpecs.dartInfo = dartTemplateCheck(s, orderSpecs, data, db, matInfo)
                 }
-
-                // TODO - CONFIRM ACCURACY
-                // Update the coating info to match the new order_spec changes.
-                // This can probably be removed once the order_spec project is complete in OI.
-                if(orderSpecs.coating.general.enabled){
-                    if(orderSpecs.coating.general.map.fcoat != null){
-                        if(orderSpecs.coating.front.value == null){
-                            orderSpecs.coating.front.enabled = true
-                            orderSpecs.coating.front.label = orderSpecs.coating.general.map.fcoat
-                            orderSpecs.coating.front.value = orderSpecs.coating.general.map.fcoat
-                        }
-                    }
-                    if(orderSpecs.coating.general.map.bcoat != null){
-                        if(orderSpecs.coating.back.value == null){
-                            orderSpecs.coating.back.enabled = true
-                            orderSpecs.coating.back.label = orderSpecs.coating.general.map.bcoat
-                            orderSpecs.coating.back.value = orderSpecs.coating.general.map.bcoat
-                        }
-                    }
-                }
                 
                 // Set the processes and subprocesses values and check if following items match it.
                 if(data.prodName == null){
@@ -715,6 +695,9 @@ runParser = function(s, job, codebase){
                     data.paper = orderSpecs.paper.value;
                     if(data.prismStock == null){
                         data.prismStock = orderSpecs.paper.value;
+                        if(matInfo.type == "digital"){
+                            data.prismStock = data.mxmlStock.value
+                        }
                     }
 
                     //data.cover.enabled = orderSpecs.cover.enabled
@@ -992,6 +975,7 @@ runParser = function(s, job, codebase){
                 orderArray.push(orderSpecs);
             }
 
+            // TODO - Make sure empty gangs are working.
             // 1st safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
                 sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
@@ -1045,8 +1029,6 @@ runParser = function(s, job, codebase){
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
                     laminate: orderArray[i].laminate.front.enabled ? true : false,
-                    // TODO, THIS SHOULD HOLD BACK DATA AS WELL.
-                    coating: orderArray[i].coating.front.enabled,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
                     stock: data.phoenixStock,
@@ -1280,12 +1262,6 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                // If it's a DS Rectangle Flag, swap the subprocess to the SilverBack version
-                // This code will be removed in the future once they open up SilverBack to all DS flag
-                if(orderArray[i].item.subprocess == 18 && product.doubleSided){
-                    //product.query = "26"
-                }
-
                 // Hard code the silverback name onto 2 items.
                 // This code should be deleted in the future when SLC enables the product on a paper level.
                 // bc 4/17/25
@@ -1411,70 +1387,14 @@ runParser = function(s, job, codebase){
                 // If the order is a replacement, send an email to the user.
                 if(orderArray[i].replacement){
                     data.notes.push([product.itemNumber,"Notes","Replacement. Automated undersizing has been disabled."]);
-                    //data.notes.push([product.itemNumber,"Priority","Replacement. Automated undersizing has been disabled."]);
                     product.subprocess.undersize = false;
                 }
-                
-                // Gather the source file options
-                var file = {
-                    source: new File(watermarkDrive + "/" + product.contentFile),
-                    depository: new File("//10.21.71.213/File Repository/" + product.contentFile),
-                    usableData: false,
-                    stats: null
-                }
-                    
-                // Do we need to transfer the file from the depository?
-                if(file.depository.exists){
-                    if(submit.override.redownload.bool){
-                        try{
-                            file.depository.remove();
-                            s.log(2, product.contentFile + " removed successfully, redownloading.")
-                        }catch(e){
-                            s.log(2, product.contentFile + " failed to delete.")
-                        }
-                        product.transfer = true;
-                    }else{
-                        file.stats = new FileStatistics("//10.21.71.213/File Repository/" + product.contentFile);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",product.itemNumber]
-                        ],[
-                            ["status","Already Exists"]
-                        ]))
-                    }
-                }else{
-                    if(data.fileSource == "S3 Bucket"){
-                        product.transfer = true;
-                    }else{
-                        if(file.source.exists){
-                            file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
-                            product.transfer = true;
-                        }else{
-                            data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
-                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                                ["project-id",data.projectID],
-                                ["item-number",product.itemNumber]
-                            ],[
-                                ["status","Removed from Gang"],
-                                ["note","File missing: " + product.contentFile]
-                            ]))
-                            continue;
-                        }
-                    }
-                }
 
-                // Read some data from the file.
-                try{
-                    if(file.stats != null){                        
-                        file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
-                        file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
-                        file.pages = file.stats.getNumber("NumberOfPages");
-                        file.usableData = true;
-                    }
-                }catch(e){}
+                // TODO - Finish rebuilding this logic.
+                var file = buildFileObject(product, submit, data, db, s);
                 
                 // If the file exists and you have data to use, go here.
-                if(file.usableData){
+                if(file.usable){
                     if(product.subprocess.orientationCheck){
 
                         // Check if the 2nd page exists for DS product.
@@ -1527,7 +1447,6 @@ runParser = function(s, job, codebase){
                             }else if(!product.orientation.result.standard && product.orientation.result.flipped){
                                 product.orientation.status = "Flipped";
                                 product.height = [product.width, product.width = product.height][0]; // Flips the WxH data.
-                                //data.notes.push([product.itemNumber,"Notes","Flipped sizes to standard format."]);
                                 if(scale.check.result.flipped){
                                     scale.modifier = scale.check.height.flipped;
                                 }
@@ -1550,9 +1469,8 @@ runParser = function(s, job, codebase){
                                 }
 
                                 product.orientation.status = "Failed"
-                                file.usableData = false;
+                                file.usable = false;
                                 data.notes.push([product.itemNumber,"Notes","Can not confirm orientation or scale, verify in gang."])
-                                //data.notes.push([product.itemNumber,"Priority","Can not confirm orientation or scale, verify in gang."]);
                             }
 
                             // I have no idea what this does.
@@ -1565,7 +1483,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // Otherwise determine the scale of the file by using the logic Prepress should be following as well.
-                if(!file.usableData){
+                if(!file.usable){
                     if(matInfo.type == "roll"){
                         if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
                             if(product.width >= 198 || product.height >= 198){
@@ -1590,30 +1508,30 @@ runParser = function(s, job, codebase){
                             }
                         }
                     }
-                }
 
-                // If it's a breakaway banner then adjust some parameters
-                if(product.subprocess.name == "Breakaway"){
-                    if(file.pages != 2){
-                        data.notes.push([product.itemNumber,"Removed","Breakaway banner not split."]);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",product.itemNumber]
-                        ],[
-                            ["status","Removed from Gang"],
-                            ["note","Breakaway banner file incorrect."]
-                        ]))
-                        continue;
+                    // If it's a breakaway banner then adjust some parameters
+                    if(product.subprocess.name == "Breakaway"){
+                        if(file.pages != 2){
+                            data.notes.push([product.itemNumber,"Removed","Breakaway banner not split."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Breakaway banner file incorrect."]
+                            ]))
+                            continue;
+                        }
+                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                        db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                            ["project-id", data.projectID],
+                            ["gang-number", data.gangNumber],
+                            ["order-number", product.orderNumber],
+                            ["item-number", product.itemNumber],
+                            ["page", "2"],
+                            ["status", "Initiated"]
+                        ]));	
                     }
-                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
-                    db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
-                        ["project-id", data.projectID],
-                        ["gang-number", data.gangNumber],
-                        ["order-number", product.orderNumber],
-                        ["item-number", product.itemNumber],
-                        ["page", "2"],
-                        ["status", "Initiated"]
-                    ]));	
                 }
                 
                 // Check if the item_number can be undersized.
@@ -2236,7 +2154,7 @@ runParser = function(s, job, codebase){
                     
                     injectXML.setUserEmail(userInfo.email);
                     
-                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale);
+                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale, file);
                     
                     writeInjectJSON(injectFile, orderArray[i], product);
                     
@@ -2251,7 +2169,7 @@ runParser = function(s, job, codebase){
                     var cvPath = cvXML.createPathWithName(product.itemNumber + ".xml", false);
                     var cvFile = new File(cvPath);
                     
-                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale);
+                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale, null);
                     
                     writeInjectXML(cvFile, product);
                     
@@ -2348,7 +2266,7 @@ runParser = function(s, job, codebase){
 
             emailDatabase_write(s, db, "parsed_data", "Parser", data, data.notes)
         
-            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now, null);
+            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now, null, null);
             newCSV.setHierarchyPath([data.environment,data.projectID]);
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
@@ -2356,7 +2274,7 @@ runParser = function(s, job, codebase){
             newCSV.setPriority(submit.override.priority);
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
             
-            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now, null);
+            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now, null, null);
             job.setHierarchyPath([data.gangNumber]);
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
@@ -2395,7 +2313,7 @@ runParser = function(s, job, codebase){
 
 // -------------------------------------------------------
 
-function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now, scale){
+function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now, scale, file){
 	
 	var theXML = new Document();
 
@@ -2510,7 +2428,6 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "rotate90", data.rotate90);
 		addNode_db(theXML, miscNode, "printExport", data.phoenix.printExport);
 		addNode_db(theXML, miscNode, "cutExport", data.phoenix.cutExport);
-		addNode_db(theXML, miscNode, "fileSource", data.fileSource);
 		addNode_db(theXML, miscNode, "facility", data.facility.destination);
         addNode_db(theXML, miscNode, "server", s.getServerName());
         addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
@@ -2558,6 +2475,20 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
             addNode_db(theXML, productNode, "doubleSided", product.doubleSided);
             addNode_db(theXML, productNode, "scaleModifier", scale.modifier);
 
+        if(file != null){
+            var fileNode = theXML.createElement("file", null);
+                handoffNode.appendChild(fileNode);
+
+                s.log(2, data.fileSource)
+                s.log(2, file.label)
+                s.log(2, file.path)
+                s.log(2, file.usable)
+                addNode_db(theXML, fileNode, "source", data.fileSource);
+                addNode_db(theXML, fileNode, "label", file.label);
+                addNode_db(theXML, fileNode, "path", file.path);
+                addNode_db(theXML, fileNode, "name", file.name);
+                addNode_db(theXML, fileNode, "usable", file.usable);
+        }
 	}
 	
 	if(writeProducts){
@@ -2655,8 +2586,6 @@ function enabledCheck(s, data, orderSpecs){
     for(var key in orderSpecs){
         if(typeof orderSpecs[key] === 'object'){
             if(typeof orderSpecs[key]['enabled'] === 'boolean'){
-                s.log(2, key)
-                s.log(2, orderSpecs[key]['enabled'])
                 results[key] = orderSpecs[key]['enabled']
             }
         }
@@ -2671,4 +2600,173 @@ function firstNonNull () {
         }
     }
     return null;
+}
+
+function getValidCoatingValue(s, coating, side) {
+	if (!coating || (side !== "front" && side !== "back")) {
+		return null;
+	}
+
+	// 1. Check mxml
+	if (
+		coating.mxml &&
+		coating.mxml[side] &&
+		coating.mxml[side].enabled &&
+		coating.mxml[side].value !== null
+	) {
+		var m = coating.mxml[side];
+		//s.log(1, "Coating found from mxml." + side + ": " + m.value);
+		return {
+			source: "mxml",
+			side: side,
+			value: m.value,
+			label: m.label || null,
+			enabled: m.enabled
+		};
+	}
+
+	// 2. Check direct front/back
+	if (
+		coating[side] &&
+		coating[side].enabled &&
+		coating[side].value !== null
+	) {
+		var d = coating[side];
+		//s.log(1, "Coating found from " + side + ": " + d.value);
+		return {
+			source: "direct",
+			side: side,
+			value: d.value,
+			label: d.label || null,
+			enabled: d.enabled
+		};
+	}
+
+	// 3. Check general.map
+	if (
+		coating.general &&
+		coating.general.map &&
+		coating.general.map[side] &&
+		coating.general.map[side].enabled &&
+		coating.general.map[side].value !== null
+	) {
+		var g = coating.general.map[side];
+		//s.log(1, "Coating found from general.map." + side + ": " + g.value);
+		return {
+			source: "general",
+			side: side,
+			value: g.value,
+			label: g.label || null,
+			enabled: g.enabled
+		};
+	}
+
+	// Nothing found
+	return {
+        source: null,
+        side: side,
+        value: null,
+        label: null,
+        enabled: false
+    };
+}
+
+function findFile(fileName) {
+    var searchPaths = [
+        ["US Server", "T:/watermarked-files"],
+        ["MNL Server", "\\\\mnl-stor-01.apac.digitalroominc.com\\IMP_Watermarker3\\Metrix_Source_Files"]
+    ];
+
+    for (var i = 0; i < searchPaths.length; i++) {
+        var label = searchPaths[i][0];
+        var path = searchPaths[i][1];
+        var file = new File(path + "/" + fileName);
+
+        if (file.exists) {
+            return {
+                found: true,
+                label: label,
+                path: path,
+                watermark: file
+            };
+        }
+    }
+
+    return {
+        found: false,
+        label: null,
+        path: null,
+        watermark: null
+    };
+}
+
+function buildFileObject(product, submit, data, db, s) {
+    var sourceFile = findFile(product.contentFile);
+
+    var file = {
+        name: product.contentFile,
+        label: sourceFile.label,
+        path: sourceFile.path,
+        watermark: sourceFile.watermark,
+        repository: new File("//10.21.71.213/File Repository/" + product.contentFile),
+        usable: sourceFile.found,
+        stats: null,
+        reason: null
+    };
+
+    if (file.repository.exists) {
+        if (submit.override.redownload.bool) {
+            try {
+                file.repository.remove();
+                s.log(2, product.contentFile + " removed successfully, redownloading.");
+            } catch (e) {
+                s.log(2, product.contentFile + " failed to delete.");
+            }
+            product.transfer = true;
+        } else {
+            file.stats = new FileStatistics(file.repository.path);
+            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                ["project-id", data.projectID],
+                ["item-number", product.itemNumber]
+            ], [["status", "Already Exists"]]));
+        }
+    } else {
+        if (data.fileSource === "S3 Bucket") {
+            product.transfer = true;
+            file.usable = false;
+        } else {
+            if (file.usable) {
+                file.stats = new FileStatistics(file.path + "/" + file.name);
+                product.transfer = true;
+            } else {
+                file.usable = false;
+                file.reason = "File missing: " + file.name;
+                data.notes.push([product.itemNumber, "Notes", file.reason]);
+                db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                    ["project-id", data.projectID],
+                    ["item-number", product.itemNumber]
+                ], [
+                    ["status", "Removed from Gang"],
+                    ["note", file.reason]
+                ]));
+                return file;
+            }
+        }
+    }
+
+    try {
+        if (file.usable && file.stats !== null) {
+            file.width = file.stats.getNumber("TrimBoxDefinedWidth") / 72;
+            file.height = file.stats.getNumber("TrimBoxDefinedHeight") / 72;
+            file.pages = file.stats.getNumber("NumberOfPages");
+        } else {
+            file.usable = false;
+            file.reason = "Missing stats or file was not usable initially";
+        }
+    } catch (e) {
+        file.usable = false;
+        file.reason = "Stats read error: " + e.toString();
+    }
+
+    return file;
 }
