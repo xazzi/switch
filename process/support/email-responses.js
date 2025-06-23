@@ -36,6 +36,15 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
             cc = [userInfo.email]
             bcc = [];
         break;
+        case "Mapping Incomplete":
+            //paper, material, itemName do not exist in matInfo, these are being pulled from orderSpecs pass in.
+            active = true;
+            subject = "Mapping Incomplete: " + data.gangNumber;
+            body = "The following mapping is incomplete:" + "\n\n" + "MXML Value: " + matInfo.value;
+            to = [sendTo.chelsea,sendTo.bret]
+            cc = [userInfo.email]
+            bcc = [];
+        break;
         case "New Entry":
             active = true;
             subject = "New Table Entry!";
