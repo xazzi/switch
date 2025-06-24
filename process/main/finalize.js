@@ -33,9 +33,10 @@ runFinalize = function(s, job, codebase){
                     value: handoffDataDS.evalToString("//laminate/value")
                 },
                 coating: {
-                    active: handoffDataDS.evalToString("//coating/active") == "true",
-                    method: handoffDataDS.evalToString("//coating/method"),
-                    value: handoffDataDS.evalToString("//coating/value")
+                    enabled: handoffDataDS.evalToString("//coating/active") == "true",
+                    label: handoffDataDS.evalToString("//frontCoating/label"),
+                    value: handoffDataDS.evalToString("//coating/value"),
+                    key: handoffDataDS.evalToString("//coating/key")
                 },
                 frontCoating: {
                     enabled: handoffDataDS.evalToString("//frontCoating/enabled") == "true",
@@ -65,7 +66,8 @@ runFinalize = function(s, job, codebase){
             var date = new Date();
             var data = {
                 processType: job.getPrivateData("Type"),
-                filename: job.getVariableAsString("[Job.NameProper]", s)
+                filename: job.getVariableAsString("[Job.NameProper]", s),
+                watermarked: job.getPrivateData("watermark") || false
             }
                 
             var savename = job.getName();
@@ -93,7 +95,7 @@ runFinalize = function(s, job, codebase){
                 }
 
                 // Laminate
-                name.laminate = handoffData.mixedLam ? "-mixLam" : (handoffData.laminate.active || handoffData.coating.active) ? "-Lam" : "";
+                name.laminate = handoffData.mixedLam ? "-mixLam" : (handoffData.laminate.active || handoffData.coating.enabled) ? "-Lam" : "";
 
                 // FloorDecal
                 if(handoffData.process == "FloorDecal"){
@@ -193,13 +195,26 @@ runFinalize = function(s, job, codebase){
                     if(handoffData.type == "web"){
                         phoenixPlan.itemNumber = phoenixPlanDS.evalToString("//products/product/properties/property[6]/value");
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + phoenixPlan.itemNumber + ".pdf";
+
+                    }else if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index
+                        if(data.watermarked){
+                            savename += '-Barcode'
+                        }
+                        savename += ".pdf"
+
                     }else{
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + data.side + ".pdf";
                     }
                 }
                 
                 if(data.processType == "Cut"){
-                    savename = handoffData.gangNumber + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".jdf"
+
+                    }else{
+                        savename = handoffData.gangNumber + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    }
                 }
                 
                 if(data.processType == "Summary"){				
@@ -250,7 +265,7 @@ function getCoatLamSLN(s, handoffData){
     var temp = ""
     
     // If all laminate and coating options are false, return uncoated.
-    if(handoffData.laminate.method == "null" && handoffData.coating.method == "null" && !handoffData.frontCoating.enabled){
+    if(handoffData.laminate.method == "null" && handoffData.coating.key == "null" && !handoffData.frontCoating.enabled){
         temp = "-Uncoated"
         return temp
     }
@@ -262,9 +277,9 @@ function getCoatLamSLN(s, handoffData){
     }
 
     // If it's RP, use the general Coating method.
-    if(handoffData.coating.method != "null"){
+    if(handoffData.coating.key != "null"){
         if(handoffData.paper.match(new RegExp("- RP","g"))){
-            temp = "-" + handoffData.coating.method
+            temp = "-" + handoffData.coating.key
             return temp
         }
     }

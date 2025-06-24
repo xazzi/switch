@@ -90,7 +90,7 @@ function generateXml(s, job, handoffData, phoenixPlan, xmlFile, moduleStep, libr
         xmlFile.writeLine('</Material>');
 
         xmlFile.writeLine('<Object Name="' + handoffData.gangNumber + '-' + phoenixPlan.index + '">');
-            xmlFile.writeLine('<File Type="PDF" Unit="MM">\\\\SLN-GANGS-P01\\data\\Digital\\SEI cut\\' + job.getName() + '</File>');
+            xmlFile.writeLine('<File Type="PDF" Unit="MM">\\\\SLN-FILES\\data\\Digital\\SEI cut\\' + job.getName() + '</File>');
             xmlFile.writeLine('<Rotate Angle="180" Ref="C"/>');
             writeXmlString(xmlFile, "Optimize", "Full");
         xmlFile.writeLine('</Object>');

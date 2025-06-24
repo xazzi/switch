@@ -15,7 +15,7 @@ runHierarchy = function(s, job){
                 resolution: handoffDataDS.evalToString("//rip/resolution")
             }
 
-            if(handoffData.resolution == ""){
+            if(handoffData.resolution == "undefined"){
                 handoffData.resolution = handoffData.hotfolder;
             }
 

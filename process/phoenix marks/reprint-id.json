@@ -76,6 +76,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },

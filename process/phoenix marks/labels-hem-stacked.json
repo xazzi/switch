@@ -53,7 +53,8 @@
                     "advancedSettings":{
                         "hemLabel":{
                             "top":true
-                        }
+                        },
+                        "productLabel":true
                     }
                 },
                 "rejections":{
@@ -125,7 +126,8 @@
                     "advancedSettings":{
                         "hemLabel":{
                             "bottom":true
-                        }
+                        },
+                        "productLabel":true
                     }
                 },
                 "rejections":{
@@ -197,7 +199,8 @@
                     "advancedSettings":{
                         "hemLabel":{
                             "left":true
-                        }
+                        },
+                        "productLabel":true
                     }
                 },
                 "rejections":{
@@ -269,7 +272,8 @@
                     "advancedSettings":{
                         "hemLabel":{
                             "right":true
-                        }
+                        },
+                        "productLabel":true
                     }
                 },
                 "rejections":{

@@ -61,9 +61,7 @@ runPost = function(s, job, codebase){
                     value: handoffDataDS.evalToString("//laminate/value")
                 },
                 coating: {
-                    active: handoffDataDS.evalToString("//coating/active") == "true",
-                    method: handoffDataDS.evalToString("//coating/method"),
-                    value: handoffDataDS.evalToString("//coating/value")
+                    enabled: handoffDataDS.evalToString("//coating/active") == "true"
                 }
             }
 
@@ -74,7 +72,7 @@ runPost = function(s, job, codebase){
 
             // For LFP products (roll and sheet), apply coating as a laminate option.
             if(handoffObj.type == "roll" || handoffObj.type == "sheet"){
-                if(handoffObj.laminate.active || handoffObj.coating.active){
+                if(handoffObj.laminate.active || handoffObj.coating.enabled){
                     data.laminate = true
                 }
             }else{

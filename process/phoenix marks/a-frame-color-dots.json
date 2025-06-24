@@ -42,8 +42,10 @@
                 "requirements": {
                     "orderArray": {
                         "frame": {
-                            "color": "White",
-                            "type": "Standard"
+                            "attributes":{
+                                "color": "White",
+                                "type": "Standard"
+                            }
                         }
                     }
                 },
@@ -96,8 +98,10 @@
                 "requirements": {
                     "orderArray": {
                         "frame": {
-                            "color": "Black",
-                            "type": "Standard"
+                            "attributes":{
+                                "color": "Black",
+                                "type": "Standard"
+                            }
                         }
                     }
                 },
@@ -150,8 +154,10 @@
                 "requirements": {
                     "orderArray": {
                         "frame": {
-                            "color": "Black",
-                            "type": "Deluxe"
+                            "attributes":{
+                                "color": "Black",
+                                "type": "Deluxe"
+                            }
                         }
                     }
                 },
@@ -204,8 +210,10 @@
                 "requirements": {
                     "orderArray": {
                         "frame": {
-                            "color": "White",
-                            "type": "Deluxe"
+                            "attributes":{
+                                "color": "White",
+                                "type": "Deluxe"
+                            }
                         }
                     }
                 },
@@ -258,8 +266,10 @@
                 "requirements": {
                     "orderArray": {
                         "frame": {
-                            "color": null,
-                            "type": null
+                            "attributes":{
+                                "color": null,
+                                "type": null
+                            }
                         }
                     }
                 },
@@ -312,8 +322,10 @@
                 "requirements": {
                     "orderArray": {
                         "frame": {
-                            "color": "Orange",
-                            "type": "Custom-1"
+                            "attributes":{
+                                "color": "Orange",
+                                "type": "Custom-1"
+                            }
                         }
                     }
                 },

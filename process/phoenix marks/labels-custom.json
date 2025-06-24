@@ -350,7 +350,7 @@
             },
             "settings":[
                 {
-                    "group": "Facility",
+                    "group": "Global",
                     "name":"A-Frame-Type",
                     "dir":"/Misc/"
                 }

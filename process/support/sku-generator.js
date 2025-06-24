@@ -30,12 +30,12 @@ skuGenerator = function(length, type, data, db){
             }
             
             // Check and see if the SKU is already in use.
-            db.history.execute("SELECT * FROM history.active_sku WHERE sku = '" + result + "' and date_id = '" + data.dateID + "' and facility = '" + data.facility.destination + "';");
+            db.history.execute("SELECT * FROM history.active_sku WHERE sku = '" + result + "' and date_id = '" + data.date.due.strings.monthDay + "' and facility = '" + data.facility.destination + "';");
             if(db.history.isRowAvailable()){
                 result = '';
                 makeSKU(chars);
             }
-                db.history.execute("INSERT INTO history.active_sku (sku, date_id, facility) VALUES ('" + result + "', '" + data.dateID + "', '" + data.facility.destination + "');");
+                db.history.execute("INSERT INTO history.active_sku (sku, date_id, facility) VALUES ('" + result + "', '" + data.date.due.strings.monthDay + "', '" + data.facility.destination + "');");
 
                 // Add the SKU number to the details_gang table
                 db.history.execute("UPDATE history.details_gang SET `sku` = '" + result + "' WHERE (`gang-number` = '" + data.gangNumber + "' and `project-id` = '" + data.projectID + "');");
