@@ -134,10 +134,11 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 		addNode_db(theXML, infoNode, "gangNumber", data.gangNumber);
 		addNode_db(theXML, infoNode, "projectNotes", data.projectNotes);
 
+		// TODO - The paper null part of this is broken.
 	if(matInfo != "Material Data Missing" && matInfo != null){
 		addNode_db(theXML, infoNode, "process", data.prodName);
 		addNode_db(theXML, infoNode, "subprocess", data.subprocess);
-		addNode_db(theXML, infoNode, "paper", data.paper);
+		addNode_db(theXML, infoNode, "paper", "null");
 	}
 		
 	var messageNode = theXML.createElement("message", null);

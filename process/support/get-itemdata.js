@@ -54,22 +54,171 @@ function initSpecs(data) {
         accountTypeCode: null,
         itemName: null,
         item: { active: false, value: null, id: null },
-        paper: {
-            active: false,
-            value: null,
-            accountTypeCode: null,
-            map: {
-                slc: null, bri: null, sln: null, lou: null,
-                arl: null, wix: null, vn: null, sb: null
+        mapping:{
+            substrate: {
+                enabled: false,
+                value: null,
+                accountTypeCode: null,
+                map: {
+                    slc: null, bri: null, sln: null, lou: null,
+                    arl: null, wix: null, vn: null, sb: null
+                },
+                mapId: null
+            },
+            cover: {
+                enabled: false,
+                value: null,
+                accountTypeCode: null,
+                map: {
+                    slc: null, bri: null, sln: null, lou: null,
+                    arl: null, wix: null, vn: null, sb: null
+                },
+                mapId: null
+            }
+        },
+        resolved: {
+            substrate: {
+                base:{
+                    enabled: false,
+                    label: null,
+                    value: null,
+                    prismValue: null
+                },
+                combined:{
+                    enabled: false,
+                    label: null,
+                    value: null,
+                    prismValue: null
+                },
+                coating:{
+                    value: null,
+                    key: null,
+                    front: { enabled: false, label: null, value: null },
+                    back: { enabled: false, label: null, value: null }
+                },
+                laminate:{
+                    value: null,
+                    key: null,
+                    front: { enabled: false, label: null, value: null },
+                    back: { enabled: false, label: null, value: null }
+                }
+            },
+            cover: {
+                base: {
+                    enabled: false,
+                    label: null,
+                    value: null,
+                    prismValue: null
+                },
+                combined:{
+                    enabled: false,
+                    label: null,
+                    value: null,
+                    prismValue: null
+                },
+                coating:{
+                    value: null,
+                    key: null,
+                    front: { enabled: false, label: null, value: null },
+                    back: { enabled: false, label: null, value: null }
+                },
+                laminate:{
+                    value: null,
+                    key: null,
+                    front: { enabled: false, label: null, value: null },
+                    back: { enabled: false, label: null, value: null }
+                }
+            }
+        },
+        substrate: {
+            base:{
+                enabled: false,
+                label: null,
+                value: null,
+                prismValue: null
+            },
+            combined:{
+                enabled: false,
+                label: null,
+                value: null,
+                prismValue: null
+            },
+            coating:{
+                value: null,
+                key: null,
+                front: { enabled: false, label: null, value: null },
+                back: { enabled: false, label: null, value: null }
+            },
+            laminate:{
+                value: null,
+                key: null,
+                front: { enabled: false, label: null, value: null },
+                back: { enabled: false, label: null, value: null }
+            }
+        },
+        cover: {
+            base:{
+                enabled: false,
+                label: null,
+                value: null,
+                prismValue: null
+            },
+            combined:{
+                enabled: false,
+                label: null,
+                value: null,
+                prismValue: null
+            },
+            coating:{
+                value: null,
+                key: null,
+                front: { enabled: false, label: null, value: null },
+                back: { enabled: false, label: null, value: null }
+            },
+            laminate:{
+                value: null,
+                key: null,
+                front: { enabled: false, label: null, value: null },
+                back: { enabled: false, label: null, value: null }
+            }
+        },
+        paper:{
+            base:{
+                enabled: false,
+                label: null,
+                value: null,
+                prismValue: null
+            },
+            combined:{
+                enabled: false,
+                label: null,
+                value: null,
+                prismValue: null
+            },
+            coating:{
+                enabled: false,
+                label: null,
+                value: null,
+                key: null,
+                front: null,
+                back: null
+            },
+            laminate:{
+                enabled: false,
+                label: null,
+                value: null,
+                key: null,
+                front: null,
+                back: null
             }
         },
         material: { enabled: false, value: null },
         materialThickness: { enabled: false, label: null, value: null },
         printFinish: { enabled: false, label: null, value: null },
+        printMethod: { enabled: false, label: null, value: null },
         bindPlace: { enabled: null, label: null, value: null },
         shape: { active: false, method: null, value: null, applyProductLabel: null },
         corner: { active: false, method: null, value: null },
-        cover: { enabled: false, label: null, value: null },
         diecut: { active: false, method: null, value: null, applyProductLabel: null },
         cut: { active: false, method: null, value: null },
         grommet: { active: false, key: null },
@@ -85,35 +234,6 @@ function initSpecs(data) {
             size: { top: null, bottom: null, left: null, right: null }
         },
         mount: { active: false, method: null, value: null },
-        laminate: {
-            general: { enabled: false, label: null, value: null, key: null, map: { fcoat: null, bcoat: null } },
-            front: { enabled: false, label: null, value: null },
-            back: { enabled: false, label: null, value: null }
-        },
-        coating: {
-            general: {
-                enabled: false, label: null, value: null, key: null,
-                map: {
-                    front: { enabled: false, label: null, value: null },
-                    back: { enabled: false, label: null, value: null }
-                }
-            },
-            front: { enabled: false, label: null, value: null },
-            back: { enabled: false, label: null, value: null },
-            mxml: {
-                enabled: data.mxmlStock.enabled,
-                front: {
-                    enabled: data.mxmlStock.lookup.coating.front != null,
-                    label: "MXML",
-                    value: data.mxmlStock.lookup.coating.front
-                },
-                back: {
-                    enabled: data.mxmlStock.lookup.coating.back != null,
-                    label: "MXML",
-                    value: data.mxmlStock.lookup.coating.back
-                }
-            }
-        },
         impInstructions: { active: false, value: null },
         edge: { active: false, method: null, value: null },
         unwind: { active: false, value: null, enable: false, key: null, rotation: null },
@@ -201,15 +321,63 @@ function parseOrderSpecs(specs, orderSpecsArray, s, db, data, userInfo, dataDump
         var value = entry.value;
 
         switch (code) {
+
+            // OrderSpec2.0 values ===================================================
+            case "SUBST":
+                assignSpecField(specs, "substrate.base", "orderspecs_substrate", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "CSUBST":
+                assignSpecField(specs, "substrate.combined", "orderspecs_substrate_combined", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "FCOAT":
+                assignSpecField(specs, "substrate.coating.front", "orderspecs_coating_front", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "BCOAT":
+                assignSpecField(specs, "substrate.coating.front", "orderspecs_coating_back", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "FLAM":
+                assignSpecField(specs, "substrate.laminate.front", "orderspecs_laminate_front", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "BLAM":
+                assignSpecField(specs, "substrate.laminate.back", "orderspecs_laminate_back", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "COVSUBST":
+                assignSpecField(specs, "cover.base", "orderspecs_substrate", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "COVCSUBST":
+                assignSpecField(specs, "cover.combined", "orderspecs_substrate_combined", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "COVFCOAT":
+                assignSpecField(specs, "cover.coating.front", "orderspecs_coating_front", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "COVBCOAT":
+                assignSpecField(specs, "cover.coating.front", "orderspecs_coating_back", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "COVFLAM":
+                assignSpecField(specs, "cover.laminate.front", "orderspecs_laminate_front", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "COVBLAM":
+                assignSpecField(specs, "cover.laminate.back", "orderspecs_laminate_back", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+
+            // OrderSpec1.0 values ===================================================
+            case "PPR":
+                assignSpecField(specs, "paper.base", "options_paper", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "COAT":
+                assignSpecField(specs, "paper.coating", "options_coating", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+            case "LAM":
+                assignSpecField(specs, "paper.laminate", "options_laminate", value, code, s, db, data, userInfo, dataDump, "orderspecs", entry);
+                break;
+
+            // General values ===================================================
             case "RP_REASON":
                 specs.reprint.status = true;
                 specs.reprint.reason = value;
                 break;
             case "GROM":
                 assignSpecField(specs, "grommet", "options_grommets", value, code, s, db, data, userInfo, dataDump, "old", entry);
-                break;
-            case "PPR":
-                assignSpecField(specs, "paper", "specs_paper", value, code, s, db, data, userInfo, dataDump, "paper", entry);
                 break;
             case "HEMMING":
                 if (value !== "None") {
@@ -226,29 +394,11 @@ function parseOrderSpecs(specs, orderSpecsArray, s, db, data, userInfo, dataDump
             case "PRINTFIN":
                 assignSpecField(specs, "printFinish", "options_print-finish", value, code, s, db, data, userInfo, dataDump, "new", entry);
                 break;
+            case "IMPRINTMET1":
+                assignSpecField(specs, "printMethod", "options_print-method", value, code, s, db, data, userInfo, dataDump, "new", entry);
+                break;
             case "BINDPLACE":
                 assignSpecField(specs, "bindPlace", "options_bindplace", value, code, s, db, data, userInfo, dataDump, "new", entry);
-                break;
-            case "COAT":
-                assignSpecField(specs, "coating.general", "options_coating", value, code, s, db, data, userInfo, dataDump, "new", entry);
-                break;
-            case "FCOAT":
-                assignSpecField(specs, "coating.front", "options_front-coating", value, code, s, db, data, userInfo, dataDump, "new", entry);
-                break;
-            case "BCOAT":
-                assignSpecField(specs, "coating.back", "options_back-coating", value, code, s, db, data, userInfo, dataDump, "new", entry);
-                break;
-            case "COVER":
-                assignSpecField(specs, "cover", "options_cover", value, code, s, db, data, userInfo, dataDump, "new", entry);
-                break;
-            case "LAM":
-                assignSpecField(specs, "laminate.general", "options_laminate", value, code, s, db, data, userInfo, dataDump, "new", entry);
-                break;
-            case "FLAM":
-                assignSpecField(specs, "laminate.front", "options_front-laminate", value, code, s, db, data, userInfo, dataDump, "new", entry);
-                break;
-            case "BLAM":
-                assignSpecField(specs, "laminate.back", "options_back-laminate", value, code, s, db, data, userInfo, dataDump, "new", entry);
                 break;
             case "WIND":
                 assignSpecField(specs, "unwind", "options_unwind", value, code, s, db, data, userInfo, dataDump, "old", entry);
@@ -383,7 +533,7 @@ function parseDisplaySpecs(specs, displaySpecsArray, dataDump, s, db, data, user
 }
 
 function assignSpecField(specs, key, table, value, code, s, db, data, userInfo, dataDump, mode, sourceObj) {
-    specs[key] = addToTable(
+    var result = addToTable(
         s,
         db,
         table,
@@ -393,7 +543,24 @@ function assignSpecField(specs, key, table, value, code, s, db, data, userInfo, 
         userInfo,
         specs,
         sourceObj || { code: code, value: value },
-        mode || "old",
-        dataDump
+        mode || "old"
     );
+
+    setNestedValue(specs, key, result);
 }
+
+function setNestedValue(obj, path, value) {
+    var parts = path.split(".");
+    var last = parts.pop();
+    var current = obj;
+
+    for (var i = 0; i < parts.length; i++) {
+        if (typeof current[parts[i]] !== "object" || current[parts[i]] === null) {
+            current[parts[i]] = {};
+        }
+        current = current[parts[i]];
+    }
+
+    current[last] = value;
+}
+

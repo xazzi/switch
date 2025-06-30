@@ -1,27 +1,7 @@
-getMatInfo = function(orderSpecs, db){
-
-    // Get the paper mapping ID for the specific facility.
-    var paperMapId
-    if(orderSpecs.facilityId == 28){
-        paperMapId = orderSpecs.paper.map.slc;
-    }else if(orderSpecs.facilityId == 18){
-        paperMapId = orderSpecs.paper.map.bri;
-    }else if(orderSpecs.facilityId == 25){
-        paperMapId = orderSpecs.paper.map.sln;
-    }else if(orderSpecs.facilityId == 35){
-        paperMapId = orderSpecs.paper.map.lou;
-    }else if(orderSpecs.facilityId == 5){
-        paperMapId = orderSpecs.paper.map.arl;
-    }else if(orderSpecs.facilityId == 37){
-        paperMapId = orderSpecs.paper.map.wix;
-    }else if(orderSpecs.facilityId == 1){
-        paperMapId = orderSpecs.paper.map.vn;
-    }else if(orderSpecs.facilityId == 2){
-        paperMapId = orderSpecs.paper.map.sb;
-    }
+getMatInfo = function(mapId, db){
 
     // Pull the material defaults based on the facility mapping ID.
-        db.settings.execute('CALL settings.getMaterial("' + paperMapId + '")');
+        db.settings.execute('CALL settings.getMaterial("' + mapId + '")');
     if(!db.settings.isRowAvailable()){
         return "Material Data Missing";
     }

@@ -61,9 +61,11 @@
             "specs":{
                 "requirements":{
                     "orderArray":{
-                        "coating":{
-                            "front":{
-                                "enabled":true
+                        "substrate":{
+                            "coating":{
+                                "front":{
+                                    "enabled":true
+                                }
                             }
                         }
                     },
