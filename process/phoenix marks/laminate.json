@@ -61,9 +61,11 @@
             "specs":{
                 "requirements":{
                     "orderArray":{
-                        "laminate":{
-                            "front":{
-                                "enabled":true
+                        "substrate":{
+                            "laminate":{
+                                "front":{
+                                    "enabled":true
+                                }
                             }
                         }
                     },

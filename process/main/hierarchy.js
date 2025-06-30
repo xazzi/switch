@@ -17,7 +17,7 @@ runHierarchy = function(s, job, codebase){
                 facility: handoffDataDS.evalToString("//misc/facility"),
                 dueDate: handoffDataDS.evalToString("//base/dueDate"),
                 sku: handoffDataDS.evalToString("//base/sku"),
-                paper: handoffDataDS.evalToString("//base/paper"),
+                substrate: handoffDataDS.evalToString("//base/substrate"),
                 process: handoffDataDS.evalToString("//base/process"),
                 subprocess: handoffDataDS.evalToString("//base/subprocess"),
                 prodMatFileName: handoffDataDS.evalToString("//base/prodMatFileName"),

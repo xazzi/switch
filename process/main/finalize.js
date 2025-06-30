@@ -16,7 +16,8 @@ runFinalize = function(s, job, codebase){
                 dueDate: handoffDataDS.evalToString("//base/dueDate"),
                 sku: handoffDataDS.evalToString("//base/sku"),
                 type: handoffDataDS.evalToString("//base/type"),
-                paper: handoffDataDS.evalToString("//base/paper"),
+                substrate: handoffDataDS.evalToString("//base/substrate"),
+                cover: handoffDataDS.evalToString("//base/cover"),
                 process: handoffDataDS.evalToString("//base/process"),
                 subprocess: handoffDataDS.evalToString("//base/subprocess"),
                 prodMatFileName: handoffDataDS.evalToString("//base/prodMatFileName"),
@@ -232,7 +233,7 @@ runFinalize = function(s, job, codebase){
                 
                 if(data.processType == "Print"){
                     if(handoffData.type == "roll-label"){
-                        savename = handoffData.gangNumber + " Layout " + phoenixPlan.index + " " + handoffData.paper + " " + phoenixPlan.qty + " Frames" + ".pdf";
+                        savename = handoffData.gangNumber + " Layout " + phoenixPlan.index + " " + handoffData.substrate + " " + phoenixPlan.qty + " Frames" + ".pdf";
                     }else{
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
                     }
@@ -278,7 +279,7 @@ function getCoatLamSLN(s, handoffData){
 
     // If it's RP, use the general Coating method.
     if(handoffData.coating.key != "null"){
-        if(handoffData.paper.match(new RegExp("- RP","g"))){
+        if(handoffData.substrate.match(new RegExp("- RP","g"))){
             temp = "-" + handoffData.coating.key
             return temp
         }
@@ -286,7 +287,7 @@ function getCoatLamSLN(s, handoffData){
 
     // If it's SP, use the frontCoating method.
     if(handoffData.frontCoating.enabled){
-        if(handoffData.paper.match(new RegExp("- SP","g"))){
+        if(handoffData.substrate.match(new RegExp("- SP","g"))){
             temp = "-" + handoffData.frontCoating.value
             return temp
         }

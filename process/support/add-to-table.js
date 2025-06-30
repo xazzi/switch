@@ -1,9 +1,9 @@
-addToTable = function(s, db, table, parameter, example, data, userInfo, object, orderSpecs, tableFormat, dataDump) {
+addToTable = function(s, db, table, parameter, example, data, userInfo, object, orderSpecs, tableFormat) {
     var original = parameter;
     parameter = sanitizeParameter(parameter);
     updateLegacyParameter(s, db, table, original, parameter);
 
-    var selectQuery = buildSelectQuery(table, parameter, tableFormat, object, data, dataDump);
+    var selectQuery = buildSelectQuery(s, table, parameter, tableFormat, object, orderSpecs);
     db.settings.execute(selectQuery);
 
     if (db.settings.isRowAvailable()) {
@@ -16,7 +16,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
         return parseSpecsRow(table, db, parameter, object, orderSpecs, data);
     }
 
-    var insertQuery = buildInsertQuery(table, parameter, tableFormat, example, object, orderSpecs, data, dataDump);
+    var insertQuery = buildInsertQuery(table, parameter, tableFormat, example, object, orderSpecs);
     db.settings.execute(insertQuery);
 
     sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
@@ -25,10 +25,12 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
 }
 
 function sanitizeParameter(param) {
+    if (param == null) return param;
     return param.replace(/"/g, '\\"').replace(/'/g, "\\'").replace(/,/g, '\\,');
 }
 
 function updateLegacyParameter(s, db, table, original, sanitized) {
+    if (original == null) return;
     if (sanitized.length !== original.length) {
         var legacyParam = original.replace(/"|'/g, '');
         db.settings.execute("SELECT * FROM settings.`" + table + "` WHERE parameter = '" + legacyParam + "';");
@@ -50,32 +52,48 @@ function patchMissingNewFields(db, table, parameter, orderSpecs) {
 function parseSpecsRow(table, db, parameter, object, orderSpecs, data) {
     switch (table) {
         case "specs_paper":
-            return {
-                active: true,
-                value: db.settings.getString(1),
-                accountTypeCode: db.settings.getString(2),
-                map: {
-                    slc: Number(db.settings.getString(5)),
-                    bri: Number(db.settings.getString(6)),
-                    sln: Number(db.settings.getString(7)),
-                    lou: Number(db.settings.getString(8)),
-                    arl: Number(db.settings.getString(9)),
-                    wix: Number(db.settings.getString(10)),
-                    vn: Number(db.settings.getString(11)),
-                    sb: Number(db.settings.getString(12))
-                }
+            var map = {
+                slc: Number(db.settings.getString(5)),
+                bri: Number(db.settings.getString(6)),
+                sln: Number(db.settings.getString(7)),
+                lou: Number(db.settings.getString(8)),
+                arl: Number(db.settings.getString(9)),
+                wix: Number(db.settings.getString(10)),
+                vn: Number(db.settings.getString(11)),
+                sb: Number(db.settings.getString(12)),
+                cle: Number(db.settings.getString(13))
             };
 
-        case "map_mxml-stock":
+            var abbr = data.facility.abbr.toLowerCase();
+            var mapId = null;
+
+            if (abbr && map[abbr] != null && !isNaN(map[abbr])) {
+                mapId = map[abbr];
+            }
+
+            var enabled = mapId !== null;
+
             return {
-                enabled: db.settings.getString(6) === 'y',
+                enabled: enabled,
                 value: db.settings.getString(1),
-                lookup: {
-                    paper: db.settings.getString(2),
-                    coating: {
-                        front: db.settings.getString(3),
-                        back: db.settings.getString(4)
-                    }
+                accountTypeCode: db.settings.getString(2),
+                map: map,
+                mapId: mapId
+            };
+
+        case "mxml_mapping":
+            return {
+                enabled: db.settings.getString(8) === 'y',
+                value: db.settings.getString(2) || db.settings.getString(1) || null,
+                prismValue: db.settings.getString(1),
+                key: null,
+                coating: {
+                    front: db.settings.getString(3),
+                    back: db.settings.getString(4)
+                },
+                laminate: {
+                    front: db.settings.getString(5),
+                    back: db.settings.getString(6)
                 }
             };
 
@@ -224,45 +242,50 @@ function parseSpecsRow(table, db, parameter, object, orderSpecs, data) {
                 applyProductLabel: db.settings.getString(5) === "y"
             };
 
-        case "options_laminate":
+        case "options_paper":
             return {
                 enabled: db.settings.getString(7) === 'y',
                 label: db.settings.getString(2),
                 value: db.settings.getString(4) || db.settings.getString(3) || null,
-                key: db.settings.getString(8),
-                map: {
-                    fcoat: db.settings.getString(9),
-                    bcoat: db.settings.getString(10)
-                }
+                prismValue: db.settings.getString(3)
             };
 
         case "options_coating":
             return {
+                enabled: db.settings.getString(9) === 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) || db.settings.getString(3) || null,
+                key: db.settings.getString(10),
+                front: db.settings.getString(5),
+                back: db.settings.getString(6)
+            };
+
+        case "options_laminate":
+            return {
+                enabled: db.settings.getString(9) === 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) || db.settings.getString(3) || null,
+                key: db.settings.getString(10),
+                front: db.settings.getString(5),
+                back: db.settings.getString(6)
+            };
+
+        case "orderspecs_substrate":
+        case "orderspecs_substrate_combined":
+            return {
                 enabled: db.settings.getString(7) === 'y',
                 label: db.settings.getString(2),
                 value: db.settings.getString(4) || db.settings.getString(3) || null,
-                key: db.settings.getString(8),
-                map: {
-                    front: {
-                        enabled: true,
-                        label: db.settings.getString(2),
-                        value: db.settings.getString(9)
-                    },
-                    back: {
-                        enabled: true,
-                        label: db.settings.getString(2),
-                        value: db.settings.getString(10)
-                    }
-                }
+                prismValue: db.settings.getString(3)
             };
 
-        case "options_front-coating":
-        case "options_back-coating":
-        case "options_front-laminate":
-        case "options_back-laminate":
-        case "options_cover":
+        case "orderspecs_coating_front":
+        case "orderspecs_coating_back":
+        case "orderspecs_laminate_front":
+        case "orderspecs_laminate_back":
         case "options_material-thickness":
         case "options_print-finish":
+        case "options_print-method":
         case "options_bindplace":
             return {
                 enabled: db.settings.getString(7) === 'y',
@@ -275,40 +298,46 @@ function parseSpecsRow(table, db, parameter, object, orderSpecs, data) {
     }
 }
 
-function buildSelectQuery(table, parameter, tableFormat, object, data, dataDump) {
+function buildSelectQuery(s, table, parameter, tableFormat, object, orderSpecs) {
+    if (tableFormat === "mapping") {
+        return "SELECT * FROM settings.`" + table + "` WHERE prism_value = '" + parameter + "' AND account_type_code = '" + orderSpecs.accountTypeCode + "';";
+    }
     if (table === "options_hardware") {
         return "SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "' AND width = '" + object.width + "' AND height = '" + object.height + "';";
     }
-    if (tableFormat === "new" || tableFormat === "attr") {
+    if (tableFormat === "new") {
         return "SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "';";
     }
-    if (tableFormat === "mxml-stock") {
-        return "SELECT * FROM settings.`" + table + "` WHERE `mxml_value` = '" + parameter + "';";
+    if (tableFormat === "orderspecs") {
+        return "SELECT * FROM settings.`" + table + "` WHERE `prism_value` = '" + parameter + "';";
     }
-    if (tableFormat === "paper") {
-        if (data.mxmlStock.enabled) {
-            parameter = data.mxmlStock.lookup.paper;
-        }
-        return "SELECT * FROM settings.`" + table + "` WHERE prism_value = '" + parameter + "' AND account_type_code = '" + dataDump.account_type_code + "';";
+    if (tableFormat === "attr") {
+        return "SELECT * FROM settings.`" + table + "` WHERE `prism-value` = '" + parameter + "';";
+    }
+    if (tableFormat === "mxml") {
+        return "SELECT * FROM settings.`" + table + "` WHERE `mxml_value` = '" + parameter + "';";
     }
     return "SELECT * FROM settings.`" + table + "` WHERE parameter = '" + parameter + "';";
 }
 
-function buildInsertQuery(table, parameter, tableFormat, example, object, orderSpecs, data, dataDump) {
+function buildInsertQuery(table, parameter, tableFormat, example, object, orderSpecs) {
+    if (tableFormat === "mapping") {
+        return "INSERT INTO settings.`" + table + "` (prism_value, account_type_code, date_added, example_item) VALUES ('" + parameter + "','" + orderSpecs.accountTypeCode + "','" + new Date() + "','" + example + "');";
+    }
     if (table === "options_hardware") {
         return "INSERT INTO settings.options_hardware (`example-item`, `prism-code`, `prism-label`, `prism-value`, `item-name`, width, height, `date-added`) VALUES ('" + object.jobItemId + "','" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + object.itemName + "','" + object.width + "','" + object.height + "','" + new Date() + "');";
     }
     if (tableFormat === "new") {
         return "INSERT INTO settings.`" + table + "` (`prism-code`, `prism-label`, `prism-value`, `date-added`, `example-item`) VALUES ('" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + new Date() + "','" + example + "');";
     }
-    if (tableFormat === "paper") {
-        return "INSERT INTO settings.`" + table + "` (prism_value, account_type_code, date_added, example_item) VALUES ('" + parameter + "','" + dataDump.account_type_code + "','" + new Date() + "','" + example + "');";
-    }
-    if (tableFormat === "mxml-stock") {
-        return "INSERT INTO settings.`" + table + "` (mxml_value, date_added) VALUES ('" + parameter + "','" + new Date() + "');";
+    if (tableFormat === "orderspecs") {
+        return "INSERT INTO settings.`" + table + "` (`prism_code`, `prism_label`, `prism_value`, `date_added`, `example_item`) VALUES ('" + orderSpecs.code + "','" + orderSpecs.label + "','" + orderSpecs.value + "','" + new Date() + "','" + example + "');";
     }
     if (tableFormat === "attr") {
         return "INSERT INTO settings.`" + table + "` (`prism-name`, `prism-value`, `date_added`, `example_item`) VALUES ('" + orderSpecs.attribute_name + "','" + orderSpecs.attr_value + "','" + new Date() + "','" + example + "');";
+    }
+    if (tableFormat === "mxml") {
+        return "INSERT INTO settings.`" + table + "` (mxml_value, date_added) VALUES ('" + parameter + "','" + new Date() + "');";
     }
     return "INSERT INTO settings.`" + table + "` (parameter, date_added, example_item) VALUES ('" + parameter + "','" + new Date() + "','" + example + "');";
 }
