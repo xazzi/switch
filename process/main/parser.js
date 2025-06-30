@@ -1274,7 +1274,8 @@ runParser = function(s, job, codebase){
 
                 // Make some direct adjustments to web orders.
                 // Depending on how this has to scale in the future, it should probably be moved to a database.
-                if(matInfo.type == "web"){
+                // Booklets
+                if(matInfo.type == "web" && false){
                     product.quantity = Number(product.quantity) + 20;
                     product.foldingPatterns = "F4-2";
                     product.type = "Bound";
@@ -1321,6 +1322,25 @@ runParser = function(s, job, codebase){
                     }
 
                     product.stock = "Proc_Canon_Flyers"
+                }
+
+                // TODO - This needs to be a subprocess
+                // Flyers
+                if(matInfo.type == "web"){
+                    product.quantity = Number(product.quantity) + 20;
+                    product.pageHandling = "OnePerTwoPages"
+                    product.stock = "Proc_Prostream_Flyers"
+                    matInfo.spacing.type = "Margins"
+                    matInfo.phoenixMethod = "Prostream_Flyers"
+                    product.bleed.base = .125;
+                    product.bleed.top = .125;
+                    product.bleed.bottom = .125;
+                    product.bleed.left = .125;
+                    product.bleed.right = .125;
+                    product.spacingTop = .1919;
+                    product.spacingBottom = .1919;
+                    product.spacingLeft = .125;
+                    product.spacingRight = .125;
                 }
 
                 // Hard code the silverback name onto 2 items.
@@ -2083,7 +2103,9 @@ runParser = function(s, job, codebase){
                     }
                     if(matInfo.type == "web"){
                         //if((product.width == '12' && product.height == '6') || (product.width == '9.5' && product.height == '4.75') || (product.width == '11' && product.height == '8.5')){
-                            data.thing += " (Compact)"
+                        //TODO
+                            //data.thing += " (Compact)" //Booklets
+                            data.thing += " (Center)" //Flyers
                             //product.stock += "_13"
                         //}
                     }
@@ -2356,12 +2378,14 @@ runParser = function(s, job, codebase){
                 ["started_at_mst",times.MST],
                 ["started_at_est",times.EST],
                 ["due-date",data.date.due.strings.yearMonthDay],
-                ["dynamic-height-enabled",dynamic.height.enabled],
+                // TODO - This is old code, needs to be updated with the variable size logic.
+                //["dynamic-height-enabled",dynamic.height.enabled],
                 ["height-value",dynamic.height.value],
 
                 ["status","Parse Complete"],
                 ["rip-hotfolder",matInfo.rip.hotfolder],
-                ["separate-cover",(data.cover.base.enabled ? 'y' : 'n')],
+                // TODO - This separate cover logic needs to be addressed
+                //["separate-cover",(data.cover.base.enabled ? 'y' : 'n')],
                 ["cover-vm",data.cover.base.value]
             ]))
 
@@ -2424,7 +2448,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, settingsNode, "mount", data.mount.active);
 		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
         addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
-		addNode_db(theXML, settingsNode, "scaled", data.scaled);
+		addNode_db(theXML, settingsNode, "scaled", data.scaleGang);
 
     // Laminate Nodes ------------------------------------------------------------
     var laminateNode = theXML.createElement("laminate", null);
