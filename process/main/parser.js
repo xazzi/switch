@@ -517,7 +517,7 @@ runParser = function(s, job, codebase){
 
                 // Substrate mapping incomplete
                 if (orderSpecs.resolved.substrate.base.enabled && orderSpecs.mapping.substrate.mapId == null) {
-                    handleMappingIncomplete(s, db, job, data, orderSpecs);
+                    handleJobRejection(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", JSON.stringify(orderSpecs.mapping.substrate));
                     return;
                 }
 
@@ -526,7 +526,7 @@ runParser = function(s, job, codebase){
 
                 // Cover mapping incomplete
                 if(orderSpecs.resolved.cover.base.enabled && orderSpecs.mapping.cover.mapId == null){
-                    handleMappingIncomplete(s, db, job, data, orderSpecs);
+                    handleJobRejection(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", JSON.stringify(orderSpecs.mapping.cover));
                     return;
                 }
 
@@ -605,21 +605,7 @@ runParser = function(s, job, codebase){
                     // TODO, move this to the new email system, it likely isn't going to work currently.
                     // Material data is missing from the material table, might be a paper mapping issue.
                     if(matInfo == "Material Data Missing"){
-                        s.log(3, data.gangNumber + " :: Material entry doesn't exist, job rejected.");
-                        sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
-                        job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID]
-                        ],[
-                            ["status","Gang Failed"],
-                            ["note","Undefined material."]
-                        ]));
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                            ["project-id", data.projectID]
-                        ],[
-                            ["status","Parse Failed"],
-                            ["note","Undefined material."]
-                        ]));
+                        handleJobRejection(s, db, job, data, "Undefined Material", "Undefined material", "material", JSON.stringify(orderSpecs.mapping));
                         return;
                     }
                 }
@@ -1029,18 +1015,10 @@ runParser = function(s, job, codebase){
                 orderArray.push(orderSpecs);
             }
 
-            // TODO - Make sure empty gangs are working.
             // 1st safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
-                sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
-                job.sendToNull(job.getPath());
-                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                    ["project-id", data.projectID]
-                ],[
-                    ["status","Parse Failed"],
-                    ["note","All files removed."]
-                ]))
-                return
+                handleJobRejection(s, db, job, data, "Empty Gang", "All files removed", "gang", null);
+                return;
             }
 
             // Establish the date structure and information.
@@ -1357,9 +1335,7 @@ runParser = function(s, job, codebase){
 
                 // Reject the subprocess if it's not ready.
                 if(product.subprocess == "Reject"){
-                    s.log(3, data.projectID + " :: Subprocess still in testing, job rejected.");
-                    sendEmail_db(s, data, matInfo, getEmailResponse("Rejected Subprocess", product, matInfo, data, userInfo, null), userInfo);
-                    job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
+                    handleJobRejection(s, db, job, data, "Subprocess Rejected", "The subprocess has been rejected", "subprocess", JSON.stringify(product));
                     return
                 }
 
@@ -2339,14 +2315,7 @@ runParser = function(s, job, codebase){
 
             // 2nd safety check for if all files have been removed from the gang.
             if(productArray.length == 0){
-                sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
-                job.sendToNull(job.getPath());
-                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                    ["project-id", data.projectID]
-                ],[
-                    ["status","Parse Failed"],
-                    ["note","All files removed."]
-                ]))
+                handleJobRejection(s, db, job, data, "Empty Gang", "All files removed", "gang", null);
                 return
             }
 
@@ -2917,23 +2886,6 @@ function buildFileObject(product, submit, data, db, s) {
     return file;
 }
 
-function queueNotification(s, db, title, message, projectId, jobItemId, type, priority, metadataJson) {
-    var fields = [
-        ["created_at", new Date()],
-        ["project_id", projectId],
-        ["job_item_id", jobItemId || null],
-        ["type", type || "general"],
-        ["priority", priority || 2],
-        ["title", title],
-        ["message", message],
-        ["sent", 0],
-        ["attempts", 0],
-        ["metadata", metadataJson || null]
-    ];
-
-    db.history.execute(generateSqlStatement_Insert(s, "history.alerts_gang_fails", fields));
-}
-
 function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
 
     if (orderSpecs.substrate.base && orderSpecs.substrate.base.enabled) {
@@ -3129,55 +3081,64 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
     }
 }
 
-function handleMappingIncomplete(s, db, job, data, orderSpecs) {
-    var projectId = data.projectID;
-    var jobItemId = orderSpecs.jobItemId;
-    var gangNumber = data.gangNumber;
-    var substrateMapping = JSON.stringify(orderSpecs.mapping.substrate);
-
+function handleJobRejection(s, db, job, data, errorType, errorMessage, category, details) {
     // Log and redirect
-    s.log(3, gangNumber + " :: Mapping incomplete, job rejected.");
-    job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
+    s.log(3, data.gangNumber + " :: " + errorType + ", job rejected.");
+    job.sendToNull(job.getPath());
+
+    var email = {
+        to: job.getUserEmail(),
+        cc: ["bret.c@digitalroominc.com","chelsea.mv@digitalroominc.com"]
+    }
 
     // Send notification
     queueNotification(
         s,
         db,
-        "Mapping Incomplete",
-        "Mapping failed for job " + jobItemId + ". Please review.",
-        projectId,
-        jobItemId,
-        "mapping",
-        1,
-        substrateMapping
+        errorType,
+        errorMessage + " for job " + data.gangNumber + ". Please review.",
+        data.projectID,
+        data.gangNumber,
+        category,
+        details || "",
+        email
     );
 
     // Update databases
-    updateItemHistory(s, db, projectId);
-    updateGangHistory(s, db, projectId);
+    updateItemHistory(s, db, data.projectID, errorType);
+    updateGangHistory(s, db, data.projectID, errorType);
 }
 
-function updateItemHistory(s, db, projectId) {
-    db.history.execute(generateSqlStatement_Update(
-        s,
-        "history.details_item",
-        [
-            ["project-id", projectId]
-        ],[
-            ["status", "Parse Failed"],
-            ["note", "Mapping incomplete."]
-        ]
-    ));
+function updateItemHistory(s, db, projectId, statusNote) {
+    db.history.execute(generateSqlStatement_Update(s,"history.details_item",[
+        ["project-id", projectId]
+    ],[
+        ["status", "Parse Failed"],
+        ["note", statusNote]
+    ]));
 }
 
-function updateGangHistory(s, db, projectId) {
-    db.history.execute(generateSqlStatement_Update(
-        s,
-        "history.details_gang",
-        [
-            ["project-id", projectId]
-        ],[
-            ["status", "Parse Failed"]
-        ]
-    ));
+function updateGangHistory(s, db, projectId, statusNote) {
+    db.history.execute(generateSqlStatement_Update(s, "history.details_gang",[
+        ["project-id", projectId]
+    ],[
+        ["status", "Parse Failed"],
+        ["note", statusNote]
+    ]));
+}
+
+function queueNotification(s, db, title, message, projectId, jobItemId, type, metadataJson, email) {
+    var fields = [
+        ["created_at", new Date()],
+        ["project_id", projectId],
+        ["gang_number", jobItemId || null],
+        ["type", type || "general"],
+        ["title", title],
+        ["message", message],
+        ["metadata", metadataJson || null],
+        ["to_email", email.to],
+        ["cc_email", email.cc]
+    ];
+
+    db.history.execute(generateSqlStatement_Insert(s, "history.alerts_gang_fails", fields));
 }
