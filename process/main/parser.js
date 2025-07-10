@@ -1250,6 +1250,11 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // For Stickers, increase the quantity by 2.
+                if(matInfo.prodName == "3.2mil-C&Pvinyl"){
+                    product.quantity = Number(product.quantity) + 2;
+                }
+
                 // Make some direct adjustments to web orders.
                 // Depending on how this has to scale in the future, it should probably be moved to a database.
                 // Booklets
