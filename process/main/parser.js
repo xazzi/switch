@@ -421,6 +421,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // Remove the file if shipping information doesn't exist.
+                /*
                 if(!orderSpecs.ship.exists){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
                     db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
@@ -432,6 +433,7 @@ runParser = function(s, job, codebase){
                     ]))
                     continue;
                 }
+                    */
 
                 //var enabled = enabledCheck(s, data, orderSpecs)
 
@@ -765,7 +767,9 @@ runParser = function(s, job, codebase){
                         }
                     }
                 }
-
+                
+                /*
+                // 6/26/25 Travis asked for this to be 'turned off'
                 // Reassign printers and associated data based on various criteria.
                 if(data.facility.destination == "Salt Lake City"){
                     if(matInfo.prodName == "Foamboard"){
@@ -776,6 +780,7 @@ runParser = function(s, job, codebase){
                         }
                     }
                 }
+                */    
 
                 if(data.printer != matInfo.printer.name){
                     if(misc.rejectPress){
@@ -1328,6 +1333,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // If it's DS product for VN, skip it and send an email.
+                /*
                 if(data.facility.destination == "Van Nuys"){
                     if(orderArray[i].doubleSided){
                         data.notes.push([product.itemNumber,"Removed","DS product assigned to VN."]);
@@ -1341,6 +1347,7 @@ runParser = function(s, job, codebase){
                         continue;
                     }
                 }
+                    */
 
                 // Long banners with weld in ARL need to go somewhere else.
                 if(data.facility.destination == "Arlington"){
