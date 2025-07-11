@@ -1894,8 +1894,26 @@ runParser = function(s, job, codebase){
                     bannerSorting: setBannerSorting(s, orderArray[i])
                 }
 
-                // If it's contour at all, override the bleed type to margins, regardless of any facility or product.
-                if(orderArray[i].shape.method == "Custom" || orderArray[i].diecut.method == "Custom" || orderArray[i].shape.method == "Oval"){
+                // Input: data, matInfo, orderArray, i, product assumed to be available in context
+                // You may need to adapt this if variables come from metadata or other input
+
+                // Exclusion lists
+                var excludedDestinations = ["Van Nuys"];
+                var excludedProdNames = ["Magnet"];
+
+                // Destination check
+                var isExcludedDestination = contains(excludedDestinations, data.facility.destination);
+                var isExcludedProduct = contains(excludedProdNames, matInfo.prodName);
+
+                // Shape/method check
+                var isCustom = (
+                    orderArray[i].shape.method === "Custom" ||
+                    orderArray[i].diecut.method === "Custom" ||
+                    orderArray[i].shape.method === "Oval"
+                );
+
+                // Apply logic
+                if (!isExcludedDestination && !isExcludedProduct && isCustom) {
                     product.bleed.type = "Contour";
                 }
 
