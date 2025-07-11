@@ -10,6 +10,8 @@ runUsage = function(s, job, codebase){
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
             eval(File.read(dir.support + "/sql-statements.js"));
+            eval(File.read(dir.support + "/set-date-object.js"));
+            eval(File.read(dir.support + "/get-timezone.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -46,11 +48,16 @@ runUsage = function(s, job, codebase){
                 layoutNode: phoenixPlanDS.evalToNodes("//job/layouts/layout", null)
             }
 
+            // Get the timezone info and set the now time per UTC for completion time.
+            var times = getTimezoneInfo()
+            var now = parseDateParts(times.UTC)
+
             // Update the details_gang table with the average usage.
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
                 ["project-id", handoffData.projectID]
             ],[
                 ["average-usage",phoenixPlan.averageUsage],
+                ["ganging_completed_at_utc",now.iso],
                 ["status","Ganged"]
             ]))   
                 
@@ -64,8 +71,6 @@ runUsage = function(s, job, codebase){
                     ["status", "Created"]
                 ]));
             }
-
-            var message = "NULL"
 
             var messageData = {
                 process: handoffData.process,

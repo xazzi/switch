@@ -295,7 +295,10 @@ runParser = function(s, job, codebase){
 
             db.history.execute(generateSqlStatement_Insert(s, "history.details_gang", [
                 ["project-id", data.projectID],
-                ["gang-number",data.gangNumber]
+                ["gang-number",data.gangNumber],
+                ["started_at_utc",now.iso],
+                ["started_at_mst",times.MST],
+                ["started_at_est",times.EST]
             ]));
             
             var theNewToken = getNewToken(s, data.environment);
@@ -343,14 +346,7 @@ runParser = function(s, job, codebase){
             // Pull the user information.
             db.settings.execute("SELECT * FROM settings.users WHERE email = '" + job.getUserEmail() + "';");
             if(!db.settings.isRowAvailable()){
-                sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
-                job.sendToNull(job.getPath());
-                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                    ["project-id", data.projectID]
-                ],[
-                    ["status","Parse Failed"],
-                    ["note","Undefined user."]
-                ]))
+                handleRejection_Gang(s, db, job, data, "Undefined User", "User is undefined", "user", null, null);
                 return;
             }
                 db.settings.fetchRow();
@@ -480,21 +476,7 @@ runParser = function(s, job, codebase){
                 // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
                 if(orderSpecs.facility != data.facility.destination){
                     if(!submit.route.active){
-                        s.log(3, data.gangNumber + " :: Facility mismatch.");
-                        sendEmail_db(s, data, matInfo, getEmailResponse("Facility Mismatch", null, matInfo, data, userInfo, null), userInfo);
-                        job.sendToNull(job.getPath());
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID]
-                        ],[
-                            ["status","Gang Failed"],
-                            ["note","Facility mismatch."]
-                        ]))
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                            ["project-id", data.projectID]
-                        ],[
-                            ["status","Parse Failed"],
-                            ["note","Facility mismatch."]
-                        ]))
+                        handleRejection_Gang(s, db, job, data, "Facility Mismatch", "Multiple facilities assigned", "error", null, null);
                         return
                     }
                 }
@@ -715,10 +697,11 @@ runParser = function(s, job, codebase){
                     orderSpecs.dartInfo = dartTemplateCheck(s, orderSpecs, data, db, matInfo)
                 }
 
-                // TODO
                 // Enable the force laminate override
                 if(matInfo.forceLam){
-                    //orderSpecs.laminate.enabled = true
+                    orderSpecs.resolved.substrate.laminate.front.enabled = true
+                    orderSpecs.resolved.substrate.laminate.front.label = "forced"
+                    orderSpecs.resolved.substrate.laminate.front.value = "Gloss"
                 }
                 
                 // Set the processes and subprocesses values and check if following items match it.
@@ -985,7 +968,6 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
-                // TODO CHECK THE MIXDUEDATE VS AN OVERRIDE
                 // Separate out the due dates so they can't gang together.
                 if(!matInfo.mixDueDate){
                     if(orderSpecs.date.due != data.date.due){
@@ -1440,7 +1422,7 @@ runParser = function(s, job, codebase){
                     product.subprocess.undersize = false;
                 }
 
-                // TODO - Finish rebuilding this logic.
+                // Pull the file information.
                 var file = buildFileObject(product, submit, data, db, s);
                 
                 // If the file exists and you have data to use, go here.
@@ -2323,7 +2305,12 @@ runParser = function(s, job, codebase){
             job.setHierarchyPath([data.gangNumber]);
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
-            
+
+            // Get the timezone info and set the now time per UTC for completion time.
+            var times = getTimezoneInfo()
+            var now = parseDateParts(times.UTC)
+
+            // Update the table in the database
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
                 ["project-id", data.projectID]
             ],[
@@ -2333,21 +2320,14 @@ runParser = function(s, job, codebase){
                 ["save-location",data.date.due.strings.monthDay],
                 ["rush",data.rush],
                 ["email",userInfo.email],
-                ["started_at_utc",now.iso],
-                ["started_at_mst",times.MST],
-                ["started_at_est",times.EST],
+                ["parsing_completed_at_utc",now.iso],
                 ["due-date",data.date.due.strings.yearMonthDay],
-                // TODO - This is old code, needs to be updated with the variable size logic.
-                //["dynamic-height-enabled",dynamic.height.enabled],
-                ["height-value",dynamic.height.value],
+                ["dynamic_info",JSON.stringify(dynamic)],
                 ["status","Parse Complete"],
                 ["rip-hotfolder",matInfo.rip.hotfolder],
                 ["prism_value_cover",data.cover.base.prismValue],
                 ["prism_value_substrate",data.substrate.base.prismValue]
             ]))
-
-            // TODO - Remove me
-            s.log(2, data.gangNumber + " completed successfully.")
             
         }catch(e){
             if(!retried){
@@ -2721,62 +2701,77 @@ function buildFileObject(product, submit, data, db, s) {
         reason: null
     };
 
+    // Handle redownload if file exists in repository
     if (file.repository.exists) {
         if (submit.override.redownload.bool) {
             try {
                 file.repository.remove();
                 s.log(2, product.contentFile + " removed successfully, redownloading.");
+                product.transfer = true;
             } catch (e) {
-                s.log(2, product.contentFile + " failed to delete.");
+                s.log(2, product.contentFile + " failed to delete: " + e.toString());
             }
-            product.transfer = true;
         } else {
-            file.stats = new FileStatistics(file.repository.path);
-            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                ["project-id", data.projectID],
-                ["item-number", product.itemNumber]
-            ], [["status", "Already Exists"]]));
+            try {
+                file.stats = new FileStatistics(file.repository.path);
+                db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                    ["project-id", data.projectID],
+                    ["item-number", product.itemNumber]
+                ], [["status", "Already Exists"]]));
+            } catch (e) {
+                file.usable = false;
+                file.reason = "Failed to read stats for existing repository file: " + e.toString();
+                return file;
+            }
         }
     } else {
         if (data.fileSource === "S3 Bucket") {
             product.transfer = true;
             file.usable = false;
-        } else {
-            if (file.usable) {
+            return file;
+        }
+
+        if (file.usable) {
+            try {
                 file.stats = new FileStatistics(file.path + "/" + file.name);
                 product.transfer = true;
-            } else {
+            } catch (e) {
                 file.usable = false;
-                file.reason = "File missing: " + file.name;
-                data.notes.push([product.itemNumber, "Notes", file.reason]);
-                db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                    ["project-id", data.projectID],
-                    ["item-number", product.itemNumber]
-                ], [
-                    ["status", "Removed from Gang"],
-                    ["note", file.reason]
-                ]));
+                file.reason = "Stats read error from source: " + e.toString();
                 return file;
             }
+        } else {
+            file.reason = "File missing: " + file.name;
+            data.notes.push([product.itemNumber, "Notes", file.reason]);
+            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                ["project-id", data.projectID],
+                ["item-number", product.itemNumber]
+            ], [
+                ["status", "Removed from Gang"],
+                ["note", file.reason]
+            ]));
+            return file;
         }
     }
 
+    // Extract file dimensions
     try {
-        if (file.usable && file.stats !== null) {
+        if (file.usable && file.stats) {
             file.width = file.stats.getNumber("TrimBoxDefinedWidth") / 72;
             file.height = file.stats.getNumber("TrimBoxDefinedHeight") / 72;
             file.pages = file.stats.getNumber("NumberOfPages");
         } else {
             file.usable = false;
-            file.reason = "Missing stats or file was not usable initially";
+            file.reason = "Missing stats or file marked unusable";
         }
     } catch (e) {
         file.usable = false;
-        file.reason = "Stats read error: " + e.toString();
+        file.reason = "Error reading stats: " + e.toString();
     }
 
     return file;
 }
+
 
 function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
 
@@ -2973,6 +2968,7 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
     }
 }
 
+// Gang Rejections
 function handleRejection_Gang(s, db, job, data, errorType, subject, category, details, message) {
     // Log and redirect
     s.log(3, data.gangNumber + " :: " + errorType + ", job rejected.");
@@ -3002,7 +2998,7 @@ function handleRejection_Gang(s, db, job, data, errorType, subject, category, de
     updateGangHistory(s, db, data.projectID, errorType);
 }
 
-// TODO - adjust this to be gang only, we will do item stuff in a separate one.
+// Item Rejections (unused currently)
 function handleRejection_Item(s, db, job, data, errorType, subject, category, details) {
     // Send notification
     notificationQueue_Items(
