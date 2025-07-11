@@ -2,11 +2,12 @@
 // KEEP all checks with overrides at the bottom.
 // Pre CSV file creation. (CSV creation is ~ when things in automation (Not in the API call) are assigned to items)
 
-// Leave out facility, due date and Paper checks.
+// Leave out facility, due date and Paper/mapping checks.
 
 itemCheckHelper = function(orderSpecs, node, data, db, s){
     var itemId = orderSpecs?.jobItemId || node.getAttributeValue("ID");
 
+        /*
         // Check if the shipping information exists.
         if(!orderSpecs.ship?.exists){
             logItemFailure("Shipping data is missing.", itemId, data, db, s);
@@ -60,9 +61,11 @@ itemCheckHelper = function(orderSpecs, node, data, db, s){
             logItemFailure(`Print surface not allowed with material, ${type}.`, itemId, data, db, s);
             return true;
         }
+        */
 
+        //1st test for new function
         // Check for surface deviation.
-        if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
+        if(data.prodName != "CutVinyl" || "CutVinyl-Frosted"){
             if(data.secondSurface != orderSpecs.secondSurface){
                 var type = orderSpecs.secondSurface ? "2nd Surface" : "1st Surface"
                 logItemFailure(`Different process: ${type}.`, itemId, data, db, s);        
@@ -70,6 +73,7 @@ itemCheckHelper = function(orderSpecs, node, data, db, s){
             }
         }
 
+        /*
         // Check for double sided in materials. (SLN & VN specific labels/stickers, but left code open for other processes)
         if((data.prodName == "RollLabels" || "RollStickers" || "WPSP" || "ClearBOPP" || "WhiteBOPP") && (data.doubleSided)){
             logItemFailure(`Double sided not allowed for this process: ${data.prodName}.`, itemId, data, db,s);
@@ -130,6 +134,7 @@ itemCheckHelper = function(orderSpecs, node, data, db, s){
                 }
             }
         }
+        */
 
         return false; // No failure, item not removed from gang.
 }

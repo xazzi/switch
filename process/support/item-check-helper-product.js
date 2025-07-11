@@ -2,6 +2,8 @@
 // KEEP all checks with overrides at the bottom.
 // in the middle of CSV creation.
 
+// Not included: undersizing and breakaway checks, also items not in the hardware_template database table.
+
 itemCheckHelperPost = function(product, node, data, db, s){
     var itemId = product.itemNumber?.jobItemId || node.getAttributeValue("ID");
 
@@ -15,6 +17,7 @@ itemCheckHelperPost = function(product, node, data, db, s){
             }
         }
 
+        /*
         // Remove if DS 13ozBanner for SLC.
         if(data.facility.destination == "Salt Lake City"){
             if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
@@ -35,6 +38,7 @@ itemCheckHelperPost = function(product, node, data, db, s){
         }
         */
 
+        /*
         // Long banners with weld in ARL need to go somewhere else.
         if(data.facility.destination == "Arlington"){
             if(matInfo.prodName == "13oz-Matte" && orderArray[i].hem.method == "Weld"){
@@ -65,6 +69,7 @@ itemCheckHelperPost = function(product, node, data, db, s){
                 }
             }
         }
+        */
         
 
 

@@ -36,6 +36,9 @@ runParser = function(s, job, codebase){
             eval(File.read(dir.support + "/dart-template-check.js"));
             eval(File.read(dir.support + "/set-date-object.js"));
             eval(File.read(dir.support + "/get-timezone.js"));
+            eval(File.read(dir.support + "/item-check-helper-orderspecs.js"));
+            eval(File.read(dir.support + "/item-check-helper-product.js"));
+            eval(File.read(dir.support + "/item-history-log.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -437,19 +440,6 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
-                // Remove the file if shipping information doesn't exist.
-                if(!orderSpecs.ship.exists){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
-                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                        ["project-id",data.projectID],
-                        ["item-number",orderSpecs.jobItemId]
-                    ],[
-                        ["status","Removed from Gang"],
-                        ["note","Shipping data is missing"]
-                    ]))
-                    continue;
-                }
-
                 // Set facility information
                 if(data.facility.original == null){
                     data.facility.original = orderSpecs.facility;
@@ -536,6 +526,13 @@ runParser = function(s, job, codebase){
                     return;
                 }
 
+                // TODO chelsea, orderspec
+                // Run item-level checks
+                if (itemCheckHelper(orderSpecs, node, data, db, s, matInfo, misc, submit)) {
+                    continue;
+                }
+
+                // TODO chelsea, orderspec
                 // Remove the file if shipping information doesn't exist.
                 if(!orderSpecs.ship.exists){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
@@ -634,6 +631,7 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // TODO chelsea, orderspec
                 // Check if the unwind spec is ready to use.
                 if(orderSpecs.unwind.active && !orderSpecs.unwind.enable){
                     data.notes.push([node.getAttributeValue('ID'),"Removed","Unwind rotation not defined in automation. Notify Bret."])
@@ -647,6 +645,7 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                // TODO chelsea, orderspec
                 // Items larger than 140" in either dim can't go to VN.
                 if(data.facility.destination == "Van Nuys"){
                     if(orderSpecs.width >= 144 || orderSpecs.height >= 144){
@@ -662,6 +661,7 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // TODO chelsea, orderspec
                 // If hardware isn't enabled for produciton, remove them from the gang.
                 if(orderSpecs.hardware.active){
                     if(!orderSpecs.hardware.enabled){
@@ -776,6 +776,22 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // Check for paper deviation
+                if(data.substrate.base.value != orderSpecs.resolved.substrate.base.value){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material, " + orderSpecs.resolved.substrate.base.value + "."]);
+                    data.notes.push([orderSpecs.jobItemId,"Priority","Different IMS material, " + orderSpecs.resolved.substrate.base.value + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different IMS material: " + orderSpecs.resolved.substrate.base.value]
+                    ]))
+                    continue;
+                }
+
+
+                // TODO chelsea, orderspec
                 // If something set an item to a different imposition profile within Phoenix, remove it from the gang.
                 // We can't mix things that want to call different profiles.
                 if(data.impositionProfile.name != matInfo.impositionProfile){
@@ -790,6 +806,7 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                // TODO chelsea, orderspec
                 // Check for side deviation.
                 if(data.doubleSided != orderSpecs.doubleSided){
                     if(data.sideMix || submit.override.sideMix){
@@ -808,6 +825,7 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // TODO chelsea, orderspec
                 // If it's a DS banner, reduce the max length of the gang.
                 if(data.facility.destination == "Wixom"){
                     if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
@@ -818,19 +836,21 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                /*
+                
+                // TODO chelsea, orderspec: This may be turned back on in the future.
                 // Reassign printers and associated data based on various criteria.
-                if(data.facility.destination == "Salt Lake City"){
-                    if(matInfo.prodName == "Foamboard"){
-                        if(orderSpecs.doubleSided){
-                            matInfo.width = 48;
-                            matInfo.height = 96;
-                            data.phoenixStock = "Mat_Foamboard"
-                        }
-                    }
-                }
-                    */
+                //if(data.facility.destination == "Salt Lake City"){
+                    //if(matInfo.prodName == "Foamboard"){
+                        //if(orderSpecs.doubleSided){
+                            //matInfo.width = 48;
+                            //matInfo.height = 96;
+                            //data.phoenixStock = "Mat_Foamboard"
+                        //}
+                    //}
+                //}
 
+                // TODO chelsea, orderspec
+                // Press deviation check.
                 if(data.phoenixPress != matInfo.phoenixPress){
                     if(misc.rejectPress){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different printer " + matInfo.printer.name + "."]);
@@ -845,6 +865,7 @@ runParser = function(s, job, codebase){
                     }
                 }
                 
+                // TODO chelsea, orderspec
                 // Deviation checks to make sure all of the items in the gang are able to go together.
                 if(data.prodName != matInfo.prodName){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + matInfo.prodName + "."]);
@@ -858,20 +879,7 @@ runParser = function(s, job, codebase){
                     continue;
                 }
                 
-                // Check for paper deviation
-                if(data.substrate.base.value != orderSpecs.resolved.substrate.base.value){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material, " + orderSpecs.resolved.substrate.base.value + "."]);
-                    data.notes.push([orderSpecs.jobItemId,"Priority","Different IMS material, " + orderSpecs.resolved.substrate.base.value + "."]);
-                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                        ["project-id",data.projectID],
-                        ["item-number",orderSpecs.jobItemId]
-                    ],[
-                        ["status","Removed from Gang"],
-                        ["note","Different IMS material: " + orderSpecs.resolved.substrate.base.value]
-                    ]))
-                    continue;
-                }
-                
+                // TODO chelsea, orderspec
                 // If finishing hem type is different, remove them from the gang.
                 if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
                     if(!submit.override.mixedHem){
@@ -889,7 +897,8 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                // Check if print surface is allowed for material. -CM
+                // TODO chelsea, orderspec
+                // Check if print surface is allowed for material.
                 if((!matInfo.standardPrint && !orderSpecs.secondSurface) || (!matInfo.reversePrint && orderSpecs.secondSurface)){
                     var type = orderSpecs.secondSurface ? "2nd Surface" : "1st Surface"
                     data.notes.push([orderSpecs.jobItemId, "Removed.", "Print surface not allowed with material, " + type + ", " + matInfo.prodName + "."]);
@@ -903,6 +912,8 @@ runParser = function(s, job, codebase){
                     continue;
                 }
                 
+                /*        //1st test for new function
+                // TODO chelsea, orderspec
                 // Check if surface deviation
                 if(data.prodName != "CutVinyl" && data.prodName != "CutVinyl-Frosted"){
                     if(data.secondSurface != orderSpecs.secondSurface){
@@ -918,7 +929,9 @@ runParser = function(s, job, codebase){
                         continue;
                     }
                 }
+                */
 
+                // TODO chelsea, orderspec
                 // Check if front coating deviation
                 if(data.substrate.coating.front.value != orderSpecs.resolved.substrate.coating.front.value){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different front coating process, " + orderSpecs.resolved.substrate.coating.front.value + "."]);
@@ -932,6 +945,7 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                // TODO chelsea, orderspec
                 // Check if back coating deviation
                 if(data.substrate.coating.back.value != orderSpecs.resolved.substrate.coating.back.value){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different back coating process, " + orderSpecs.resolved.substrate.coating.back.value + "."]);
@@ -945,6 +959,7 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                // TODO chelsea, orderspec
                 // Check if front laminate deviation
                 if(data.substrate.laminate.front.value != orderSpecs.resolved.substrate.laminate.front.value){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different front laminate process, " + orderSpecs.resolved.substrate.laminate.front.value + "."]);
@@ -958,6 +973,7 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                // TODO chelsea, orderspec
                 // Check if back laminate deviation
                 if(data.substrate.laminate.back.value != orderSpecs.resolved.substrate.laminate.back.value){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different back laminate process, " + orderSpecs.resolved.substrate.laminate.back.value + "."]);
@@ -971,6 +987,7 @@ runParser = function(s, job, codebase){
                     continue;
                 }
                 
+                // TODO chelsea, orderspec
                 // Check if mount deviation
                 if(data.mount.active != orderSpecs.mount.active){
                     var type = orderSpecs.mount.active ? "Mounted" : "Not Mounted"
@@ -1226,6 +1243,7 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // TODO
                 // Max width Perf
                 if(matInfo.prodName == "Perf"){
                     if(product.width >= 51.5 && product.height >= 51.5){
@@ -1330,6 +1348,14 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // TODO chelsea
+                // Run item-level checks
+                if (itemCheckHelperPost(product, node, data, db, s, matInfo, misc, submit)) {
+                    continue;
+                }
+
+                /*       //1st test for item-check-helper-product function
+                // TODO chelsea, product: this has been fleshed out more to include all subprocesses using the hardware_template table.
                 //If hardware is enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
                 if(orderArray[i].hardware.active){
                     if(product.subprocess.name == "Retractable" || product.subprocess.name == "TableTop" || product.subprocess.name == "MiniBannerStand"){
@@ -1346,7 +1372,9 @@ runParser = function(s, job, codebase){
                         }
                     }
                 }
+                */
 
+                // TODO chelsea, product
                 // If it's DS 13ozBanner for SLC, skip it and send an email.
                 if(data.facility.destination == "Salt Lake City"){
                     if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
@@ -1364,6 +1392,8 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                /*
+                // TODO chelsea, this should currently be turned off anyway
                 // If it's DS product for VN, skip it and send an email.
                 if(data.facility.destination == "Van Nuys"){
                     if(matInfo.type == 'roll' || matInfo.type == 'sheet'){
@@ -1380,7 +1410,9 @@ runParser = function(s, job, codebase){
                         }
                     }
                 }
+                */
 
+                // TODO chelsea, product
                 // Long banners with weld in ARL need to go somewhere else.
                 if(data.facility.destination == "Arlington"){
                     if(matInfo.prodName == "13oz-Matte"){
@@ -1405,6 +1437,7 @@ runParser = function(s, job, codebase){
                     data.mixed = product.subprocess.mixed;
                 }
 
+                // TODO chelsea, product
                 // If the subprocess can't be mixed with other subprocesses, reject it.
                 if(data.mixed != product.subprocess.mixed){
                     data.notes.push([product.itemNumber,"Removed","Different subprocess, " + product.subprocess.name + "."]);
@@ -1447,17 +1480,20 @@ runParser = function(s, job, codebase){
                 if(file.usable){
                     if(product.subprocess.orientationCheck){
 
+                        // TODO chelsea, product: it's fleshed out to cover DS and SS, but might need to stay separate from the new function.
                         // Check if the 2nd page exists for DS product.
-                        if(file.pages == 1 && product.doubleSided){
-                            data.notes.push([product.itemNumber,"Removed","File missing 2nd page for DS printing."]);
-                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                                ["project-id",data.projectID],
-                                ["item-number",product.itemNumber]
-                            ],[
-                                ["status","Removed from Gang"],
-                                ["note","Missing 2nd page for DS printing."]
-                            ]))
-                            continue;
+                        if(file.pages === 1 && product.doubleSided){
+                            if(file.pages > 1 && !product.doubleSided){
+                                data.notes.push([product.itemNumber,"Removed","File count doesn't match item printing requirements."]);
+                                db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                    ["project-id",data.projectID],
+                                    ["item-number",product.itemNumber]
+                                ],[
+                                    ["status","Removed from Gang"],
+                                    ["note","Page count not correct for DS/SS printing."]
+                                ]))
+                                continue;
+                            }
                         }
 
                         // Perform the orientation and scale logic
