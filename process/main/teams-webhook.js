@@ -69,6 +69,17 @@ runPost = function (s, job, codebase) {
                 });
             }
 
+            //var type = s.getPropertyValue("alertType") || "info";
+
+            // TODO - Do something with this.
+            var colorMap = {
+                info: "0078D7",    // blue
+                success: "28A745", // green
+                warning: "FFC107", // amber
+                error: "DC3545"    // red
+            };
+
+            messageCard.themeColor = colorMap["error"] || colorMap["info"];
             messageCard.sections.push(structure);
 
             // --- LOG JSON LOCALLY ---
