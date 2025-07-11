@@ -1,21 +1,15 @@
-redownloadFrom = function(value, submit){
-	if(value == "S3 Bucket"){
-		submit.override.redownload.bool = true
-		submit.override.redownload.location = "S3 Bucket"
-		return submit
-	}
+redownloadFrom = function(value, submit) {
+    if (value === "S3 Bucket") {
+        submit.override.redownload.bool = true;
+        submit.override.redownload.location = "S3 Bucket";
+    } else {
+        submit.override.redownload.bool = false;
+        submit.override.redownload.location = null;
+    }
 
-	if(value == "Watermark Drive"){
-		submit.override.redownload.bool = true
-		submit.override.redownload.location = "Watermark Drive"
-		return submit
-	}
-
-	// If no then return defaults.
-	submit.override.redownload.bool = false
-	submit.override.redownload.location = null
-	return submit
+    return submit;
 }
+
 
 getFileSource = function(value){
 	if(value == "1"){
@@ -169,12 +163,9 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 }
 
 addNode_db = function(theXML, parent, name, value){
-	function createNode(theXML, parent, name, value){
-		var theNodeName = theXML.createElement(name, null);
-			parent.appendChild(theNodeName);
-		
-		var theNodeValue = theXML.createText(value);
-			theNodeName.appendChild(theNodeValue);
-	}
-	createNode(theXML, parent, name, value)
+	var theNodeName = theXML.createElement(name, null);
+		parent.appendChild(theNodeName);
+	
+	var theNodeValue = theXML.createText(value);
+		theNodeName.appendChild(theNodeValue);
 }

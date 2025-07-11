@@ -1,0 +1,24 @@
+{
+    "subprocess": "booklets",
+    "name": "Booklets",
+    "id": 28,
+    "parameters": [
+        {
+            "facility": {
+                "name": "Arlington",
+                "id": 5,
+                "enabled": true
+            },
+            "processes": [
+                "All"
+            ],
+            "properties": {
+                "mixed": true,
+                "undersize": false,
+                "orientationCheck": true
+            },
+            "overrides": {
+            }
+        }
+    ]
+}

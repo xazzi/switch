@@ -1,4 +1,42 @@
 loadModuleSettings = function(s){
+    function getProp(key) {
+        return s.hasProperty(key) ? s.getPropertyValue(key) : undefined;
+    }
+
+    function getCodebase() {
+        var codebase = getProp("codebase");
+        return codebase === "other" ? getProp("branch") : codebase;
+    }
+
+    var module = {
+        codebase: getCodebase(),
+        fileSource: getProp("fileSource"),
+        enabled: getProp("enabled") === "Yes",
+        database: {
+            imposition: getProp("database")
+        },
+        devSettings: {
+            modified: getProp("devSettings") === "Modified",
+            ignoreSubmit: undefined,
+            forceUser: undefined
+        },
+        localEnvironment: getProp("localEnvironment"),
+        phoenixServer: getProp("phoenixServer"),
+        prismPost: getProp("prismPost") === "Yes",
+        prismEndpoint: getProp("prismEndpoint"),
+        timezone: getProp("timezone")
+    };
+
+    if (module.devSettings.modified) {
+        module.devSettings.ignoreSubmit = getProp("ignoreSubmit") === "Yes";
+        module.devSettings.forceUser = getProp("forceUser");
+    }
+
+    return module;
+}
+
+/*
+loadModuleSettings = function(s){
 
     // Set all of the settings from the module itself
     var module = {
@@ -28,3 +66,4 @@ loadModuleSettings = function(s){
 
     return module
 }
+*/

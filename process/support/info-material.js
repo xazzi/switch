@@ -1,3 +1,4 @@
+// TODO - Run a cleanup on this.
 getMatInfo = function(mapId, db){
 
     // Pull the material defaults based on the facility mapping ID.
