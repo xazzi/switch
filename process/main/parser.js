@@ -1,5 +1,6 @@
 runParser = function(s, job, codebase){
     function parser(s, job, codebase, retried){
+        var data, db
         try{
             var dir = {
                 support: "C:/Scripts/" + codebase + "/switch/process/support/",
@@ -41,7 +42,7 @@ runParser = function(s, job, codebase){
 
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
-            var db = {
+            db = {
                 settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
@@ -83,6 +84,7 @@ runParser = function(s, job, codebase){
                     rush: false,
                     priority: 0,
                     date: false,
+                    accountType: null,
                     redownload:{
                         bool: false,
                         location: null
@@ -99,102 +101,97 @@ runParser = function(s, job, codebase){
                 },
                 csvRequest: false
             }
-                
-            for(var i=0; i<submit.nodes.length; i++){
-                // Custom rotations input field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Custom rotations?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.rotation = submit.nodes.getItem(i).evalToString("field-list/field/value").split(',');
-                    }
-                }
 
-                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix hems?"){
-                    submit.override.mixedHem = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
-                }
+            for (var i = 0; i < submit.nodes.length; i++) {
+                var node = submit.nodes.getItem(i);
+                var tag = node.evalToString('tag');
+                var value = node.evalToString('value');
 
-                // Lam and non-lam finishing separation field. -CM
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix lam?"){
-                    submit.override.mixedLam = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
-                }
+                switch (tag) {
+                    case "Custom rotations?":
+                        if (value == "Yes") {
+                            submit.rotation = node.evalToString("field-list/field/value").split(',');
+                        }
+                        break;
 
-                // Redownload file field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Redownload file?"){
-                    redownloadFrom(submit.nodes.getItem(i).evalToString('value'), submit)
-                }
+                    case "Mix hems?":
+                        submit.override.mixedHem = value == "Yes";
+                        break;
 
-                // Gang method override.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Gang Method"){
-                    submit.override.gangMethod = submit.nodes.getItem(i).evalToString('value')
-                }
-                
-                // Due date override
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix due dates?"){
-                    submit.override.date = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
-                }
+                    case "Mix lam?":
+                        submit.override.mixedLam = value == "Yes";
+                        break;
 
-                // Fullsize override
-                if(submit.nodes.getItem(i).evalToString('tag') == "Force fullsize?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "All items"){
-                        submit.override.fullsize.gang = true;
-                    }
-                    if(submit.nodes.getItem(i).evalToString('value') == "Specific items"){
-                        submit.override.fullsize.items = submit.nodes.getItem(i).evalToString("field-list/field/value").split(',');
-                    }
-                }
+                    case "Redownload file?":
+                        redownloadFrom(value, submit);
+                        break;
 
-                // Mix sides override.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix sides?"){
-                    submit.override.sideMix = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
-                }
-                
-                // Rerouting input field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Route to another facility?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.route.active = true;				
-                        submit.route.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
-                    }
-                }
+                    case "Gang Method":
+                        submit.override.gangMethod = value;
+                        break;
 
-                // Request only the CSV for manual ganging.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Request Only CSV?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.csvRequest = true;				
-                    }
-                }
+                    case "Force Account Type":
+                        submit.override.accountType = value;
+                        break;
 
-                // Custom material width.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Custom material size?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.material.active = true;				
-                        submit.material.name = submit.nodes.getItem(i).evalToString("field-list/field/field-list/field/value");
-                        submit.material.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
+                    case "Mix due dates?":
+                        submit.override.date = value == "Yes";
+                        break;
 
-                        db.settings.execute("SELECT * FROM settings.`override_material-size` WHERE name = '" + submit.material.name + "';");
-                        db.settings.fetchRow();
+                    case "Force fullsize?":
+                        if (value == "All items") {
+                            submit.override.fullsize.gang = true;
+                        } else if (value == "Specific items") {
+                            submit.override.fullsize.items = node.evalToString("field-list/field/value").split(',');
+                        }
+                        break;
 
-                        submit.material.width = db.settings.getString(2);
-                        submit.material.height = db.settings.getString(3);
-                        submit.material.stock = db.settings.getString(4);
-                    }
-                }
-                
-                // Rush field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Rush?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.override.priority = 100;
-                        submit.override.rush = true
-                    }
-                }
+                    case "Mix sides?":
+                        submit.override.sideMix = value == "Yes";
+                        break;
 
-                // Remove Coroplast restrictions
-                if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
-                    submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
-                }
+                    case "Route to another facility?":
+                        if (value == "Yes") {
+                            submit.route.active = true;
+                            submit.route.facility = node.evalToString("field-list/field/value");
+                        }
+                        break;
 
-                // Prep for the Labelmaster
-                if(submit.nodes.getItem(i).evalToString('tag') == "Labelmaster?"){
-                    submit.override.labelmaster = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                    case "Request Only CSV?":
+                        if (value == "Yes") {
+                            submit.csvRequest = true;
+                        }
+                        break;
+
+                    case "Custom material size?":
+                        if (value == "Yes") {
+                            submit.material.active = true;
+                            submit.material.name = node.evalToString("field-list/field/field-list/field/value");
+                            submit.material.facility = node.evalToString("field-list/field/value");
+
+                            db.settings.execute("SELECT * FROM settings.`override_material-size` WHERE name = '" + submit.material.name + "';");
+                            db.settings.fetchRow();
+
+                            submit.material.width = db.settings.getString(2);
+                            submit.material.height = db.settings.getString(3);
+                            submit.material.stock = db.settings.getString(4);
+                        }
+                        break;
+
+                    case "Rush?":
+                        if (value == "Yes") {
+                            submit.override.priority = 100;
+                            submit.override.rush = true;
+                        }
+                        break;
+
+                    case "Remove Coroplast Restrictions?":
+                        submit.override.removeRestrictions.coroplast = value == "true";
+                        break;
+
+                    case "Labelmaster?":
+                        submit.override.labelmaster = value == "Yes";
+                        break;
                 }
             }
 
@@ -214,7 +211,7 @@ runParser = function(s, job, codebase){
             var doc = new Document(job.getPath());	
             var map = doc.createDefaultMap();
 
-            var data = {
+            data = {
                 projectID: skuGenerator_projectID(db),
                 gangNumber: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
@@ -289,7 +286,11 @@ runParser = function(s, job, codebase){
                 rush: submit.override.rush,
                 sideMix: null,
                 labelmaster: submit.override.labelmaster,
-                csvRequest: submit.csvRequest
+                csvRequest: submit.csvRequest,
+                virtualPrinter:{
+                    substrate: null,
+                    cover: null
+                }
             }
 
             db.history.execute(generateSqlStatement_Insert(s, "history.details_gang", [
@@ -363,13 +364,19 @@ runParser = function(s, job, codebase){
 
             var mxmlMap = {
                 substrate: {
-                    base:{ enabled: false, value: null, key: null, prismValue: null },
+                    base:{ enabled: false, value: null, key: null, prismValue: null,
+                        coating:{ front: null, back: null },
+                        laminate:{ front: null, back: null }
+                    },
                     combined:{ enabled: false, value: null, key: null, prismValue: null },
                     coating:{ front: null, back: null },
                     laminate:{ front: null, back: null }
                 },
                 cover: {
-                    base:{ enabled: false, value: null, key: null, prismValue: null },
+                    base:{ enabled: false, value: null, key: null, prismValue: null,
+                        coating:{ front: null, back: null },
+                        laminate:{ front: null, back: null }
+                    },
                     combined:{ enabled: false, value: null, key: null, prismValue: null },
                     coating:{ front: null, back: null },
                     laminate:{ front: null, back: null }
@@ -492,9 +499,6 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                // TODO - Remove me
-                s.log(2, JSON.stringify(orderSpecs))
-
                 // Resolve the orderSpecs to produce the job.
                 orderSpecs.resolved = resolveMaterialMapping(s, orderSpecs, mxmlMap);
                 if(!orderSpecs.resolved){
@@ -509,15 +513,17 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
-                // TODO - Remove me
-                s.log(2, "OrderSpecs Resolved")
+                // Overrite the account type for manual dev testing.
+                if(submit.override.accountType != "Default"){
+                    orderSpecs.accountTypeCode = submit.override.accountType
+                }
 
                 // Query the mapping table for the substrate
                 orderSpecs.mapping.substrate = addToTable(s, db, "specs_paper", orderSpecs.resolved.substrate.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");    
 
                 // Substrate mapping incomplete
                 if (orderSpecs.resolved.substrate.base.enabled && orderSpecs.mapping.substrate.mapId == null) {
-                    handleJobRejection(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", JSON.stringify(orderSpecs.mapping.substrate));
+                    handleRejection_Gang(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.substrate, null);
                     return;
                 }
 
@@ -526,12 +532,9 @@ runParser = function(s, job, codebase){
 
                 // Cover mapping incomplete
                 if(orderSpecs.resolved.cover.base.enabled && orderSpecs.mapping.cover.mapId == null){
-                    handleJobRejection(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", JSON.stringify(orderSpecs.mapping.cover));
+                    handleRejection_Gang(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.cover, null);
                     return;
                 }
-
-                // TODO - Remove me
-                s.log(2, "Mapping complete")
 
                 // Remove the file if shipping information doesn't exist.
                 if(!orderSpecs.ship.exists){
@@ -564,7 +567,6 @@ runParser = function(s, job, codebase){
                 if(orderSpecs.reprint)(
                     data.reprint = true
                 )
-
 
                 // -----------------------------------------------------------------------------------------
                 // Material overrides
@@ -602,10 +604,9 @@ runParser = function(s, job, codebase){
                 if(matInfo == null || matInfoCheck){
                     matInfo = getMatInfo(orderSpecs.mapping.substrate.mapId, db);
 
-                    // TODO, move this to the new email system, it likely isn't going to work currently.
                     // Material data is missing from the material table, might be a paper mapping issue.
                     if(matInfo == "Material Data Missing"){
-                        handleJobRejection(s, db, job, data, "Undefined Material", "Undefined material", "material", JSON.stringify(orderSpecs.mapping));
+                        handleRejection_Gang(s, db, job, data, "Undefined Material", "Undefined material", "material", orderSpecs.mapping, null);
                         return;
                     }
                 }
@@ -1017,7 +1018,7 @@ runParser = function(s, job, codebase){
 
             // 1st safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
-                handleJobRejection(s, db, job, data, "Empty Gang", "All files removed", "gang", null);
+                handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "fail", null, null);
                 return;
             }
 
@@ -1250,75 +1251,9 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                // Make some direct adjustments to web orders.
-                // Depending on how this has to scale in the future, it should probably be moved to a database.
-                // Booklets
-                if(matInfo.type == "web" && false){
-                    product.quantity = Number(product.quantity) + 20;
-                    product.foldingPatterns = "F4-2";
-                    product.type = "Bound";
-                    product.bindingMethod = "Saddle Stitch";
-
-                    // TODO pull this cover data some other way.
-                    if(data.cover.base.value != matInfo.rip.hotfolder){
-                        data.cover.base.enabled = true;
-                        matInfo.phoenixMethod += "-SeparateCover";
-                    }
-
-                    // If the size has been requested to be 2up.
-                    /*
-                    if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
-                        product.nUp = 2;
-                        product.nUpGap = 0.4724;
-                        product.spacingTop = .5;
-                        product.spacingBottom = .5;
-                        matInfo.spacing.type = "Margins"
-                        product.stock += "_Opt2"
-                    }
-                    */
-
-                    // Adjustment for calendars
-                    if(product.bindingEdge == "Top"){
-                        product.readingOrder = "Calendar"
-                        if(orderArray[i].size.width == '5.5' && orderArray[i].size.height == '8.5'){
-                            product.nUp = 2;
-                            product.nUpGap = 0.4724;
-                            product.spacingTop = .5;
-                            product.spacingBottom = .5;
-                            matInfo.spacing.type = "Margins"
-                            product.stock += "_Opt2"
-                    }
-
-                    // If it's not top binding, check to see if we should use a special setup.
-                    }else if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
-                        product.nUp = 2;
-                        product.nUpGap = 0.4724;
-                        product.spacingTop = .5;
-                        product.spacingBottom = .5;
-                        matInfo.spacing.type = "Margins"
-                        product.stock += "_Opt2"
-                    }
-
-                    product.stock = "Proc_Canon_Flyers"
-                }
-
-                // TODO - This needs to be a subprocess
-                // Flyers
-                if(matInfo.type == "web"){
-                    product.quantity = Number(product.quantity) + 20;
-                    product.pageHandling = "OnePerTwoPages"
-                    product.stock = "Proc_Prostream_Flyers"
-                    matInfo.spacing.type = "Margins"
-                    matInfo.phoenixMethod = "Prostream_Flyers"
-                    product.bleed.base = .125;
-                    product.bleed.top = .125;
-                    product.bleed.bottom = .125;
-                    product.bleed.left = .125;
-                    product.bleed.right = .125;
-                    product.spacingTop = .1919;
-                    product.spacingBottom = .1919;
-                    product.spacingLeft = .125;
-                    product.spacingRight = .125;
+                // For Stickers, increase the quantity by 2.
+                if(matInfo.prodName == "3.2mil-C&Pvinyl"){
+                    product.quantity = Number(product.quantity) + 2;
                 }
 
                 // Hard code the silverback name onto 2 items.
@@ -1335,8 +1270,64 @@ runParser = function(s, job, codebase){
 
                 // Reject the subprocess if it's not ready.
                 if(product.subprocess == "Reject"){
-                    handleJobRejection(s, db, job, data, "Subprocess Rejected", "The subprocess has been rejected", "subprocess", JSON.stringify(product));
+                    handleRejection_Gang(s, db, job, data, "Subprocess Rejected", "The subprocess has been rejected", "subprocess", product, null);
                     return
+                }
+
+                // Make some direct adjustments to web orders.
+                if (matInfo.type === "web") {
+
+                    // All web products have 20 added to their quantity.
+                    product.quantity = Number(product.quantity) + 20;
+
+                    // Booklet adjustments
+                    if (product.subprocess.name === "Booklets") {
+                        product.foldingPatterns = "F4-2";
+                        product.type = "Bound";
+                        product.bindingMethod = "Saddle Stitch";
+
+                        // Cover data override
+                        if (data.cover.base.enabled) {
+                            matInfo.phoenixMethod += "-SeparateCover";
+                        }
+
+                        // Shortcut references for dimensions
+                        var width = orderArray[i].size.width;
+                        var height = orderArray[i].size.height;
+
+                        var isTopBoundCalendar = product.bindingEdge === "Top" && width === '5.5' && height === '8.5';
+                        var isSpecialLayout = (width === '4.75' && height === '4.75') || (width === '8.5' && height === '5.5');
+
+                        if (isTopBoundCalendar || isSpecialLayout) {
+                            product.nUp = 2;
+                            product.nUpGap = 0.4724;
+                            product.spacingTop = 0.5;
+                            product.spacingBottom = 0.5;
+                            matInfo.spacing.type = "Margins";
+                            product.stock += "_Opt2";
+                        }
+
+                        if (isTopBoundCalendar) {
+                            product.readingOrder = "Calendar";
+                        }
+                    }
+
+                    // Flyer Adjustments
+                    if (product.subprocess.name == "Flyers"){
+                        product.pageHandling = "OnePerTwoPages";
+                        product.stock = "Proc_Prostream_Flyers";
+                        matInfo.phoenixMethod = "Prostream_Flyers";
+                        product.spacing.type = "Margins";
+                        product.bleed.base = .125;
+                        product.bleed.top = .125;
+                        product.bleed.bottom = .125;
+                        product.bleed.left = .125;
+                        product.bleed.right = .125;
+                        product.spacingTop = .1919;
+                        product.spacingBottom = .1919;
+                        product.spacingLeft = .125;
+                        product.spacingRight = .125;
+                    }
                 }
 
                 //If hardware is enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
@@ -1366,7 +1357,7 @@ runParser = function(s, job, codebase){
                                 ["item-number",product.itemNumber]
                             ],[
                                 ["status","Removed from Gang"],
-                                ["note","Can not produce in SLC."]
+                                ["note","Cannot produce in SLC."]
                             ]))
                             continue;
                         }
@@ -1375,16 +1366,18 @@ runParser = function(s, job, codebase){
 
                 // If it's DS product for VN, skip it and send an email.
                 if(data.facility.destination == "Van Nuys"){
-                    if(orderArray[i].doubleSided){
-                        data.notes.push([product.itemNumber,"Removed","DS product assigned to VN."]);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",product.itemNumber]
-                        ],[
-                            ["status","Removed from Gang"],
-                            ["note","Can not produce in VN."]
-                        ]))
-                        continue;
+                    if(matInfo.type == 'roll' || matInfo.type == 'sheet'){
+                        if(orderArray[i].doubleSided){
+                            data.notes.push([product.itemNumber,"Removed","DS product assigned to VN."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Cannot produce in VN."]
+                            ]))
+                            continue;
+                        }
                     }
                 }
 
@@ -1399,7 +1392,7 @@ runParser = function(s, job, codebase){
                                     ["item-number",product.itemNumber]
                                 ],[
                                     ["status","Removed from Gang"],
-                                    ["note","Can not produce in ARL."]
+                                    ["note","Cannot produce in ARL."]
                                 ]))
                                 continue;
                             }
@@ -1883,8 +1876,8 @@ runParser = function(s, job, codebase){
 
                 // Set the marks from the json file ----------------------------------------------------------
                 marksArray = [];
-                //setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, advancedSettings);
-                //setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
+                setPhoenixMarks(s, dir.phoenixMarks, matInfo, data, orderArray[i], product, marksArray, advancedSettings);
+                setPhoenixScripts(s, dir.phoenixScripts, matInfo, data, orderArray[i], product);
 
                 if(matInfo.type == "packaging"){
                     product.description = orderArray[i].box.length + "x" + orderArray[i].box.width + "x" + orderArray[i].box.depth;
@@ -2067,9 +2060,6 @@ runParser = function(s, job, codebase){
                 data.thing = data.facility.destination + "/" + data.phoenixPress + " [" + data.facility.abbr + "]";
 
                 if(data.phoenixPress != "None"){	
-                    if(matInfo.type == "roll-sticker"){
-                        data.thing += "-LabelMaster"
-                    }
                     if(matInfo.type == "roll" || matInfo.type == "roll-sticker" || matInfo.type == "roll-label"){
                         if(data.scaleGang){
                             data.thing += " (Scaled)";
@@ -2078,12 +2068,12 @@ runParser = function(s, job, codebase){
                         }
                     }
                     if(matInfo.type == "web"){
-                        //if((product.width == '12' && product.height == '6') || (product.width == '9.5' && product.height == '4.75') || (product.width == '11' && product.height == '8.5')){
-                        //TODO
-                            //data.thing += " (Compact)" //Booklets
-                            data.thing += " (Center)" //Flyers
-                            //product.stock += "_13"
-                        //}
+                        if (product.subprocess.name == "Flyers"){
+                            data.thing += " (Center)"
+                        }
+                        if (product.subprocess.name == "Booklets"){
+                            data.thing += " (Compact)"
+                        }
                     }
                 }
 
@@ -2315,7 +2305,7 @@ runParser = function(s, job, codebase){
 
             // 2nd safety check for if all files have been removed from the gang.
             if(productArray.length == 0){
-                handleJobRejection(s, db, job, data, "Empty Gang", "All files removed", "gang", null);
+                handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "fail", null, null);
                 return
             }
 
@@ -2350,12 +2340,10 @@ runParser = function(s, job, codebase){
                 // TODO - This is old code, needs to be updated with the variable size logic.
                 //["dynamic-height-enabled",dynamic.height.enabled],
                 ["height-value",dynamic.height.value],
-
                 ["status","Parse Complete"],
                 ["rip-hotfolder",matInfo.rip.hotfolder],
-                // TODO - This separate cover logic needs to be addressed
-                //["separate-cover",(data.cover.base.enabled ? 'y' : 'n')],
-                ["cover-vm",data.cover.base.value]
+                ["prism_value_cover",data.cover.base.prismValue],
+                ["prism_value_substrate",data.substrate.base.prismValue]
             ]))
 
             // TODO - Remove me
@@ -2363,12 +2351,13 @@ runParser = function(s, job, codebase){
             
         }catch(e){
             if(!retried){
-                s.log(2, "Retrying...")
+                s.log(3, "Parser error on first attempt: " + e + ". Retrying...")
                 parser(s, job, codebase, true)
             }
             s.log(3, "Critical Error!: " + e);
             job.setPrivateData("error", "Critical " + e);
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+            handleRejection_Gang(s, db, job, data, "Critical Error", "Critical error", "error", null, e);
         }
     }
     parser(s, job, codebase, false)
@@ -2689,103 +2678,6 @@ function enabledCheck(s, data, orderSpecs){
     return results;
 }
 
-function firstNonNull () {
-    for (var i = 0; i < arguments.length; i++) {
-        if (arguments[i] != null){
-            return arguments[i];
-        }
-    }
-    return null;
-}
-
-function getValidCoatingValue(s, orderSpecs, stock, side) {
-    var fallbackResult = {
-        source: null,
-        side: side,
-        value: null,
-        label: null,
-        enabled: false
-    };
-
-    // Safety checks
-    if (!orderSpecs || !stock || !side || !orderSpecs.coating || !orderSpecs.coating[stock]) {
-        return fallbackResult;
-    }
-
-    var coating = orderSpecs.coating[stock];
-
-    // 1. Check MXML coating
-    if (
-        coating.mxml &&
-        coating.mxml[side] &&
-        coating.mxml[side].enabled &&
-        coating.mxml[side].value !== null
-    ) {
-        var m = coating.mxml[side];
-        return {
-            source: "mxml",
-            side: side,
-            value: m.value,
-            label: m.label || null,
-            enabled: m.enabled
-        };
-    }
-
-    // 2. Check direct front/back
-    if (
-        coating[side] &&
-        coating[side].enabled &&
-        coating[side].value !== null
-    ) {
-        var d = coating[side];
-        return {
-            source: "direct",
-            side: side,
-            value: d.value,
-            label: d.label || null,
-            enabled: d.enabled
-        };
-    }
-
-    // 3. Check mapped value from assigned stock (paper/cover)
-    if (
-        orderSpecs[stock] &&
-        orderSpecs[stock].lookup &&
-        orderSpecs[stock].lookup.coating &&
-        orderSpecs[stock].lookup.coating[side] !== null
-    ) {
-        var a = orderSpecs[stock].lookup.coating[side];
-        return {
-            source: "assignment",
-            side: side,
-            value: a,
-            label: null,
-            enabled: true
-        };
-    }
-
-    // 4. Check general.map
-    if (
-        coating.general &&
-        coating.general.map &&
-        coating.general.map[side] &&
-        coating.general.map[side].enabled &&
-        coating.general.map[side].value !== null
-    ) {
-        var g = coating.general.map[side];
-        return {
-            source: "general.map",
-            side: side,
-            value: g.value,
-            label: g.label || null,
-            enabled: g.enabled
-        };
-    }
-
-    // Default fallback
-    return fallbackResult;
-}
-
 function findFile(fileName) {
     var searchPaths = [
         ["US Server", "T:/watermarked-files"],
@@ -2916,28 +2808,28 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
                     value: null,
                     key: null,
                     front: {
-                        enabled: mxmlMap.substrate.coating.front != null,
+                        enabled: mxmlMap.substrate.base.coating.front != null,
                         label: "mxml",
-                        value: mxmlMap.substrate.coating.front
+                        value: mxmlMap.substrate.base.coating.front
                     },
                     back: {
-                        enabled: mxmlMap.substrate.coating.back != null,
+                        enabled: mxmlMap.substrate.base.coating.back != null,
                         label: "mxml",
-                        value: mxmlMap.substrate.coating.back
+                        value: mxmlMap.substrate.base.coating.back
                     }
                 },
                 laminate: {
                     value: null,
                     key: null,
                     front: {
-                        enabled: mxmlMap.substrate.laminate.front != null,
+                        enabled: mxmlMap.substrate.base.laminate.front != null,
                         label: "mxml",
-                        value: mxmlMap.substrate.laminate.front
+                        value: mxmlMap.substrate.base.laminate.front
                     },
                     back: {
-                        enabled: mxmlMap.substrate.laminate.back != null,
+                        enabled: mxmlMap.substrate.base.laminate.back != null,
                         label: "mxml",
-                        value: mxmlMap.substrate.laminate.back
+                        value: mxmlMap.substrate.base.laminate.back
                     }
                 }
             },
@@ -2958,28 +2850,28 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
                     value: null,
                     key: null,
                     front: {
-                        enabled: mxmlMap.cover.coating.front != null,
+                        enabled: mxmlMap.cover.base.coating.front != null,
                         label: "mxml",
-                        value: mxmlMap.cover.coating.front
+                        value: mxmlMap.cover.base.coating.front
                     },
                     back: {
-                        enabled: mxmlMap.cover.coating.back != null,
+                        enabled: mxmlMap.cover.base.coating.back != null,
                         label: "mxml",
-                        value: mxmlMap.cover.coating.back
+                        value: mxmlMap.cover.base.coating.back
                     }
                 },
                 laminate: {
                     value: null,
                     key: null,
                     front: {
-                        enabled: mxmlMap.cover.laminate.front != null,
+                        enabled: mxmlMap.cover.base.laminate.front != null,
                         label: "mxml",
-                        value: mxmlMap.cover.laminate.front
+                        value: mxmlMap.cover.base.laminate.front
                     },
                     back: {
-                        enabled: mxmlMap.cover.laminate.back != null,
+                        enabled: mxmlMap.cover.base.laminate.back != null,
                         label: "mxml",
-                        value: mxmlMap.cover.laminate.back
+                        value: mxmlMap.cover.base.laminate.back
                     }
                 }
             }
@@ -3081,7 +2973,7 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
     }
 }
 
-function handleJobRejection(s, db, job, data, errorType, errorMessage, category, details) {
+function handleRejection_Gang(s, db, job, data, errorType, subject, category, details, message) {
     // Log and redirect
     s.log(3, data.gangNumber + " :: " + errorType + ", job rejected.");
     job.sendToNull(job.getPath());
@@ -3092,53 +2984,41 @@ function handleJobRejection(s, db, job, data, errorType, errorMessage, category,
     }
 
     // Send notification
-    queueNotification(
+    notificationQueue_Gangs(
         s,
         db,
         errorType,
-        errorMessage + " for job " + data.gangNumber + ". Please review.",
+        subject + " for job " + data.gangNumber + ". Please review.",
+        message,
         data.projectID,
         data.gangNumber,
         category,
         details || "",
-        email
+        email,
+        null
+    );
+
+    // Update databases
+    updateGangHistory(s, db, data.projectID, errorType);
+}
+
+// TODO - adjust this to be gang only, we will do item stuff in a separate one.
+function handleRejection_Item(s, db, job, data, errorType, subject, category, details) {
+    // Send notification
+    notificationQueue_Items(
+        s,
+        db,
+        errorType,
+        subject + " for job " + data.gangNumber + ". Please review.",
+        null,
+        data.projectID,
+        data.gangNumber,
+        category,
+        details || "",
+        email,
+        null
     );
 
     // Update databases
     updateItemHistory(s, db, data.projectID, errorType);
-    updateGangHistory(s, db, data.projectID, errorType);
-}
-
-function updateItemHistory(s, db, projectId, statusNote) {
-    db.history.execute(generateSqlStatement_Update(s,"history.details_item",[
-        ["project-id", projectId]
-    ],[
-        ["status", "Parse Failed"],
-        ["note", statusNote]
-    ]));
-}
-
-function updateGangHistory(s, db, projectId, statusNote) {
-    db.history.execute(generateSqlStatement_Update(s, "history.details_gang",[
-        ["project-id", projectId]
-    ],[
-        ["status", "Parse Failed"],
-        ["note", statusNote]
-    ]));
-}
-
-function queueNotification(s, db, title, message, projectId, jobItemId, type, metadataJson, email) {
-    var fields = [
-        ["created_at", new Date()],
-        ["project_id", projectId],
-        ["gang_number", jobItemId || null],
-        ["type", type || "general"],
-        ["title", title],
-        ["message", message],
-        ["metadata", metadataJson || null],
-        ["to_email", email.to],
-        ["cc_email", email.cc]
-    ];
-
-    db.history.execute(generateSqlStatement_Insert(s, "history.alerts_gang_fails", fields));
 }

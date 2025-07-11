@@ -1,5 +1,44 @@
 pullApiInformation = function(s, itemNumber, theNewToken, environment, db, data, userInfo) {
-	return pingAPI(s, itemNumber, theNewToken, environment, db, data, userInfo);
+	var specs = initSpecs(data);
+
+	// Build request
+	var theHTTP = new HTTP(HTTP.SSL);
+	theHTTP.url = environment == "QA"
+		? "https://qaprism-services.digitalroominc.com/job-items?id[]=" + itemNumber
+		: "https://prism-services.digitalroominc.com/job-items?id[]=" + itemNumber;
+
+	theHTTP.authScheme = HTTP.OauthAuth;
+	theHTTP.addHeader("Authorization", "Bearer " + theNewToken);
+	theHTTP.timeOut = 300;
+	theHTTP.get();
+
+	while (!theHTTP.waitForFinished(3)) {
+		s.log(5, "Downloading...", theHTTP.progress());
+	}
+
+	if (theHTTP.finishedStatus !== HTTP.Ok || theHTTP.statusCode !== 200) {
+		s.log(3, "Download failed with status code %1", theHTTP.statusCode);
+		return specs;
+	}
+
+	var response = theHTTP.getServerResponse().toString("UTF-8");
+	var dataDump = JSON.parse(response).job_item;
+
+	// Assign core specs
+	specs = assignBasicSpecs(specs, dataDump);
+
+	// Parse order_specs
+	parseOrderSpecs(specs, dataDump.order_specs, s, db, data, userInfo, dataDump);
+
+	// Parse display_specs
+	parseDisplaySpecs(specs, dataDump.display_specs, dataDump, s, db, data, userInfo);
+
+	// Pull file ID
+	if (dataDump.active_file && dataDump.active_file.length > 0) {
+		specs.fileID = dataDump.active_file[0].file_id;
+	}
+
+	return specs;
 };
 
 function pingAPI(s, itemNumber, theNewToken, environment, db, data, userInfo) {

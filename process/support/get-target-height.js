@@ -1,4 +1,64 @@
 getTargetHeight = function(s, matInfo, orderArray, data){
+    function run(s, matInfo, orderArray, data){
+        var height = {
+            value: matInfo.height,
+            target: matInfo.height,
+            max: matInfo.maxHeight != null ? Number(matInfo.maxHeight) : 380,
+            usable: matInfo.height - Number(matInfo.printer.margin.top) - Number(matInfo.printer.margin.bottom),
+            increment: {
+                enabled: matInfo.dynamicHeightIncrement != null,
+                value: Number(matInfo.dynamicHeightIncrement)
+            }
+        };
+
+        // Check if any product requires scaling
+        for (var i = 0; i < orderArray.length; i++) {
+            if (orderArray[i].width > 380 || orderArray[i].height > 380) {
+                data.scaleGang = true;
+                data.scale = "-10pct";
+                height.increment.enabled = false;
+                return height;
+            }
+        }
+
+        // Adjust height based on product sizes
+        for (var i = 0; i < orderArray.length; i++) {
+            var order = orderArray[i];
+            var minRequired = Number(order.height) + 10;
+
+            if (Math.round(Number(order.width)) > matInfo.width) {
+                minRequired = Number(order.width) + 10;
+            }
+
+            if (height.increment.enabled) {
+                while (height.usable < minRequired) {
+                    height.usable += height.increment.value;
+                    height.value += height.increment.value;
+
+                    if (height.value > height.max) {
+                        data.scaleGang = true;
+                        data.scale = "-10pct";
+                        height.increment.enabled = false;
+                        return height;
+                    }
+                }
+            } else {
+                if (height.usable < minRequired) {
+                    height.usable = height.max;
+                    height.value = height.max;
+                }
+            }
+        }
+
+        return height;
+    }
+        
+    return run(s, matInfo, orderArray, data);
+}
+
+/*
+// This is the previous and not clean version. Delete later
+getTargetHeight = function(s, matInfo, orderArray, data){
 
     function run(s, matInfo, orderArray, data){
 
@@ -65,3 +125,4 @@ getTargetHeight = function(s, matInfo, orderArray, data){
     
     return run(s, matInfo, orderArray, data);
 }
+    */

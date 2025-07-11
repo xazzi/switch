@@ -26,7 +26,16 @@ runUsage = function(s, job, codebase){
             var handoffDataDS = loadDataset_db("Handoff Data");
             var handoffData = {
                 projectID: handoffDataDS.evalToString("//base/projectID"),
-                gangNumber: handoffDataDS.evalToString("//base/gangNumber")
+                gangNumber: handoffDataDS.evalToString("//base/gangNumber"),
+                process: handoffDataDS.evalToString("//base/process"),
+                subprocess: handoffDataDS.evalToString("//base/subprocess"),
+                dueDate: handoffDataDS.evalToString("//base/dueDate"),
+                facility: handoffDataDS.evalToString("//misc/facility"),
+                user: {
+                    first: handoffDataDS.evalToString("//user/first"),
+                    email: handoffDataDS.evalToString("//user/email")
+                },
+                products: handoffDataDS.evalToNodes("//handoff/products/product")
             }
             
             // Collect the phoenix plan data.
@@ -56,6 +65,36 @@ runUsage = function(s, job, codebase){
                 ]));
             }
 
+            var message = "NULL"
+
+            var messageData = {
+                process: handoffData.process,
+                subprocess: handoffData.subprocess,
+                dueDate: handoffData.dueDate,
+                facility: handoffData.facility
+            };
+
+            // Send the email.
+            var email = {
+                to: job.getUserEmail(),
+                cc: "bret.c@digitalroominc.com"
+                //cc: ["bret.c@digitalroominc.com","chelsea.mv@digitalroominc.com"]
+            }
+
+            notificationQueue_Gangs(
+                s,
+                db,
+                "Gang Success",
+                "Gang Summary: " + handoffData.gangNumber + ".",
+                null,
+                handoffData.projectID,
+                handoffData.gangNumber,
+                "success",
+                "",
+                email,
+                messageData
+            );
+
             // Send the job to be approved.
             job.sendToNull(job.getPath())
             
@@ -65,4 +104,11 @@ runUsage = function(s, job, codebase){
         }
     }
     usage(s, job, codebase)
+}
+
+function escapeSQLString(str) {
+    return str
+        .replace(/\\/g, '\\\\')  // escape backslashes
+        .replace(/'/g, "\\'")    // escape single quotes
+        .replace(/\n/g, '\\n');  // escape newlines explicitly
 }

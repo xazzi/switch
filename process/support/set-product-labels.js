@@ -1,3 +1,23 @@
+setProductLabel = function(s, order){
+    var shape = order.shape || {};
+    var diecut = order.diecut || {};
+
+    if (shape.applyProductLabel === true) {
+        return true;
+    }
+
+    if (shape.applyProductLabel == null && diecut.applyProductLabel === true) {
+        return true;
+    }
+
+    if (shape.applyProductLabel == null && diecut.applyProductLabel == null) {
+        return true;
+    }
+
+    return false;
+}
+
+/*
 setProductLabel = function(s, orderArray){
 
     // If it's an approved shape, return true before checking die.
@@ -19,3 +39,4 @@ setProductLabel = function(s, orderArray){
 
     return false
 }
+    */

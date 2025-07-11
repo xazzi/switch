@@ -11,9 +11,9 @@ runHierarchy = function(s, job, codebase){
             var nextShipDate = getNextShipDate();
             var saveDir = nextShipDate.month + "-" + nextShipDate.date;
             
-                newPath.push("Processed" + "/" + saveDir + "/");
+                newPath.push(saveDir + "/" + "Vinyl Lettering" + "/");
                     
-                job.addTopHierarchySegment([newPath]);	
+                job.setHierarchyPath([newPath]);	
                 job.sendToSingle(job.getPath());
             
         }catch(e){

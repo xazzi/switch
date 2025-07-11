@@ -1,6 +1,7 @@
 var parent = [];
 var apply, facilityCheck;
 
+// TODO - Clean this
 setPhoenixScripts = function(s, folder, matInfo, data, orderArray, product){
     function readFiles(s, folder, matInfo, data, orderArray, product){
 

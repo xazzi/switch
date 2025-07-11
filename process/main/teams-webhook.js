@@ -1,137 +1,104 @@
-runPost = function(s, job, codebase){
-    function post(s, job, codebase){
-        try{
+runPost = function (s, job, codebase) {
+    function post(s, job, codebase) {
+        try {
             var dir = {
                 support: "C:/Scripts/" + codebase + "/switch/process/support/"
-            }
+            };
 
             // Read in any support directories
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
+            eval(File.read(dir.support + "/sql-statements.js"));
 
+            // --- DATASET LOADING ---
             var handoffDataDS = loadDatasetNoFail_db("Handoff Data");
 
+            // --- CREATE FILE PATH TO LOG JSON LOCALLY ---
             var newJob = s.createNewJob();
-            var xmlfile = newJob.createPathWithName("Submit" + ".json", false);
-            var xmlF = new File(xmlfile);
+            var jsonPath = newJob.createPathWithName("Submit.json", false);
+            var jsonFile = new File(jsonPath);
 
-            // Load settings from the module
-            var module = loadModuleSettings(s)
+            // --- MODULE SETTINGS ---
+            var module = loadModuleSettings(s);
 
-            // Establist connection to the databases
-            var connections = establishDatabases(s, module)
+            // --- DB CONNECTIONS ---
+            var connections = establishDatabases(s, module);
             var db = {
                 settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
-            }
+            };
 
-            // Pull the URL from the database.
-            db.settings.execute("SELECT * FROM settings.webhooks_teams WHERE channel = '" + s.getPropertyValue("channel") + "';");
-            if(!db.settings.isRowAvailable()){
-                job.fail("Teams Channel Not Found!")
-                return
-            }
+            var channel = s.getPropertyValue("channel");
 
+            db.settings.execute("SELECT * FROM settings.webhooks_teams WHERE channel = " + sqlValue(s, channel) + ";");
+            if (!db.settings.isRowAvailable()){
+                s.log(3, "Teams channel not found in database: " + channel);
+                return;
+            }
             db.settings.fetchRow();
-            var url = db.settings.getString(2);
 
-            var messageCard = {};
-            var sections = [];
-                messageCard.type = "MessageCard"
-                messageCard.summary = s.getServerName();
-                messageCard.sections = sections;
+            // --- CONSTRUCT WEBHOOK PAYLOAD ---
+            var messageCard = {
+                type: "MessageCard",
+                summary: s.getServerName(),
+                sections: []
+            };
 
-            // Create the array of items you want to post to the webhook.
-            var query = [
+            var fields = [
                 ["Element", s.getPropertyValue("element")],
                 ["Server", s.getServerName()],
                 ["Flow", s.getPropertyValue("flow")],
                 ["File", job.getName()],
-                ["User", job.getUserFullName()]
-            ]
+                ["User", job.getUserFullName()],
+                ["Gang", safeEval(handoffDataDS, "//base/gangNumber")],
+                ["Process", safeEval(handoffDataDS, "//base/process")],
+                ["Subprocess", safeEval(handoffDataDS, "//base/subprocess")]
+            ];
 
-            var temp
-
-            // Check for gangNumber, in a failsafe try/catch
-            try{
-                temp = handoffDataDS.evalToString("//base/gangNumber")
-            }catch(e){
-                temp = "Unknown"
-            }
-            query.push(["Gang", temp])
-
-            // Check for process, in a failsafe try/catch
-            try{
-                temp = handoffDataDS.evalToString("//base/process")
-            }catch(e){
-                temp = "Unknown"
-            }
-            query.push(["Process", temp])
-
-            // Check for subprocess, in a failsafe try/catch
-            try{
-                temp = handoffDataDS.evalToString("//base/subprocess")
-            }catch(e){
-                temp = "Unknown"
-            }
-            query.push(["Subprocess", temp])
-
-            // Create the structure that we pass into the webhook
             var structure = {
+                activityTitle: s.getPropertyValue("message"),
                 facts: []
+            };
+
+            for (var i = 0; i < fields.length; i++) {
+                structure.facts.push({
+                    name: fields[i][0],
+                    value: fields[i][1] || "Unknown"
+                });
             }
 
-            // Loop through the queries, cleaning up any errors, and push the final answer to the attributes.
-            for(var i=0; i<query.length; i++){
-                var temp
-
-                try{
-                    temp = query[i][1]
-                }catch(e){
-                    temp = "Unknown"
-                }
-
-                var attributes = {
-                    name:query[i][0],
-                    value:temp
-                }
-                structure["facts"].push(attributes)
-            }
-
-            structure.activityTitle = s.getPropertyValue("message")
-                    
             messageCard.sections.push(structure);
 
-            xmlF.open(File.Append);
-            xmlF.writeLine(JSON.stringify(messageCard));
-            xmlF.close();
-                
-            // Post the above json to the API.
-            var theHTTP = new HTTP(HTTP.SSL);
-                theHTTP.url = url;
-                theHTTP.enableMime = false;
-                theHTTP.setAttachedFile(xmlfile);
-                theHTTP.timeOut = 300;
-                theHTTP.post();
-                
-            while(!theHTTP.waitForFinished(10)){
-                s.log(5, "Posting to Teams...", theHTTP.progress());
-            }
-            
-            if(theHTTP.finishedStatus == HTTP.Failed || theHTTP.statusCode !== 200){
-                s.log(3, "Teams post failed: " + theHTTP.lastError);
-                job.fail(e);
-                return;
-            }
-                    
-            job.sendToSingle(job.getPath()) 
-            
-        }catch(e){
-            s.log(3, "Critical Error: Teams Message:" + e)
+            // --- LOG JSON LOCALLY ---
+            jsonFile.open(File.Append);
+            jsonFile.writeLine(JSON.stringify(messageCard));
+            jsonFile.close();
+
+            // --- SAVE TO DB QUEUE ---
+            db.settings.execute(
+                "INSERT INTO history.webhook_teams_queue (channel, payload) VALUES (" +
+                sqlValue(s, channel) + ", " +
+                sqlValue(s, messageCard) + ");"
+            );
+
+            s.log(1, "Webhook payload saved to queue.");
+            job.sendToSingle(job.getPath());
+
+        } catch (e) {
+            s.log(3, "Critical Error (Teams Webhook): " + e);
             job.fail(e);
         }
     }
-    post(s, job, codebase)
-}
+
+    function safeEval(dataset, xpath) {
+        try {
+            return dataset.evalToString(xpath);
+        } catch (e) {
+            return "Unknown";
+        }
+    }
+
+    post(s, job, codebase);
+};

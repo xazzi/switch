@@ -1,20 +1,24 @@
-setHemLabels = function(s, orderArray){
-    var labels = {
-        top: orderArray.hem.side.top || orderArray.pocket.side.top,
-        bottom: orderArray.hem.side.bottom || orderArray.pocket.side.bottom,
-        left: orderArray.hem.side.left || orderArray.pocket.side.left,
-        right: orderArray.hem.side.right || orderArray.pocket.side.right
+setHemLabels = function(s, order) {
+    function safeGet(obj, key) {
+        return obj && obj.side && obj.side[key];
     }
 
-    if(orderArray.width <= 12){
+    var labels = {
+        top: safeGet(order.hem, "top") || safeGet(order.pocket, "top"),
+        bottom: safeGet(order.hem, "bottom") || safeGet(order.pocket, "bottom"),
+        left: safeGet(order.hem, "left") || safeGet(order.pocket, "left"),
+        right: safeGet(order.hem, "right") || safeGet(order.pocket, "right")
+    };
+
+    if (order.width <= 12) {
         labels.top = false;
         labels.bottom = false;
     }
 
-    if(orderArray.height <= 12){
+    if (order.height <= 12) {
         labels.left = false;
         labels.right = false;
     }
 
-    return labels
+    return labels;
 }
