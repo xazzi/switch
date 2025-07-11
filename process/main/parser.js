@@ -1251,6 +1251,11 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // For Stickers, increase the quantity by 2.
+                if(matInfo.prodName == "3.2mil-C&Pvinyl"){
+                    product.quantity = Number(product.quantity) + 2;
+                }
+
                 // Hard code the silverback name onto 2 items.
                 // This code should be deleted in the future when SLC enables the product on a paper level.
                 // bc 4/17/25
