@@ -515,7 +515,7 @@ runParser = function(s, job, codebase){
 
                 // Overrite the account type for manual dev testing.
                 if(submit.override.accountType != "Default"){
-                    orderSpecs.accountTypeCode = submit.override.accountType
+                    //orderSpecs.accountTypeCode = submit.override.accountType
                 }
 
                 // Query the mapping table for the substrate
