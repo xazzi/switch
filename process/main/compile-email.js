@@ -93,7 +93,7 @@ compileEmail = function(s, job, codebase){
             }
 
             // Pull any notes from the email table, including what was just posted.
-            db.email.execute("SELECT * FROM emails.`parsed_data` WHERE `project-id` = '" + handoffData.projectID + "';");
+            db.email.execute("SELECT * FROM emails.`parsed_data` WHERE `project_id` = '" + handoffData.projectID + "';");
 
             var entries = {};
             var raw = [];
