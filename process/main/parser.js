@@ -1,6 +1,7 @@
 runParser = function(s, job, codebase){
     function parser(s, job, codebase, retried){
         var data, db
+
         try{
             var dir = {
                 support: "C:/Scripts/" + codebase + "/switch/process/support/",
@@ -25,7 +26,6 @@ runParser = function(s, job, codebase){
             eval(File.read(dir.support + "/compile-csv.js"));
             eval(File.read(dir.support + "/set-hem-labels.js"));
             eval(File.read(dir.support + "/set-product-labels.js"));
-            eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/get-edge-finishing.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
@@ -501,7 +501,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // Query the mapping table for the substrate
-                orderSpecs.mapping.substrate = addToTable(s, db, "specs_paper", orderSpecs.resolved.substrate.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");    
+                orderSpecs.mapping.substrate = addToTable(s, db, "specs_paper", orderSpecs.resolved.substrate.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");
 
                 // Substrate mapping incomplete
                 if (orderSpecs.resolved.substrate.base.enabled && orderSpecs.mapping.substrate.mapId == null) {
@@ -532,6 +532,7 @@ runParser = function(s, job, codebase){
                 }
 
                 /*
+                // TODO
                 //var enabled = enabledCheck(s, data, orderSpecs)
                 if(!orderSpecs.bindPlace.enabled){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Binding edge not assigned."]);
@@ -1745,7 +1746,7 @@ runParser = function(s, job, codebase){
                
                 //write imp instructions to the database -cm
                 if(orderArray[i].impInstructions.active){
-                    db.email.execute("INSERT INTO emails.impinst_notes (`project-id`,`gang-number`,`item-number`,`message`) VALUES ('" + data.projectID + "','" + data.gangNumber + "','" + product.itemNumber + "', '" + orderArray[i].impInstructions.value + "');");
+                    data.notes.push([product.itemNumber,"Instructions",orderArray[i].impInstructions.value]);
                 }
 
                 // Rotation adjustments ----------------------------------------------------------
@@ -2309,7 +2310,7 @@ runParser = function(s, job, codebase){
                 return
             }
 
-            emailDatabase_write(s, db, "parsed_data", "Parser", data, data.notes)
+            updateEmailHistory(s, db, "Parser", data, data.notes);
         
             createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now, null, null);
             newCSV.setHierarchyPath([data.environment,data.projectID]);
@@ -2328,6 +2329,24 @@ runParser = function(s, job, codebase){
             var times = getTimezoneInfo()
             var now = parseDateParts(times.UTC)
 
+            s.log(2, generateSqlStatement_Update(s, "history.details_gang", [
+                ["project-id", data.projectID]
+            ],[
+                ["process",data.prodName],
+                ["subprocess",data.subprocess],
+                ["facility",data.facility.destination],
+                ["save-location",data.date.due.strings.monthDay],
+                ["rush",data.rush],
+                ["email",userInfo.email],
+                ["parsing_completed_at_utc",now.iso],
+                ["due-date",data.date.due.strings.yearMonthDay],
+                ["dynamic_info",dynamic],
+                ["status","Parse Complete"],
+                ["rip-hotfolder",matInfo.rip.hotfolder],
+                ["prism_value_cover",data.cover.base.prismValue],
+                ["prism_value_substrate",data.substrate.base.prismValue]
+            ]))
+
             // Update the table in the database
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
                 ["project-id", data.projectID]
@@ -2340,7 +2359,7 @@ runParser = function(s, job, codebase){
                 ["email",userInfo.email],
                 ["parsing_completed_at_utc",now.iso],
                 ["due-date",data.date.due.strings.yearMonthDay],
-                ["dynamic_info",JSON.stringify(dynamic)],
+                ["dynamic_info",dynamic],
                 ["status","Parse Complete"],
                 ["rip-hotfolder",matInfo.rip.hotfolder],
                 ["prism_value_cover",data.cover.base.prismValue],
@@ -2352,7 +2371,6 @@ runParser = function(s, job, codebase){
                 s.log(3, "Parser error on first attempt: " + e + ". Retrying...")
                 parser(s, job, codebase, true)
             }
-            s.log(3, "Critical Error!: " + e);
             job.setPrivateData("error", "Critical " + e);
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
             handleRejection_Gang(s, db, job, data, "Critical Error", "Critical error", "error", null, e);
@@ -2987,15 +3005,12 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
 }
 
 // Gang Rejections
-function handleRejection_Gang(s, db, job, data, errorType, subject, category, details, message) {
+function handleRejection_Gang(s, db, job, data, errorType, subject, category, metadataJson, message) {
     // Log and redirect
     s.log(3, data.gangNumber + " :: " + errorType + ", job rejected.");
-    job.sendToNull(job.getPath());
-
-    var email = {
-        to: job.getUserEmail(),
-        cc: ["bret.c@digitalroominc.com","chelsea.mv@digitalroominc.com"]
-    }
+    try{
+        job.sendToNull(job.getPath());
+    }catch(e){}
 
     // Send notification
     notificationQueue_Gangs(
@@ -3007,32 +3022,16 @@ function handleRejection_Gang(s, db, job, data, errorType, subject, category, de
         data.projectID,
         data.gangNumber,
         category,
-        details || "",
-        email,
+        metadataJson,
+        job.getUserEmail(),
         null
     );
 
     // Update databases
-    updateGangHistory(s, db, data.projectID, errorType);
-}
-
-// Item Rejections (unused currently)
-function handleRejection_Item(s, db, job, data, errorType, subject, category, details) {
-    // Send notification
-    notificationQueue_Items(
+    updateGangHistory(
         s,
         db,
-        errorType,
-        subject + " for job " + data.gangNumber + ". Please review.",
-        null,
         data.projectID,
-        data.gangNumber,
-        category,
-        details || "",
-        email,
-        null
+        errorType
     );
-
-    // Update databases
-    updateItemHistory(s, db, data.projectID, errorType);
 }

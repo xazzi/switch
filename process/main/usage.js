@@ -45,14 +45,16 @@ runUsage = function(s, job, codebase){
             var phoenixPlan = {
                 id: phoenixPlanDS.evalToString("//job/id"),
                 averageUsage: Math.round(phoenixPlanDS.evalToString("//job/sheet-usage",null) * 100),
-                layoutNode: phoenixPlanDS.evalToNodes("//job/layouts/layout", null)
+                layoutNode: phoenixPlanDS.evalToNodes("//job/layouts/layout", null),
+                products: phoenixPlanDS.evalToNodes("//job/products/product", null)
             }
 
             // Get the timezone info and set the now time per UTC for completion time.
             var times = getTimezoneInfo()
             var now = parseDateParts(times.UTC)
 
-            // Update the details_gang table with the average usage.
+            // Update the details_gang table
+            // ------------------------------------------------------------------
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
                 ["project-id", handoffData.projectID]
             ],[
@@ -61,7 +63,8 @@ runUsage = function(s, job, codebase){
                 ["status","Ganged"]
             ]))   
                 
-            // Insert the layout level days into the details_layout table.
+            // Insert into the details_layout table
+            // ------------------------------------------------------------------
             for(var j=0; j<phoenixPlan.layoutNode.length; j++){
                 db.history.execute(generateSqlStatement_Insert(s, "history.details_layout", [
                     ["project-id", handoffData.projectID],
@@ -72,19 +75,41 @@ runUsage = function(s, job, codebase){
                 ]));
             }
 
+            // Create a Set of product names from Phoenix
+            // ------------------------------------------------------------------
+            var phoenixProductNames = {};
+            for (var j = 0; j < phoenixPlan.products.length; j++) {
+                var name = phoenixPlan.products.getItem(j).evalToString('name');
+                phoenixProductNames[name] = true;
+            }
+
+            // Loop through handoff products and find missing items
+            var unmatchedProducts = [];
+
+            for (var i = 0; i < handoffData.products.length; i++) {
+                var product = handoffData.products.getItem(i);
+                var contentFile = product.evalToString('contentFile');
+
+                if (!phoenixProductNames[contentFile]) {
+                    unmatchedProducts.push([
+                        product.evalToString('itemNumber'),
+                        "Removed",
+                        "This file was not ganged by Phoenix."
+                    ]);
+                }
+            }
+
+            // Save messages to email DB
+            updateEmailHistory(s, db, "Phoenix", handoffData, unmatchedProducts);
+
+            // Assemble the data for the email 
+            // ------------------------------------------------------------------
             var messageData = {
                 process: handoffData.process,
                 subprocess: handoffData.subprocess,
                 dueDate: handoffData.dueDate,
                 facility: handoffData.facility
             };
-
-            // Send the email.
-            var email = {
-                to: job.getUserEmail(),
-                cc: "bret.c@digitalroominc.com"
-                //cc: ["bret.c@digitalroominc.com","chelsea.mv@digitalroominc.com"]
-            }
 
             notificationQueue_Gangs(
                 s,
@@ -96,7 +121,7 @@ runUsage = function(s, job, codebase){
                 handoffData.gangNumber,
                 "success",
                 "",
-                email,
+                job.getUserEmail(),
                 messageData
             );
 
