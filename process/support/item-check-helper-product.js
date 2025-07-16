@@ -5,13 +5,13 @@
 // Not included: undersizing and breakaway checks, also items not in the hardware_template database table.
 
 itemCheckHelperPost = function(product, node, data, db, s){
-    var itemId = product.itemNumber?.jobItemId || node.getAttributeValue("ID");
+    var itemId = product.itemNumber.jobItemId || node.getAttributeValue("ID");
 
         //If hardware is enabled and template ID is not assigned for specified subprocess, remove from gang.
         if(orderArray[i].hardware.active){
             if(product.subprocess.name == "Retractable" || "TableTop" || "MiniBannerStand" || "RectangleFlag" || "FeatherFlag"){
                 if(orderArray[i].hardware.template.id == null){
-                    logItemFailure(`Template ID not assigned: ${product.subprocess.name}.`, itemId, data, db, s);        
+                    logItemFailure(`Template ID not assigned, ` + product.subprocess.name, itemId, data, db, s);        
                     return true;
                 }
             }
@@ -22,7 +22,7 @@ itemCheckHelperPost = function(product, node, data, db, s){
         if(data.facility.destination == "Salt Lake City"){
             if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
                 if(product.subprocess.name != "Retractable"){
-                    logItemFailure("DS 13oz banner assigned to SLC.", itemId, data, db, s);        
+                    logItemFailure("Double sided 13oz banner assigned to SLC.", itemId, data, db, s);        
                     return true;
                 }
             }
@@ -32,7 +32,7 @@ itemCheckHelperPost = function(product, node, data, db, s){
         // Remove if DS product for VN.
         if(data.facility.destination == "Van Nuys"){
             if(orderArray[i].doubleSided){
-            logItemFailure("DS product assigned to VN.", itemId, data, db, s);        
+            logItemFailure("Double sided product assigned to VN.", itemId, data, db, s);        
             return true;
             }
         }
@@ -51,19 +51,18 @@ itemCheckHelperPost = function(product, node, data, db, s){
 
         // If the subprocess can't be mixed with other subprocesses, reject it.
         if(data.mixed != product.subprocess.mixed){
-            logItemFailure(`Different subprocess: ${product.subprocess.name}.`, itemId, data, db, s);        
+            logItemFailure(`Different subprocess, ' + product.subprocess.name, itemId, data, db, s);        
             return true;
-            }
+        }
             
-        // If the file exists and you have data to use, go here.
-        // TODO this check may need to be seperate from the function
+        // TODO this check may need to be seperate from the function, due to location in the parser.
         if(file.usable){
             if(product.subprocess.orientationCheck){
                 // Check if page count is 2 for DS and 1 for SS.
                 if(file.pages === 1 && product.doubleSided){
                     if(file.pages > 1 && !product.doubleSided){
                         var sideLabel = orderSpecs.doubleSided ? "Double Sided" : "Single Sided";
-                        logItemFailure(`File page count doesn't match item order specs: ${sideLabel}.`, itemId, data, db, s);        
+                        logItemFailure(`File page count doesn't match item order specs, ` + sideLabel, itemId, data, db, s);        
                         return true;
                     }
                 }

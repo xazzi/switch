@@ -879,20 +879,12 @@ runParser = function(s, job, codebase){
                     continue;
                 }
                 
-                // TODO chelsea, orderspec
+                // TODO chelsea, orderspec; test for if works while in parser with new format using item-history-log function (return function instead of true, test)
                 // If finishing hem type is different, remove them from the gang.
                 if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
                     if(!submit.override.mixedHem){
                         if(data.finishingType != orderSpecs.finishingType){
-                            data.notes.push([orderSpecs.jobItemId,"Removed","Different hem type, " + orderSpecs.finishingType + "."]);
-                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                                ["project-id",data.projectID],
-                                ["item-number",orderSpecs.jobItemId]
-                            ],[
-                                ["status","Removed from Gang"],
-                                ["note","Different hem type: " + orderSpecs.finishingType]
-                            ]))
-                            continue;
+                            return logItemFailure(`Different hem type, mixed hems not approved for gang.`, itemId, data, db, s);
                         }
                     }
                 }
