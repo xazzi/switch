@@ -58,7 +58,7 @@ function parseSpecsRow(table, db, parameter, object, orderSpecs, data) {
                 sln: Number(db.settings.getString(7)),
                 lou: Number(db.settings.getString(8)),
                 arl: Number(db.settings.getString(9)),
-                wix: Number(db.settings.getString(10)),
+                wxm: Number(db.settings.getString(10)),
                 vn: Number(db.settings.getString(11)),
                 sb: Number(db.settings.getString(12)),
                 cle: Number(db.settings.getString(13))
