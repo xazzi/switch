@@ -129,6 +129,20 @@ updateEmailHistory = function(s, db, source, data, messages) {
     run(s, db, source, data, messages)
 }
 
+logItemFailure = function(s, db, reason, itemId, data) {
+    function run(s, db, reason, itemId, data){
+        data.notes.push([itemId, "Removed", reason]);
+        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+            ["project-id", data.projectID],
+            ["item-number", itemId]
+        ], [
+            ["status", "Removed from Gang"],
+            ["note", reason]
+        ]));
+    }
+    run(s, db, reason, itemId, data)
+}
+
 notificationQueue_Gangs = function(s, db, title, subject, message, projectId, jobItemId, type, metadataJson, email, messageData) {
     function run(s, db, title, subject, message, projectId, jobItemId, type, metadataJson, email, messageData){
         db.history.execute(generateSqlStatement_Insert(s, "history.alerts_gangs",[

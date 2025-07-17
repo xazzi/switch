@@ -4,14 +4,14 @@
 
 // Not included: undersizing and breakaway checks, also items not in the hardware_template database table.
 
-itemCheckHelperPost = function(product, node, data, db, s){
+itemCheckHelper_Product = function(product, node, data, db, s){
     var itemId = product.itemNumber.jobItemId || node.getAttributeValue("ID");
 
         //If hardware is enabled and template ID is not assigned for specified subprocess, remove from gang.
         if(orderArray[i].hardware.active){
             if(product.subprocess.name == "Retractable" || "TableTop" || "MiniBannerStand" || "RectangleFlag" || "FeatherFlag"){
                 if(orderArray[i].hardware.template.id == null){
-                    logItemFailure(`Template ID not assigned, ` + product.subprocess.name, itemId, data, db, s);        
+                    logItemFailure(s, db, 'Template ID not assigned, ' + product.subprocess.name, itemId, data);        
                     return true;
                 }
             }
@@ -22,7 +22,7 @@ itemCheckHelperPost = function(product, node, data, db, s){
         if(data.facility.destination == "Salt Lake City"){
             if(orderArray[i].doubleSided && matInfo.prodName == "13ozBanner"){
                 if(product.subprocess.name != "Retractable"){
-                    logItemFailure("Double sided 13oz banner assigned to SLC.", itemId, data, db, s);        
+                    logItemFailure(s, db, "Double sided 13oz banner assigned to SLC.", itemId, data);        
                     return true;
                 }
             }

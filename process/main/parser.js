@@ -37,8 +37,7 @@ runParser = function(s, job, codebase){
             eval(File.read(dir.support + "/set-date-object.js"));
             eval(File.read(dir.support + "/get-timezone.js"));
             eval(File.read(dir.support + "/item-check-helper-orderspecs.js"));
-            eval(File.read(dir.support + "/item-check-helper-product.js"));
-            eval(File.read(dir.support + "/item-history-log.js"));
+            //eval(File.read(dir.support + "/item-check-helper-product.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -509,12 +508,6 @@ runParser = function(s, job, codebase){
                 }
 
                 // TODO chelsea, orderspec
-                // Run item-level checks
-                if (itemCheckHelper(orderSpecs, node, data, db, s, matInfo, misc, submit)) {
-                    continue;
-                }
-
-                // TODO chelsea, orderspec
                 // Remove the file if shipping information doesn't exist.
                 if(!orderSpecs.ship.exists){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
@@ -760,6 +753,12 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // TODO chelsea, orderspec
+                // Run item-level checks
+                if (itemCheckHelper_OrderSpecs(s, db, orderSpecs, node, data)) {
+                    continue;
+                }
+
                 // Check for paper deviation
                 if(data.substrate.base.value != orderSpecs.resolved.substrate.base.value){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material, " + orderSpecs.resolved.substrate.base.value + "."]);
@@ -868,7 +867,7 @@ runParser = function(s, job, codebase){
                 if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
                     if(!submit.override.mixedHem){
                         if(data.finishingType != orderSpecs.finishingType){
-                            return logItemFailure(`Different hem type, mixed hems not approved for gang.`, itemId, data, db, s);
+                            return logItemFailure(s, db, 'Different hem type, mixed hems not approved for gang.', itemId, data);
                         }
                     }
                 }
@@ -1010,6 +1009,7 @@ runParser = function(s, job, codebase){
 
             // 1st safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
+                updateEmailHistory(s, db, "Parser", data, data.notes);
                 handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "fail", null, null);
                 return;
             }
@@ -1325,9 +1325,9 @@ runParser = function(s, job, codebase){
 
                 // TODO chelsea
                 // Run item-level checks
-                if (itemCheckHelperPost(product, node, data, db, s, matInfo, misc, submit)) {
-                    continue;
-                }
+                //if (itemCheckHelper_Product(product, node, data, db, s, matInfo, misc, submit)) {
+                //    continue;
+               // }
 
                 /*       //1st test for item-check-helper-product function
                 // TODO chelsea, product: this has been fleshed out more to include all subprocesses using the hardware_template table.
@@ -2316,6 +2316,7 @@ runParser = function(s, job, codebase){
 
             // 2nd safety check for if all files have been removed from the gang.
             if(productArray.length == 0){
+                updateEmailHistory(s, db, "Parser", data, data.notes);
                 handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "fail", null, null);
                 return
             }
@@ -2338,24 +2339,6 @@ runParser = function(s, job, codebase){
             // Get the timezone info and set the now time per UTC for completion time.
             var times = getTimezoneInfo()
             var now = parseDateParts(times.UTC)
-
-            s.log(2, generateSqlStatement_Update(s, "history.details_gang", [
-                ["project-id", data.projectID]
-            ],[
-                ["process",data.prodName],
-                ["subprocess",data.subprocess],
-                ["facility",data.facility.destination],
-                ["save-location",data.date.due.strings.monthDay],
-                ["rush",data.rush],
-                ["email",userInfo.email],
-                ["parsing_completed_at_utc",now.iso],
-                ["due-date",data.date.due.strings.yearMonthDay],
-                ["dynamic_info",dynamic],
-                ["status","Parse Complete"],
-                ["rip-hotfolder",matInfo.rip.hotfolder],
-                ["prism_value_cover",data.cover.base.prismValue],
-                ["prism_value_substrate",data.substrate.base.prismValue]
-            ]))
 
             // Update the table in the database
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
