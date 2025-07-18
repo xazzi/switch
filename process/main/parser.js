@@ -755,7 +755,7 @@ runParser = function(s, job, codebase){
 
                 // TODO chelsea, orderspec
                 // Run item-level checks
-                if (itemCheckHelper_OrderSpecs(s, db, orderSpecs, node, data)) {
+                if (itemCheckHelper_OrderSpecs(s, db, orderSpecs, node, data, matInfo, misc, submit)) {
                     continue;
                 }
 
@@ -1325,7 +1325,7 @@ runParser = function(s, job, codebase){
 
                 // TODO chelsea
                 // Run item-level checks
-                //if (itemCheckHelper_Product(product, node, data, db, s, matInfo, misc, submit)) {
+                //if (itemCheckHelper_Product(s, db, product, node, data, matInfo, file)) {
                 //    continue;
                // }
 
