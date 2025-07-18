@@ -95,7 +95,7 @@ runPost = function (s, job, codebase) {
             );
 
             s.log(1, "Webhook payload saved to queue.");
-            job.sendToSingle(job.getPath());
+            job.sendToNull(job.getPath());
 
         } catch (e) {
             s.log(3, "Critical Error (Teams Webhook): " + e);
