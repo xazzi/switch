@@ -1853,9 +1853,7 @@ runParser = function(s, job, codebase){
                     bannerSorting: setBannerSorting(s, orderArray[i])
                 }
 
-                // Input: data, matInfo, orderArray, i, product assumed to be available in context
-                // You may need to adapt this if variables come from metadata or other input
-
+                // TO DO - Move this to a more standardized function.
                 // Exclusion lists
                 var excludedDestinations = ["Van Nuys"];
                 var excludedProdNames = ["Magnet"];
