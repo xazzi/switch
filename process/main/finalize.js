@@ -234,16 +234,82 @@ runFinalize = function(s, job, codebase){
                 if(data.processType == "Print"){
                     if(handoffData.type == "roll-label"){
                         savename = handoffData.gangNumber + " Layout " + phoenixPlan.index + " " + handoffData.substrate + " " + phoenixPlan.qty + " Frames" + ".pdf";
+
+                    }else if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index
+                        if(data.watermarked){
+                            savename += '-Barcode'
+                        }
+                        savename += ".pdf"
+
                     }else{
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + handoffData.surface + ".pdf";
                     }
                 }
                 
                 if(data.processType == "Cut"){
-                    if(handoffData.type == "roll-label"){
+                    if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".jdf";
+
+                    }else if(handoffData.type == "roll-label"){
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".pdf";
+
                     }else{
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
+                    }
+                }
+                
+                if(data.processType == "Summary"){				
+                    savename = handoffData.gangNumber + "_Report" + ".pdf";
+                }
+                
+                job.sendToSingle(job.getPath(), savename.toString());
+            }
+
+            // Saddle Brook ------------------------------------------------------------------------------------------------
+            if(handoffData.facility == "Saddle Brook"){
+                if(data.processType == "Print"){
+                    if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index
+                        if(data.watermarked){
+                            savename += '-Barcode'
+                        }
+                        savename += ".pdf"
+
+                    }
+                }
+                
+                if(data.processType == "Cut"){
+                    if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".jdf";
+
+                    }
+                }
+                
+                if(data.processType == "Summary"){				
+                    savename = handoffData.gangNumber + "_Report" + ".pdf";
+                }
+                
+                job.sendToSingle(job.getPath(), savename.toString());
+            }
+
+            // Saddle Brook ------------------------------------------------------------------------------------------------
+            if(handoffData.facility == "Cleveland"){
+                if(data.processType == "Print"){
+                    if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index
+                        if(data.watermarked){
+                            savename += '-Barcode'
+                        }
+                        savename += ".pdf"
+
+                    }
+                }
+                
+                if(data.processType == "Cut"){
+                    if(handoffData.type == "digital"){
+                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".jdf";
+
                     }
                 }
                 
