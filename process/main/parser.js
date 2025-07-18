@@ -1001,7 +1001,8 @@ runParser = function(s, job, codebase){
 
             // 1st safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
-                handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "fail", null, null);
+                updateEmailHistory(s, db, "Parser", data, data.notes);
+                handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "empty", null, null);
                 return;
             }
 
@@ -2304,13 +2305,14 @@ runParser = function(s, job, codebase){
             // Close the CSV you were writing
             csvFile.close();
 
+            // Update the parsed_data history.
+            updateEmailHistory(s, db, "Parser", data, data.notes);
+
             // 2nd safety check for if all files have been removed from the gang.
             if(productArray.length == 0){
-                handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "fail", null, null);
+                handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "empty", null, null);
                 return
             }
-
-            updateEmailHistory(s, db, "Parser", data, data.notes);
         
             createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now, null, null);
             newCSV.setHierarchyPath([data.environment,data.projectID]);
@@ -2328,24 +2330,6 @@ runParser = function(s, job, codebase){
             // Get the timezone info and set the now time per UTC for completion time.
             var times = getTimezoneInfo()
             var now = parseDateParts(times.UTC)
-
-            s.log(2, generateSqlStatement_Update(s, "history.details_gang", [
-                ["project-id", data.projectID]
-            ],[
-                ["process",data.prodName],
-                ["subprocess",data.subprocess],
-                ["facility",data.facility.destination],
-                ["save-location",data.date.due.strings.monthDay],
-                ["rush",data.rush],
-                ["email",userInfo.email],
-                ["parsing_completed_at_utc",now.iso],
-                ["due-date",data.date.due.strings.yearMonthDay],
-                ["dynamic_info",dynamic],
-                ["status","Parse Complete"],
-                ["rip-hotfolder",matInfo.rip.hotfolder],
-                ["prism_value_cover",data.cover.base.prismValue],
-                ["prism_value_substrate",data.substrate.base.prismValue]
-            ]))
 
             // Update the table in the database
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
