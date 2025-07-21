@@ -1154,6 +1154,7 @@ runParser = function(s, job, codebase){
                     nUpGap: ""
                 }
 
+                // TODO - Check that this is flagging correctly, seem to be getting a lot of lates now.
                 // Set the product to late if the date unixMs is smaller than the now.unixMs
                 product.late = now.strings.yearMonthDay >= product.date.due.strings.yearMonthDay;
                 
