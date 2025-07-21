@@ -10,6 +10,7 @@ runPost = function (s, job, codebase) {
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
             eval(File.read(dir.support + "/sql-statements.js"));
+            eval(File.read(dir.support + "/webhook-post.js"));
 
             // --- DATASET LOADING ---
             var handoffDataDS = loadDatasetNoFail_db("Handoff Data");
@@ -38,6 +39,14 @@ runPost = function (s, job, codebase) {
                 return;
             }
             db.settings.fetchRow();
+
+            postWebhook(s, job, db.settings, channel, s.getPropertyValue("message"), [
+                ["Gang", safeEval(handoffDataDS, "//base/gangNumber")],
+                ["Process", safeEval(handoffDataDS, "//base/process")],
+                ["Subprocess", safeEval(handoffDataDS, "//base/subprocess")]
+            ]);
+
+            /*
 
             // --- CONSTRUCT WEBHOOK PAYLOAD ---
             var messageCard = {
@@ -95,6 +104,8 @@ runPost = function (s, job, codebase) {
             );
 
             s.log(1, "Webhook payload saved to queue.");
+            */
+
             job.sendToNull(job.getPath());
 
         } catch (e) {
