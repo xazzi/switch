@@ -1291,7 +1291,7 @@ runParser = function(s, job, codebase){
                         product.pageHandling = "OnePerTwoPages";
                         product.stock = "Proc_Prostream_Flyers";
                         matInfo.phoenixMethod = "Prostream_Flyers";
-                        product.spacing.type = "Margins";
+                        matInfo.spacing.type = "Margins";
                         product.bleed.base = .125;
                         product.bleed.top = .125;
                         product.bleed.bottom = .125;
@@ -1360,7 +1360,7 @@ runParser = function(s, job, codebase){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
                             if(orderArray[i].width >= 241 || orderArray[i].height >= 241){
-                                data.notes.push([product.itemNumber,"Removed","Welded banner over 168\" assigned to ARL."]);
+                                data.notes.push([product.itemNumber,"Removed","Welded banner over 240\" assigned to ARL."]);
                                 db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                                     ["project-id",data.projectID],
                                     ["item-number",product.itemNumber]
