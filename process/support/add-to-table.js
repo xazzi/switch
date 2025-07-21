@@ -19,7 +19,7 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
     var insertQuery = buildInsertQuery(table, parameter, tableFormat, example, object, orderSpecs);
     db.settings.execute(insertQuery);
 
-    sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
+    //sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
 
     return null;
 }

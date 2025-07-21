@@ -56,7 +56,7 @@ runParser = function(s, job, codebase){
             if(!module.devSettings.ignoreSubmit){
                 submitDS = loadDataset_db("Submit");
                 if(submitDS == "Dataset Missing"){
-                    job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+                    job.sendTo(findConnectionByName_db(s, "Webhook"), job.getPath());
                     return
                 }
             }
@@ -84,7 +84,7 @@ runParser = function(s, job, codebase){
                     rush: false,
                     priority: 0,
                     date: false,
-                    accountType: null,
+                    accountTypeCode: "Default", //Needs to be set to default initially.
                     redownload:{
                         bool: false,
                         location: null
@@ -131,7 +131,7 @@ runParser = function(s, job, codebase){
                         break;
 
                     case "Force Account Type":
-                        submit.override.accountType = value;
+                        submit.override.accountTypeCode = value;
                         break;
 
                     case "Mix due dates?":
@@ -387,11 +387,13 @@ runParser = function(s, job, codebase){
                 var name = node.getAttributeValue("Name");
 
                 if(id == "Ref_20"){
-                    mxmlMap.substrate.base = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    var result = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    if (result) assignTo(mxmlMap.substrate.base, result);
                 }
 
                 if(id == "Ref_22"){
-                    mxmlMap.cover.base = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    var result = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    if (result) assignTo(mxmlMap.cover.base, result);
                 }
 
                 if(mxmlMap.substrate.base.enabled && mxmlMap.cover.base.enabled){break}
@@ -446,6 +448,11 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                // Overrite the account type for manual dev testing.
+                if(submit.override.accountTypeCode != "Default"){
+                    orderSpecs.accountTypeCode = submit.override.accountTypeCode
+                }
+
                 // Set facility information
                 if(data.facility.original == null){
                     data.facility.original = orderSpecs.facility;
@@ -495,11 +502,6 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
-                // Overrite the account type for manual dev testing.
-                if(submit.override.accountType != "Default"){
-                    //orderSpecs.accountTypeCode = submit.override.accountType
-                }
-
                 // Query the mapping table for the substrate
                 orderSpecs.mapping.substrate = addToTable(s, db, "specs_paper", orderSpecs.resolved.substrate.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");
 
@@ -516,19 +518,6 @@ runParser = function(s, job, codebase){
                 if(orderSpecs.resolved.cover.base.enabled && orderSpecs.mapping.cover.mapId == null){
                     handleRejection_Gang(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.cover, null);
                     return;
-                }
-
-                // Remove the file if shipping information doesn't exist.
-                if(!orderSpecs.ship.exists){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
-                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                        ["project-id",data.projectID],
-                        ["item-number",orderSpecs.jobItemId]
-                    ],[
-                        ["status","Removed from Gang"],
-                        ["note","Shipping data is missing"]
-                    ]))
-                    continue;
                 }
 
                 /*
@@ -1154,6 +1143,7 @@ runParser = function(s, job, codebase){
                     nUpGap: ""
                 }
 
+                // TODO - Check that this is flagging correctly, seem to be getting a lot of lates now.
                 // Set the product to late if the date unixMs is smaller than the now.unixMs
                 product.late = now.strings.yearMonthDay >= product.date.due.strings.yearMonthDay;
                 
@@ -1853,9 +1843,7 @@ runParser = function(s, job, codebase){
                     bannerSorting: setBannerSorting(s, orderArray[i])
                 }
 
-                // Input: data, matInfo, orderArray, i, product assumed to be available in context
-                // You may need to adapt this if variables come from metadata or other input
-
+                // TO DO - Move this to a more standardized function.
                 // Exclusion lists
                 var excludedDestinations = ["Van Nuys"];
                 var excludedProdNames = ["Magnet"];
@@ -2352,11 +2340,11 @@ runParser = function(s, job, codebase){
             
         }catch(e){
             if(!retried){
-                s.log(3, "Parser error on first attempt: " + e + ". Retrying...")
-                parser(s, job, codebase, true)
+                //s.log(3, "Parser error on first attempt: " + e + ". Retrying...")
+                //parser(s, job, codebase, true)
             }
             job.setPrivateData("error", "Critical " + e);
-            job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+            job.sendTo(findConnectionByName_db(s, "Webhook"), job.getPath());
             handleRejection_Gang(s, db, job, data, "Critical Error", "Critical error", "error", null, e);
         }
     }
