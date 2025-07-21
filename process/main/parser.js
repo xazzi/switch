@@ -84,7 +84,7 @@ runParser = function(s, job, codebase){
                     rush: false,
                     priority: 0,
                     date: false,
-                    accountType: null,
+                    accountTypeCode: "Default", //Needs to be set to default initially.
                     redownload:{
                         bool: false,
                         location: null
@@ -131,7 +131,7 @@ runParser = function(s, job, codebase){
                         break;
 
                     case "Force Account Type":
-                        submit.override.accountType = value;
+                        submit.override.accountTypeCode = value;
                         break;
 
                     case "Mix due dates?":
@@ -446,6 +446,11 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
+                // Overrite the account type for manual dev testing.
+                if(submit.override.accountTypeCode != "Default"){
+                    orderSpecs.accountTypeCode = submit.override.accountTypeCode
+                }
+
                 // Set facility information
                 if(data.facility.original == null){
                     data.facility.original = orderSpecs.facility;
@@ -493,11 +498,6 @@ runParser = function(s, job, codebase){
                         ["note","Order specs not resolved."]
                     ]))
                     continue;
-                }
-
-                // Overrite the account type for manual dev testing.
-                if(submit.override.accountType != "Default"){
-                    //orderSpecs.accountTypeCode = submit.override.accountType
                 }
 
                 // Query the mapping table for the substrate
