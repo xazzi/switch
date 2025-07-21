@@ -169,3 +169,29 @@ addNode_db = function(theXML, parent, name, value){
 	var theNodeValue = theXML.createText(value);
 		theNodeName.appendChild(theNodeValue);
 }
+
+assignTo = function(target, source) {
+	function run(target, source){
+		if (!target || !source) return;
+
+		for (var key in source) {
+        	if (typeof key === "string" && key.charAt(0) === '_') continue; // skip private-like keys
+
+			var sourceVal = source[key];
+			var targetVal = target[key];
+
+			// If both values are plain objects, merge recursively
+			if (isPlainObject(sourceVal) && isPlainObject(targetVal)) {
+				assignTo(targetVal, sourceVal);
+			} else if (sourceVal !== null && sourceVal !== undefined) {
+				// Otherwise assign the value directly if not null/undefined
+				target[key] = sourceVal;
+			}
+		}
+	}
+	run(target, source)
+}
+
+isPlainObject = function(obj) {
+    return obj && typeof obj === 'object'
+}

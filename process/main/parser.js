@@ -56,7 +56,7 @@ runParser = function(s, job, codebase){
             if(!module.devSettings.ignoreSubmit){
                 submitDS = loadDataset_db("Submit");
                 if(submitDS == "Dataset Missing"){
-                    job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+                    job.sendTo(findConnectionByName_db(s, "Webhook"), job.getPath());
                     return
                 }
             }
@@ -387,11 +387,13 @@ runParser = function(s, job, codebase){
                 var name = node.getAttributeValue("Name");
 
                 if(id == "Ref_20"){
-                    mxmlMap.substrate.base = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    var result = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    if (result) assignTo(mxmlMap.substrate.base, result);
                 }
 
                 if(id == "Ref_22"){
-                    mxmlMap.cover.base = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    var result = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    if (result) assignTo(mxmlMap.cover.base, result);
                 }
 
                 if(mxmlMap.substrate.base.enabled && mxmlMap.cover.base.enabled){break}
@@ -516,19 +518,6 @@ runParser = function(s, job, codebase){
                 if(orderSpecs.resolved.cover.base.enabled && orderSpecs.mapping.cover.mapId == null){
                     handleRejection_Gang(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.cover, null);
                     return;
-                }
-
-                // Remove the file if shipping information doesn't exist.
-                if(!orderSpecs.ship.exists){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
-                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                        ["project-id",data.projectID],
-                        ["item-number",orderSpecs.jobItemId]
-                    ],[
-                        ["status","Removed from Gang"],
-                        ["note","Shipping data is missing"]
-                    ]))
-                    continue;
                 }
 
                 /*
@@ -2350,11 +2339,11 @@ runParser = function(s, job, codebase){
             
         }catch(e){
             if(!retried){
-                s.log(3, "Parser error on first attempt: " + e + ". Retrying...")
-                parser(s, job, codebase, true)
+                //s.log(3, "Parser error on first attempt: " + e + ". Retrying...")
+                //parser(s, job, codebase, true)
             }
             job.setPrivateData("error", "Critical " + e);
-            job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+            job.sendTo(findConnectionByName_db(s, "Webhook"), job.getPath());
             handleRejection_Gang(s, db, job, data, "Critical Error", "Critical error", "error", null, e);
         }
     }
