@@ -1,4 +1,4 @@
-processor = function(s, job, codebase){
+prismPost = function(s, job, codebase){
     function run(s, job, codebase){
         try{
             var dir = {
@@ -12,6 +12,11 @@ processor = function(s, job, codebase){
 			eval(File.read(dir.support + "/connect-to-db.js"));
 			eval(File.read(dir.support + "/load-module-settings.js"));
 			eval(File.read(dir.support + "/sql-statements.js"));
+
+            // Specific support modules
+            eval(File.read(dir.support + "/prism-post/writeXml.js"));
+            eval(File.read(dir.support + "/prism-post/postUtils.js"));
+            eval(File.read(dir.support + "/prism-post/fileUtils.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -48,11 +53,6 @@ processor = function(s, job, codebase){
                 if(validation.nodes.getItem(i).evalToString('tag') == "Post to Prism?"){
                     validation.post.prism = validation.nodes.getItem(i).evalToString('value') == "No" ? 'n' : 'y';
                 }
-
-				// Check if we should notify the teams webhook of an issue.
-                if(validation.nodes.getItem(i).evalToString('tag') == "Send Notification?"){
-                    validation.issue = validation.nodes.getItem(i).evalToString('value') == "Yes";
-                }
             }
             
 			var handoffDataDS = loadDataset_db("Handoff Data");
@@ -77,7 +77,7 @@ processor = function(s, job, codebase){
                                 
             var userInfo = {
                 first: handoffDataDS.evalToString("//user/first"),
-                last:	handoffDataDS.evalToString("//user/last"),
+                last: handoffDataDS.evalToString("//user/last"),
                 email: handoffDataDS.evalToString("//user/email"),
                 dir: handoffDataDS.evalToString("//user/folder")
             }
@@ -86,8 +86,6 @@ processor = function(s, job, codebase){
 				validation.post.prism = 'n';
 			}
             
-            var phoenixOutput = new Dir("C:/Switch/Depository/phoenixOutput/" + module.localEnvironment + "/" + handoffData.projectID);
-            
             var newXML = s.createNewJob();
             var xmlPath = newXML.createPathWithName(handoffData.gangNumber + ".xml", false);
             var xmlFile = new File(xmlPath);
@@ -95,50 +93,45 @@ processor = function(s, job, codebase){
             
 			var response, status
 
-            // Move the files inside the projectID directory.
-            var files = phoenixOutput.entryList("*" + handoffData.gangNumber + "*", Dir.Files, Dir.Name);
-            for(var i=0; i<files.length; i++){
-				if(handoffData.status == "approved"){
-					status = "Approved"
-					if(validation.post.prism == 'y'){
-						if(files[i].split("_")[2] == handoffData.gangNumber + ".xml"){
-							response = sendToPrismApi(s, phoenixOutput, files[i], handoffDataDS, xmlFile, handoffData, module.prismEndpoint, validation);
-							if(response == "Success"){
-								// Email the success of the prism post.
-								s.log(2, handoffData.gangNumber + " posted to PRISM successfully!");
-								newXML.setPrivateData("Status","Pass");
-							}else{
-								// Email the failure of the prism post.
-								s.log(2, handoffData.gangNumber + " failed to post to PRISM.");
-								sendEmail_db(s, handoffData, null, getEmailResponse("Prism Post Fail", null, null, handoffData, userInfo), userInfo);
-								newXML.setPrivateData("Status","Fail");
-								newXML.setHierarchyPath([userInfo.dir])
-								newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
-							}
-						}
-					}
+            if(handoffData.status == "approved"){
+                status = "Approved"
+                if(validation.post.prism == 'y'){
+                    // Build the XML file
+                    buildXml(s, xmlFile, phoenixPlanDS, handoffDataDS, handoffData, validation);
 
-					// Create or get the destination path.
-					var phoenixApproved = getFileType(files[i], module.localEnvironment)
+                    s.log(2, "Build XML Done");
 
-					// Move the file to the toPostProcessing directory.
-					s.move(phoenixOutput.path + "/" + files[i], phoenixApproved.path + "/" + files[i], true);
+                    // Create JSON wrapper
+                    var jsonPath = createJsonPayload(s, xmlString, data.projectID);
 
-				}else{
-					status = "Rejected"
-					// Create or get the destination path.
-					var phoenixRejected = new Dir("C:/Switch/Depository/phoenixRejected/" + module.localEnvironment)
+                    s.log(2, "Create JSON Done");
 
-					// Move the file to the rejected directory
-					s.move(phoenixOutput.path + "/" + files[i], phoenixRejected.path + "/" + files[i], true);
-				}
+                    // Post to API
+                    var response = postToPrismApi(s, config, jsonPath);
+
+                    s.log(2, "Post to Prism Done");
+
+                    if(response == "Success"){
+                        // Email the success of the prism post.
+                        s.log(2, handoffData.gangNumber + " posted to PRISM successfully!");
+                        newXML.setPrivateData("Status","Pass"); // Clean this up.
+
+                    }else{
+                        // Email the failure of the prism post.
+                        s.log(2, handoffData.gangNumber + " failed to post to PRISM.");
+                        // TODO - Add this to the new email system.
+                        //sendEmail_db(s, handoffData, null, getEmailResponse("Prism Post Fail", null, null, handoffData, userInfo), userInfo);
+                        newXML.setPrivateData("Status","Fail"); // Clean this up.
+                        newXML.setHierarchyPath([userInfo.dir])
+                        newXML.sendTo(findConnectionByName_db(s, "Xml"), xmlPath);
+                    }
+                }
+
+            }else{
+                status = "Rejected"
             }
 
-			if(validation.issue){
-				sendEmail_db(s, handoffData, null, getEmailResponse("Phoenix Product Notification", null, null, handoffData, userInfo), userInfo);
-			}
-
-			// Update the database to reflect the status
+			// Update the history details gang with the status and prism response.
 			db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
 				["project-id",handoffData.projectID]
 			],[
@@ -147,6 +140,7 @@ processor = function(s, job, codebase){
 				["post-to-prism",validation.post.prism]
 			]))
 
+            // Update the history details layout with the status.
 			db.history.execute(generateSqlStatement_Update(s, "history.details_layout", [
                 ["project-id", handoffData.projectID]
             ],[
@@ -160,78 +154,40 @@ processor = function(s, job, codebase){
                 s.log(2, handoffData.gangNumber + " rejected by " + userInfo.first + " " + userInfo.last + ".")
             }
             
-            // Remove the projectID directory if it's empty.
-            var files = phoenixOutput.entryList("*", Dir.Files, Dir.Name);
-            if(files.length == 0){
-                try{
-                    phoenixOutput.rmdir();
-                }catch(e){}
-            }
-            
-            job.sendToNull(job.getPath());
+            job.sendToSingle(job.getPath());
             
         }catch(e){
+
             s.log(2, "Critical Error: Processor -- " + e)
-            job.sendToNull(job.getPath())
+            job.sendToSingle(job.getPath())
         }
     }
     run(s, job, codebase)
 }
 
-function getFileType(name, environment){
-
-	if(name.match(/die/) == "die" || name.match(/jdf/) == "jdf"){
-		return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/Cut")
-	}
-
-	if(name.match(/report/) == "report"){
-		return getDirectory("C:/Switch/Depository/fileDistribution/" + environment + "/Report")
-	}
-
-	if(name.match(/xml/) == "xml"){
-		return getDirectory("C:/Switch/Depository/fileDistribution/" + environment + "/Data")
-	}
-
-	if(name.match(/phx/) == "phx"){
-		return getDirectory("C:/Switch/Depository/fileDistribution/" + environment + "/Phoenix")
-	}
-
-	if(name.match(/csv/) == "csv"){
-		return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/CSV")
-	}
-
-	return getDirectory("C:/Switch/Depository/postProcessing/" + environment + "/Print")
-}
-
-function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, handoffData, endPoint, validation){
+function sendToPrismApi(s, phoenixDir, phoenixPlanDS, handoffDataDS, xmlFile, handoffData, endPoint, validation){
 	
 	var bearerToken = getNewToken(s, endPoint);
-	var doc = new Document(phoenixDir.absPath + "/" + phoenixXml);	
-	var map = doc.createDefaultMap();
-	var layoutNodes = doc.evalToNodes('//job/layouts/layout', map);
-	var productNodes = doc.evalToNodes('//job/products/product', map);
+	var layoutNodes = phoenixPlanDS.evalToNodes('//job/layouts/layout', map);
+	var productNodes = phoenixPlanDS.evalToNodes('//job/products/product', map);
 	var handoffDataNodes = handoffDataDS.evalToNodes("//products/product");
 
 	var name = handoffDataDS.evalToString("//base/prismStock").replace(/\"/g,"&quot;");
-
-	if(handoffData.facility == "Solon"){
-		//name += "_" + handoffDataDS.evalToString("//settings/printer") + "_" + handoffDataDS.evalToString("//misc/cutMethod")
-	}
 	
 		xmlFile.open(File.Append);
 		xmlFile.writeLine("<?xml version='1.0' encoding='UTF-8'?>");
 		xmlString += ("<?xml version='1.0' encoding='UTF-8'?>");
 		
 		writeXmlNode(xmlFile, "job");
-			writeXmlString(xmlFile, "id", doc.evalToString('//job/id', map));
+			writeXmlString(xmlFile, "id", phoenixPlanDS.evalToString('//job/id', map));
 			writeXmlString(xmlFile, "name", "House Stock");
 			writeXmlString(xmlFile, "notes", handoffDataDS.evalToString("//base/projectNotes"));
 			writeXmlString(xmlFile, "default-bleed", "0.25");
-			writeXmlString(xmlFile, "units", doc.evalToString('//job/units', map));
-			writeXmlString(xmlFile, "run-length", doc.evalToString('//job/run-length', map));
-			writeXmlString(xmlFile, "sheet-usage", doc.evalToString('//job/sheet-usage', map));
-			writeXmlString(xmlFile, "overrun", doc.evalToString('//job/overrun', map));
-			writeXmlString(xmlFile, "layout-count", doc.evalToString('//job/layout-count', map));
+			writeXmlString(xmlFile, "units", phoenixPlanDS.evalToString('//job/units', map));
+			writeXmlString(xmlFile, "run-length", phoenixPlanDS.evalToString('//job/run-length', map));
+			writeXmlString(xmlFile, "sheet-usage", phoenixPlanDS.evalToString('//job/sheet-usage', map));
+			writeXmlString(xmlFile, "overrun", phoenixPlanDS.evalToString('//job/overrun', map));
+			writeXmlString(xmlFile, "layout-count", phoenixPlanDS.evalToString('//job/layout-count', map));
 			
 			writeXmlNode(xmlFile, "layouts");
 			for(var i=0; i<layoutNodes.length; i++){
@@ -326,13 +282,13 @@ function sendToPrismApi(s, phoenixDir, phoenixXml, handoffDataDS, xmlFile, hando
 		
 		// Create the json file for uploading to the endpoints.
 		var newJSON = s.createNewJob();
-		var jsonPath = newJSON.createPathWithName(doc.evalToString('//job/id', map) + ".json", false);
+		var jsonPath = newJSON.createPathWithName(phoenixPlanDS.evalToString('//job/id', map) + ".json", false);
 		var jsonFile = new File(jsonPath);
-		//var jsonFile = new File("C://Switch//Development//" + doc.evalToString('//job/id', map) + ".json");
+		//var jsonFile = new File("C://Switch//Development//" + phoenixPlanDS.evalToString('//job/id', map) + ".json");
 			jsonFile.open(File.Append);
 			jsonFile.writeLine('{');
 			
-			jsonFile.writeLine('"xml_id": ' + doc.evalToString('//job/id', map) + ',');
+			jsonFile.writeLine('"xml_id": ' + phoenixPlanDS.evalToString('//job/id', map) + ',');
 			jsonFile.writeLine('"xml": "' + xmlString + '"');
 		
 			jsonFile.write('}');
