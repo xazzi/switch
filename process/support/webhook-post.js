@@ -7,9 +7,7 @@ postWebhook = function(s, job, db, channel, message, additionalFields) {
         };
 
         var fields = [
-            ["Element", s.getPropertyValue("element")],
             ["Server", s.getServerName()],
-            ["Flow", s.getPropertyValue("flow")],
             ["File", job.getName()],
             ["User", job.getUserFullName()]
         ];
@@ -23,6 +21,7 @@ postWebhook = function(s, job, db, channel, message, additionalFields) {
             facts: []
         };
 
+        // Iterate through the fields and add them to the facts.
         for (var i = 0; i < fields.length; i++) {
             structure.facts.push({
                 name: fields[i][0],
@@ -40,21 +39,11 @@ postWebhook = function(s, job, db, channel, message, additionalFields) {
         messageCard.themeColor = colorMap["error"];
         messageCard.sections.push(structure);
 
-        var newJob = s.createNewJob();
-        var jsonPath = newJob.createPathWithName("Submit.json", false);
-        var jsonFile = new File(jsonPath);
-
-        jsonFile.open(File.Append);
-        jsonFile.writeLine(JSON.stringify(messageCard));
-        jsonFile.close();
-
-        db.execute(
+        db.history.execute(
             "INSERT INTO history.webhook_teams_queue (channel, payload) VALUES (" +
             sqlValue(s, channel) + ", " +
             sqlValue(s, messageCard) + ");"
         );
-
-        s.log(1, "Webhook payload saved to queue.");
     }
     
     run(s, job, db, channel, message, additionalFields)

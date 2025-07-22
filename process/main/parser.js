@@ -36,6 +36,7 @@ runParser = function(s, job, codebase){
             eval(File.read(dir.support + "/dart-template-check.js"));
             eval(File.read(dir.support + "/set-date-object.js"));
             eval(File.read(dir.support + "/get-timezone.js"));
+            eval(File.read(dir.support + "/webhook-post.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -56,7 +57,10 @@ runParser = function(s, job, codebase){
             if(!module.devSettings.ignoreSubmit){
                 submitDS = loadDataset_db("Submit");
                 if(submitDS == "Dataset Missing"){
-                    job.sendTo(findConnectionByName_db(s, "Webhook"), job.getPath());
+                    postWebhook(s, job, db, "Critical Error", "Dataset Missing.", [
+                        ["Error", "Dataset Missing."]
+                    ]);
+                    job.sendToNull(job.getPath())
                     return
                 }
             }
@@ -387,12 +391,12 @@ runParser = function(s, job, codebase){
                 var name = node.getAttributeValue("Name");
 
                 if(id == "Ref_20"){
-                    var result = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    var result = addToTable(s, job, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
                     if (result) assignTo(mxmlMap.substrate.base, result);
                 }
 
                 if(id == "Ref_22"){
-                    var result = addToTable(s, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    var result = addToTable(s, job, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
                     if (result) assignTo(mxmlMap.cover.base, result);
                 }
 
@@ -420,7 +424,7 @@ runParser = function(s, job, codebase){
                 ]));
 
                 // Pull the item information from the API.
-                var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
+                var orderSpecs = pullApiInformation(s, job, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
 
                 // API pull failed.
                 if(!orderSpecs.complete){
@@ -503,7 +507,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // Query the mapping table for the substrate
-                orderSpecs.mapping.substrate = addToTable(s, db, "specs_paper", orderSpecs.resolved.substrate.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");
+                orderSpecs.mapping.substrate = addToTable(s, job, db, "specs_paper", orderSpecs.resolved.substrate.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");
 
                 // Substrate mapping incomplete
                 if (orderSpecs.resolved.substrate.base.enabled && orderSpecs.mapping.substrate.mapId == null) {
@@ -512,7 +516,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // Query the mapping table
-                orderSpecs.mapping.cover = addToTable(s, db, "specs_paper", orderSpecs.resolved.cover.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");  
+                orderSpecs.mapping.cover = addToTable(s, job, db, "specs_paper", orderSpecs.resolved.cover.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");  
 
                 // Cover mapping incomplete
                 if(orderSpecs.resolved.cover.base.enabled && orderSpecs.mapping.cover.mapId == null){
@@ -2338,14 +2342,31 @@ runParser = function(s, job, codebase){
                 ["prism_value_substrate",data.substrate.base.prismValue]
             ]))
             
-        }catch(e){
-            if(!retried){
-                //s.log(3, "Parser error on first attempt: " + e + ". Retrying...")
-                //parser(s, job, codebase, true)
+        } catch (e) {
+            if (!retried) {
+                try {
+                    s.log(3, "Parser error on first attempt: " + e + ". Retrying...");
+                    parser(s, job, codebase, true);
+                    return; // Let the retry handle it
+                } catch (retryErr) {
+                    s.log(3, "Retry failed: " + retryErr);
+                }
             }
-            job.setPrivateData("error", "Critical " + e);
-            job.sendTo(findConnectionByName_db(s, "Webhook"), job.getPath());
-            handleRejection_Gang(s, db, job, data, "Critical Error", "Critical error", "error", null, e);
+
+            try {
+                postWebhook(s, job, db, "Critical Error", "This file has failed in Parser.", [
+                    ["Error", String(e)]
+                ]);
+            } catch (webhookErr) {
+                s.log(3, "Webhook post failed: " + webhookErr);
+            }
+
+            try {
+                handleRejection_Gang(s, db, job, data, "Critical Error", "Critical error", "error", null, e);
+            } catch (rejectErr) {
+                s.log(3, "handleRejection_Gang failed: " + rejectErr);
+                job.fail("Critical failure during rejection handling: " + rejectErr);
+            }
         }
     }
     parser(s, job, codebase, false)

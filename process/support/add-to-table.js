@@ -1,4 +1,4 @@
-addToTable = function(s, db, table, parameter, example, data, userInfo, object, orderSpecs, tableFormat) {
+addToTable = function(s, job, db, table, parameter, example, data, userInfo, object, orderSpecs, tableFormat) {
     var original = parameter;
     parameter = sanitizeParameter(parameter);
     updateLegacyParameter(s, db, table, original, parameter);
@@ -19,7 +19,10 @@ addToTable = function(s, db, table, parameter, example, data, userInfo, object, 
     var insertQuery = buildInsertQuery(table, parameter, tableFormat, example, object, orderSpecs);
     db.settings.execute(insertQuery);
 
-    //sendEmail_db(s, data, null, getEmailResponse("New Entry", null, table, data, userInfo, parameter), userInfo);
+    postWebhook(s, job, db, "New Table Entry", "A new parameter has been added to the database.", [
+        ["Table", table],
+        ["Value", parameter]
+    ]);
 
     return null;
 }
