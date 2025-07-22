@@ -10,14 +10,10 @@ runPost = function (s, job, codebase) {
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
             eval(File.read(dir.support + "/sql-statements.js"));
+            eval(File.read(dir.support + "/webhook-post.js"));
 
             // --- DATASET LOADING ---
             var handoffDataDS = loadDatasetNoFail_db("Handoff Data");
-
-            // --- CREATE FILE PATH TO LOG JSON LOCALLY ---
-            var newJob = s.createNewJob();
-            var jsonPath = newJob.createPathWithName("Submit.json", false);
-            var jsonFile = new File(jsonPath);
 
             // --- MODULE SETTINGS ---
             var module = loadModuleSettings(s);
@@ -32,6 +28,7 @@ runPost = function (s, job, codebase) {
 
             var channel = s.getPropertyValue("channel");
 
+            // Pull the channel URL from the table.
             db.settings.execute("SELECT * FROM settings.webhooks_teams WHERE channel = " + sqlValue(s, channel) + ";");
             if (!db.settings.isRowAvailable()){
                 s.log(3, "Teams channel not found in database: " + channel);
@@ -39,62 +36,15 @@ runPost = function (s, job, codebase) {
             }
             db.settings.fetchRow();
 
-            // --- CONSTRUCT WEBHOOK PAYLOAD ---
-            var messageCard = {
-                type: "MessageCard",
-                summary: s.getServerName(),
-                sections: []
-            };
-
-            var fields = [
-                ["Element", s.getPropertyValue("element")],
-                ["Server", s.getServerName()],
-                ["Flow", s.getPropertyValue("flow")],
-                ["File", job.getName()],
-                ["User", job.getUserFullName()],
+            // Call the function that writes to the tables.
+            postWebhook(s, job, db, channel, s.getPropertyValue("message"), [
+                ["Element", s.getPropertyValue("element")], // Element is a part of the main webhook module.
+                ["Flow", s.getPropertyValue("flow")], // Flow is a part of the main webhook module.
                 ["Gang", safeEval(handoffDataDS, "//base/gangNumber")],
                 ["Process", safeEval(handoffDataDS, "//base/process")],
                 ["Subprocess", safeEval(handoffDataDS, "//base/subprocess")]
-            ];
+            ]);
 
-            var structure = {
-                activityTitle: s.getPropertyValue("message"),
-                facts: []
-            };
-
-            for (var i = 0; i < fields.length; i++) {
-                structure.facts.push({
-                    name: fields[i][0],
-                    value: fields[i][1] || "Unknown"
-                });
-            }
-
-            //var type = s.getPropertyValue("alertType") || "info";
-
-            // TODO - Do something with this.
-            var colorMap = {
-                info: "0078D7",    // blue
-                success: "28A745", // green
-                warning: "FFC107", // amber
-                error: "DC3545"    // red
-            };
-
-            messageCard.themeColor = colorMap["error"] || colorMap["info"];
-            messageCard.sections.push(structure);
-
-            // --- LOG JSON LOCALLY ---
-            jsonFile.open(File.Append);
-            jsonFile.writeLine(JSON.stringify(messageCard));
-            jsonFile.close();
-
-            // --- SAVE TO DB QUEUE ---
-            db.settings.execute(
-                "INSERT INTO history.webhook_teams_queue (channel, payload) VALUES (" +
-                sqlValue(s, channel) + ", " +
-                sqlValue(s, messageCard) + ");"
-            );
-
-            s.log(1, "Webhook payload saved to queue.");
             job.sendToNull(job.getPath());
 
         } catch (e) {
