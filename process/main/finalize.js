@@ -29,20 +29,56 @@ runFinalize = function(s, job, codebase){
                 labelmaster: handoffDataDS.evalToString("//misc/labelmaster") == "true" ? true : false,
                 mixedLam: handoffDataDS.evalToString("//misc/mixedLam") == "true" ? true : false,
                 laminate: {
-                    active: handoffDataDS.evalToString("//laminate/active") == "true",
-                    method: handoffDataDS.evalToString("//laminate/method"),
-                    value: handoffDataDS.evalToString("//laminate/value")
+                    front:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//laminate/front/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/front/cover/label"),
+                            value: handoffDataDS.evalToString("//laminate/front/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//laminate/front/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/front/substrate/label"),
+                            value: handoffDataDS.evalToString("//laminate/front/substrate/value")
+                        }
+                    },
+                    back:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//laminate/back/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/back/cover/label"),
+                            value: handoffDataDS.evalToString("//laminate/back/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//laminate/back/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/back/substrate/label"),
+                            value: handoffDataDS.evalToString("//laminate/back/substrate/value")
+                        }
+                    }
                 },
                 coating: {
-                    enabled: handoffDataDS.evalToString("//coating/active") == "true",
-                    label: handoffDataDS.evalToString("//frontCoating/label"),
-                    value: handoffDataDS.evalToString("//coating/value"),
-                    key: handoffDataDS.evalToString("//coating/key")
-                },
-                frontCoating: {
-                    enabled: handoffDataDS.evalToString("//frontCoating/enabled") == "true",
-                    label: handoffDataDS.evalToString("//frontCoating/label"),
-                    value: handoffDataDS.evalToString("//frontCoating/value")
+                    front:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//coating/front/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/front/cover/label"),
+                            value: handoffDataDS.evalToString("//coating/front/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//coating/front/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/front/substrate/label"),
+                            value: handoffDataDS.evalToString("//coating/front/substrate/value")
+                        }
+                    },
+                    back:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//coating/back/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/back/cover/label"),
+                            value: handoffDataDS.evalToString("//coating/back/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//coating/back/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/back/substrate/label"),
+                            value: handoffDataDS.evalToString("//coating/back/substrate/value")
+                        }
+                    }
                 }
             }
             
@@ -55,7 +91,8 @@ runFinalize = function(s, job, codebase){
             var name = {
                 process: handoffData.prodMatFileName,
                 subprocess: "",
-                laminate: ""
+                laminate: "",
+                coating: ""
             }
             
             var fileStat = new FileStatistics(job.getPath());
@@ -96,7 +133,14 @@ runFinalize = function(s, job, codebase){
                 }
 
                 // Laminate
-                name.laminate = handoffData.mixedLam ? "-mixLam" : (handoffData.laminate.active || handoffData.coating.enabled) ? "-Lam" : "";
+                if(handoffData.laminate.front.substrate.enabled || handoffData.laminate.back.substrate.enabled){
+                    name.laminate = handoffData.mixedLam ? "-mixLam" : "-Lam";
+                }
+
+                // Coating
+                if(handoffData.coating.front.substrate.enabled || handoffData.coating.back.substrate.enabled){
+                    name.coating = handoffData.mixedLam ? "-mixCoat" : "-Coat";
+                }
 
                 // FloorDecal
                 if(handoffData.process == "FloorDecal"){
@@ -110,15 +154,11 @@ runFinalize = function(s, job, codebase){
                 
                 // Hierarchy
                 if(data.processType == "Print"){
-                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + name.laminate + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.gangNumber + phoenixPlan.index + ".pdf";
+                    savename = data.dateProper + "_" + name.process + name.subprocess + handoffData.surface + name.laminate + name.coating + handoffData.mount + handoffData.whiteink + handoffData.rush + "_Q" + phoenixPlan.qty + data.side + "_" + handoffData.gangNumber + phoenixPlan.index + ".pdf";
                 }
                 
                 if(data.processType == "Cut"){
                     savename = data.dateProper + "_" + name.process + name.subprocess + "_CUT" + "_Q" + phoenixPlan.qty + "_" + handoffData.gangNumber + phoenixPlan.index + ".pdf";
-                }
-                
-                if(data.processType == "Summary"){				
-                    savename = data.dateProper + "_" + name.process + name.subprocess + "-Report_" + handoffData.gangNumber + ".pdf";
                 }
 
                 job.sendToSingle(job.getPath(), savename.toString());
@@ -135,10 +175,6 @@ runFinalize = function(s, job, codebase){
                 
                 if(data.processType == "Cut"){
                     savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + name.process + "_" + phoenixPlan.qty + "qty_" + data.dateID + "_Cut" + ".pdf";
-                }
-                
-                if(data.processType == "Summary"){				
-                    savename = handoffData.gangNumber + "_Report" + ".pdf";
                 }
                 
                 job.sendToSingle(job.getPath(), savename.toString());
@@ -171,10 +207,6 @@ runFinalize = function(s, job, codebase){
                     }else{
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + "_" + phoenixPlan.qty + "-CUT" + ".pdf";
                     }
-                }
-                
-                if(data.processType == "Summary"){				
-                    savename = handoffData.gangNumber + "_Report" + ".pdf";
                 }
                 
                 job.sendToSingle(job.getPath(), savename.toString());
@@ -218,10 +250,6 @@ runFinalize = function(s, job, codebase){
                     }
                 }
                 
-                if(data.processType == "Summary"){				
-                    savename = handoffData.gangNumber + "_Report" + ".pdf";
-                }
-                
                 job.sendToSingle(job.getPath(), savename.toString());
             }
 
@@ -259,10 +287,6 @@ runFinalize = function(s, job, codebase){
                     }
                 }
                 
-                if(data.processType == "Summary"){				
-                    savename = handoffData.gangNumber + "_Report" + ".pdf";
-                }
-                
                 job.sendToSingle(job.getPath(), savename.toString());
             }
 
@@ -284,10 +308,6 @@ runFinalize = function(s, job, codebase){
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".jdf";
 
                     }
-                }
-                
-                if(data.processType == "Summary"){				
-                    savename = handoffData.gangNumber + "_Report" + ".pdf";
                 }
                 
                 job.sendToSingle(job.getPath(), savename.toString());
@@ -313,16 +333,12 @@ runFinalize = function(s, job, codebase){
                     }
                 }
                 
-                if(data.processType == "Summary"){				
-                    savename = handoffData.gangNumber + "_Report" + ".pdf";
-                }
-                
                 job.sendToSingle(job.getPath(), savename.toString());
             }
             
         }catch(e){
-            s.log(2, "Critical Error: Finalize")
-            job.sendToNull(job.getPath())
+            s.log(2, "Critical Error: Finalize -- " + e)
+            job.fail(e)
         }
     }
     finalize(s, job, codebase)
@@ -332,17 +348,19 @@ function getCoatLamSLN(s, handoffData){
     var temp = ""
     
     // If all laminate and coating options are false, return uncoated.
-    if(handoffData.laminate.method == "null" && handoffData.coating.key == "null" && !handoffData.frontCoating.enabled){
+    if(handoffData.laminate.front.substrate.value == "null"){
         temp = "-Uncoated"
         return temp
     }
 
     // If it has lam data then we ignore the coating
-    if(handoffData.laminate.method != "null"){
-        temp = "-" + handoffData.laminate.method
+    if(handoffData.laminate.front.substrate.value != "null"){
+        temp = "-" + handoffData.laminate.front.substrate.value
         return temp
     }
 
+    // TODO - Fix the coating key
+    /*
     // If it's RP, use the general Coating method.
     if(handoffData.coating.key != "null"){
         if(handoffData.substrate.match(new RegExp("- RP","g"))){
@@ -350,11 +368,12 @@ function getCoatLamSLN(s, handoffData){
             return temp
         }
     }
+        */
 
     // If it's SP, use the frontCoating method.
-    if(handoffData.frontCoating.enabled){
+    if(handoffData.coating.front.substrate.enabled){
         if(handoffData.substrate.match(new RegExp("- SP","g"))){
-            temp = "-" + handoffData.frontCoating.value
+            temp = "-" + handoffData.coating.front.substrate.value
             return temp
         }
     }

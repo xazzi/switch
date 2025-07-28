@@ -3,7 +3,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 	return infoArray = [
 		["Project ID", data.projectID],
 		["Name",product.contentFile],
-		["Artwork File",data.repository + product.artworkFile],
+		["Artwork File",data.repository.path + "/" + product.artworkFile],
 		["Ordered",product.quantity],
 		["Stock",product.stock],
 		["Grade",product.grade + " gsm"],

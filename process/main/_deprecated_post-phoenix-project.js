@@ -15,6 +15,7 @@ runPost = function(s, job, codebase){
             // Load settings from the module
             var module = loadModuleSettings(s)
             
+            // We might be deliberately NOT passing in the environment to this token function, so it always pulls a prod token.
             var bearerToken = getNewToken_phoenixProject(s, module.prismEndpoint);
             if(!bearerToken){
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
@@ -56,12 +57,56 @@ runPost = function(s, job, codebase){
                 secondsurface: handoffDataDS.evalToString("//settings/secondsurf") == "true",
                 printer: handoffDataDS.evalToString("//settings/printer"),
                 laminate: {
-                    active: handoffDataDS.evalToString("//laminate/active") == "true",
-                    method: handoffDataDS.evalToString("//laminate/method"),
-                    value: handoffDataDS.evalToString("//laminate/value")
+                    front:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//laminate/front/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/front/cover/label"),
+                            value: handoffDataDS.evalToString("//laminate/front/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//laminate/front/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/front/substrate/label"),
+                            value: handoffDataDS.evalToString("//laminate/front/substrate/value")
+                        }
+                    },
+                    back:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//laminate/back/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/back/cover/label"),
+                            value: handoffDataDS.evalToString("//laminate/back/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//laminate/back/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/back/substrate/label"),
+                            value: handoffDataDS.evalToString("//laminate/back/substrate/value")
+                        }
+                    }
                 },
                 coating: {
-                    enabled: handoffDataDS.evalToString("//coating/active") == "true"
+                    front:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//coating/front/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/front/cover/label"),
+                            value: handoffDataDS.evalToString("//coating/front/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//coating/front/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/front/substrate/label"),
+                            value: handoffDataDS.evalToString("//coating/front/substrate/value")
+                        }
+                    },
+                    back:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//coating/back/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/back/cover/label"),
+                            value: handoffDataDS.evalToString("//coating/back/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//coating/back/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/back/substrate/label"),
+                            value: handoffDataDS.evalToString("//coating/back/substrate/value")
+                        }
+                    }
                 }
             }
 
@@ -70,15 +115,13 @@ runPost = function(s, job, codebase){
                 laminate: false
             }
 
-            // For LFP products (roll and sheet), apply coating as a laminate option.
-            if(handoffObj.type == "roll" || handoffObj.type == "sheet"){
-                if(handoffObj.laminate.active || handoffObj.coating.enabled){
-                    data.laminate = true
-                }
-            }else{
-                if(handoffObj.laminate.active){
-                    data.laminate = true
-                }
+            if (
+                handoffObj.laminate.front.substrate.enabled ||
+                handoffObj.laminate.back.substrate.enabled ||
+                handoffObj.coating.front.substrate.enabled ||
+                handoffObj.coating.back.substrate.enabled
+            ) {
+                data.laminate = true
             }
             
             var doc = new Document(job.getPath());	
@@ -187,6 +230,7 @@ runPost = function(s, job, codebase){
                     ["ppq-response","Fail"]
                 ])) 
                 s.log(3, "Phoenix API post failed: " + theHTTP.lastError);
+                newJob.sendToNull(job.getPath())
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
@@ -197,6 +241,8 @@ runPost = function(s, job, codebase){
             ],[
                 ["ppq-response","Success"]
             ])) 
+
+            newJob.sendToNull(job.getPath())
             job.sendTo(findConnectionByName(s, "Success"), job.getPath());       
             
         }catch(e){
@@ -205,7 +251,11 @@ runPost = function(s, job, codebase){
             ],[
                 ["ppq-response","Error"]
             ])) 
-            s.log(2, "Critical Error: Post-Project: " + e)
+
+            try{
+                newJob.sendToNull(job.getPath())
+            }catch(e){}
+            s.log(2, "Critical Error: API PPQ Post -- " + e)
             job.sendTo(findConnectionByName(s, "Error"), job.getPath());
         }
     }

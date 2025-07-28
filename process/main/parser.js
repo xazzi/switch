@@ -69,6 +69,8 @@ runParser = function(s, job, codebase){
                 nodes: !module.devSettings.ignoreSubmit ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
+                removeFiles: false,
+                fileSource: "Watermark Servers",
                 route:{
                     active: false,
                     facility: null
@@ -89,10 +91,6 @@ runParser = function(s, job, codebase){
                     priority: 0,
                     date: false,
                     accountTypeCode: "Default", //Needs to be set to default initially.
-                    redownload:{
-                        bool: false,
-                        location: null
-                    },
                     removeRestrictions:{
                         coroplast: false
                     },
@@ -126,8 +124,12 @@ runParser = function(s, job, codebase){
                         submit.override.mixedLam = value == "Yes";
                         break;
 
-                    case "Redownload file?":
-                        redownloadFrom(value, submit);
+                    case "Remove Existing Files?":
+                        submit.removeFiles = value == "true";
+                        break;
+
+                    case "File Source":
+                        submit.fileSource = value;
                         break;
 
                     case "Gang Method":
@@ -220,8 +222,8 @@ runParser = function(s, job, codebase){
                 gangNumber: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
-                fileSource: module.fileSource,
-                repository: "//10.21.71.213/File Repository/",
+                fileSource: submit.fileSource != "Default" ? submit.fileSource : "Watermark Servers",
+                repository: new Dir("//10.21.71.213/File Repository/"),
                 doubleSided: null,
                 secondSurface: null,
                 substrate: {
@@ -350,7 +352,7 @@ runParser = function(s, job, codebase){
             // Pull the user information.
             db.settings.execute("SELECT * FROM settings.users WHERE email = '" + job.getUserEmail() + "';");
             if(!db.settings.isRowAvailable()){
-                handleRejection_Gang(s, db, job, data, "Undefined User", "User is undefined", "user", null, null);
+                handleRejection_Gang(s, db, job, data, null, "Undefined User", "User is undefined", "user", null, null);
                 return;
             }
                 db.settings.fetchRow();
@@ -401,11 +403,6 @@ runParser = function(s, job, codebase){
                 }
 
                 if(mxmlMap.substrate.base.enabled && mxmlMap.cover.base.enabled){break}
-            }
-
-            // Override the fileSource if necessary.
-            if(submit.override.redownload.bool){
-                data.fileSource = submit.override.redownload.location
             }
                 
             // Loop through the items, pull the data from the API, then post it to the array.
@@ -487,7 +484,7 @@ runParser = function(s, job, codebase){
                 // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
                 if(orderSpecs.facility != data.facility.destination){
                     if(!submit.route.active){
-                        handleRejection_Gang(s, db, job, data, "Facility Mismatch", "Multiple facilities assigned", "error", null, null);
+                        handleRejection_Gang(s, db, job, data, orderSpecs, "Facility Mismatch", "Multiple facilities assigned", "error", null, null);
                         return
                     }
                 }
@@ -511,7 +508,7 @@ runParser = function(s, job, codebase){
 
                 // Substrate mapping incomplete
                 if (orderSpecs.resolved.substrate.base.enabled && orderSpecs.mapping.substrate.mapId == null) {
-                    handleRejection_Gang(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.substrate, null);
+                    handleRejection_Gang(s, db, job, data, orderSpecs, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.substrate, null);
                     return;
                 }
 
@@ -520,7 +517,7 @@ runParser = function(s, job, codebase){
 
                 // Cover mapping incomplete
                 if(orderSpecs.resolved.cover.base.enabled && orderSpecs.mapping.cover.mapId == null){
-                    handleRejection_Gang(s, db, job, data, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.cover, null);
+                    handleRejection_Gang(s, db, job, data, orderSpecs, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.cover, null);
                     return;
                 }
 
@@ -582,7 +579,7 @@ runParser = function(s, job, codebase){
 
                     // Material data is missing from the material table, might be a paper mapping issue.
                     if(matInfo == "Material Data Missing"){
-                        handleRejection_Gang(s, db, job, data, "Undefined Material", "Undefined material", "material", orderSpecs.mapping, null);
+                        handleRejection_Gang(s, db, job, data, orderSpecs, "Undefined Material", "Undefined material", "material", orderSpecs.mapping, null);
                         return;
                     }
                 }
@@ -995,7 +992,7 @@ runParser = function(s, job, codebase){
             // 1st safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
                 updateEmailHistory(s, db, "Parser", data, data.notes);
-                handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "empty", null, null);
+                handleRejection_Gang(s, db, job, data, null, "Empty Gang", "All files removed", "empty", null, null);
                 return;
             }
 
@@ -1248,7 +1245,7 @@ runParser = function(s, job, codebase){
 
                 // Reject the subprocess if it's not ready.
                 if(product.subprocess == "Reject"){
-                    handleRejection_Gang(s, db, job, data, "Subprocess Rejected", "The subprocess has been rejected", "subprocess", product, null);
+                    handleRejection_Gang(s, db, job, data, orderArray[i], "Subprocess Rejected", "The subprocess has been rejected", "subprocess", product, null);
                     return
                 }
 
@@ -2302,7 +2299,7 @@ runParser = function(s, job, codebase){
 
             // 2nd safety check for if all files have been removed from the gang.
             if(productArray.length == 0){
-                handleRejection_Gang(s, db, job, data, "Empty Gang", "All files removed", "empty", null, null);
+                handleRejection_Gang(s, db, job, data, null, "Empty Gang", "All files removed", "empty", null, null);
                 return
             }
         
@@ -2355,14 +2352,14 @@ runParser = function(s, job, codebase){
 
             try {
                 postWebhook(s, job, db, "Critical Error", "This file has failed in Parser.", [
-                    ["Error", String(e)]
+                    ["Error", e.toString()]
                 ]);
             } catch (webhookErr) {
                 s.log(3, "Webhook post failed: " + webhookErr);
             }
 
             try {
-                handleRejection_Gang(s, db, job, data, "Critical Error", "Critical error", "error", null, e);
+                handleRejection_Gang(s, db, job, data, null, "Critical Error", "Critical error", "error", null, e);
             } catch (rejectErr) {
                 s.log(3, "handleRejection_Gang failed: " + rejectErr);
                 job.fail("Critical failure during rejection handling: " + rejectErr);
@@ -2719,6 +2716,21 @@ function findFile(fileName) {
 function buildFileObject(product, submit, data, db, s) {
     var sourceFile = findFile(product.contentFile);
 
+    // Delete any files that the user is requesting to remove.
+    if(submit.removeFiles){
+        var existingFiles = data.repository.entryList("*" + product.itemNumber + "*", Dir.Files, Dir.Name);
+        for(var iii=0; iii<existingFiles.length; iii++){
+            var toDelete = new File(data.repository.path + "/" + existingFiles[iii]);
+            try {
+                toDelete.remove();
+                s.log(2, product.itemNumber + " removed successfully.");
+            } catch (e) {
+                s.log(2, product.itemNumber + " failed to delete: " + e.toString());
+            }
+        }
+    }
+
+    // Establish the new file
     var file = {
         name: product.contentFile,
         label: sourceFile.label,
@@ -2732,26 +2744,16 @@ function buildFileObject(product, submit, data, db, s) {
 
     // Handle redownload if file exists in repository
     if (file.repository.exists) {
-        if (submit.override.redownload.bool) {
-            try {
-                file.repository.remove();
-                s.log(2, product.contentFile + " removed successfully, redownloading.");
-                product.transfer = true;
-            } catch (e) {
-                s.log(2, product.contentFile + " failed to delete: " + e.toString());
-            }
-        } else {
-            try {
-                file.stats = new FileStatistics(file.repository.path);
-                db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                    ["project-id", data.projectID],
-                    ["item-number", product.itemNumber]
-                ], [["status", "Already Exists"]]));
-            } catch (e) {
-                file.usable = false;
-                file.reason = "Failed to read stats for existing repository file: " + e.toString();
-                return file;
-            }
+        try {
+            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                ["project-id", data.projectID],
+                ["item-number", product.itemNumber]
+            ], [["status", "Already Exists"]]));
+            file.stats = new FileStatistics(file.repository.path + "/" + file.name);
+        } catch (e) {
+            file.usable = false;
+            file.reason = "Failed to read stats for existing repository file: " + e.toString();
+            return file;
         }
     } else {
         if (data.fileSource === "S3 Bucket") {
@@ -2800,7 +2802,6 @@ function buildFileObject(product, submit, data, db, s) {
 
     return file;
 }
-
 
 function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
 
@@ -2998,12 +2999,46 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
 }
 
 // Gang Rejections
-function handleRejection_Gang(s, db, job, data, errorType, subject, category, metadataJson, message) {
+function handleRejection_Gang(s, db, job, data, order, errorType, subject, category, metadataJson, message) {
     // Log and redirect
     s.log(3, data.gangNumber + " :: " + errorType + ", job rejected.");
     try{
         job.sendToNull(job.getPath());
     }catch(e){}
+
+    function safeGet(paths) {
+    for (var i = 0; i < paths.length; i++) {
+        try {
+            var result = eval(paths[i]);
+            if (result !== undefined && result !== null) {
+                return result;
+            }
+        } catch (e) {
+            // Ignore errors and try next
+        }
+    }
+    return "Unknown"; // Final fallback
+}
+
+    var messageData = {
+        dueDate: safeGet([
+            "data.date.due.strings.yearMonthDay",
+            "order.date.due"
+        ]),
+
+        facility: safeGet([
+            "data.facility.destination"
+        ]),
+
+        process: safeGet([
+            "data.prodName"
+        ]),
+
+        subprocess: safeGet([
+            "data.subprocess"
+        ])
+    };
+
 
     // Send notification
     notificationQueue_Gangs(
@@ -3017,7 +3052,7 @@ function handleRejection_Gang(s, db, job, data, errorType, subject, category, me
         category,
         metadataJson,
         job.getUserEmail(),
-        null
+        messageData //message_data in the table
     );
 
     // Update databases
