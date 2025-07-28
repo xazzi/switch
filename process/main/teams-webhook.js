@@ -37,9 +37,9 @@ runPost = function (s, job, codebase) {
             db.settings.fetchRow();
 
             // Call the function that writes to the tables.
-            postWebhook(s, job, db, channel, s.getPropertyValue("message"), [
-                ["Element", s.getPropertyValue("element")], // Element is a part of the main webhook module.
-                ["Flow", s.getPropertyValue("flow")], // Flow is a part of the main webhook module.
+            postWebhook(s, job, db, channel, safeProperty(s, "message"), [
+                ["Element", safeProperty(s, "element")],
+                ["Flow", safeProperty(s, "flow")],
                 ["Gang", safeEval(handoffDataDS, "//base/gangNumber")],
                 ["Process", safeEval(handoffDataDS, "//base/process")],
                 ["Subprocess", safeEval(handoffDataDS, "//base/subprocess")]

@@ -69,6 +69,8 @@ runParser = function(s, job, codebase){
                 nodes: !module.devSettings.ignoreSubmit ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
+                removeFiles: false,
+                fileSource: "Watermark Servers",
                 route:{
                     active: false,
                     facility: null
@@ -89,10 +91,6 @@ runParser = function(s, job, codebase){
                     priority: 0,
                     date: false,
                     accountTypeCode: "Default", //Needs to be set to default initially.
-                    redownload:{
-                        bool: false,
-                        location: null
-                    },
                     removeRestrictions:{
                         coroplast: false
                     },
@@ -126,8 +124,12 @@ runParser = function(s, job, codebase){
                         submit.override.mixedLam = value == "Yes";
                         break;
 
-                    case "Redownload file?":
-                        redownloadFrom(value, submit);
+                    case "Remove Existing Files?":
+                        submit.removeFiles = value == "true";
+                        break;
+
+                    case "File Source":
+                        submit.fileSource = value;
                         break;
 
                     case "Gang Method":
@@ -220,8 +222,8 @@ runParser = function(s, job, codebase){
                 gangNumber: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
-                fileSource: module.fileSource,
-                repository: "//10.21.71.213/File Repository/",
+                fileSource: submit.fileSource != "Default" ? submit.fileSource : "Watermark Servers",
+                repository: new Dir("//10.21.71.213/File Repository/"),
                 doubleSided: null,
                 secondSurface: null,
                 substrate: {
@@ -401,11 +403,6 @@ runParser = function(s, job, codebase){
                 }
 
                 if(mxmlMap.substrate.base.enabled && mxmlMap.cover.base.enabled){break}
-            }
-
-            // Override the fileSource if necessary.
-            if(submit.override.redownload.bool){
-                data.fileSource = submit.override.redownload.location
             }
                 
             // Loop through the items, pull the data from the API, then post it to the array.
@@ -2355,7 +2352,7 @@ runParser = function(s, job, codebase){
 
             try {
                 postWebhook(s, job, db, "Critical Error", "This file has failed in Parser.", [
-                    ["Error", String(e)]
+                    ["Error", e.toString()]
                 ]);
             } catch (webhookErr) {
                 s.log(3, "Webhook post failed: " + webhookErr);
@@ -2719,6 +2716,21 @@ function findFile(fileName) {
 function buildFileObject(product, submit, data, db, s) {
     var sourceFile = findFile(product.contentFile);
 
+    // Delete any files that the user is requesting to remove.
+    if(submit.removeFiles){
+        var existingFiles = data.repository.entryList("*" + product.itemNumber + "*", Dir.Files, Dir.Name);
+        for(var iii=0; iii<existingFiles.length; iii++){
+            var toDelete = new File(data.repository.path + "/" + existingFiles[iii]);
+            try {
+                toDelete.remove();
+                s.log(2, product.itemNumber + " removed successfully.");
+            } catch (e) {
+                s.log(2, product.itemNumber + " failed to delete: " + e.toString());
+            }
+        }
+    }
+
+    // Establish the new file
     var file = {
         name: product.contentFile,
         label: sourceFile.label,
@@ -2732,26 +2744,16 @@ function buildFileObject(product, submit, data, db, s) {
 
     // Handle redownload if file exists in repository
     if (file.repository.exists) {
-        if (submit.override.redownload.bool) {
-            try {
-                file.repository.remove();
-                s.log(2, product.contentFile + " removed successfully, redownloading.");
-                product.transfer = true;
-            } catch (e) {
-                s.log(2, product.contentFile + " failed to delete: " + e.toString());
-            }
-        } else {
-            try {
-                file.stats = new FileStatistics(file.repository.path);
-                db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                    ["project-id", data.projectID],
-                    ["item-number", product.itemNumber]
-                ], [["status", "Already Exists"]]));
-            } catch (e) {
-                file.usable = false;
-                file.reason = "Failed to read stats for existing repository file: " + e.toString();
-                return file;
-            }
+        try {
+            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                ["project-id", data.projectID],
+                ["item-number", product.itemNumber]
+            ], [["status", "Already Exists"]]));
+            file.stats = new FileStatistics(file.repository.path + "/" + file.name);
+        } catch (e) {
+            file.usable = false;
+            file.reason = "Failed to read stats for existing repository file: " + e.toString();
+            return file;
         }
     } else {
         if (data.fileSource === "S3 Bucket") {
@@ -2800,7 +2802,6 @@ function buildFileObject(product, submit, data, db, s) {
 
     return file;
 }
-
 
 function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
 

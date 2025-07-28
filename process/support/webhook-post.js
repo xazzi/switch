@@ -7,9 +7,15 @@ postWebhook = function(s, job, db, channel, message, additionalFields) {
         };
 
         var fields = [
-            ["Server", s.getServerName()],
-            ["File", job.getName()],
-            ["User", job.getUserFullName()]
+            ["Server", s && s.getServerName ? s.getServerName() : "Unknown"],
+            ["File", job 
+                ? (typeof job.getName === "function" ? job.getName() : (job.file || "Unknown"))
+                : "Unknown"
+            ],
+            ["User", job
+                ? (typeof job.getUserFullName === "function" ? job.getUserFullName() : (job.user || "Unknown"))
+                : "Unknown"
+            ]
         ];
 
         if (additionalFields && additionalFields.length) {
@@ -47,4 +53,13 @@ postWebhook = function(s, job, db, channel, message, additionalFields) {
     }
     
     run(s, job, db, channel, message, additionalFields)
+}
+
+safeProperty = function(s, key, fallback) {
+    try {
+        var val = s.getPropertyValue(key);
+        return (val !== undefined && val !== null) ? val.toString() : fallback || "Unknown";
+    } catch (e) {
+        return fallback || "Unknown";
+    }
 }

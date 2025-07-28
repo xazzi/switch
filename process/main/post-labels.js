@@ -1,5 +1,6 @@
 runPost = function(s, job, codebase){
     function post(s, job, codebase){
+        var db, handoffObj
         try{
             var dir = {
                 support: "C:/Scripts/" + codebase + "/switch/process/support/"
@@ -9,8 +10,8 @@ runPost = function(s, job, codebase){
             eval(File.read(dir.support + "/general-functions.js"));
             eval(File.read(dir.support + "/get-token.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
-            //eval(File.read(dir.support + "/connect-to-db.js"));
-            //eval(File.read(dir.support + "/sql-statements.js"));
+            eval(File.read(dir.support + "/connect-to-db.js"));
+            eval(File.read(dir.support + "/sql-statements.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -21,6 +22,14 @@ runPost = function(s, job, codebase){
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
+
+            // Establist connection to the databases
+            var connections = establishDatabases(s, module)
+            db = {
+                settings: new Statement(connections.settings),
+                history: new Statement(connections.history),
+                email: new Statement(connections.email)
+            }
             
             var server = "https://manufacturing.digitalroom.com/phoenixJob/";
             if(module.prismEndpoint == "qa"){
@@ -28,8 +37,9 @@ runPost = function(s, job, codebase){
             }
         
             var handoffDataDS = loadDataset_db("Handoff Data");
-            var handoffObj = {
+            handoffObj = {
                 dateID: handoffDataDS.evalToString("//base/dateID"),
+                projectID: handoffDataDS.evalToString("//base/projectID"),
                 sku: handoffDataDS.evalToString("//base/sku"),
                 type: handoffDataDS.evalToString("//base/type"),
                 jobNumber: handoffDataDS.evalToString("//base/saveLocation"),
@@ -39,12 +49,56 @@ runPost = function(s, job, codebase){
                 secondsurface: handoffDataDS.evalToString("//settings/secondsurf") == "true",
                 printer: handoffDataDS.evalToString("//settings/printer"),
                 laminate: {
-                    active: handoffDataDS.evalToString("//laminate/active") == "true",
-                    method: handoffDataDS.evalToString("//laminate/method"),
-                    value: handoffDataDS.evalToString("//laminate/value")
+                    front:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//laminate/front/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/front/cover/label"),
+                            value: handoffDataDS.evalToString("//laminate/front/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//laminate/front/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/front/substrate/label"),
+                            value: handoffDataDS.evalToString("//laminate/front/substrate/value")
+                        }
+                    },
+                    back:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//laminate/back/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/back/cover/label"),
+                            value: handoffDataDS.evalToString("//laminate/back/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//laminate/back/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//laminate/back/substrate/label"),
+                            value: handoffDataDS.evalToString("//laminate/back/substrate/value")
+                        }
+                    }
                 },
                 coating: {
-                    enabled: handoffDataDS.evalToString("//coating/active") == "true"
+                    front:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//coating/front/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/front/cover/label"),
+                            value: handoffDataDS.evalToString("//coating/front/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//coating/front/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/front/substrate/label"),
+                            value: handoffDataDS.evalToString("//coating/front/substrate/value")
+                        }
+                    },
+                    back:{
+                        cover:{
+                            enabled: handoffDataDS.evalToString("//coating/back/cover/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/back/cover/label"),
+                            value: handoffDataDS.evalToString("//coating/back/cover/value")
+                        },
+                        substrate:{
+                            enabled: handoffDataDS.evalToString("//coating/back/substrate/enabled") == "true",
+                            label: handoffDataDS.evalToString("//coating/back/substrate/label"),
+                            value: handoffDataDS.evalToString("//coating/back/substrate/value")
+                        }
+                    }
                 }
             }
 
@@ -53,15 +107,13 @@ runPost = function(s, job, codebase){
                 laminate: false
             }
 
-            // For LFP products (roll and sheet), apply coating as a laminate option.
-            if(handoffObj.type == "roll" || handoffObj.type == "sheet"){
-                if(handoffObj.laminate.active || handoffObj.coating.enabled){
-                    data.laminate = true
-                }
-            }else{
-                if(handoffObj.laminate.active){
-                    data.laminate = true
-                }
+            if (
+                handoffObj.laminate.front.substrate.enabled ||
+                handoffObj.laminate.back.substrate.enabled ||
+                handoffObj.coating.front.substrate.enabled ||
+                handoffObj.coating.back.substrate.enabled
+            ) {
+                data.laminate = true
             }
             
             var doc = new Document(job.getPath());	
@@ -76,6 +128,7 @@ runPost = function(s, job, codebase){
             var xmlfile = newJob.createPathWithName(doc.evalToString('//job/id', map) + ".json", false);
             var xmlF = new File(xmlfile);
             //var xmlF = new File("C://Switch//Development//" + doc.evalToString('//job/id', map) + ".json");
+
                 xmlF.open(File.Append);
                 xmlF.writeLine('{');
                 
@@ -147,8 +200,6 @@ runPost = function(s, job, codebase){
                         xmlF.writeLine('"PhoenixFileNameBack": "' + filename_back + '",');
                     }
                     xmlF.writeLine('"LayoutID": ' + doc.evalToString('//job/id', map) + layoutNodes.at(i).evalToString('index') + ',');
-                    //xmlF.writeLine('"PrintStatusID": ' + null + ',');
-                    //xmlF.writeLine('"Quantity": ' + null + ',');
                     xmlF.writeLine('"NestingStatusID": ' + 1 + ',');
                     xmlF.writeLine('"PrintStatusID": ' + 1 + ',');
                     xmlF.writeLine('"Updated": "' + new Date() + '",');
@@ -177,8 +228,6 @@ runPost = function(s, job, codebase){
                         xmlF.writeLine('"Stock": "' + productArray[j][0].evalToString("stock") + '",');
                         xmlF.writeLine('"Grade": "' + productArray[j][0].evalToString("grade") + '",');
                         xmlF.writeLine('"Grain": "' + productArray[j][0].evalToString("grain") + '",');
-                        //xmlF.writeLine('"Width": "' + productArray[j][0].evalToString("width").replace(/\"/g,"&quot;") + '",');
-                        //xmlF.writeLine('"Height": "' + productArray[j][0].evalToString("height").replace(/\"/g,"&quot;") + '",');
                         xmlF.writeLine('"Width": "' + productArray[j][0].evalToString("width").replace(/\"/g,"") + '",');
                         xmlF.writeLine('"Height": "' + productArray[j][0].evalToString("height").replace(/\"/g,"") + '",');
                         xmlF.writeLine('"SpacingType": "' + productArray[j][0].evalToString("spacing-type") + '",');
@@ -224,42 +273,43 @@ runPost = function(s, job, codebase){
                 File.remove(xmlfile);
             
             if(theHTTP.finishedStatus == HTTP.Failed || theHTTP.statusCode !== 201){
-                // Post the response to the database
-                /*
                 db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                    ["project-id", handoffData.projectID]
+                    ["project-id", handoffObj.projectID]
                 ],[
                     ["label-response","Fail"]
-                ])) 
-                    */
+                ]))
+                newJob.sendToNull(job.getPath())
                 s.log(3, "Phoenix API post failed: " + theHTTP.lastError);
                 job.sendTo(findConnectionByName(s, "Error"), job.getPath());
                 return;
             }
 
-            // Post the response to the database
-            /*
+            // Log the status of the prism post.
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                ["project-id", handoffData.projectID]
+                ["project-id", handoffObj.projectID]
             ],[
                 ["label-response","Success"]
-            ])) 
-                */
-                    
+            ]))
+                  
+            // Move the job to the success connection and send newJob to null.
+            newJob.sendToNull(job.getPath())
             job.sendTo(findConnectionByName(s, "Success"), job.getPath());          
             
         }catch(e){
-
-            // Post the response to the database
-            /*
+            // Update the details_gang table.
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                ["project-id", handoffData.projectID]
+                ["project-id", handoffObj.projectID]
             ],[
                 ["label-response","Error"]
-            ])) 
-                */
+            ]))
 
-            s.log(2, "Critical Error: Post-Phoenix: + " + e)
+            // Send the new job to null if it exists.
+            try{
+                newJob.sendToNull(job.getPath())
+            }catch(e){}
+
+            // Move the job to the errors connection.
+            s.log(2, "Critical Error: API Label Post: -- " + e)
             job.sendTo(findConnectionByName(s, "Error"), job.getPath());
         }
     }

@@ -1,7 +1,6 @@
-// Prism POST utility
-postToPrismApi = function(s, config, jsonPath) {
-    var token = getNewToken(s, config.prismEndpoint); // Assumes getNewToken is globally available
-    var url = config.prismEndpoint === "qa"
+postToPrismApi = function(s, module, jsonPath) {
+    var token = getNewToken(s, module.prismEndpoint); // Assumes getNewToken is globally available
+    var url = module.prismEndpoint === "qa"
         ? "https://qa-create-gang-api.digitalroom.com/xml-receiver"
         : "https://create-gang-api.digitalroom.com/xml-receiver";
 
