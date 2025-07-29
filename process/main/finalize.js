@@ -33,24 +33,28 @@ runFinalize = function(s, job, codebase){
                         cover:{
                             enabled: handoffDataDS.evalToString("//laminate/front/cover/enabled") == "true",
                             label: handoffDataDS.evalToString("//laminate/front/cover/label"),
-                            value: handoffDataDS.evalToString("//laminate/front/cover/value")
+                            value: handoffDataDS.evalToString("//laminate/front/cover/value"),
+                            key: handoffDataDS.evalToString("//laminate/front/cover/key")
                         },
                         substrate:{
                             enabled: handoffDataDS.evalToString("//laminate/front/substrate/enabled") == "true",
                             label: handoffDataDS.evalToString("//laminate/front/substrate/label"),
-                            value: handoffDataDS.evalToString("//laminate/front/substrate/value")
+                            value: handoffDataDS.evalToString("//laminate/front/substrate/value"),
+                            key: handoffDataDS.evalToString("//laminate/front/substrate/key")
                         }
                     },
                     back:{
                         cover:{
                             enabled: handoffDataDS.evalToString("//laminate/back/cover/enabled") == "true",
                             label: handoffDataDS.evalToString("//laminate/back/cover/label"),
-                            value: handoffDataDS.evalToString("//laminate/back/cover/value")
+                            value: handoffDataDS.evalToString("//laminate/back/cover/value"),
+                            key: handoffDataDS.evalToString("//laminate/back/cover/key")
                         },
                         substrate:{
                             enabled: handoffDataDS.evalToString("//laminate/back/substrate/enabled") == "true",
                             label: handoffDataDS.evalToString("//laminate/back/substrate/label"),
-                            value: handoffDataDS.evalToString("//laminate/back/substrate/value")
+                            value: handoffDataDS.evalToString("//laminate/back/substrate/value"),
+                            key: handoffDataDS.evalToString("//laminate/back/substrate/key")
                         }
                     }
                 },
@@ -59,24 +63,28 @@ runFinalize = function(s, job, codebase){
                         cover:{
                             enabled: handoffDataDS.evalToString("//coating/front/cover/enabled") == "true",
                             label: handoffDataDS.evalToString("//coating/front/cover/label"),
-                            value: handoffDataDS.evalToString("//coating/front/cover/value")
+                            value: handoffDataDS.evalToString("//coating/front/cover/value"),
+                            key: handoffDataDS.evalToString("//coating/front/cover/key")
                         },
                         substrate:{
                             enabled: handoffDataDS.evalToString("//coating/front/substrate/enabled") == "true",
                             label: handoffDataDS.evalToString("//coating/front/substrate/label"),
-                            value: handoffDataDS.evalToString("//coating/front/substrate/value")
+                            value: handoffDataDS.evalToString("//coating/front/substrate/value"),
+                            key: handoffDataDS.evalToString("//coating/front/substrate/key")
                         }
                     },
                     back:{
                         cover:{
                             enabled: handoffDataDS.evalToString("//coating/back/cover/enabled") == "true",
                             label: handoffDataDS.evalToString("//coating/back/cover/label"),
-                            value: handoffDataDS.evalToString("//coating/back/cover/value")
+                            value: handoffDataDS.evalToString("//coating/back/cover/value"),
+                            key: handoffDataDS.evalToString("//coating/back/cover/key")
                         },
                         substrate:{
                             enabled: handoffDataDS.evalToString("//coating/back/substrate/enabled") == "true",
                             label: handoffDataDS.evalToString("//coating/back/substrate/label"),
-                            value: handoffDataDS.evalToString("//coating/back/substrate/value")
+                            value: handoffDataDS.evalToString("//coating/back/substrate/value"),
+                            key: handoffDataDS.evalToString("//coating/back/substrate/key")
                         }
                     }
                 }
@@ -346,37 +354,19 @@ runFinalize = function(s, job, codebase){
 
 function getCoatLamSLN(s, handoffData){
     var temp = ""
-    
-    // If all laminate and coating options are false, return uncoated.
-    if(handoffData.laminate.front.substrate.value == "null"){
-        temp = "-Uncoated"
-        return temp
-    }
-
-    // If it has lam data then we ignore the coating
-    if(handoffData.laminate.front.substrate.value != "null"){
-        temp = "-" + handoffData.laminate.front.substrate.value
-        return temp
-    }
-
-    // TODO - Fix the coating key
-    /*
-    // If it's RP, use the general Coating method.
-    if(handoffData.coating.key != "null"){
-        if(handoffData.substrate.match(new RegExp("- RP","g"))){
-            temp = "-" + handoffData.coating.key
-            return temp
-        }
-    }
-        */
 
     // If it's SP, use the frontCoating method.
     if(handoffData.coating.front.substrate.enabled){
-        if(handoffData.substrate.match(new RegExp("- SP","g"))){
-            temp = "-" + handoffData.coating.front.substrate.value
-            return temp
-        }
+        temp = "-" + handoffData.coating.front.substrate.key
+        return temp
     }
 
-    return temp
+     // If it has lam data then we ignore the coating
+    if(handoffData.laminate.front.substrate.enabled){
+        temp = "-" + handoffData.laminate.front.substrate.key
+        return temp
+    }
+
+    // If all laminate and coating options are false, return uncoated.
+    return "-Uncoated"
 }

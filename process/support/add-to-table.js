@@ -286,6 +286,13 @@ function parseSpecsRow(table, db, parameter, object, orderSpecs, data) {
         case "orderspecs_coating_back":
         case "orderspecs_laminate_front":
         case "orderspecs_laminate_back":
+            return {
+                enabled: db.settings.getString(7) === 'y',
+                label: db.settings.getString(2),
+                value: db.settings.getString(4) || db.settings.getString(3) || null,
+                key: db.settings.getString(8)
+            };
+
         case "options_material-thickness":
         case "options_print-finish":
         case "options_print-method":
