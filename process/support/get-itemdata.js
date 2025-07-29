@@ -88,15 +88,13 @@ function initSpecs(data) {
                 },
                 coating:{
                     value: null,
-                    key: null,
-                    front: { enabled: false, label: null, value: null },
-                    back: { enabled: false, label: null, value: null }
+                    front: { enabled: false, label: null, value: null, key: null },
+                    back: { enabled: false, label: null, value: null, key: null }
                 },
                 laminate:{
                     value: null,
-                    key: null,
-                    front: { enabled: false, label: null, value: null },
-                    back: { enabled: false, label: null, value: null }
+                    front: { enabled: false, label: null, value: null, key: null },
+                    back: { enabled: false, label: null, value: null, key: null }
                 }
             },
             cover: {
@@ -114,15 +112,13 @@ function initSpecs(data) {
                 },
                 coating:{
                     value: null,
-                    key: null,
-                    front: { enabled: false, label: null, value: null },
-                    back: { enabled: false, label: null, value: null }
+                    front: { enabled: false, label: null, value: null, key: null },
+                    back: { enabled: false, label: null, value: null, key: null }
                 },
                 laminate:{
                     value: null,
-                    key: null,
-                    front: { enabled: false, label: null, value: null },
-                    back: { enabled: false, label: null, value: null }
+                    front: { enabled: false, label: null, value: null, key: null },
+                    back: { enabled: false, label: null, value: null, key: null }
                 }
             }
         },
@@ -141,15 +137,13 @@ function initSpecs(data) {
             },
             coating:{
                 value: null,
-                key: null,
-                front: { enabled: false, label: null, value: null },
-                back: { enabled: false, label: null, value: null }
+                front: { enabled: false, label: null, value: null, key: null },
+                back: { enabled: false, label: null, value: null, key: null }
             },
             laminate:{
                 value: null,
-                key: null,
-                front: { enabled: false, label: null, value: null },
-                back: { enabled: false, label: null, value: null }
+                front: { enabled: false, label: null, value: null, key: null },
+                back: { enabled: false, label: null, value: null, key: null }
             }
         },
         cover: {
@@ -167,15 +161,13 @@ function initSpecs(data) {
             },
             coating:{
                 value: null,
-                key: null,
-                front: { enabled: false, label: null, value: null },
-                back: { enabled: false, label: null, value: null }
+                front: { enabled: false, label: null, value: null, key: null },
+                back: { enabled: false, label: null, value: null, key: null }
             },
             laminate:{
                 value: null,
-                key: null,
-                front: { enabled: false, label: null, value: null },
-                back: { enabled: false, label: null, value: null }
+                front: { enabled: false, label: null, value: null, key: null },
+                back: { enabled: false, label: null, value: null, key: null }
             }
         },
         paper:{

@@ -63,3 +63,11 @@ safeProperty = function(s, key, fallback) {
         return fallback || "Unknown";
     }
 }
+
+safeEval = function(dataset, xpath) {
+    try {
+        return dataset.evalToString(xpath);
+    } catch (e) {
+        return "Unknown";
+    }
+}

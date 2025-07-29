@@ -346,37 +346,19 @@ runFinalize = function(s, job, codebase){
 
 function getCoatLamSLN(s, handoffData){
     var temp = ""
-    
-    // If all laminate and coating options are false, return uncoated.
-    if(handoffData.laminate.front.substrate.value == "null"){
-        temp = "-Uncoated"
-        return temp
-    }
-
-    // If it has lam data then we ignore the coating
-    if(handoffData.laminate.front.substrate.value != "null"){
-        temp = "-" + handoffData.laminate.front.substrate.value
-        return temp
-    }
-
-    // TODO - Fix the coating key
-    /*
-    // If it's RP, use the general Coating method.
-    if(handoffData.coating.key != "null"){
-        if(handoffData.substrate.match(new RegExp("- RP","g"))){
-            temp = "-" + handoffData.coating.key
-            return temp
-        }
-    }
-        */
 
     // If it's SP, use the frontCoating method.
     if(handoffData.coating.front.substrate.enabled){
-        if(handoffData.substrate.match(new RegExp("- SP","g"))){
-            temp = "-" + handoffData.coating.front.substrate.value
-            return temp
-        }
+        temp = "-" + handoffData.coating.front.substrate.key
+        return temp
     }
 
-    return temp
+     // If it has lam data then we ignore the coating
+    if(handoffData.laminate.front.substrate.enabled){
+        temp = "-" + handoffData.laminate.front.substrate.key
+        return temp
+    }
+
+    // If all laminate and coating options are false, return uncoated.
+    return "-Uncoated"
 }

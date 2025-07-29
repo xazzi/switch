@@ -1270,8 +1270,8 @@ runParser = function(s, job, codebase){
                         var width = orderArray[i].size.width;
                         var height = orderArray[i].size.height;
 
-                        var isTopBoundCalendar = product.bindingEdge === "Top" && width === '5.5' && height === '8.5';
-                        var isSpecialLayout = (width === '4.75' && height === '4.75') || (width === '8.5' && height === '5.5');
+                        var isTopBoundCalendar = product.bindingEdge == "Top" && width == '5.5' && height == '8.5';
+                        var isSpecialLayout = (width == '4.75' && height == '4.75') || (width == '8.5' && height == '5.5');
 
                         if (isTopBoundCalendar || isSpecialLayout) {
                             product.nUp = 2;
@@ -1533,30 +1533,30 @@ runParser = function(s, job, codebase){
                             }
                         }
                     }
+                }
 
-                    // If it's a breakaway banner then adjust some parameters
-                    if(product.subprocess.name == "Breakaway"){
-                        if(file.pages != 2){
-                            data.notes.push([product.itemNumber,"Removed","Breakaway banner not split."]);
-                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                                ["project-id",data.projectID],
-                                ["item-number",product.itemNumber]
-                            ],[
-                                ["status","Removed from Gang"],
-                                ["note","Breakaway banner file incorrect."]
-                            ]))
-                            continue;
-                        }
-                        product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
-                        db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
-                            ["project-id", data.projectID],
-                            ["gang-number", data.gangNumber],
-                            ["order-number", product.orderNumber],
-                            ["item-number", product.itemNumber],
-                            ["page", "2"],
-                            ["status", "Initiated"]
-                        ]));	
+                // If it's a breakaway banner then adjust some parameters
+                if(product.subprocess.name == "Breakaway"){
+                    if(file.pages != 2){
+                        data.notes.push([product.itemNumber,"Removed","Breakaway banner not split."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",product.itemNumber]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","Breakaway banner file incorrect."]
+                        ]))
+                        continue;
                     }
+                    product.artworkFile = product.contentFile.split('.pdf')[0] + "_2.pdf"
+                    db.history.execute(generateSqlStatement_Insert(s, "history.details_item", [
+                        ["project-id", data.projectID],
+                        ["gang-number", data.gangNumber],
+                        ["order-number", product.orderNumber],
+                        ["item-number", product.itemNumber],
+                        ["page", "2"],
+                        ["status", "Initiated"]
+                    ]));	
                 }
                 
                 // Check if the item_number can be undersized.
@@ -2427,6 +2427,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, coverFrontlaminateNode, "enabled", data.cover.laminate.front.enabled);
         addNode_db(theXML, coverFrontlaminateNode, "label", data.cover.laminate.front.label);
         addNode_db(theXML, coverFrontlaminateNode, "value", data.cover.laminate.front.value);
+        addNode_db(theXML, coverFrontlaminateNode, "key", data.cover.laminate.front.key);
 
     var substrateFrontlaminateNode = theXML.createElement("substrate", null);
 		frontlaminateNode.appendChild(substrateFrontlaminateNode);
@@ -2434,6 +2435,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, substrateFrontlaminateNode, "enabled", data.substrate.laminate.front.enabled);
         addNode_db(theXML, substrateFrontlaminateNode, "label", data.substrate.laminate.front.label);
         addNode_db(theXML, substrateFrontlaminateNode, "value", data.substrate.laminate.front.value);
+        addNode_db(theXML, substrateFrontlaminateNode, "key", data.substrate.laminate.front.key);
 
     var backlaminateNode = theXML.createElement("back", null);
 		laminateNode.appendChild(backlaminateNode);
@@ -2444,6 +2446,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, coverBacklaminateNode, "enabled", data.cover.laminate.back.enabled);
         addNode_db(theXML, coverBacklaminateNode, "label", data.cover.laminate.back.label);
         addNode_db(theXML, coverBacklaminateNode, "value", data.cover.laminate.back.value);
+        addNode_db(theXML, coverBacklaminateNode, "key", data.cover.laminate.back.key);
 
     var substrateBacklaminateNode = theXML.createElement("substrate", null);
 		backlaminateNode.appendChild(substrateBacklaminateNode);
@@ -2451,6 +2454,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, substrateBacklaminateNode, "enabled", data.substrate.laminate.back.enabled);
         addNode_db(theXML, substrateBacklaminateNode, "label", data.substrate.laminate.back.label);
         addNode_db(theXML, substrateBacklaminateNode, "value", data.substrate.laminate.back.value);
+        addNode_db(theXML, substrateBacklaminateNode, "key", data.substrate.laminate.back.key);
 
     // Coating Nodes ------------------------------------------------------------
     var coatingNode = theXML.createElement("coating", null);
@@ -2465,6 +2469,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, coverFrontCoatingNode, "enabled", data.cover.coating.front.enabled);
         addNode_db(theXML, coverFrontCoatingNode, "label", data.cover.coating.front.label);
         addNode_db(theXML, coverFrontCoatingNode, "value", data.cover.coating.front.value);
+        addNode_db(theXML, coverFrontCoatingNode, "key", data.cover.coating.front.key);
 
     var substrateFrontCoatingNode = theXML.createElement("substrate", null);
 		frontCoatingNode.appendChild(substrateFrontCoatingNode);
@@ -2472,6 +2477,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, substrateFrontCoatingNode, "enabled", data.substrate.coating.front.enabled);
         addNode_db(theXML, substrateFrontCoatingNode, "label", data.substrate.coating.front.label);
         addNode_db(theXML, substrateFrontCoatingNode, "value", data.substrate.coating.front.value);
+        addNode_db(theXML, substrateFrontCoatingNode, "key", data.substrate.coating.front.key);
 
     var backCoatingNode = theXML.createElement("back", null);
 		coatingNode.appendChild(backCoatingNode);
@@ -2482,6 +2488,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, coverBackCoatingNode, "enabled", data.cover.coating.back.enabled);
         addNode_db(theXML, coverBackCoatingNode, "label", data.cover.coating.back.label);
         addNode_db(theXML, coverBackCoatingNode, "value", data.cover.coating.back.value);
+        addNode_db(theXML, coverBackCoatingNode, "key", data.substrate.coating.back.key);
 
     var substrateBackCoatingNode = theXML.createElement("substrate", null);
 		backCoatingNode.appendChild(substrateBackCoatingNode);
@@ -2489,6 +2496,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, substrateBackCoatingNode, "enabled", data.substrate.coating.back.enabled);
         addNode_db(theXML, substrateBackCoatingNode, "label", data.substrate.coating.back.label);
         addNode_db(theXML, substrateBackCoatingNode, "value", data.substrate.coating.back.value);
+        addNode_db(theXML, substrateBackCoatingNode, "key", data.substrate.coating.back.key);
 	
     // Misc Nodes ------------------------------------------------------------
 	var mountNode = theXML.createElement("mount", null);
@@ -2830,31 +2838,33 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
                     prismValue: mxmlMap.substrate.base.prismValue
                 },
                 coating: {
-                    value: null,
-                    key: null,
+                    value: orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.value : null,
                     front: {
-                        enabled: mxmlMap.substrate.base.coating.front != null,
-                        label: "mxml",
-                        value: mxmlMap.substrate.base.coating.front
+                        enabled: orderSpecs.substrate.coating.front.enabled ? true : orderSpecs.paper.coating.enabled ? true : mxmlMap.substrate.base.coating.front != null,
+                        label: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.label : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.label : "mxml",
+                        value: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.value : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.front : mxmlMap.substrate.base.coating.front,
+                        key: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.key : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.key : null
                     },
                     back: {
-                        enabled: mxmlMap.substrate.base.coating.back != null,
-                        label: "mxml",
-                        value: mxmlMap.substrate.base.coating.back
+                        enabled: orderSpecs.substrate.coating.back.enabled ? true : orderSpecs.paper.coating.enabled ? true : mxmlMap.substrate.base.coating.back != null,
+                        label: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.label : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.label : "mxml",
+                        value: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.value : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.back : mxmlMap.substrate.base.coating.back,
+                        key: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.key : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.key : null
                     }
                 },
                 laminate: {
-                    value: null,
-                    key: null,
+                    value: orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.value : null,
                     front: {
-                        enabled: mxmlMap.substrate.base.laminate.front != null,
-                        label: "mxml",
-                        value: mxmlMap.substrate.base.laminate.front
+                        enabled: orderSpecs.substrate.laminate.front.enabled ? true : orderSpecs.paper.laminate.enabled ? true : mxmlMap.substrate.base.laminate.front != null,
+                        label: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.label : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.label : "mxml",
+                        value: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.value : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.front : mxmlMap.substrate.base.laminate.front,
+                        key: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.key : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.key : null
                     },
                     back: {
-                        enabled: mxmlMap.substrate.base.laminate.back != null,
-                        label: "mxml",
-                        value: mxmlMap.substrate.base.laminate.back
+                        enabled: orderSpecs.substrate.laminate.back.enabled ? true : orderSpecs.paper.laminate.enabled ? true : mxmlMap.substrate.base.laminate.back != null,
+                        label: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.label : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.label : "mxml",
+                        value: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.value : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.back : mxmlMap.substrate.base.laminate.back,
+                        key: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.key : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.key : null
                     }
                 }
             },
@@ -2873,30 +2883,33 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
                 },
                 coating: {
                     value: null,
-                    key: null,
                     front: {
-                        enabled: mxmlMap.cover.base.coating.front != null,
-                        label: "mxml",
-                        value: mxmlMap.cover.base.coating.front
+                        enabled: mxmlMap.cover.base.enabled == false ? false : orderSpecs.cover.coating.front.enabled ? true : orderSpecs.paper.coating.enabled ? true : mxmlMap.cover.base.coating.front != null,
+                        label: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.front.enabled ? orderSpecs.cover.coating.front.label : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.label : "mxml",
+                        value: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.front.enabled ? orderSpecs.cover.coating.front.value : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.front : mxmlMap.substrate.base.coating.front,
+                        key: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.front.enabled ? orderSpecs.cover.coating.front.key : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.key : null
                     },
                     back: {
-                        enabled: mxmlMap.cover.base.coating.back != null,
-                        label: "mxml",
-                        value: mxmlMap.cover.base.coating.back
+                        enabled: mxmlMap.cover.base.enabled == false ? false : orderSpecs.cover.coating.back.enabled ? true : orderSpecs.paper.coating.enabled ? true : mxmlMap.cover.base.coating.back != null,
+                        label: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.back.enabled ? orderSpecs.cover.coating.back.label : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.label : "mxml",
+                        value: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.back.enabled ? orderSpecs.cover.coating.back.value : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.back : mxmlMap.cover.base.coating.back,
+                        key: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.back.enabled ? orderSpecs.cover.coating.back.key : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.key : null
                     }
                 },
                 laminate: {
                     value: null,
                     key: null,
                     front: {
-                        enabled: mxmlMap.cover.base.laminate.front != null,
-                        label: "mxml",
-                        value: mxmlMap.cover.base.laminate.front
+                        enabled: mxmlMap.cover.base.enabled == false ? false : orderSpecs.cover.laminate.front.enabled ? true : orderSpecs.paper.laminate.enabled ? true : mxmlMap.cover.base.laminate.front != null,
+                        label: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.front.enabled ? orderSpecs.cover.laminate.front.label : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.label : "mxml",
+                        value: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.front.enabled ? orderSpecs.cover.laminate.front.value : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.front : mxmlMap.cover.base.laminate.front,
+                        key: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.front.enabled ? orderSpecs.cover.laminate.front.key : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.key : null
                     },
                     back: {
-                        enabled: mxmlMap.cover.base.laminate.back != null,
-                        label: "mxml",
-                        value: mxmlMap.cover.base.laminate.back
+                        enabled: mxmlMap.cover.base.enabled == false ? false : orderSpecs.cover.laminate.back.enabled ? true : orderSpecs.paper.laminate.enabled ? true : mxmlMap.cover.base.laminate.back != null,
+                        label: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.back.enabled ? orderSpecs.cover.laminate.back.label : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.label : "mxml",
+                        value: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.back.enabled ? orderSpecs.cover.laminate.back.value : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.back : mxmlMap.cover.base.laminate.back,
+                        key: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.back.enabled ? orderSpecs.cover.laminate.back.key : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.key : null
                     }
                 }
             }
@@ -2921,30 +2934,32 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
                 },
                 coating: {
                     value: orderSpecs.paper.coating.value,
-                    key: orderSpecs.paper.coating.key,
                     front: {
-                        enabled: orderSpecs.paper.coating.enabled,
-                        label: orderSpecs.paper.coating.label,
-                        value: orderSpecs.paper.coating.front
+                        enabled: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.enabled : orderSpecs.paper.coating.enabled,
+                        label: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.label : orderSpecs.paper.coating.label,
+                        value: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.value : orderSpecs.paper.coating.front,
+                        key: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.key : orderSpecs.paper.coating.key
                     },
                     back: {
-                        enabled: orderSpecs.paper.coating.enabled,
-                        label: orderSpecs.paper.coating.label,
-                        value: orderSpecs.paper.coating.back
+                        enabled: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.enabled : orderSpecs.paper.coating.enabled,
+                        label: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.label : orderSpecs.paper.coating.label,
+                        value: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.value : orderSpecs.paper.coating.back,
+                        key: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.key : orderSpecs.paper.coating.key
                     }
                 },
                 laminate: {
                     value: orderSpecs.paper.laminate.value,
-                    key: orderSpecs.paper.laminate.key,
                     front: {
-                        enabled: orderSpecs.paper.laminate.enabled,
-                        label: orderSpecs.paper.laminate.label,
-                        value: orderSpecs.paper.laminate.front
+                        enabled: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.enabled : orderSpecs.paper.laminate.enabled,
+                        label: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.label : orderSpecs.paper.laminate.label,
+                        value: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.value : orderSpecs.paper.laminate.front,
+                        key: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.key : orderSpecs.paper.laminate.key
                     },
                     back: {
-                        enabled: orderSpecs.paper.laminate.enabled,
-                        label: orderSpecs.paper.laminate.label,
-                        value: orderSpecs.paper.laminate.back
+                        enabled: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.enabled : orderSpecs.paper.laminate.enabled,
+                        label: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.label : orderSpecs.paper.laminate.label,
+                        value: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.value : orderSpecs.paper.laminate.back,
+                        key: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.key : orderSpecs.paper.laminate.key
                     }
                 }
             },
@@ -2963,30 +2978,32 @@ function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
                 },
                 coating: {
                     value: null,
-                    key: null,
                     front: {
                         enabled: false,
                         label: null,
-                        value: null
+                        value: null,
+                        key: null
                     },
                     back: {
                         enabled: false,
                         label: null,
-                        value: null
+                        value: null,
+                        key: null
                     }
                 },
                 laminate: {
                     value: null,
-                    key: null,
                     front: {
                         enabled: false,
                         label: null,
-                        value: null
+                        value: null,
+                        key: null
                     },
                     back: {
                         enabled: false,
                         label: null,
-                        value: null
+                        value: null,
+                        key: null
                     }
                 }
             }

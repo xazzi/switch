@@ -53,13 +53,5 @@ runPost = function (s, job, codebase) {
         }
     }
 
-    function safeEval(dataset, xpath) {
-        try {
-            return dataset.evalToString(xpath);
-        } catch (e) {
-            return "Unknown";
-        }
-    }
-
     post(s, job, codebase);
 };

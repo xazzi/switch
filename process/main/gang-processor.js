@@ -27,7 +27,7 @@ gangProcessor = function(s, codebase){
 			var secondInterval = 30;
                 s.setTimerInterval(secondInterval);
 
-			var processorQueue = new Dir("C:/Users/svc_imposition/AppData/Roaming/Enfocus/Switch Server/backing/Phoenix Approval [Dev-1]/automanaged/Processor Queue");
+			var processorQueue = new Dir("C:/Switch/Depository/processorQueue/" + module.localEnvironment);
 			var processorQueueFiles = processorQueue.entryList("*.xml", Dir.Files, Dir.Name);
 
 			// Loop through the XML files found in the Processor Queue
