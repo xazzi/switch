@@ -451,6 +451,9 @@ function parseOrderSpecs(job, specs, orderSpecsArray, s, db, data, userInfo, dat
                 specs.impInstructions.active = true;
                 specs.impInstructions.value = value;
                 break;
+            case "YARDFRAME":
+                assignSpecField(job, specs, "yardframe", "options_yard-frame", value, code, s, db, data, userInfo, dataDump, "old", entry);
+                break;
             case "SHAPE":
                 assignSpecField(job, specs, "shape", "options_shape", value, code, s, db, data, userInfo, dataDump, "old", entry);
                 break;
