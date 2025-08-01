@@ -46,13 +46,14 @@ prismPost = function(s, job, codebase){
             }
                 
             for(var i=0; i<validation.nodes.length; i++){
+                // Check if we are removing specific items.
                 if(validation.nodes.getItem(i).evalToString('tag') == "Items to Remove"){
                     validation.removals.items = validation.nodes.getItem(i).evalToString('value').split(',');
                 }
 
 				// Check if the user wants to post to prism.
                 if(validation.nodes.getItem(i).evalToString('tag') == "Post to Prism?"){
-                    validation.post.prism = validation.nodes.getItem(i).evalToString('value') == "No" ? 'n' : 'y';
+                    validation.post.prism = validation.nodes.getItem(i).evalToString('value') == "true";
                 }
             }
             
@@ -82,7 +83,7 @@ prismPost = function(s, job, codebase){
 
             if(handoffData.status == "Approved"){
                 s.log(2, handoffData.gangNumber + " approved by " + userInfo.first + " " + userInfo.last + ".");
-                if(validation.post.prism == 'y'){
+                if(validation.post.prism){
                     // Create the new job to work with.
                     var newXML = s.createNewJob();
                     var xmlPath = newXML.createPathWithName(handoffData.gangNumber + ".xml", false);
@@ -151,6 +152,7 @@ prismPost = function(s, job, codebase){
 				["project-id",handoffData.projectID]
 			],[
 				["status",handoffData.status],
+                ["post_to_prism",(validation.post.prism === 'true') ? 1 : 0],
 				["prism-response",response]
 			]))
 

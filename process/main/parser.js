@@ -1302,6 +1302,8 @@ runParser = function(s, job, codebase){
                         product.spacingBottom = .1919;
                         product.spacingLeft = .125;
                         product.spacingRight = .125;
+                        product.rotation = "Custom";
+                        product.allowedRotations = -90;
                     }
                 }
 
@@ -1932,6 +1934,19 @@ runParser = function(s, job, codebase){
 
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
+                    if(product.doubleSided){
+                        if(file.pages != 2){
+                            data.notes.push([product.itemNumber,"Removed","Rectangle Flag not setup correctly, needs to be 2 separate pages."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Rectangle flag setup incorrectly."]
+                            ]))
+                            continue;
+                        }
+                    }
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = orderArray[i].hardware.template.name + "_F";
                 }
