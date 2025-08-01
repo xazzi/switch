@@ -44,12 +44,17 @@ runPost = function (s, job, codebase) {
                 ["Process", safeEval(handoffDataDS, "//base/process")],
                 ["Subprocess", safeEval(handoffDataDS, "//base/subprocess")]
             ]);
-
+            
             job.sendToNull(job.getPath());
 
         } catch (e) {
             s.log(3, "Critical Error (Teams Webhook): " + e);
-            job.fail(e);
+
+            try{
+                job.sendTo(findConnectionByName_db(s, "Failed"), job.getPath());
+            }catch(e){
+                job.fail(e);
+            }
         }
     }
 

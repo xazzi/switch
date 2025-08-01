@@ -17,6 +17,7 @@ postWebhook = function(s, job, db, channel, message, additionalFields) {
                 : "Unknown"
             ]
         ];
+        
 
         if (additionalFields && additionalFields.length) {
             fields = fields.concat(additionalFields);
@@ -56,18 +57,24 @@ postWebhook = function(s, job, db, channel, message, additionalFields) {
 }
 
 safeProperty = function(s, key, fallback) {
-    try {
-        var val = s.getPropertyValue(key);
-        return (val !== undefined && val !== null) ? val.toString() : fallback || "Unknown";
-    } catch (e) {
-        return fallback || "Unknown";
+    function run(s, key, fallback){
+        try {
+            var val = s.getPropertyValue(key);
+            return (val !== undefined && val !== null) ? val.toString() : fallback || "Unknown";
+        } catch (e) {
+            return fallback || "Unknown";
+        }
     }
+    run(s, key, fallback)
 }
 
 safeEval = function(dataset, xpath) {
-    try {
-        return dataset.evalToString(xpath);
-    } catch (e) {
-        return "Unknown";
+    function run(dataset, xpath){
+        try {
+            return dataset.evalToString(xpath);
+        } catch (e) {
+            return "Unknown";
+        }
     }
+    run(dataset, xpath)
 }
