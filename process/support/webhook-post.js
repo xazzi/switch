@@ -65,7 +65,7 @@ safeProperty = function(s, key, fallback) {
             return fallback || "Unknown";
         }
     }
-    run(s, key, fallback)
+    return run(s, key, fallback)
 }
 
 safeEval = function(dataset, xpath) {
@@ -76,5 +76,5 @@ safeEval = function(dataset, xpath) {
             return "Unknown";
         }
     }
-    run(dataset, xpath)
+    return run(dataset, xpath)
 }
