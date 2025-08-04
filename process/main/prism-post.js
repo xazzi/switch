@@ -152,7 +152,7 @@ prismPost = function(s, job, codebase){
 				["project-id",handoffData.projectID]
 			],[
 				["status",handoffData.status],
-                ["post_to_prism",(validation.post.prism === 'true') ? 1 : 0],
+                ["post_to_prism",validation.post.prism ? 1 : 0],
 				["prism-response",response]
 			]))
 

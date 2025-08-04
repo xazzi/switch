@@ -1252,6 +1252,19 @@ runParser = function(s, job, codebase){
                 // Make some direct adjustments to web orders.
                 if (matInfo.type === "web") {
 
+                    // If no subprocess is assigned to the item for web printing, reject the item.
+                    if(product.subprocess.name == "None"){
+                        data.notes.push([orderArray[i].jobItemId,"Removed","No subprocess assigned to web item."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderArray[i].jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","No subprocess assigned"]
+                        ]))
+                        continue;
+                    }
+
                     // All web products have 20 added to their quantity.
                     product.quantity = Number(product.quantity) + 20;
 
