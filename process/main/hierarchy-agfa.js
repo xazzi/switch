@@ -27,11 +27,7 @@ runHierarchy = function(s, job, codebase){
             
             // Add any suffixes
             if(handoffData.process == "Coroplast"){
-                if(handoffData.subprocess == "ButtCut"){
-                    newPath += " Buttcut";
-                }else{
-                    newPath += " Phoenix";
-                }
+                newPath += "  v1";
             }
 
             job.setHierarchyPath([newPath]);
