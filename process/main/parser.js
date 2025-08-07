@@ -1283,20 +1283,24 @@ runParser = function(s, job, codebase){
                         var width = orderArray[i].size.width;
                         var height = orderArray[i].size.height;
 
-                        var isTopBoundCalendar = product.bindingEdge == "Top" && width == '5.5' && height == '8.5';
-                        var isSpecialLayout = (width == '4.75' && height == '4.75') || (width == '8.5' && height == '5.5');
+                        // Set reading order if top bound (regardless of size)
+                        if (product.bindingEdge === "Top") {
+                            product.readingOrder = "Calendar";
+                        }
 
-                        if (isTopBoundCalendar || isSpecialLayout) {
+                        // Check for layouts that need special spacing setup
+                        var isOpt2Layout =
+                            (product.bindingEdge === "Top" && width === '5.5' && height === '8.5') || 
+                            (width === '4.75' && height === '4.75') || 
+                            (width === '8.5' && height === '5.5');
+
+                        if (isOpt2Layout) {
                             product.nUp = 2;
                             product.nUpGap = 0.4724;
                             product.spacingTop = 0.5;
                             product.spacingBottom = 0.5;
                             matInfo.spacing.type = "Margins";
                             product.stock += "_Opt2";
-                        }
-
-                        if (isTopBoundCalendar) {
-                            product.readingOrder = "Calendar";
                         }
                     }
 
