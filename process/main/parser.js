@@ -1797,6 +1797,23 @@ runParser = function(s, job, codebase){
                     }
                 }
 
+                // Adjust some settings for the new roll sticker and label process
+                if (matInfo.type === "roll-label" || matInfo.type === "roll-sticker") {
+                    if (product.allowedRotations == 90 || product.allowedRotations == 270) {
+                        product.quantity = Math.floor(dynamic.width.usable / (product.height + Number(product.spacingTop) + Number(product.spacingBottom)));
+                        if (product.height < 1.3) {
+                            product.quantity = product.quantity * 2
+                        }
+                    }
+
+                    if (product.allowedRotations == 0 || product.allowedRotations == 180) {
+                        product.quantity = Math.floor(dynamic.width.usable / (product.width + Number(product.spacingLeft) + Number(product.spacingRight)));
+                        if (product.width < 1.3) {
+                            product.quantity = product.quantity * 2
+                        }
+                    }
+                }
+
                 // For the labelmaster, force a rotation based on the specs of the file.
                 if(!product.unwind.active){
                     if(matInfo.cutMethod == 'LabelMaster'){
