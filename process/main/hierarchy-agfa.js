@@ -26,9 +26,7 @@ runHierarchy = function(s, job, codebase){
             newPath += " " + side;
             
             // Add any suffixes
-            if(handoffData.process == "Coroplast"){
-                newPath += "  v1";
-            }
+            newPath += " v1";
 
             job.setHierarchyPath([newPath]);
 	        job.sendToSingle(job.getPath(), job.getName());
