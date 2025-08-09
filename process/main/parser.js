@@ -1,5 +1,7 @@
 runParser = function(s, job, codebase){
-    function parser(s, job, codebase){
+    function parser(s, job, codebase, retried){
+        var data, db
+
         try{
             var dir = {
                 support: "C:/Scripts/" + codebase + "/switch/process/support/",
@@ -24,44 +26,41 @@ runParser = function(s, job, codebase){
             eval(File.read(dir.support + "/compile-csv.js"));
             eval(File.read(dir.support + "/set-hem-labels.js"));
             eval(File.read(dir.support + "/set-product-labels.js"));
-            eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/get-edge-finishing.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
             eval(File.read(dir.support + "/sql-statements.js"));
             eval(File.read(dir.support + "/get-target-height.js"));
+            eval(File.read(dir.support + "/get-target-width.js"));
             eval(File.read(dir.support + "/set-banner-storting.js"));
             eval(File.read(dir.support + "/dart-template-check.js"));
+            eval(File.read(dir.support + "/set-date-object.js"));
+            eval(File.read(dir.support + "/get-timezone.js"));
+            eval(File.read(dir.support + "/webhook-post.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
 
             // Establist connection to the databases
             var connections = establishDatabases(s, module)
-            var db = {
+            db = {
                 settings: new Statement(connections.settings),
                 history: new Statement(connections.history),
                 email: new Statement(connections.email)
             }
-                
-            var localTime = new Date();
-            var hourOffset = module.timezone == "AWS" ? 7 : 0;
-            var hourAdjustment = localTime.getTime() - (3600000*hourOffset);
-            var adjustedTime = new Date(hourAdjustment).toString();
-                
-            var now = {
-                date: adjustedTime.split("T")[0],
-                time: adjustedTime.split("T")[1],
-                day: adjustedTime.split("T")[0].split("-")[2],
-                month: adjustedTime.split("T")[0].split("-")[1],
-                year: adjustedTime.split("T")[0].split("-")[0]
-            }
+
+            // Get the timezone info and set the now time per UTC
+            var times = getTimezoneInfo()
+            var now = parseDateParts(times.UTC)
                 
             var submitDS
             if(!module.devSettings.ignoreSubmit){
                 submitDS = loadDataset_db("Submit");
                 if(submitDS == "Dataset Missing"){
-                    job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+                    postWebhook(s, job, db, "Critical Error", "Dataset Missing.", [
+                        ["Error", "Dataset Missing."]
+                    ]);
+                    job.sendToNull(job.getPath())
                     return
                 }
             }
@@ -70,6 +69,8 @@ runParser = function(s, job, codebase){
                 nodes: !module.devSettings.ignoreSubmit ? submitDS.evalToNodes("//field-list/field") : [],
                 rotation: "",
                 merge: "",
+                removeFiles: false,
+                fileSource: "Watermark Servers",
                 route:{
                     active: false,
                     facility: null
@@ -89,10 +90,7 @@ runParser = function(s, job, codebase){
                     rush: false,
                     priority: 0,
                     date: false,
-                    redownload:{
-                        bool: false,
-                        location: null
-                    },
+                    accountTypeCode: "Default", //Needs to be set to default initially.
                     removeRestrictions:{
                         coroplast: false
                     },
@@ -105,105 +103,104 @@ runParser = function(s, job, codebase){
                 },
                 csvRequest: false
             }
-                
-            for(var i=0; i<submit.nodes.length; i++){
-                // Custom rotations input field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Custom rotations?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.rotation = submit.nodes.getItem(i).evalToString("field-list/field/value").split(',');
-                    }
-                }
 
-                // Hem finishing separation field. changed mixed finishing to mixed hem -CM
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix hems?"){
-                    submit.override.mixedHem = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
-                }
+            for (var i = 0; i < submit.nodes.length; i++) {
+                var node = submit.nodes.getItem(i);
+                var tag = node.evalToString('tag');
+                var value = node.evalToString('value');
 
-                // Lam and non-lam finishing separation field. -CM
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix lam?"){
-                    submit.override.mixedLam = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
-                }
+                switch (tag) {
+                    case "Custom rotations?":
+                        if (value == "Yes") {
+                            submit.rotation = node.evalToString("field-list/field/value").split(',');
+                        }
+                        break;
 
-                // Redownload file field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Redownload file?"){
-                    redownloadFrom(submit.nodes.getItem(i).evalToString('value'), submit)
-                }
+                    case "Mix hems?":
+                        submit.override.mixedHem = value == "Yes";
+                        break;
 
-                // Gang method override.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Gang Method"){
-                    submit.override.gangMethod = submit.nodes.getItem(i).evalToString('value')
-                }
-                
-                // Due date override
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix due dates?"){
-                    submit.override.date = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
-                }
+                    case "Mix lam?":
+                        submit.override.mixedLam = value == "Yes";
+                        break;
 
-                // Fullsize override
-                if(submit.nodes.getItem(i).evalToString('tag') == "Force fullsize?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "All items"){
-                        submit.override.fullsize.gang = true;
-                    }
-                    if(submit.nodes.getItem(i).evalToString('value') == "Specific items"){
-                        submit.override.fullsize.items = submit.nodes.getItem(i).evalToString("field-list/field/value").split(',');
-                    }
-                }
+                    case "Remove Existing Files?":
+                        submit.removeFiles = value == "true";
+                        break;
 
-                // Mix sides override.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Mix sides?"){
-                    submit.override.sideMix = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
-                }
-                
-                // Rerouting input field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Route to another facility?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.route.active = true;				
-                        submit.route.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
-                    }
-                }
+                    case "File Source":
+                        submit.fileSource = value;
+                        break;
 
-                // Request only the CSV for manual ganging.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Request Only CSV?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.csvRequest = true;				
-                    }
-                }
+                    case "Gang Method":
+                        submit.override.gangMethod = value;
+                        break;
 
-                // Custom material width.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Custom material size?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.material.active = true;				
-                        submit.material.name = submit.nodes.getItem(i).evalToString("field-list/field/field-list/field/value");
-                        submit.material.facility = submit.nodes.getItem(i).evalToString("field-list/field/value");
+                    case "Force Account Type":
+                        submit.override.accountTypeCode = value;
+                        break;
 
-                        db.settings.execute("SELECT * FROM settings.`override_material-size` WHERE name = '" + submit.material.name + "';");
-                        db.settings.fetchRow();
+                    case "Mix due dates?":
+                        submit.override.date = value == "Yes";
+                        break;
 
-                        submit.material.width = db.settings.getString(2);
-                        submit.material.height = db.settings.getString(3);
-                        submit.material.stock = db.settings.getString(4);
-                    }
-                }
-                
-                // Rush field.
-                if(submit.nodes.getItem(i).evalToString('tag') == "Rush?"){
-                    if(submit.nodes.getItem(i).evalToString('value') == "Yes"){
-                        submit.override.priority = 100;
-                        submit.override.rush = true
-                    }
-                }
+                    case "Force fullsize?":
+                        if (value == "All items") {
+                            submit.override.fullsize.gang = true;
+                        } else if (value == "Specific items") {
+                            submit.override.fullsize.items = node.evalToString("field-list/field/value").split(',');
+                        }
+                        break;
 
-                // Remove Coroplast restrictions
-                if(submit.nodes.getItem(i).evalToString('tag') == "Remove Coroplast Restrictions?"){
-                    submit.override.removeRestrictions.coroplast = submit.nodes.getItem(i).evalToString('value') == "true" ? true : false
-                }
+                    case "Mix sides?":
+                        submit.override.sideMix = value == "Yes";
+                        break;
 
-                // Prep for the Labelmaster
-                if(submit.nodes.getItem(i).evalToString('tag') == "Labelmaster?"){
-                    submit.override.labelmaster = submit.nodes.getItem(i).evalToString('value') == "Yes" ? true : false
+                    case "Route to another facility?":
+                        if (value == "Yes") {
+                            submit.route.active = true;
+                            submit.route.facility = node.evalToString("field-list/field/value");
+                        }
+                        break;
+
+                    case "Request Only CSV?":
+                        if (value == "Yes") {
+                            submit.csvRequest = true;
+                        }
+                        break;
+
+                    case "Custom material size?":
+                        if (value == "Yes") {
+                            submit.material.active = true;
+                            submit.material.name = node.evalToString("field-list/field/field-list/field/value");
+                            submit.material.facility = node.evalToString("field-list/field/value");
+
+                            db.settings.execute("SELECT * FROM settings.`override_material-size` WHERE name = '" + submit.material.name + "';");
+                            db.settings.fetchRow();
+
+                            submit.material.width = db.settings.getString(2);
+                            submit.material.height = db.settings.getString(3);
+                            submit.material.stock = db.settings.getString(4);
+                        }
+                        break;
+
+                    case "Rush?":
+                        if (value == "Yes") {
+                            submit.override.priority = 100;
+                            submit.override.rush = true;
+                        }
+                        break;
+
+                    case "Remove Coroplast Restrictions?":
+                        submit.override.removeRestrictions.coroplast = value == "true";
+                        break;
+
+                    case "Labelmaster?":
+                        submit.override.labelmaster = value == "Yes";
+                        break;
                 }
             }
-            
+
             var orderArray = [];
             var adjustmentArray = [];
             var matInfo = null;
@@ -220,57 +217,64 @@ runParser = function(s, job, codebase){
             var doc = new Document(job.getPath());	
             var map = doc.createDefaultMap();
 
-            var data = {
+            data = {
                 projectID: skuGenerator_projectID(db),
                 gangNumber: doc.evalToString('//*[local-name()="Project"]/@ProjectID', map),
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
-                fileSource: module.fileSource,
-                repository: "//10.21.71.213/File Repository/",
+                fileSource: submit.fileSource != "Default" ? submit.fileSource : "Watermark Servers",
+                repository: new Dir("//10.21.71.213/File Repository/"),
                 doubleSided: null,
                 secondSurface: null,
-                coating:{
-                    active: false,
-                    method: null,
-                    value: null
+                substrate: {
+                    base:{ enabled: false, label: null, value: null, prismValue: null },
+                    combined:{ enabled: false, label: null, value: null, prismValue: null },
+                    coating:{ 
+                        value: null, key: null,
+                        front: { enabled: false, label: null, value: null },
+                        back: { enabled: false, label: null, value: null }
+                    },
+                    laminate:{ 
+                        value: null, key: null,
+                        front: { enabled: false, label: null, value: null },
+                        back: { enabled: false, label: null, value: null }
+                    }
                 },
-                frontCoating:{
-                    enabled: false,
-                    label: null,
-                    value: null
+                cover: {
+                    base:{ enabled: false, label: null, value: null, prismValue: null },
+                    combined:{ enabled: false, label: null, value: null, prismValue: null },
+                    coating:{ 
+                        value: null, key: null,
+                        front: { enabled: false, label: null, value: null },
+                        back: { enabled: false, label: null, value: null }
+                    },
+                    laminate:{ 
+                        value: null, key: null,
+                        front: { enabled: false, label: null, value: null },
+                        back: { enabled: false, label: null, value: null }
+                    }
                 },
-                laminate:{
-                    active: false,
-                    method: null,
-                    value: null
-                },
-                mount:{
-                    active: false,
-                    method: null,
-                    value: null
-                },
+                mount: { active: false, method: null, value: null },
                 reprint: false,
                 prodName: null,
-                scaled: false,
+                scaleGang: false,
                 scale: "",
-                oversize: false,
+                maxWidth: false, // Not sure we need this variable anymore. 4/15/25
                 thing: null,
                 printer: null,
-                dateID: null,
+                phoenixPress: null,
                 notes: [],
                 tolerance: 0,
-                paper: null,
-                cover: {
-                    enabled: false,
-                    value: null
-                },
-                prismStock: null,
                 facility:{
                     original: null,
-                    destination: null
+                    destination: null,
+                    id: null,
+                    abbr: null
                 },
                 date:{
-                    due: null
+                    due:{
+                        iso: null
+                    }
                 },
                 phoenix:{
                     printExport: null,
@@ -288,20 +292,22 @@ runParser = function(s, job, codebase){
                 rush: submit.override.rush,
                 sideMix: null,
                 labelmaster: submit.override.labelmaster,
-                csvRequest: submit.csvRequest
+                csvRequest: submit.csvRequest,
+                virtualPrinter:{
+                    substrate: null,
+                    cover: null
+                }
             }
 
             db.history.execute(generateSqlStatement_Insert(s, "history.details_gang", [
                 ["project-id", data.projectID],
-                ["gang-number",data.gangNumber]
+                ["gang-number",data.gangNumber],
+                ["started_at_utc",now.iso],
+                ["started_at_mst",times.MST],
+                ["started_at_est",times.EST]
             ]));
             
             var theNewToken = getNewToken(s, data.environment);
-            
-            var watermarkDrive = "T://watermarked-files";
-            if(data.environment == "QA"){
-                watermarkDrive = "Q://watermarked-files";
-            }
                     
             // Handle any custom rotation from the user.
             for(var i=0; i<submit.rotation.length; i++){
@@ -346,14 +352,7 @@ runParser = function(s, job, codebase){
             // Pull the user information.
             db.settings.execute("SELECT * FROM settings.users WHERE email = '" + job.getUserEmail() + "';");
             if(!db.settings.isRowAvailable()){
-                sendEmail_db(s, data, null, getEmailResponse("Undefined User", null, null, data, job.getUserEmail(), null), null);
-                job.sendToNull(job.getPath());
-                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                    ["project-id", data.projectID]
-                ],[
-                    ["status","Parse Failed"],
-                    ["note","Undefined user."]
-                ]))
+                handleRejection_Gang(s, db, job, data, null, "Undefined User", "User is undefined", "user", null, null);
                 return;
             }
                 db.settings.fetchRow();
@@ -362,18 +361,48 @@ runParser = function(s, job, codebase){
                 first: db.settings.getString(1),
                 last: db.settings.getString(2),
                 email: db.settings.getString(3),
-                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4),
-                fileSource: getFileSource(db.settings.getString(9))
+                dir: db.settings.getString(4) == null ? "Unknown User" : db.settings.getString(1) + " " + db.settings.getString(2) + " - " + db.settings.getString(4)
             }
 
-            // If the module is set to choose the fileSource based on user.
-            if(data.fileSource == "User Defined"){
-                data.fileSource = userInfo.fileSource
+            var mxmlMap = {
+                substrate: {
+                    base:{ enabled: false, value: null, key: null, prismValue: null,
+                        coating:{ front: null, back: null },
+                        laminate:{ front: null, back: null }
+                    },
+                    combined:{ enabled: false, value: null, key: null, prismValue: null },
+                    coating:{ front: null, back: null },
+                    laminate:{ front: null, back: null }
+                },
+                cover: {
+                    base:{ enabled: false, value: null, key: null, prismValue: null,
+                        coating:{ front: null, back: null },
+                        laminate:{ front: null, back: null }
+                    },
+                    combined:{ enabled: false, value: null, key: null, prismValue: null },
+                    coating:{ front: null, back: null },
+                    laminate:{ front: null, back: null }
+                }
             }
 
-            // Override the fileSource if necessary.
-            if(submit.override.redownload.bool){
-                data.fileSource = submit.override.redownload.location
+            // Read through the MXML and check for stock and cover data.
+            var stockNodes = doc.evalToNodes('//*[local-name()="Stock"]', map);
+            for (var i = 0; i < stockNodes.length; i++) {
+                var node = stockNodes.getItem(i);
+                var id = node.getAttributeValue("ID");
+                var name = node.getAttributeValue("Name");
+
+                if(id == "Ref_20"){
+                    var result = addToTable(s, job, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    if (result) assignTo(mxmlMap.substrate.base, result);
+                }
+
+                if(id == "Ref_22"){
+                    var result = addToTable(s, job, db, "mxml_mapping", name, null, data, userInfo, null, null, "mxml");
+                    if (result) assignTo(mxmlMap.cover.base, result);
+                }
+
+                if(mxmlMap.substrate.base.enabled && mxmlMap.cover.base.enabled){break}
             }
                 
             // Loop through the items, pull the data from the API, then post it to the array.
@@ -389,11 +418,11 @@ runParser = function(s, job, codebase){
                     ["item-number", node.getAttributeValue('ID')],
                     ["page", "1"],
                     ["status", "Initiated"]
-                ]));	
+                ]));
 
                 // Pull the item information from the API.
-                var orderSpecs = pullApiInformation(s, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
-                
+                var orderSpecs = pullApiInformation(s, job, node.getAttributeValue('ID'), theNewToken, data.environment, db, data, userInfo);
+
                 // API pull failed.
                 if(!orderSpecs.complete){
                     data.notes.push([node.getAttributeValue('ID'),"Removed","API pull failed."])
@@ -406,7 +435,39 @@ runParser = function(s, job, codebase){
                     ]))
                     continue;
                 }
-                
+
+                // Remove the file if shipping information doesn't exist.
+                if(!orderSpecs.ship.exists){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Shipping data is missing"]
+                    ]))
+                    continue;
+                }
+
+                // Overrite the account type for manual dev testing.
+                if(submit.override.accountTypeCode != "Default"){
+                    orderSpecs.accountTypeCode = submit.override.accountTypeCode
+                }
+
+                // Set facility information
+                if(data.facility.original == null){
+                    data.facility.original = orderSpecs.facility;
+                    data.facility.destination = submit.route.active ? submit.route.facility : orderSpecs.facility;
+
+                    // Pull the facility information.
+                    db.settings.execute("SELECT * FROM settings.facility WHERE facility = '" + data.facility.destination + "';");
+                    db.settings.fetchRow();
+
+                    orderSpecs.facilityId = db.settings.getString(3);
+                    data.facility.abbr = db.settings.getString(2);
+                    data.facility.id = db.settings.getString(3);
+                }
+
                 // Check if facility information exists
                 if(orderSpecs.facility == undefined || orderSpecs.facilityId == undefined){
                     data.notes.push([orderSpecs.jobItemId,"Removed","No facility assigned."]);
@@ -420,26 +481,49 @@ runParser = function(s, job, codebase){
                     continue;
                 }
 
-                // Remove the file if shipping information doesn't exist.
-                /*
-                if(!orderSpecs.ship.exists){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Shipping data is missing."]);
+                // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
+                if(orderSpecs.facility != data.facility.destination){
+                    if(!submit.route.active){
+                        handleRejection_Gang(s, db, job, data, orderSpecs, "Facility Mismatch", "Multiple facilities assigned", "error", null, null);
+                        return
+                    }
+                }
+
+                // Resolve the orderSpecs to produce the job.
+                orderSpecs.resolved = resolveMaterialMapping(s, orderSpecs, mxmlMap);
+                if(!orderSpecs.resolved){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Order specs not resolved."]);
                     db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                         ["project-id",data.projectID],
                         ["item-number",orderSpecs.jobItemId]
                     ],[
                         ["status","Removed from Gang"],
-                        ["note","Shipping data is missing"]
+                        ["note","Order specs not resolved."]
                     ]))
                     continue;
                 }
-                    */
 
-                //var enabled = enabledCheck(s, data, orderSpecs)
+                // Query the mapping table for the substrate
+                orderSpecs.mapping.substrate = addToTable(s, job, db, "specs_paper", orderSpecs.resolved.substrate.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");
 
-                //s.log(2, JSON.parse(enabled))
+                // Substrate mapping incomplete
+                if (orderSpecs.resolved.substrate.base.enabled && orderSpecs.mapping.substrate.mapId == null) {
+                    handleRejection_Gang(s, db, job, data, orderSpecs, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.substrate, null);
+                    return;
+                }
+
+                // Query the mapping table
+                orderSpecs.mapping.cover = addToTable(s, job, db, "specs_paper", orderSpecs.resolved.cover.base.value, orderSpecs.jobItemId, data, userInfo, null, orderSpecs, "mapping");  
+
+                // Cover mapping incomplete
+                if(orderSpecs.resolved.cover.base.enabled && orderSpecs.mapping.cover.mapId == null){
+                    handleRejection_Gang(s, db, job, data, orderSpecs, "Mapping Incomplete", "Mapping failed", "mapping", orderSpecs.mapping.cover, null);
+                    return;
+                }
 
                 /*
+                // TODO
+                //var enabled = enabledCheck(s, data, orderSpecs)
                 if(!orderSpecs.bindPlace.enabled){
                     data.notes.push([orderSpecs.jobItemId,"Removed","Binding edge not assigned."]);
                     db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
@@ -451,84 +535,51 @@ runParser = function(s, job, codebase){
                     ]))
                     continue;
                 }
-                    */
+                */
 
-                // Set facility information
-                if(data.facility.original == null){
-                    data.facility.original = orderSpecs.facility;
-                    data.facility.destination = submit.route.active ? submit.route.facility : orderSpecs.facility;
-
-                    // Pull the facility information.
-                    db.settings.execute("SELECT * FROM settings.facility WHERE facility = '" + data.facility.destination + "';");
-                    db.settings.fetchRow();
-
-                    orderSpecs.facilityId = db.settings.getString(3);
-                    data.facility.id = db.settings.getString(3);
-
-                    // Set any facility level breakers to disable processes
-                    data.facility.breaker = {
-                        lam: db.settings.getString(5) == 'y'
-                    }
-                }
-
-                if(orderSpecs.reprint)[
+                if(orderSpecs.reprint)(
                     data.reprint = true
-                ]
+                )
 
-                // Material overrides
                 // -----------------------------------------------------------------------------------------
-                
+                // Material overrides
                 // Check for DS 13oz-Matte remapping to 13oz-Smooth
                 if(data.doubleSided == null || data.doubleSided == orderSpecs.doubleSided){
-                    if(orderSpecs.doubleSided && orderSpecs.paper.map.wix == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
+                    if(orderSpecs.doubleSided && orderSpecs.mapping.substrate.mapId == 48 && orderSpecs.item.subprocess != "3,4" && orderSpecs.item.subprocess != "4" && orderSpecs.item.value != "X-Stand Banners"){
                         matInfoCheck = true;
-                        orderSpecs.paper.map.wix = 51;
-                        data.prismStock = "13 oz. Smooth Matte"
+                        orderSpecs.mapping.substrate.mapId = 51;
+                        data.substrate.base.prismValue = "13 oz. Smooth Matte"
                     }
                 }
 
                 // Reassign this product in PRISM.
-                if(orderSpecs.paper.map.arl == 101 && data.facility.destination == "Arlington"){
-                    data.prismStock = "13 oz. Smooth Matte"
+                if(orderSpecs.mapping.substrate.mapId == 101 && data.facility.destination == "Arlington"){
+                    data.substrate.base.prismValue = "13 oz. Smooth Matte"
                 }
 
                 // Reassign this product in PRISM.
-                if(orderSpecs.paper.map.arl == 113 && data.facility.destination == "Van Nuys"){
-                    data.prismStock = "13 oz. Poly Film"
+                if(orderSpecs.mapping.substrate.mapId == 113 && data.facility.destination == "Van Nuys"){
+                    data.substrate.base.prismValue = "13 oz. Poly Film"
                 }
 
                 // 4mil with "Adhesive Fabric" materials needs to print on Adhesive Fabric
-                if(orderSpecs.paper.map.wix == 73 && orderSpecs.material.value == "Adhesive Fabric"){
+                if(orderSpecs.mapping.substrate.mapId == 73 && orderSpecs.material.value == "Adhesive Fabric"){
                     matInfoCheck = true;
-                    orderSpecs.paper.map.wix = 68;
+                    orderSpecs.mapping.substrate.mapId = 68;
                 }
 
                 // 4mil with laminate need to print on Floor Decal
-                if(orderSpecs.paper.map.wix == 73 && orderSpecs.laminate.active == true){
-                    orderSpecs.paper.map.wix = 74;
+                if(orderSpecs.mapping.substrate.mapId == 73 && orderSpecs.laminate.front.enabled == true){
+                    orderSpecs.mapping.substrate.mapId = 74;
                 }
 
                 // Pull the material information if it hasn't been pulled yet.
                 if(matInfo == null || matInfoCheck){
-                    matInfo = getMatInfo(orderSpecs, db);
+                    matInfo = getMatInfo(orderSpecs.mapping.substrate.mapId, db);
 
                     // Material data is missing from the material table, might be a paper mapping issue.
                     if(matInfo == "Material Data Missing"){
-                        s.log(3, data.gangNumber + " :: Material entry doesn't exist, job rejected.");
-                        sendEmail_db(s, data, matInfo, getEmailResponse("Undefined Material", null, orderSpecs, data, userInfo, null), userInfo);
-                        job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID]
-                        ],[
-                            ["status","Gang Failed"],
-                            ["note","Undefined material."]
-                        ]));
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                            ["project-id", data.projectID]
-                        ],[
-                            ["status","Parse Failed"],
-                            ["note","Undefined material."]
-                        ]));
+                        handleRejection_Gang(s, db, job, data, orderSpecs, "Undefined Material", "Undefined material", "material", orderSpecs.mapping, null);
                         return;
                     }
                 }
@@ -538,32 +589,21 @@ runParser = function(s, job, codebase){
                     matInfo.prodMatFileName = orderSpecs.materialThickness.value + matInfo.prodMatFileName
                 }
 
-                if(orderSpecs.printFinish.enabled){
-                    if(orderSpecs.material.customValue !== undefined){
-                        orderSpecs.printFinish.value = orderSpecs.material.customValue
-                    }
-                    matInfo.prodMatFileName = matInfo.prodMatFileName + orderSpecs.printFinish.value
-                }
+                // Append print method value to the filename when both printFinish and printMethod are enabled
+                if (
+                    orderSpecs.printFinish && orderSpecs.printFinish.enabled &&
+                    orderSpecs.printMethod && orderSpecs.printMethod.enabled
+                ) {
+                    var methodValue = orderSpecs.printMethod.value;
 
-                // If the orderSpec facility is different from the destination facility, check if routing is active, reject if not.
-                if(orderSpecs.facility != data.facility.destination){
-                    if(!submit.route.active){
-                        s.log(3, data.gangNumber + " :: Facility mismatch.");
-                        sendEmail_db(s, data, matInfo, getEmailResponse("Facility Mismatch", null, matInfo, data, userInfo, null), userInfo);
-                        job.sendToNull(job.getPath());
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID]
-                        ],[
-                            ["status","Gang Failed"],
-                            ["note","Facility mismatch."]
-                        ]))
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                            ["project-id", data.projectID]
-                        ],[
-                            ["status","Parse Failed"],
-                            ["note","Facility mismatch."]
-                        ]))
-                        return
+                    if (methodValue !== undefined && methodValue !== null) {
+                        // Force printFinish.value to match printMethod.value
+                        orderSpecs.printFinish.value = methodValue;
+
+                        // Safely append to the filename
+                        if (typeof matInfo.prodMatFileName === "string") {
+                            matInfo.prodMatFileName += methodValue;
+                        }
                     }
                 }
 
@@ -608,11 +648,6 @@ runParser = function(s, job, codebase){
                         ]))
                         continue;
                     }
-                } 
-
-                // Enable the force laminate override
-                if(matInfo.forceLam){
-                    orderSpecs.laminate.active = true
                 }
 
                 // Reassign printers and associated data based on various criteria.
@@ -620,13 +655,8 @@ runParser = function(s, job, codebase){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderSpecs.width > 59 && orderSpecs.height > 59){
                             matInfo.width = 125;
+                            matInfo.maxWidth = null;
                             matInfo.phoenixStock = "Roll_125";
-                        }
-                    }
-                    if(matInfo.prodName == "13oz-PolyFilm"){
-                        if(orderSpecs.width >= 37 && orderSpecs.height >= 37){
-                            //matInfo.width = 53;
-                            //matInfo.phoenixStock = "Roll_53";
                         }
                     }
                 }
@@ -636,6 +666,7 @@ runParser = function(s, job, codebase){
                     if(matInfo.prodName == "PolyFilm"){
                         if(orderSpecs.width >= 59 && orderSpecs.height >= 59){
                             matInfo.width = 125;
+                            matInfo.maxWidth = null;
                             matInfo.phoenixStock = "Roll_125";
                         }
                     }
@@ -644,26 +675,24 @@ runParser = function(s, job, codebase){
                 // Override all of the above
                 if(submit.material.active){
                     matInfo.width = submit.material.width;
+                    matInfo.maxWidth = null;
                     if(submit.material.height != null && submit.material.height != 0){
                         matInfo.height = submit.material.height;
+                        matInfo.maxHeight = null;
                     }
                     matInfo.phoenixStock = submit.material.stock;
-                }
-
-                // Move large rolled product from the P10 to the 350.
-                if(data.facility.destination == "Salt Lake City"){
-                    if(matInfo.printer.name == "P10"){
-                        if(orderSpecs.width > matInfo.height || orderSpecs.height > matInfo.height){
-                            //matInfo.printer.name = "P5-350-HS";
-                            //data.printer = "P5-350-HS";
-                            //misc.rejectPress = false;
-                        }
-                    }
                 }
 
                 // If it's packaging product, check the templates.
                 if(matInfo.type == "packaging"){
                     orderSpecs.dartInfo = dartTemplateCheck(s, orderSpecs, data, db, matInfo)
+                }
+
+                // Enable the force laminate override
+                if(matInfo.forceLam){
+                    orderSpecs.resolved.substrate.laminate.front.enabled = true
+                    orderSpecs.resolved.substrate.laminate.front.label = "forced"
+                    orderSpecs.resolved.substrate.laminate.front.value = "Gloss"
                 }
                 
                 // Set the processes and subprocesses values and check if following items match it.
@@ -671,28 +700,18 @@ runParser = function(s, job, codebase){
                     data.prodName = matInfo.prodName;
                     data.prodMatFileName = matInfo.prodMatFileName != null ? matInfo.prodMatFileName : matInfo.prodName;
                     
-                    data.paper = orderSpecs.paper.value;
-                    if(data.prismStock == null){
-                        data.prismStock = orderSpecs.paper.value;
-                    }
+                    data.cover = orderSpecs.resolved.cover
+                    data.substrate = orderSpecs.resolved.substrate;
 
-                    //data.cover.enabled = orderSpecs.cover.enabled
-                    data.cover.value =  orderSpecs.cover.value
+                    if(data.substrate.base.prismValue == null){
+                        data.substrate.base.prismValue = orderSpecs.resolved.substrate.base.prismValue;
+                    }
 
                     data.date.due = orderSpecs.date.due;
                     
                     data.doubleSided = orderSpecs.doubleSided;
                     data.secondSurface = orderSpecs.secondSurface;
-                    data.laminate.active = orderSpecs.laminate.active;
-                    data.laminate.method = orderSpecs.laminate.method;
-                    data.laminate.value = orderSpecs.laminate.value;
-                    data.coating.enabled = orderSpecs.coating.enabled;
-                    data.coating.label = orderSpecs.coating.label;
-                    data.coating.value = orderSpecs.coating.value;
-                    data.coating.key = orderSpecs.coating.key;
-                    data.frontCoating.enabled = orderSpecs.frontCoating.enabled;
-                    data.frontCoating.label = orderSpecs.frontCoating.label;
-                    data.frontCoating.value = orderSpecs.frontCoating.value;
+
                     data.mount.active = orderSpecs.mount.active;
 
                     data.impositionProfile = {
@@ -707,6 +726,7 @@ runParser = function(s, job, codebase){
                     data.rotate90 = matInfo.rotate90;
                     data.sideMix = matInfo.sideMix;
                     data.printer = matInfo.printer.name;
+                    data.phoenixPress = matInfo.phoenixPress;
                     data.phoenixStock = matInfo.phoenixStock;
                     data.phoenix.printExport = matInfo.phoenix.printExport;
                     data.phoenix.cutExport = matInfo.phoenix.cutExport;
@@ -716,7 +736,10 @@ runParser = function(s, job, codebase){
                     // Apply special labels.
                     // For LFP products (roll and sheet), apply coating as a laminate option.
                     if(matInfo.type == "roll" || matInfo.type == "sheet"){
-                        if(data.coating.enabled || data.laminate.active){
+                        if(data.substrate.coating.front.enabled || data.substrate.coating.back.enabled){
+                            data.phoenix.gangLabel.push("Coat");
+                        }
+                        if(data.substrate.laminate.front.enabled || data.substrate.laminate.back.enabled){
                             data.phoenix.gangLabel.push("Lam");
                         }
                     }
@@ -764,25 +787,12 @@ runParser = function(s, job, codebase){
                     if(matInfo.prodName == "13oz-Smooth" || matInfo.prodName == "18oz-Matte"){
                         if(data.doubleSided || orderSpecs.doubleSided){
                             matInfo.height = 190;
+                            matInfo.maxHeight = 190;
                         }
                     }
                 }
-                
-                /*
-                // 6/26/25 Travis asked for this to be 'turned off'
-                // Reassign printers and associated data based on various criteria.
-                if(data.facility.destination == "Salt Lake City"){
-                    if(matInfo.prodName == "Foamboard"){
-                        if(orderSpecs.doubleSided){
-                            matInfo.width = 48;
-                            matInfo.height = 96;
-                            data.phoenixStock = "Mat_Foamboard"
-                        }
-                    }
-                }
-                */    
 
-                if(data.printer != matInfo.printer.name){
+                if(data.phoenixPress != matInfo.phoenixPress){
                     if(misc.rejectPress){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different printer " + matInfo.printer.name + "."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
@@ -790,7 +800,7 @@ runParser = function(s, job, codebase){
                             ["item-number",orderSpecs.jobItemId]
                         ],[
                             ["status","Removed from Gang"],
-                            ["note","Different printer: " + matInfo.printer.name]
+                            ["note","Different press: " + matInfo.printer.name]
                         ]))
                         continue;
                     }
@@ -810,20 +820,18 @@ runParser = function(s, job, codebase){
                 }
                 
                 // Check for paper deviation
-                /*
-                if(data.paper != orderSpecs.paper.value){
-                    data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material, " + orderSpecs.paper.value + "."]);
-                    data.notes.push([orderSpecs.jobItemId,"Priority","Different IMS material, " + orderSpecs.paper.value + "."]);
+                if(data.substrate.base.value != orderSpecs.resolved.substrate.base.value){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different IMS material, " + orderSpecs.resolved.substrate.base.value + "."]);
+                    data.notes.push([orderSpecs.jobItemId,"Priority","Different IMS material, " + orderSpecs.resolved.substrate.base.value + "."]);
                     db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                         ["project-id",data.projectID],
                         ["item-number",orderSpecs.jobItemId]
                     ],[
                         ["status","Removed from Gang"],
-                        ["note","Different IMS material: " + orderSpecs.paper.value]
+                        ["note","Different IMS material: " + orderSpecs.resolved.substrate.base.value]
                     ]))
                     continue;
                 }
-                    */
                 
                 // If finishing hem type is different, remove them from the gang.
                 if(data.facility.destination != "Arlington" && data.facility.destination != "Van Nuys"){
@@ -872,77 +880,56 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                // If the laminate breaker is on, separate the laminates out.
-                if(!data.facility.breaker.lam){
-                    
-                    /*
-                    // Check if coating deviation
-                    if(data.coating.enabled != orderSpecs.coating.enabled){
-                        var type = orderSpecs.coating.enabled ? "Coated" : "Uncoated"
-                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",orderSpecs.jobItemId]
-                        ],[
-                            ["status","Removed from Gang"],
-                            ["note","Different process: " + type]
-                        ]))
-                        continue;
-                    }
-                    
-                    // Check if laminate deviation
-                    if(data.laminate.active != orderSpecs.laminate.active){
-                        var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
-                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",orderSpecs.jobItemId]
-                        ],[
-                            ["status","Removed from Gang"],
-                            ["note","Different process: " + type]
-                        ]))
-                        continue;
-                    }
-                        */
+                // Check if front coating deviation
+                if(data.substrate.coating.front.value != orderSpecs.resolved.substrate.coating.front.value){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different front coating process, " + orderSpecs.resolved.substrate.coating.front.value + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different front coating process: " + orderSpecs.resolved.substrate.coating.front.value]
+                    ]))
+                    continue;
                 }
 
-                // Laminate and coating checks, skip if allowed to mix.
-                if(!matInfo.lamMix && !submit.override.mixedLam){
-
-                    // Check if coating deviation
-                    if(data.coating.enabled != orderSpecs.coating.enabled){
-                        var type = orderSpecs.coating.enabled ? "Coated" : "Uncoated"
-                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",orderSpecs.jobItemId]
-                        ],[
-                            ["status","Removed from Gang"],
-                            ["note","Different process: " + type]
-                        ]))
-                        continue;
-                    }
-                    
-                    // Check if laminate deviation
-                    if(data.laminate.active != orderSpecs.laminate.active){
-                        var type = orderSpecs.laminate.active ? "Laminate" : "Unlaminated"
-                        data.notes.push([orderSpecs.jobItemId,"Removed","Different process, " + type + "."]);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",orderSpecs.jobItemId]
-                        ],[
-                            ["status","Removed from Gang"],
-                            ["note","Different process: " + type]
-                        ]))
-                        continue;
-                    }
+                // Check if back coating deviation
+                if(data.substrate.coating.back.value != orderSpecs.resolved.substrate.coating.back.value){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different back coating process, " + orderSpecs.resolved.substrate.coating.back.value + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different back coating process: " + orderSpecs.resolved.substrate.coating.back.value]
+                    ]))
+                    continue;
                 }
 
-                // If we are allowing the laminate to mix with non lam, throw a flag for the file name.
-                if(matInfo.prodName == "Magnet" && data.facility.destination == "Salt Lake City"){
-                    if((data.laminate.active != orderSpecs.laminate.active) || (data.coating.enabled != orderSpecs.coating.enabled)){
-                        data.mixedLam = true
-                    }
+                // Check if front laminate deviation
+                if(data.substrate.laminate.front.value != orderSpecs.resolved.substrate.laminate.front.value){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different front laminate process, " + orderSpecs.resolved.substrate.laminate.front.value + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different front laminate process: " + orderSpecs.resolved.substrate.laminate.front.value]
+                    ]))
+                    continue;
+                }
+
+                // Check if back laminate deviation
+                if(data.substrate.laminate.back.value != orderSpecs.resolved.substrate.laminate.back.value){
+                    data.notes.push([orderSpecs.jobItemId,"Removed","Different back laminate process, " + orderSpecs.resolved.substrate.laminate.back.value + "."]);
+                    db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                        ["project-id",data.projectID],
+                        ["item-number",orderSpecs.jobItemId]
+                    ],[
+                        ["status","Removed from Gang"],
+                        ["note","Different back laminate process: " + orderSpecs.resolved.substrate.laminate.back.value]
+                    ]))
+                    continue;
                 }
                 
                 // Check if mount deviation
@@ -960,7 +947,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // Separate out the due dates so they can't gang together.
-                if(!submit.override.date){
+                if(!matInfo.mixDueDate){
                     if(orderSpecs.date.due != data.date.due){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different due date, " + orderSpecs.date.due + "."]);
                         db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
@@ -991,20 +978,18 @@ runParser = function(s, job, codebase){
 
             // 1st safety check for if all files have been removed from the gang.
             if(orderArray.length == 0){
-                sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
-                job.sendToNull(job.getPath());
-                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                    ["project-id", data.projectID]
-                ],[
-                    ["status","Parse Failed"],
-                    ["note","All files removed."]
-                ]))
-                return
+                updateEmailHistory(s, db, "Parser", data, data.notes);
+                handleRejection_Gang(s, db, job, data, null, "Empty Gang", "All files removed", "empty", null, null);
+                return;
             }
-            
-            data.dateID = data.date.due.split("T")[0].split("-")[1] + "-" + data.date.due.split("T")[0].split("-")[2];
+
+            // Establish the date structure and information.
+            // This restrucures the data.date.due variable into an object as well.
+            data.date.due = parseDateParts(data.date.due)
+
+            // Determine the sku.
             data.sku = skuGenerator(3, "numeric", data, db);
-                
+
             // Create the CSV and the new Job() for the project.
             var newCSV = s.createNewJob();
             var csvPath = newCSV.createPathWithName(data.gangNumber + ".csv", false);
@@ -1013,7 +998,10 @@ runParser = function(s, job, codebase){
                 
             var writeHeader = true;
 
-            var dynamic = getTargetHeight(s, matInfo, orderArray, data)
+            var dynamic = {
+                height: getTargetHeight(s, matInfo, orderArray, data),
+                width: getTargetWidth(s, matInfo, orderArray, data)
+            }
                 
             // Special label for gang level info that prints on the sheet.
             if(data.phoenix.gangLabel.length == 0){
@@ -1037,11 +1025,11 @@ runParser = function(s, job, codebase){
                     description: null,
                     doubleSided: orderArray[i].doubleSided,
                     secondSurface: orderArray[i].secondSurface,
-                    laminate: orderArray[i].laminate.active ? true : false,
-                    coating: orderArray[i].coating.enabled ? true : false,
+                    coating: orderArray[i].resolved.substrate.coating.front.enabled,
+                    laminate: orderArray[i].resolved.substrate.laminate.front.enabled,
                     rotation: matInfo.rotation,
                     allowedRotations: matInfo.allowedRotations,
-                    stock: data.phoenixStock,
+                    stock: data.maxWidth ? "MaxWidth_" + dynamic.width.value : data.phoenixStock,
                     spacingBase: matInfo.spacing.base,
                     spacingTop: matInfo.spacing.top == undefined ? matInfo.spacing.base : matInfo.spacing.top,
                     spacingBottom: matInfo.spacing.bottom == undefined ? matInfo.spacing.base : matInfo.spacing.bottom,
@@ -1097,11 +1085,8 @@ runParser = function(s, job, codebase){
                     hemValue: typeof(orderArray[i]["hem"]) == "undefined" ? null : orderArray[i].hem.value,
                     query: null,
                     date:{
-                        due: orderArray[i].date.due,
-                        abbr: orderArray[i].date.due.split("-")[1] + "-" + orderArray[i].date.due.split("-")[2],
-                        dayID: new Date(Date.parse(orderArray[i].date.due)).getDay()
+                        due: parseDateParts(orderArray[i].date.due)
                     },
-                    late: now.date >= orderArray[i].date.due,
                     reprint:{
                         status: orderArray[i].reprint.status,
                         reason: orderArray[i].reprint.reason
@@ -1145,6 +1130,10 @@ runParser = function(s, job, codebase){
                     nUp: "",
                     nUpGap: ""
                 }
+
+                // TODO - Check that this is flagging correctly, seem to be getting a lot of lates now.
+                // Set the product to late if the date unixMs is smaller than the now.unixMs
+                product.late = now.strings.yearMonthDay >= product.date.due.strings.yearMonthDay;
                 
                 var scale = {
                     width: 100,
@@ -1229,60 +1218,6 @@ runParser = function(s, job, codebase){
                     product.quantity = Number(product.quantity) + 2;
                 }
 
-                // Make some direct adjustments to web orders.
-                // Depending on how this has to scale in the future, it should probably be moved to a database.
-                if(matInfo.type == "web"){
-                    product.quantity = Number(product.quantity) + 20;
-                    product.foldingPatterns = "F4-2";
-                    product.type = "Bound";
-                    product.bindingMethod = "Saddle Stitch";
-
-                    if(data.cover.value != matInfo.rip.hotfolder){
-                        data.cover.enabled = true;
-                        matInfo.phoenixMethod += "-SeparateCover";
-                    }
-
-                    // If the size has been requested to be 2up.
-                    /*
-                    if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
-                        product.nUp = 2;
-                        product.nUpGap = 0.4724;
-                        product.spacingTop = .5;
-                        product.spacingBottom = .5;
-                        matInfo.spacing.type = "Margins"
-                        product.stock += "_Opt2"
-                    }
-                    */
-
-                    // Adjustment for calendars
-                    if(product.bindingEdge == "Top"){
-                        product.readingOrder = "Calendar"
-                        if(orderArray[i].size.width == '5.5' && orderArray[i].size.height == '8.5'){
-                            product.nUp = 2;
-                            product.nUpGap = 0.4724;
-                            product.spacingTop = .5;
-                            product.spacingBottom = .5;
-                            matInfo.spacing.type = "Margins"
-                            product.stock += "_Opt2"
-                    }
-
-                    // If it's not top binding, check to see if we should use a special setup.
-                    }else if((orderArray[i].size.width == '4.75' && orderArray[i].size.height == '4.75') || (orderArray[i].size.width == '8.5' && orderArray[i].size.height == '5.5')){
-                        product.nUp = 2;
-                        product.nUpGap = 0.4724;
-                        product.spacingTop = .5;
-                        product.spacingBottom = .5;
-                        matInfo.spacing.type = "Margins"
-                        product.stock += "_Opt2"
-                    }
-                }
-
-                // If it's a DS Rectangle Flag, swap the subprocess to the SilverBack version
-                // This code will be removed in the future once they open up SilverBack to all DS flag
-                if(orderArray[i].item.subprocess == 18 && product.doubleSided){
-                    //product.query = "26"
-                }
-
                 // Hard code the silverback name onto 2 items.
                 // This code should be deleted in the future when SLC enables the product on a paper level.
                 // bc 4/17/25
@@ -1297,10 +1232,83 @@ runParser = function(s, job, codebase){
 
                 // Reject the subprocess if it's not ready.
                 if(product.subprocess == "Reject"){
-                    s.log(3, data.projectID + " :: Subprocess still in testing, job rejected.");
-                    sendEmail_db(s, data, matInfo, getEmailResponse("Rejected Subprocess", product, matInfo, data, userInfo, null), userInfo);
-                    job.sendTo(findConnectionByName_db(s, "Undefined"), job.getPath());
+                    handleRejection_Gang(s, db, job, data, orderArray[i], "Subprocess Rejected", "The subprocess has been rejected", "subprocess", product, null);
                     return
+                }
+
+                // Make some direct adjustments to web orders.
+                if (matInfo.type === "web") {
+
+                    // If no subprocess is assigned to the item for web printing, reject the item.
+                    if(product.subprocess.name == "None"){
+                        data.notes.push([orderArray[i].jobItemId,"Removed","No subprocess assigned to web item."]);
+                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                            ["project-id",data.projectID],
+                            ["item-number",orderArray[i].jobItemId]
+                        ],[
+                            ["status","Removed from Gang"],
+                            ["note","No subprocess assigned"]
+                        ]))
+                        continue;
+                    }
+
+                    // All web products have 20 added to their quantity.
+                    product.quantity = Number(product.quantity) + 20;
+
+                    // Booklet adjustments
+                    if (product.subprocess.name === "Booklets") {
+                        product.foldingPatterns = "F4-2";
+                        product.type = "Bound";
+                        product.bindingMethod = "Saddle Stitch";
+
+                        // Cover data override
+                        if (data.cover.base.enabled) {
+                            matInfo.phoenixMethod += "-SeparateCover";
+                        }
+
+                        // Shortcut references for dimensions
+                        var width = orderArray[i].size.width;
+                        var height = orderArray[i].size.height;
+
+                        // Set reading order if top bound (regardless of size)
+                        if (product.bindingEdge == "Top") {
+                            product.readingOrder = "Calendar";
+                        }
+
+                        // Check for layouts that need special spacing setup
+                        var isOpt2Layout =
+                            (product.bindingEdge == "Top" && width == '5.5' && height == '8.5') || 
+                            (width == '4.75' && height == '4.75') || 
+                            (width == '8.5' && height == '5.5');
+
+                        if (isOpt2Layout) {
+                            product.nUp = 2;
+                            product.nUpGap = 0.4724;
+                            product.spacingTop = 0.5;
+                            product.spacingBottom = 0.5;
+                            matInfo.spacing.type = "Margins";
+                            product.stock += "_Opt2";
+                        }
+                    }
+
+                    // Flyer Adjustments
+                    if (product.subprocess.name == "Flyers"){
+                        product.pageHandling = "OnePerTwoPages";
+                        product.stock = "Proc_Prostream_Flyers";
+                        matInfo.phoenixMethod = "Prostream_Flyers";
+                        matInfo.spacing.type = "Margins";
+                        product.bleed.base = .125;
+                        product.bleed.top = .125;
+                        product.bleed.bottom = .125;
+                        product.bleed.left = .125;
+                        product.bleed.right = .125;
+                        product.spacingTop = .1919;
+                        product.spacingBottom = .1919;
+                        product.spacingLeft = .125;
+                        product.spacingRight = .125;
+                        product.rotation = "Custom";
+                        product.allowedRotations = -90;
+                    }
                 }
 
                 //If hardware is enabled and template ID is not assigned for specified subprocess, remove from gang. -CM
@@ -1330,7 +1338,7 @@ runParser = function(s, job, codebase){
                                 ["item-number",product.itemNumber]
                             ],[
                                 ["status","Removed from Gang"],
-                                ["note","Can not produce in SLC."]
+                                ["note","Cannot produce in SLC."]
                             ]))
                             continue;
                         }
@@ -1340,16 +1348,18 @@ runParser = function(s, job, codebase){
                 // If it's DS product for VN, skip it and send an email.
                 /*
                 if(data.facility.destination == "Van Nuys"){
-                    if(orderArray[i].doubleSided){
-                        data.notes.push([product.itemNumber,"Removed","DS product assigned to VN."]);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",product.itemNumber]
-                        ],[
-                            ["status","Removed from Gang"],
-                            ["note","Can not produce in VN."]
-                        ]))
-                        continue;
+                    if(matInfo.type == 'roll' || matInfo.type == 'sheet'){
+                        if(orderArray[i].doubleSided){
+                            data.notes.push([product.itemNumber,"Removed","DS product assigned to VN."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Cannot produce in VN."]
+                            ]))
+                            continue;
+                        }
                     }
                 }
                     */
@@ -1359,13 +1369,13 @@ runParser = function(s, job, codebase){
                     if(matInfo.prodName == "13oz-Matte"){
                         if(orderArray[i].hem.method == "Weld"){
                             if(orderArray[i].width >= 241 || orderArray[i].height >= 241){
-                                data.notes.push([product.itemNumber,"Removed","Welded banner over 168\" assigned to ARL."]);
+                                data.notes.push([product.itemNumber,"Removed","Welded banner over 240\" assigned to ARL."]);
                                 db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
                                     ["project-id",data.projectID],
                                     ["item-number",product.itemNumber]
                                 ],[
                                     ["status","Removed from Gang"],
-                                    ["note","Can not produce in ARL."]
+                                    ["note","Cannot produce in ARL."]
                                 ]))
                                 continue;
                             }
@@ -1404,76 +1414,20 @@ runParser = function(s, job, codebase){
                 // If the order is a late.
                 if(product.late){
                     data.notes.push([product.itemNumber,"Notes","Late!"]);
-                    data.dateID = now.month + "-" + now.day
+                    data.date.due.strings.monthDay = now.month + "-" + now.day
                 }
                 
                 // If the order is a replacement, send an email to the user.
                 if(orderArray[i].replacement){
                     data.notes.push([product.itemNumber,"Notes","Replacement. Automated undersizing has been disabled."]);
-                    //data.notes.push([product.itemNumber,"Priority","Replacement. Automated undersizing has been disabled."]);
                     product.subprocess.undersize = false;
                 }
-                
-                // Gather the source file options
-                var file = {
-                    source: new File(watermarkDrive + "/" + product.contentFile),
-                    depository: new File("//10.21.71.213/File Repository/" + product.contentFile),
-                    usableData: false,
-                    stats: null
-                }
-                    
-                // Do we need to transfer the file from the depository?
-                if(file.depository.exists){
-                    if(submit.override.redownload.bool){
-                        try{
-                            file.depository.remove();
-                            s.log(2, product.contentFile + " removed successfully, redownloading.")
-                        }catch(e){
-                            s.log(2, product.contentFile + " failed to delete.")
-                        }
-                        product.transfer = true;
-                    }else{
-                        file.stats = new FileStatistics("//10.21.71.213/File Repository/" + product.contentFile);
-                        db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                            ["project-id",data.projectID],
-                            ["item-number",product.itemNumber]
-                        ],[
-                            ["status","Already Exists"]
-                        ]))
-                    }
-                }else{
-                    if(data.fileSource == "S3 Bucket"){
-                        product.transfer = true;
-                    }else{
-                        if(file.source.exists){
-                            file.stats = new FileStatistics(watermarkDrive + "/" + product.contentFile);
-                            product.transfer = true;
-                        }else{
-                            data.notes.push([product.itemNumber,"Notes","File missing: " + product.contentFile]);
-                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
-                                ["project-id",data.projectID],
-                                ["item-number",product.itemNumber]
-                            ],[
-                                ["status","Removed from Gang"],
-                                ["note","File missing: " + product.contentFile]
-                            ]))
-                            continue;
-                        }
-                    }
-                }
 
-                // Read some data from the file.
-                try{
-                    if(file.stats != null){                        
-                        file.width = file.stats.getNumber("TrimBoxDefinedWidth")/72;
-                        file.height = file.stats.getNumber("TrimBoxDefinedHeight")/72;
-                        file.pages = file.stats.getNumber("NumberOfPages");
-                        file.usableData = true;
-                    }
-                }catch(e){}
+                // Pull the file information.
+                var file = buildFileObject(product, submit, data, db, s);
                 
                 // If the file exists and you have data to use, go here.
-                if(file.usableData){
+                if(file.usable){
                     if(product.subprocess.orientationCheck){
 
                         // Check if the 2nd page exists for DS product.
@@ -1526,7 +1480,6 @@ runParser = function(s, job, codebase){
                             }else if(!product.orientation.result.standard && product.orientation.result.flipped){
                                 product.orientation.status = "Flipped";
                                 product.height = [product.width, product.width = product.height][0]; // Flips the WxH data.
-                                //data.notes.push([product.itemNumber,"Notes","Flipped sizes to standard format."]);
                                 if(scale.check.result.flipped){
                                     scale.modifier = scale.check.height.flipped;
                                 }
@@ -1549,9 +1502,8 @@ runParser = function(s, job, codebase){
                                 }
 
                                 product.orientation.status = "Failed"
-                                file.usableData = false;
+                                file.usable = false;
                                 data.notes.push([product.itemNumber,"Notes","Can not confirm orientation or scale, verify in gang."])
-                                //data.notes.push([product.itemNumber,"Priority","Can not confirm orientation or scale, verify in gang."]);
                             }
 
                             // I have no idea what this does.
@@ -1564,7 +1516,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // Otherwise determine the scale of the file by using the logic Prepress should be following as well.
-                if(!file.usableData){
+                if(!file.usable){
                     if(matInfo.type == "roll"){
                         if(data.facility.destination == "Salt Lake City" || data.facility.destination == "Brighton" || data.facility.destination == "Wixom"){
                             if(product.width >= 198 || product.height >= 198){
@@ -1634,47 +1586,53 @@ runParser = function(s, job, codebase){
                     product.subprocess.undersize = false;
                 }
 
-                // Set the usableArea
-                var usableArea = {
-                    width: matInfo.width - matInfo.printer.margin.left - matInfo.printer.margin.right,
-                    height: dynamic.height.value - matInfo.printer.margin.top - matInfo.printer.margin.bottom
-                }
                 
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
                 // Not for undersizing to force better yield.
+                // If the material can be undersized.
                 if(matInfo.allowUndersize){
+                    // If the scale wasn't locked above.
                     if(!scale.locked){
-                        if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
-                            if(!data.oversize && !data.scaled){
-                                if(product.width > product.height){
-                                    if(product.width >= usableArea.height){
-                                        scale.width = ((usableArea.height-.25)/product.width)*100;
-                                        scale.adjusted.width = true;
-                                        if(product.width == product.height){
-                                            scale.height = scale.width
+                        // If the gang level user override wasn't used.
+                        if(!submit.override.fullsize.gang){
+                            // If the item level user override wasn't used.
+                            if(!contains(submit.override.fullsize.items, product.itemNumber)){
+                                // If we aren't scaling the whole gang down to 10%
+                                if(!data.scaleGang){
+
+                                    // If the width is the longest dim...
+                                    if(product.width > product.height){
+                                        if(product.width >= dynamic.height.usable){
+                                            scale.width = ((dynamic.height.usable)/product.width)*100;
+                                            scale.adjusted.width = true;
+                                            if(product.width == product.height){
+                                                scale.height = scale.width
+                                            }
                                         }
-                                    }
-                                    if(product.height >= usableArea.width){
-                                        scale.height = ((usableArea.width-.25)/product.height)*100;
-                                        scale.adjusted.height = true;
-                                        if(product.width == product.height){
-                                            scale.width = scale.height
+                                        if(product.height >= dynamic.width.usable){
+                                            scale.height = ((dynamic.width.usable)/product.height)*100;
+                                            scale.adjusted.height = true;
+                                            if(product.width == product.height){
+                                                scale.width = scale.height
+                                            }
                                         }
-                                    }
-                                }else{
-                                    if(product.height >= usableArea.height){
-                                        scale.height = ((usableArea.height-.25)/product.height)*100;
-                                        scale.adjusted.height = true;
-                                        if(product.width == product.height){
-                                            scale.width = scale.height
+
+                                    // If the height is the longest dim...
+                                    }else{
+                                        if(product.height >= dynamic.height.usable){
+                                            scale.height = ((dynamic.height.usable)/product.height)*100;
+                                            scale.adjusted.height = true;
+                                            if(product.width == product.height){
+                                                scale.width = scale.height
+                                            }
                                         }
-                                    }
-                                    if(product.width >= usableArea.width){
-                                        scale.width = ((usableArea.width-.25)/product.width)*100;
-                                        scale.adjusted.width = true;
-                                        if(product.width == product.height){
-                                            scale.height = scale.width
+                                        if(product.width >= dynamic.width.usable){
+                                            scale.width = ((dynamic.width.usable)/product.width)*100;
+                                            scale.adjusted.width = true;
+                                            if(product.width == product.height){
+                                                scale.height = scale.width
+                                            }
                                         }
                                     }
                                 }
@@ -1788,14 +1746,14 @@ runParser = function(s, job, codebase){
                
                 //write imp instructions to the database -cm
                 if(orderArray[i].impInstructions.active){
-                    db.email.execute("INSERT INTO emails.impinst_notes (`project-id`,`gang-number`,`item-number`,`message`) VALUES ('" + data.projectID + "','" + data.gangNumber + "','" + product.itemNumber + "', '" + orderArray[i].impInstructions.value + "');");
+                    data.notes.push([product.itemNumber,"Instructions",orderArray[i].impInstructions.value]);
                 }
 
                 // Rotation adjustments ----------------------------------------------------------
                 // Coroplast rotation
                 if(data.prodName == "Coroplast"){
                     if(product.subprocess.name != "FullSheet"){
-                        if(Math.round((product.width*(scale.width/100))*100)/100 > usableArea.width){
+                        if(Math.round((product.width*(scale.width/100))*100)/100 > dynamic.width.usable){
                             product.rotation = "Custom";
                             product.allowedRotations = 90;
                         }
@@ -1845,12 +1803,12 @@ runParser = function(s, job, codebase){
                 
                 // Brushed Silver rotation
                 if(data.prodName == "BrushedSilver"){ // BrushedSilver rotates 90 degrees by default
-                    if((product.height*(scale.width/100)) > usableArea.width){
+                    if((product.height*(scale.width/100)) > dynamic.width.usable){
                         product.rotation = "Orthogonal";
                         product.allowedRotations = 0;
                     }
                 }
-                
+
                 // A-Frames Rotations
                 if(product.subprocess.name == "A-Frame"){
                     // Rotate if the product is 22" wide or less.
@@ -1859,7 +1817,7 @@ runParser = function(s, job, codebase){
                         product.allowedRotations = 0;
                     }
                     // Change the text value for frames without hardware.
-                    if(orderArray[i].frame.color === undefined && orderArray[i].frame.type === undefined){
+                    if(orderArray[i].frame.attributes.color == null && orderArray[i].frame.attributes.type == null){
                         orderArray[i].frame.value = "No Frame";
                     }
                 }
@@ -1868,7 +1826,7 @@ runParser = function(s, job, codebase){
                 if(data.facility.destination == "Wixom"){
                     if(product.doubleSided){
                         if(orderArray[i].pocket.enable || orderArray[i].itemName == "Pole Banners" || orderArray[i].itemName == "Replacement Pole Banners"){
-                            if(product.width*(scale.width/100) < usableArea.width){
+                            if(product.width*(scale.width/100) < dynamic.width.usable){
                                 product.rotation = "None";
                                 product.allowedRotations = 0;
                             }
@@ -1879,7 +1837,7 @@ runParser = function(s, job, codebase){
                 // Cut Vinyl adjustments (These should be moved to the database in the future)
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.transfer = true;
-                    data.repository = "//10.21.71.213/Repository_VL/";
+                    data.repository = new Dir("//10.21.71.213.us.digitalroominc.com/Repository_VL/");
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
@@ -1894,9 +1852,7 @@ runParser = function(s, job, codebase){
                     bannerSorting: setBannerSorting(s, orderArray[i])
                 }
 
-                // Input: data, matInfo, orderArray, i, product assumed to be available in context
-                // You may need to adapt this if variables come from metadata or other input
-
+                // TO DO - Move this to a more standardized function.
                 // Exclusion lists
                 var excludedDestinations = ["Van Nuys"];
                 var excludedProdNames = ["Magnet"];
@@ -1966,7 +1922,7 @@ runParser = function(s, job, codebase){
                         product.customLabel.value += "+Blank"
                     }
                     //data.impositionProfile.name = "TensionStands";
-                    if((product.width*(scale.width/100)) > usableArea.width){
+                    if((product.width*(scale.width/100)) > dynamic.width.usable){
                         product.rotation = "Orthogonal";
                         product.allowedRotations = 0;
                     }
@@ -1984,6 +1940,19 @@ runParser = function(s, job, codebase){
 
                 // Rectangle Flag Templates
                 if(product.subprocess.name == "RectangleFlag"){
+                    if(product.doubleSided){
+                        if(file.pages != 2){
+                            data.notes.push([product.itemNumber,"Removed","Rectangle Flag not setup correctly, needs to be 2 separate pages."]);
+                            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                                ["project-id",data.projectID],
+                                ["item-number",product.itemNumber]
+                            ],[
+                                ["status","Removed from Gang"],
+                                ["note","Rectangle flag setup incorrectly."]
+                            ]))
+                            continue;
+                        }
+                    }
                     product.artworkFile = product.contentFile.split('.pdf')[0] + "_1.pdf"
                     product.dieDesignName = orderArray[i].hardware.template.name + "_F";
                 }
@@ -2049,7 +2018,7 @@ runParser = function(s, job, codebase){
                 
                 // Various Overrides ----------------------------------------------------------
                 // If the product is to utilize the 10pct scaled process in Phoenix
-                if(data.scaled){
+                if(data.scaleGang){
                     scale.width = scale.width/10;
                     scale.height = scale.height/10;
                     product.spacingBase = product.spacingBase/10;
@@ -2091,36 +2060,32 @@ runParser = function(s, job, codebase){
                 scale.height = scale.height*scale.modifier;
                 
                 // GSM option to determine which paper size to use. 250 is usually default.
-                if(data.oversize){product.grade = "251"}
                 if(data.mount.active){product.grade = "252"}
-                if(data.scaled){product.grade = "253"}
+                if(data.scaleGang){product.grade = "253"}
                 
                 // Item based override for calling very wide material.
-                if(product.width >= 115 && product.height >= 115 && !data.scaled){
+                if(product.width >= 115 && product.height >= 115 && !data.scaleGang){
                     product.grade = "254"
                 }
-                
-                // Set the Phoenix printer (thing).
-                data.thing = data.facility.destination + "/" + data.printer;
 
-                if(data.printer != "None"){	
-                    if(matInfo.type == "roll-sticker"){
-                        data.thing += "-LabelMaster"
-                    }	 
+                // Set the Phoenix printer (thing).
+                data.thing = data.facility.destination + "/" + data.phoenixPress + " [" + data.facility.abbr + "]";
+
+                if(data.phoenixPress != "None"){	
                     if(matInfo.type == "roll" || matInfo.type == "roll-sticker" || matInfo.type == "roll-label"){
-                        if(data.scaled){
+                        if(data.scaleGang){
                             data.thing += " (Scaled)";
-                        }else if(data.oversize){
-                            // Send the base printer name
                         }else{
                             data.thing += " (" + dynamic.height.value + ")";
                         }
                     }
                     if(matInfo.type == "web"){
-                        //if((product.width == '12' && product.height == '6') || (product.width == '9.5' && product.height == '4.75') || (product.width == '11' && product.height == '8.5')){
+                        if (product.subprocess.name == "Flyers"){
+                            data.thing += " (Center)"
+                        }
+                        if (product.subprocess.name == "Booklets"){
                             data.thing += " (Compact)"
-                            //product.stock += "_13"
-                        //}
+                        }
                     }
                 }
 
@@ -2151,6 +2116,7 @@ runParser = function(s, job, codebase){
                     writeHeader = false;
                 }
                     writeCSV(s, csvFile, infoArray, 1);
+
                     
                 // If it's breakaway, write it again for the 2nd page.
                 if(product.subprocess.name == "Breakaway"){
@@ -2253,7 +2219,7 @@ runParser = function(s, job, codebase){
                     
                     injectXML.setUserEmail(userInfo.email);
                     
-                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale);
+                    createDataset(s, injectXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale, file);
                     
                     writeInjectJSON(injectFile, orderArray[i], product);
                     
@@ -2268,7 +2234,7 @@ runParser = function(s, job, codebase){
                     var cvPath = cvXML.createPathWithName(product.itemNumber + ".xml", false);
                     var cvFile = new File(cvPath);
                     
-                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale);
+                    createDataset(s, cvXML, data, matInfo, true, product, orderArray[i], userInfo, false, now, scale, null);
                     
                     writeInjectXML(cvFile, product);
                     
@@ -2282,10 +2248,10 @@ runParser = function(s, job, codebase){
                     ["item-number",product.itemNumber]
                 ],[
                     ["orientation",product.orientation.status],
-                    ["due-date", orderArray[i].date.due]
+                    ["due-date", product.date.due.strings.yearMonthDay]
                 ]))
                 
-                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,orderArray[i].date.due,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method,product.allowedRotations]);
+                productArray.push([product.contentFile,product.orderNumber,product.itemNumber,orderArray[i].productNotes,product.date.due.strings.yearMonthDay,product.orientation.status,product.itemName,orderArray[i].shape.method,orderArray[i].corner.method,product.allowedRotations]);
                 
                 // Write the gang number to the database.
                 db.history.execute("SELECT * FROM history.data_item_number WHERE gang_number = '" + data.gangNumber + "' AND item_number = '" + product.itemNumber + "';");
@@ -2317,7 +2283,7 @@ runParser = function(s, job, codebase){
             // If it's laminated sintra in SLC, adjust the cut hotfolder name.
             if(data.facility.destination == "Salt Lake City"){
                 if(matInfo.prodName == "3mm-Sintra"){
-                    if(data.laminate.active || data.coating.enabled){
+                    if(data.substrate.laminate.front.enabled || data.substrate.laminate.back.enabled || data.substrate.coating.front.enabled || data.substrate.coating.back.enabled){
                         matInfo.cutter.hotfolder = "Lam_" + matInfo.cutter.hotfolder;
                     }
                 }
@@ -2349,22 +2315,16 @@ runParser = function(s, job, codebase){
             // Close the CSV you were writing
             csvFile.close();
 
+            // Update the parsed_data history.
+            updateEmailHistory(s, db, "Parser", data, data.notes);
+
             // 2nd safety check for if all files have been removed from the gang.
             if(productArray.length == 0){
-                sendEmail_db(s, data, matInfo, getEmailResponse("Empty Gang", null, matInfo, data, userInfo, null), userInfo);
-                job.sendToNull(job.getPath());
-                db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
-                    ["project-id", data.projectID]
-                ],[
-                    ["status","Parse Failed"],
-                    ["note","All files removed."]
-                ]))
+                handleRejection_Gang(s, db, job, data, null, "Empty Gang", "All files removed", "empty", null, null);
                 return
             }
-
-            emailDatabase_write(s, db, "parsed_data", "Parser", data, data.notes)
         
-            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now, null);
+            createDataset(s, newCSV, data, matInfo, false, null, null, userInfo, true, now, null, null);
             newCSV.setHierarchyPath([data.environment,data.projectID]);
             newCSV.setUserEmail(job.getUserEmail());
             newCSV.setUserName(job.getUserName());
@@ -2372,43 +2332,67 @@ runParser = function(s, job, codebase){
             newCSV.setPriority(submit.override.priority);
             newCSV.sendTo(findConnectionByName_db(s, "CSV"), csvPath);
             
-            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now, null);
+            createDataset(s, job, data, matInfo, false, null, null, userInfo, false, now, null, null);
             job.setHierarchyPath([data.gangNumber]);
             job.setPriority(submit.override.priority)
             job.sendTo(findConnectionByName_db(s, "MXML"), job.getPath());
-            
+
+            // Get the timezone info and set the now time per UTC for completion time.
+            var times = getTimezoneInfo()
+            var now = parseDateParts(times.UTC)
+
+            // Update the table in the database
             db.history.execute(generateSqlStatement_Update(s, "history.details_gang", [
                 ["project-id", data.projectID]
             ],[
                 ["process",data.prodName],
                 ["subprocess",data.subprocess],
                 ["facility",data.facility.destination],
-                ["save-location",data.dateID],
+                ["save-location",data.date.due.strings.monthDay],
                 ["rush",data.rush],
                 ["email",userInfo.email],
-                ["processed-time",now.time],
-                ["processed-date",now.date],
-                ["due-date",data.date.due],
-                ["dynamic-height-enabled",dynamic.height.enabled],
-                ["height-value",dynamic.height.value],
+                ["parsing_completed_at_utc",now.iso],
+                ["due-date",data.date.due.strings.yearMonthDay],
+                ["dynamic_info",dynamic],
                 ["status","Parse Complete"],
                 ["rip-hotfolder",matInfo.rip.hotfolder],
-                ["separate-cover",(data.cover.enabled ? 'y' : 'n')],
-                ["cover-vm",data.cover.value]
+                ["prism_value_cover",data.cover.base.prismValue],
+                ["prism_value_substrate",data.substrate.base.prismValue]
             ]))
             
-        }catch(e){
-            s.log(3, "Critical Error!: " + e);
-            job.setPrivateData("error", "Critical " + e);
-            job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
+        } catch (e) {
+            if (!retried) {
+                try {
+                    s.log(3, "Parser error on first attempt: " + e + ". Retrying...");
+                    parser(s, job, codebase, true);
+                    return; // Let the retry handle it
+                } catch (retryErr) {
+                    s.log(3, "Retry failed: " + retryErr);
+                }
+            }
+
+            try {
+                postWebhook(s, job, db, "Critical Error", "This file has failed in Parser.", [
+                    ["Error", e.toString()]
+                ]);
+            } catch (webhookErr) {
+                s.log(3, "Webhook post failed: " + webhookErr);
+            }
+
+            try {
+                handleRejection_Gang(s, db, job, data, null, "Critical Error", "Critical error", "error", null, e);
+            } catch (rejectErr) {
+                s.log(3, "handleRejection_Gang failed: " + rejectErr);
+                job.fail("Critical failure during rejection handling: " + rejectErr);
+            }
         }
     }
-    parser(s, job, codebase)
+    parser(s, job, codebase, false)
 }
 
 // -------------------------------------------------------
 
-function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now, scale){
+function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArray, userInfo, writeProducts, now, scale, file){
 	
 	var theXML = new Document();
 
@@ -2422,19 +2406,20 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, baseNode, "projectID", data.projectID);
 		addNode_db(theXML, baseNode, "gangNumber", data.gangNumber);
 		addNode_db(theXML, baseNode, "projectNotes", data.projectNotes);
-		addNode_db(theXML, baseNode, "saveLocation", data.dateID);
-		addNode_db(theXML, baseNode, "dateID", data.dateID.replace('-',''));
-		addNode_db(theXML, baseNode, "dueDate", data.date.due);
+		addNode_db(theXML, baseNode, "saveLocation", data.date.due.strings.monthDay);
+		addNode_db(theXML, baseNode, "dateID", data.date.due.month + data.date.due.day);
+		addNode_db(theXML, baseNode, "dueDate", data.date.due.strings.yearMonthDay);
 		addNode_db(theXML, baseNode, "sku", data.sku);
 		addNode_db(theXML, baseNode, "process", data.prodName);
 		addNode_db(theXML, baseNode, "subprocess", data.subprocess);
 		addNode_db(theXML, baseNode, "prodMatFileName", data.prodMatFileName);
-		addNode_db(theXML, baseNode, "paper", data.paper);
-        addNode_db(theXML, baseNode, "prismStock", data.prismStock);
+		addNode_db(theXML, baseNode, "cover", data.cover.base.value);
+        addNode_db(theXML, baseNode, "substrate", data.substrate.base.value);
+        addNode_db(theXML, baseNode, "prismStock", data.substrate.base.prismValue);
 		addNode_db(theXML, baseNode, "type", matInfo.type);
 		addNode_db(theXML, baseNode, "rush", data.rush);
 		addNode_db(theXML, baseNode, "processed-time", now.time);
-		addNode_db(theXML, baseNode, "processed-date", now.date);
+		addNode_db(theXML, baseNode, "processed-date", now.strings.yearMonthDay);
         addNode_db(theXML, baseNode, "approved", matInfo.approved);
 	
 	var settingsNode = theXML.createElement("settings", null);
@@ -2448,36 +2433,93 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 		addNode_db(theXML, settingsNode, "mount", data.mount.active);
 		addNode_db(theXML, settingsNode, "impositionProfile", data.impositionProfile.name);
         addNode_db(theXML, settingsNode, "impositionMethod", data.impositionProfile.method);
-		addNode_db(theXML, settingsNode, "scaled", data.scaled);
+		addNode_db(theXML, settingsNode, "scaled", data.scaleGang);
 
-    var coverNode = theXML.createElement("cover", null);
-		handoffNode.appendChild(coverNode);
-
-        addNode_db(theXML, coverNode, "enabled", data.cover.enabled);
-        addNode_db(theXML, coverNode, "value", data.cover.value);
-
+    // Laminate Nodes ------------------------------------------------------------
     var laminateNode = theXML.createElement("laminate", null);
 		handoffNode.appendChild(laminateNode);
 
-        addNode_db(theXML, laminateNode, "active", data.laminate.active ? true : false);
-        addNode_db(theXML, laminateNode, "method", data.laminate.method);
-        addNode_db(theXML, laminateNode, "value", data.laminate.value);
+    var frontlaminateNode = theXML.createElement("front", null);
+		laminateNode.appendChild(frontlaminateNode);
 
+    var coverFrontlaminateNode = theXML.createElement("cover", null);
+		frontlaminateNode.appendChild(coverFrontlaminateNode);
+
+        addNode_db(theXML, coverFrontlaminateNode, "enabled", data.cover.laminate.front.enabled);
+        addNode_db(theXML, coverFrontlaminateNode, "label", data.cover.laminate.front.label);
+        addNode_db(theXML, coverFrontlaminateNode, "value", data.cover.laminate.front.value);
+        addNode_db(theXML, coverFrontlaminateNode, "key", data.cover.laminate.front.key);
+
+    var substrateFrontlaminateNode = theXML.createElement("substrate", null);
+		frontlaminateNode.appendChild(substrateFrontlaminateNode);
+
+        addNode_db(theXML, substrateFrontlaminateNode, "enabled", data.substrate.laminate.front.enabled);
+        addNode_db(theXML, substrateFrontlaminateNode, "label", data.substrate.laminate.front.label);
+        addNode_db(theXML, substrateFrontlaminateNode, "value", data.substrate.laminate.front.value);
+        addNode_db(theXML, substrateFrontlaminateNode, "key", data.substrate.laminate.front.key);
+
+    var backlaminateNode = theXML.createElement("back", null);
+		laminateNode.appendChild(backlaminateNode);
+
+    var coverBacklaminateNode = theXML.createElement("cover", null);
+		backlaminateNode.appendChild(coverBacklaminateNode);
+
+        addNode_db(theXML, coverBacklaminateNode, "enabled", data.cover.laminate.back.enabled);
+        addNode_db(theXML, coverBacklaminateNode, "label", data.cover.laminate.back.label);
+        addNode_db(theXML, coverBacklaminateNode, "value", data.cover.laminate.back.value);
+        addNode_db(theXML, coverBacklaminateNode, "key", data.cover.laminate.back.key);
+
+    var substrateBacklaminateNode = theXML.createElement("substrate", null);
+		backlaminateNode.appendChild(substrateBacklaminateNode);
+
+        addNode_db(theXML, substrateBacklaminateNode, "enabled", data.substrate.laminate.back.enabled);
+        addNode_db(theXML, substrateBacklaminateNode, "label", data.substrate.laminate.back.label);
+        addNode_db(theXML, substrateBacklaminateNode, "value", data.substrate.laminate.back.value);
+        addNode_db(theXML, substrateBacklaminateNode, "key", data.substrate.laminate.back.key);
+
+    // Coating Nodes ------------------------------------------------------------
     var coatingNode = theXML.createElement("coating", null);
 		handoffNode.appendChild(coatingNode);
 
-        addNode_db(theXML, coatingNode, "active", data.coating.enabled ? true : false);
-        addNode_db(theXML, coatingNode, "label", data.coating.label);
-        addNode_db(theXML, coatingNode, "value", data.coating.value);
-        addNode_db(theXML, coatingNode, "key", data.coating.key);
+    var frontCoatingNode = theXML.createElement("front", null);
+		coatingNode.appendChild(frontCoatingNode);
 
-    var frontCoatingNode = theXML.createElement("frontCoating", null);
-		handoffNode.appendChild(frontCoatingNode);
+    var coverFrontCoatingNode = theXML.createElement("cover", null);
+		frontCoatingNode.appendChild(coverFrontCoatingNode);
 
-        addNode_db(theXML, frontCoatingNode, "enabled", data.frontCoating.enabled);
-        addNode_db(theXML, frontCoatingNode, "label", data.frontCoating.label);
-        addNode_db(theXML, frontCoatingNode, "value", data.frontCoating.value);
+        addNode_db(theXML, coverFrontCoatingNode, "enabled", data.cover.coating.front.enabled);
+        addNode_db(theXML, coverFrontCoatingNode, "label", data.cover.coating.front.label);
+        addNode_db(theXML, coverFrontCoatingNode, "value", data.cover.coating.front.value);
+        addNode_db(theXML, coverFrontCoatingNode, "key", data.cover.coating.front.key);
+
+    var substrateFrontCoatingNode = theXML.createElement("substrate", null);
+		frontCoatingNode.appendChild(substrateFrontCoatingNode);
+
+        addNode_db(theXML, substrateFrontCoatingNode, "enabled", data.substrate.coating.front.enabled);
+        addNode_db(theXML, substrateFrontCoatingNode, "label", data.substrate.coating.front.label);
+        addNode_db(theXML, substrateFrontCoatingNode, "value", data.substrate.coating.front.value);
+        addNode_db(theXML, substrateFrontCoatingNode, "key", data.substrate.coating.front.key);
+
+    var backCoatingNode = theXML.createElement("back", null);
+		coatingNode.appendChild(backCoatingNode);
+
+    var coverBackCoatingNode = theXML.createElement("cover", null);
+		backCoatingNode.appendChild(coverBackCoatingNode);
+
+        addNode_db(theXML, coverBackCoatingNode, "enabled", data.cover.coating.back.enabled);
+        addNode_db(theXML, coverBackCoatingNode, "label", data.cover.coating.back.label);
+        addNode_db(theXML, coverBackCoatingNode, "value", data.cover.coating.back.value);
+        addNode_db(theXML, coverBackCoatingNode, "key", data.substrate.coating.back.key);
+
+    var substrateBackCoatingNode = theXML.createElement("substrate", null);
+		backCoatingNode.appendChild(substrateBackCoatingNode);
+
+        addNode_db(theXML, substrateBackCoatingNode, "enabled", data.substrate.coating.back.enabled);
+        addNode_db(theXML, substrateBackCoatingNode, "label", data.substrate.coating.back.label);
+        addNode_db(theXML, substrateBackCoatingNode, "value", data.substrate.coating.back.value);
+        addNode_db(theXML, substrateBackCoatingNode, "key", data.substrate.coating.back.key);
 	
+    // Misc Nodes ------------------------------------------------------------
 	var mountNode = theXML.createElement("mount", null);
 		handoffNode.appendChild(mountNode);	
 			
@@ -2510,7 +2552,6 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
         addNode_db(theXML, miscNode, "rotate90", data.rotate90);
 		addNode_db(theXML, miscNode, "printExport", data.phoenix.printExport);
 		addNode_db(theXML, miscNode, "cutExport", data.phoenix.cutExport);
-		addNode_db(theXML, miscNode, "fileSource", data.fileSource);
 		addNode_db(theXML, miscNode, "facility", data.facility.destination);
         addNode_db(theXML, miscNode, "server", s.getServerName());
         addNode_db(theXML, miscNode, "organizeLayouts", matInfo.cutter.organizeLayouts);
@@ -2547,7 +2588,7 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
 			addNode_db(theXML, productNode, "contentFile", product.contentFile);
 			addNode_db(theXML, productNode, "orderNumber", product.orderNumber);
 			addNode_db(theXML, productNode, "itemNumber", product.itemNumber);
-			addNode_db(theXML, productNode, "shipDate", orderArray.date.due);
+			addNode_db(theXML, productNode, "shipDate", product.date.due.strings.yearMonthDay);
 			addNode_db(theXML, productNode, "secondSurface", orderArray.secondSurface);
 			addNode_db(theXML, productNode, "isCutVinyl", data.prodName == "CutVinyl");
 			addNode_db(theXML, productNode, "cvFrosted", data.prodName == "CutVinyl-Frosted");
@@ -2558,6 +2599,16 @@ function createDataset(s, newCSV, data, matInfo, writeProduct, product, orderArr
             addNode_db(theXML, productNode, "doubleSided", product.doubleSided);
             addNode_db(theXML, productNode, "scaleModifier", scale.modifier);
 
+        if(file != null){
+            var fileNode = theXML.createElement("file", null);
+                handoffNode.appendChild(fileNode);
+
+                addNode_db(theXML, fileNode, "source", data.fileSource);
+                addNode_db(theXML, fileNode, "label", file.label);
+                addNode_db(theXML, fileNode, "path", file.path);
+                addNode_db(theXML, fileNode, "name", file.name);
+                addNode_db(theXML, fileNode, "usable", file.usable);
+        }
 	}
 	
 	if(writeProducts){
@@ -2655,11 +2706,398 @@ function enabledCheck(s, data, orderSpecs){
     for(var key in orderSpecs){
         if(typeof orderSpecs[key] === 'object'){
             if(typeof orderSpecs[key]['enabled'] === 'boolean'){
-                s.log(2, key)
-                s.log(2, orderSpecs[key]['enabled'])
                 results[key] = orderSpecs[key]['enabled']
             }
         }
     }
     return results;
+}
+
+function findFile(fileName) {
+    var searchPaths = [
+        ["US Server", "T:/watermarked-files"],
+        ["MNL Server", "\\\\mnl-stor-01.apac.digitalroominc.com\\IMP_Watermarker3\\Metrix_Source_Files"]
+    ];
+
+    for (var i = 0; i < searchPaths.length; i++) {
+        var label = searchPaths[i][0];
+        var path = searchPaths[i][1];
+        var file = new File(path + "/" + fileName);
+
+        if (file.exists) {
+            return {
+                found: true,
+                label: label,
+                path: path,
+                watermark: file
+            };
+        }
+    }
+
+    return {
+        found: false,
+        label: null,
+        path: null,
+        watermark: null
+    };
+}
+
+function buildFileObject(product, submit, data, db, s) {
+    var sourceFile = findFile(product.contentFile);
+
+    // Delete any files that the user is requesting to remove.
+    if(submit.removeFiles){
+        var existingFiles = data.repository.entryList("*" + product.itemNumber + "*", Dir.Files, Dir.Name);
+        for(var iii=0; iii<existingFiles.length; iii++){
+            var toDelete = new File(data.repository.path + "/" + existingFiles[iii]);
+            try {
+                toDelete.remove();
+                s.log(2, product.itemNumber + " removed successfully.");
+            } catch (e) {
+                s.log(2, product.itemNumber + " failed to delete: " + e.toString());
+            }
+        }
+    }
+
+    // Establish the new file
+    var file = {
+        name: product.contentFile,
+        label: sourceFile.label,
+        path: sourceFile.path,
+        watermark: sourceFile.watermark,
+        repository: new File("//10.21.71.213.us.digitalroominc.com/File Repository/" + product.contentFile),
+        usable: sourceFile.found,
+        stats: null,
+        reason: null
+    };
+
+    // Handle redownload if file exists in repository
+    if (file.repository.exists) {
+        try {
+            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                ["project-id", data.projectID],
+                ["item-number", product.itemNumber]
+            ], [["status", "Already Exists"]]));
+            file.stats = new FileStatistics(file.repository.path + "/" + file.name);
+        } catch (e) {
+            file.usable = false;
+            file.reason = "Failed to read stats for existing repository file: " + e.toString();
+            return file;
+        }
+    } else {
+        if (data.fileSource === "S3 Bucket") {
+            product.transfer = true;
+            file.usable = false;
+            return file;
+        }
+
+        if (file.usable) {
+            try {
+                file.stats = new FileStatistics(file.path + "/" + file.name);
+                product.transfer = true;
+            } catch (e) {
+                file.usable = false;
+                file.reason = "Stats read error from source: " + e.toString();
+                return file;
+            }
+        } else {
+            file.reason = "File missing: " + file.name;
+            data.notes.push([product.itemNumber, "Notes", file.reason]);
+            db.history.execute(generateSqlStatement_Update(s, "history.details_item", [
+                ["project-id", data.projectID],
+                ["item-number", product.itemNumber]
+            ], [
+                ["status", "Removed from Gang"],
+                ["note", file.reason]
+            ]));
+            return file;
+        }
+    }
+
+    // Extract file dimensions
+    try {
+        if (file.usable && file.stats) {
+            file.width = file.stats.getNumber("TrimBoxDefinedWidth") / 72;
+            file.height = file.stats.getNumber("TrimBoxDefinedHeight") / 72;
+            file.pages = file.stats.getNumber("NumberOfPages");
+        } else {
+            file.usable = false;
+            file.reason = "Missing stats or file marked unusable";
+        }
+    } catch (e) {
+        file.usable = false;
+        file.reason = "Error reading stats: " + e.toString();
+    }
+
+    return file;
+}
+
+function resolveMaterialMapping(s, orderSpecs, mxmlMap) {
+
+    if (orderSpecs.substrate.base && orderSpecs.substrate.base.enabled) {
+        s.log(2, "OrderSpec_2.0 tables");
+        return {
+            substrate: orderSpecs.substrate,
+            cover: orderSpecs.cover
+        };
+
+    } else if (mxmlMap.substrate.base && mxmlMap.substrate.base.enabled) {
+        s.log(2, "MXML mapping");
+
+        return {
+            substrate: {
+                base:{
+                    enabled: mxmlMap.substrate.base.enabled,
+                    label: "mxml",
+                    value: mxmlMap.substrate.base.value,
+                    prismValue: mxmlMap.substrate.base.prismValue
+                },
+                combined: {
+                    enabled: true,
+                    label: "mxml",
+                    value: mxmlMap.substrate.base.value,
+                    prismValue: mxmlMap.substrate.base.prismValue
+                },
+                coating: {
+                    value: orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.value : null,
+                    front: {
+                        enabled: orderSpecs.substrate.coating.front.enabled ? true : orderSpecs.paper.coating.enabled ? true : mxmlMap.substrate.base.coating.front != null,
+                        label: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.label : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.label : "mxml",
+                        value: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.value : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.front : mxmlMap.substrate.base.coating.front,
+                        key: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.key : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.key : null
+                    },
+                    back: {
+                        enabled: orderSpecs.substrate.coating.back.enabled ? true : orderSpecs.paper.coating.enabled ? true : mxmlMap.substrate.base.coating.back != null,
+                        label: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.label : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.label : "mxml",
+                        value: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.value : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.back : mxmlMap.substrate.base.coating.back,
+                        key: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.key : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.key : null
+                    }
+                },
+                laminate: {
+                    value: orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.value : null,
+                    front: {
+                        enabled: orderSpecs.substrate.laminate.front.enabled ? true : orderSpecs.paper.laminate.enabled ? true : mxmlMap.substrate.base.laminate.front != null,
+                        label: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.label : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.label : "mxml",
+                        value: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.value : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.front : mxmlMap.substrate.base.laminate.front,
+                        key: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.key : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.key : null
+                    },
+                    back: {
+                        enabled: orderSpecs.substrate.laminate.back.enabled ? true : orderSpecs.paper.laminate.enabled ? true : mxmlMap.substrate.base.laminate.back != null,
+                        label: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.label : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.label : "mxml",
+                        value: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.value : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.back : mxmlMap.substrate.base.laminate.back,
+                        key: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.key : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.key : null
+                    }
+                }
+            },
+            cover: {
+                base:{
+                    enabled: mxmlMap.cover.base.enabled,
+                    label: "mxml",
+                    value: mxmlMap.cover.base.value,
+                    prismValue: mxmlMap.cover.base.prismValue
+                },
+                combined: {
+                    enabled: true,
+                    label: "mxml",
+                    value: mxmlMap.cover.base.value,
+                    prismValue: mxmlMap.cover.base.prismValue
+                },
+                coating: {
+                    value: null,
+                    front: {
+                        enabled: mxmlMap.cover.base.enabled == false ? false : orderSpecs.cover.coating.front.enabled ? true : orderSpecs.paper.coating.enabled ? true : mxmlMap.cover.base.coating.front != null,
+                        label: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.front.enabled ? orderSpecs.cover.coating.front.label : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.label : "mxml",
+                        value: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.front.enabled ? orderSpecs.cover.coating.front.value : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.front : mxmlMap.substrate.base.coating.front,
+                        key: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.front.enabled ? orderSpecs.cover.coating.front.key : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.key : null
+                    },
+                    back: {
+                        enabled: mxmlMap.cover.base.enabled == false ? false : orderSpecs.cover.coating.back.enabled ? true : orderSpecs.paper.coating.enabled ? true : mxmlMap.cover.base.coating.back != null,
+                        label: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.back.enabled ? orderSpecs.cover.coating.back.label : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.label : "mxml",
+                        value: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.back.enabled ? orderSpecs.cover.coating.back.value : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.back : mxmlMap.cover.base.coating.back,
+                        key: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.coating.back.enabled ? orderSpecs.cover.coating.back.key : orderSpecs.paper.coating.enabled ? orderSpecs.paper.coating.key : null
+                    }
+                },
+                laminate: {
+                    value: null,
+                    key: null,
+                    front: {
+                        enabled: mxmlMap.cover.base.enabled == false ? false : orderSpecs.cover.laminate.front.enabled ? true : orderSpecs.paper.laminate.enabled ? true : mxmlMap.cover.base.laminate.front != null,
+                        label: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.front.enabled ? orderSpecs.cover.laminate.front.label : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.label : "mxml",
+                        value: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.front.enabled ? orderSpecs.cover.laminate.front.value : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.front : mxmlMap.cover.base.laminate.front,
+                        key: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.front.enabled ? orderSpecs.cover.laminate.front.key : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.key : null
+                    },
+                    back: {
+                        enabled: mxmlMap.cover.base.enabled == false ? false : orderSpecs.cover.laminate.back.enabled ? true : orderSpecs.paper.laminate.enabled ? true : mxmlMap.cover.base.laminate.back != null,
+                        label: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.back.enabled ? orderSpecs.cover.laminate.back.label : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.label : "mxml",
+                        value: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.back.enabled ? orderSpecs.cover.laminate.back.value : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.back : mxmlMap.cover.base.laminate.back,
+                        key: mxmlMap.cover.base.enabled == false ? null : orderSpecs.cover.laminate.back.enabled ? orderSpecs.cover.laminate.back.key : orderSpecs.paper.laminate.enabled ? orderSpecs.paper.laminate.key : null
+                    }
+                }
+            }
+        };
+
+    } else if (orderSpecs.paper.base && orderSpecs.paper.base.enabled) {
+        s.log(2, "OrderSpec_1.0 tables");
+
+        return {
+            substrate: {
+                base:{
+                    enabled: true,
+                    label: "paper",
+                    value: orderSpecs.paper.base.value,
+                    prismValue: orderSpecs.paper.base.prismValue
+                },
+                combined: {
+                    enabled: true,
+                    label: "paper",
+                    value: orderSpecs.paper.base.value,
+                    prismValue: orderSpecs.paper.base.prismValue
+                },
+                coating: {
+                    value: orderSpecs.paper.coating.value,
+                    front: {
+                        enabled: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.enabled : orderSpecs.paper.coating.enabled,
+                        label: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.label : orderSpecs.paper.coating.label,
+                        value: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.value : orderSpecs.paper.coating.front,
+                        key: orderSpecs.substrate.coating.front.enabled ? orderSpecs.substrate.coating.front.key : orderSpecs.paper.coating.key
+                    },
+                    back: {
+                        enabled: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.enabled : orderSpecs.paper.coating.enabled,
+                        label: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.label : orderSpecs.paper.coating.label,
+                        value: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.value : orderSpecs.paper.coating.back,
+                        key: orderSpecs.substrate.coating.back.enabled ? orderSpecs.substrate.coating.back.key : orderSpecs.paper.coating.key
+                    }
+                },
+                laminate: {
+                    value: orderSpecs.paper.laminate.value,
+                    front: {
+                        enabled: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.enabled : orderSpecs.paper.laminate.enabled,
+                        label: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.label : orderSpecs.paper.laminate.label,
+                        value: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.value : orderSpecs.paper.laminate.front,
+                        key: orderSpecs.substrate.laminate.front.enabled ? orderSpecs.substrate.laminate.front.key : orderSpecs.paper.laminate.key
+                    },
+                    back: {
+                        enabled: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.enabled : orderSpecs.paper.laminate.enabled,
+                        label: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.label : orderSpecs.paper.laminate.label,
+                        value: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.value : orderSpecs.paper.laminate.back,
+                        key: orderSpecs.substrate.laminate.back.enabled ? orderSpecs.substrate.laminate.back.key : orderSpecs.paper.laminate.key
+                    }
+                }
+            },
+            cover: {
+                base:{
+                    enabled: false,
+                    label: null,
+                    value: null,
+                    prismValue: null
+                },
+                combined: {
+                    enabled: false,
+                    label: null,
+                    value: null,
+                    prismValue: null
+                },
+                coating: {
+                    value: null,
+                    front: {
+                        enabled: false,
+                        label: null,
+                        value: null,
+                        key: null
+                    },
+                    back: {
+                        enabled: false,
+                        label: null,
+                        value: null,
+                        key: null
+                    }
+                },
+                laminate: {
+                    value: null,
+                    front: {
+                        enabled: false,
+                        label: null,
+                        value: null,
+                        key: null
+                    },
+                    back: {
+                        enabled: false,
+                        label: null,
+                        value: null,
+                        key: null
+                    }
+                }
+            }
+        };
+
+    } else {
+        s.log(2, "No mapping method found.");
+        return null;
+    }
+}
+
+// Gang Rejections
+function handleRejection_Gang(s, db, job, data, order, errorType, subject, category, metadataJson, message) {
+    // Log and redirect
+    s.log(3, data.gangNumber + " :: " + errorType + ", job rejected.");
+    try{
+        job.sendToNull(job.getPath());
+    }catch(e){}
+
+    function safeGet(paths) {
+    for (var i = 0; i < paths.length; i++) {
+        try {
+            var result = eval(paths[i]);
+            if (result !== undefined && result !== null) {
+                return result;
+            }
+        } catch (e) {
+            // Ignore errors and try next
+        }
+    }
+    return "Unknown"; // Final fallback
+}
+
+    var messageData = {
+        dueDate: safeGet([
+            "data.date.due.strings.yearMonthDay",
+            "order.date.due"
+        ]),
+
+        facility: safeGet([
+            "data.facility.destination"
+        ]),
+
+        process: safeGet([
+            "data.prodName"
+        ]),
+
+        subprocess: safeGet([
+            "data.subprocess"
+        ])
+    };
+
+
+    // Send notification
+    notificationQueue_Gangs(
+        s,
+        db,
+        errorType,
+        subject + " for job " + data.gangNumber + ". Please review.",
+        message,
+        data.projectID,
+        data.gangNumber,
+        category,
+        metadataJson,
+        job.getUserEmail(),
+        messageData //message_data in the table
+    );
+
+    // Update databases
+    updateGangHistory(
+        s,
+        db,
+        data.projectID,
+        errorType
+    );
 }

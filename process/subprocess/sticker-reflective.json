@@ -27,7 +27,13 @@
                 },
                 "product": {},
                 "data": {
-                    "prodMatFileName": "Sticker-Reflective"
+                    "prodMatFileName": "Sticker-Reflective",
+                    "phoenixStock": "Mat_Reflective_NoMount"
+                },
+                "dynamic":{
+                    "height":{
+                        "value":96
+                    }
                 }
             }
         }

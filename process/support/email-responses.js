@@ -36,6 +36,15 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
             cc = [userInfo.email]
             bcc = [];
         break;
+        case "Mapping Incomplete":
+            //paper, material, itemName do not exist in matInfo, these are being pulled from orderSpecs pass in.
+            active = true;
+            subject = "Mapping Incomplete: " + data.gangNumber;
+            body = "The following mapping is incomplete:" + "\n\n" + "MXML Value: " + matInfo.value;
+            to = [sendTo.chelsea,sendTo.bret]
+            cc = [userInfo.email]
+            bcc = [];
+        break;
         case "New Entry":
             active = true;
             subject = "New Table Entry!";
@@ -55,7 +64,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
         case "Empty Gang":
             active = true;
             subject = "Empty Gang: " + data.gangNumber;
-            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due + "\n" + "All files removed from gang due to errors." + "\n" + escalate;
+            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due.iso + "\n" + "All files removed from gang due to errors." + "\n" + escalate;
             to = [userInfo.email];
             cc = []
             bcc = [];
@@ -63,7 +72,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
         case "Facility Mismatch":
             active = true;
             subject = "Facility Mismatch: " + data.gangNumber;
-            body = "Process: " + matInfo.prodName + "\n" + "Due Date: " +  data.date.due + "\n\n" + "At least 1 item in your gang has a different facility, please use the routing tool when submitting.";
+            body = "Process: " + matInfo.prodName + "\n" + "Due Date: " +  data.date.due.iso + "\n\n" + "At least 1 item in your gang has a different facility, please use the routing tool when submitting.";
             to = [userInfo.email];
             cc = []
             bcc = [];
@@ -71,7 +80,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
         case "Gang Notes":
             active = false;
             subject = "Gang Summary: " + data.gangNumber;
-            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due + "\n" + gangNotes + "\n" + escalate;
+            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due.iso + "\n" + gangNotes + "\n" + escalate;
             to = [userInfo.email];
             cc = []
             bcc = [];
@@ -103,7 +112,7 @@ getEmailResponse = function(query, product, matInfo, data, userInfo, parameter_1
         case "Rejected Subprocess":
             active = true;
             subject = "Rejected Subprocess: " + product.itemNumber;
-            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due + "\n" + "Subprocess still in development, rejecting." + "\n" + escalate;
+            body = "Process: " + matInfo.prodName + "\n" + "Subprocess: " + data.subprocess + "\n" + "Facility: " +  data.facility.destination + "\n" + "Due Date: " +  data.date.due.iso + "\n" + "Subprocess still in development, rejecting." + "\n" + escalate;
             to = [userInfo.email];
             cc = [sendTo.bret,sendTo.chelsea]
             bcc = [];

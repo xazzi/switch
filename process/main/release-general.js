@@ -21,7 +21,9 @@ runRelease = function(s, codebase){
                 "Error",
                 "Missing File",
                 "Missing Cut Path",
-                "Removed from Gang"
+                "Removed from Gang",
+                "Download Error",
+                "Optimize Error"
             ]
 
             // Establist connection to the databases

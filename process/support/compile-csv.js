@@ -3,7 +3,7 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 	return infoArray = [
 		["Project ID", data.projectID],
 		["Name",product.contentFile],
-		["Artwork File",data.repository + product.artworkFile],
+		["Artwork File",data.repository.path + "/" + product.artworkFile],
 		["Ordered",product.quantity],
 		["Stock",product.stock],
 		["Grade",product.grade + " gsm"],
@@ -36,8 +36,11 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Notes","SheetLevelData"], //Unused?
 		["Page Handling",product.pageHandling],
 		["METRIX_NAME",product.orderNumber],
-		["Item Number",product.itemNumber],
-		["Coating",data.coating.value],
+		["Item Number",product.itemNumber], // TODO, MAKE THIS WORK WITH COVER INFO
+		["Front Laminate",data.substrate.laminate.front.value],
+		["Back Laminate",data.substrate.laminate.back.value],
+		["Front Coat",data.substrate.coating.front.value],
+		["Back Coat",data.substrate.coating.back.value],
 		["Product Notes",orderArray.productNotes],
 		["A-Frame Type",orderArray.frame.value],
 		["Mount Info",orderArray.mount.value],
@@ -46,12 +49,11 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Die Design Name",product.dieDesignName],
 		["Max Overruns",product.overrunMax],
 		["Min Overruns",product.overrunMin],
-		["Ship Date",orderArray.date.due],
-		["Abbr Date",product.date.abbr],
         ["Ship Type",product.shipType],
-		["Due Date",data.date.due],
-		["Abbr Due Date",data.date.due.split('-')[2]],
-		["Item Due Date",product.date.due],
+		["Ship Date",orderArray.date.due],
+		["Due Date",data.date.due.strings.yearMonthDay],
+		["Item Due Date",product.date.due.strings.yearMonthDay],
+		["Day Due",product.date.due.day],
 		["Gang Info",data.phoenix.gangLabel],
 		["Group",product.group],
 		["Custom Label",product.customLabel.value],
@@ -79,7 +81,8 @@ compileCSV = function(product, matInfo, scale, orderArray, data, marksArray, das
 		["Reading Order",product.readingOrder],
 		["N-Up",product.nUp],
 		["N-Up Gap",product.nUpGap],
-		["Paper",data.paper.replace(/[,;"']/g,'')],
+		["Paper",data.substrate.base.value.replace(/[,;"']/g,'')],
+		["Prism Paper",data.substrate.base.prismValue.replace(/[,;"']/g,'')],
 		["Marks",marksArray]// Keep this one last so it's easier to read the CSV
 	];
 }

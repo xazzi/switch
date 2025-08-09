@@ -1,5 +1,6 @@
 var parent = []
 
+// TODO - Check this whole function.
 getSubprocess = function(folder, db, orderArray, matInfo, product, data, scale, subprocess, dynamic){
     function readFiles(folder, db, orderArray, matInfo, product, data, scale, subprocess, dynamic){
 

@@ -1,21 +1,15 @@
-redownloadFrom = function(value, submit){
-	if(value == "S3 Bucket"){
-		submit.override.redownload.bool = true
-		submit.override.redownload.location = "S3 Bucket"
-		return submit
-	}
+redownloadFrom = function(value, submit) {
+    if (value === "S3 Bucket") {
+        submit.override.redownload.bool = true;
+        submit.override.redownload.location = "S3 Bucket";
+    } else {
+        submit.override.redownload.bool = false;
+        submit.override.redownload.location = null;
+    }
 
-	if(value == "Watermark Drive"){
-		submit.override.redownload.bool = true
-		submit.override.redownload.location = "Watermark Drive"
-		return submit
-	}
-
-	// If no then return defaults.
-	submit.override.redownload.bool = false
-	submit.override.redownload.location = null
-	return submit
+    return submit;
 }
+
 
 getFileSource = function(value){
 	if(value == "1"){
@@ -134,10 +128,11 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 		addNode_db(theXML, infoNode, "gangNumber", data.gangNumber);
 		addNode_db(theXML, infoNode, "projectNotes", data.projectNotes);
 
+		// TODO - The paper null part of this is broken.
 	if(matInfo != "Material Data Missing" && matInfo != null){
 		addNode_db(theXML, infoNode, "process", data.prodName);
 		addNode_db(theXML, infoNode, "subprocess", data.subprocess);
-		addNode_db(theXML, infoNode, "paper", data.paper);
+		addNode_db(theXML, infoNode, "paper", "null");
 	}
 		
 	var messageNode = theXML.createElement("message", null);
@@ -168,12 +163,35 @@ createDataset_Email_db = function(newXML, data, matInfo, message, userInfo){
 }
 
 addNode_db = function(theXML, parent, name, value){
-	function createNode(theXML, parent, name, value){
-		var theNodeName = theXML.createElement(name, null);
-			parent.appendChild(theNodeName);
-		
-		var theNodeValue = theXML.createText(value);
-			theNodeName.appendChild(theNodeValue);
+	var theNodeName = theXML.createElement(name, null);
+		parent.appendChild(theNodeName);
+	
+	var theNodeValue = theXML.createText(value);
+		theNodeName.appendChild(theNodeValue);
+}
+
+assignTo = function(target, source) {
+	function run(target, source){
+		if (!target || !source) return;
+
+		for (var key in source) {
+        	if (typeof key === "string" && key.charAt(0) === '_') continue; // skip private-like keys
+
+			var sourceVal = source[key];
+			var targetVal = target[key];
+
+			// If both values are plain objects, merge recursively
+			if (isPlainObject(sourceVal) && isPlainObject(targetVal)) {
+				assignTo(targetVal, sourceVal);
+			} else if (sourceVal !== null && sourceVal !== undefined) {
+				// Otherwise assign the value directly if not null/undefined
+				target[key] = sourceVal;
+			}
+		}
 	}
-	createNode(theXML, parent, name, value)
+	run(target, source)
+}
+
+isPlainObject = function(obj) {
+    return obj && typeof obj === 'object'
 }

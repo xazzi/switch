@@ -61,8 +61,12 @@
             "specs":{
                 "requirements":{
                     "orderArray":{
-                        "laminate":{
-                            "active":true
+                        "substrate":{
+                            "laminate":{
+                                "front":{
+                                    "enabled":true
+                                }
+                            }
                         }
                     },
                     "advancedSettings":{
@@ -72,6 +76,9 @@
                 "rejections":{
                     "data":{
                         "printer": "Canon Prostream"
+                    },
+                    "matInfo":{
+                        "type": "digital"
                     }
                 }
             },
