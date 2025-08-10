@@ -792,19 +792,6 @@ runParser = function(s, job, codebase){
                     }
                 }
 
-                /*
-                // Reassign printers and associated data based on various criteria.
-                if(data.facility.destination == "Salt Lake City"){
-                    if(matInfo.prodName == "Foamboard"){
-                        if(orderSpecs.doubleSided){
-                            matInfo.width = 48;
-                            matInfo.height = 96;
-                            data.phoenixStock = "Mat_Foamboard"
-                        }
-                    }
-                }
-                    */
-
                 if(data.phoenixPress != matInfo.phoenixPress){
                     if(misc.rejectPress){
                         data.notes.push([orderSpecs.jobItemId,"Removed","Different printer " + matInfo.printer.name + "."]);
@@ -1284,7 +1271,7 @@ runParser = function(s, job, codebase){
                         var height = orderArray[i].size.height;
 
                         // Set reading order if top bound (regardless of size)
-                        if (product.bindingEdge === "Top") {
+                        if (product.bindingEdge == "Top") {
                             product.readingOrder = "Calendar";
                         }
 
@@ -1359,6 +1346,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // If it's DS product for VN, skip it and send an email.
+                /*
                 if(data.facility.destination == "Van Nuys"){
                     if(matInfo.type == 'roll' || matInfo.type == 'sheet'){
                         if(orderArray[i].doubleSided){
@@ -1374,6 +1362,7 @@ runParser = function(s, job, codebase){
                         }
                     }
                 }
+                    */
 
                 // Long banners with weld in ARL need to go somewhere else.
                 if(data.facility.destination == "Arlington"){
