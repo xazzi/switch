@@ -223,7 +223,7 @@ runParser = function(s, job, codebase){
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: submit.fileSource != "Default" ? submit.fileSource : "Watermark Servers",
-                repository: new Dir("//amz-phoenix-p02.us.digitalroominc.com/File Repository/"),
+                repository: new Dir("//10.21.71.213/File Repository/"),
                 doubleSided: null,
                 secondSurface: null,
                 substrate: {
@@ -1837,7 +1837,7 @@ runParser = function(s, job, codebase){
                 // Cut Vinyl adjustments (These should be moved to the database in the future)
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.transfer = true;
-                    data.repository = new Dir("//amz-phoenix-p02.us.digitalroominc.com/Repository_VL/");
+                    data.repository = new Dir("//10.21.71.213/Repository_VL/");
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
@@ -2765,7 +2765,7 @@ function buildFileObject(product, submit, data, db, s) {
         label: sourceFile.label,
         path: sourceFile.path,
         watermark: sourceFile.watermark,
-        repository: new File("//amz-phoenix-p02.us.digitalroominc.com/File Repository/" + product.contentFile),
+        repository: new File("//10.21.71.213/File Repository/" + product.contentFile),
         usable: sourceFile.found,
         stats: null,
         reason: null
