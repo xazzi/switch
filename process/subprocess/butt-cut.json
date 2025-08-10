@@ -34,7 +34,7 @@
                     "impositionProfile": {
                         "name": "ButtCut"
                     },
-                    "rotateFront": true,
+                    "rotateFront": false,
                     "rotateBack": false
                 }
             }
