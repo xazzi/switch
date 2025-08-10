@@ -25,7 +25,7 @@ pullApiInformation = function(s, job, itemNumber, theNewToken, environment, db, 
 	var dataDump = JSON.parse(response).job_item;
 
 	// Assign core specs
-	specs = assignBasicSpecs(specs, dataDump);
+	specs = assignBasicSpecs(specs, dataDump, userInfo, data, s, db, job);
 
 	// Parse order_specs
 	parseOrderSpecs(job, specs, dataDump.order_specs, s, db, data, userInfo, dataDump);
@@ -257,7 +257,7 @@ function initSpecs(data) {
     };
 }
 
-function assignBasicSpecs(specs, dataDump) {
+function assignBasicSpecs(specs, dataDump, userInfo, data, s, db, job) {
     specs.complete = true;
     specs.accountType = dataDump.account_type;
     specs.accountTypeCode = dataDump.account_type_code;
@@ -298,6 +298,9 @@ function assignBasicSpecs(specs, dataDump) {
         due: dataDump.due_date,
         gangBy: dataDump.gang_by_date
     };
+
+    // Assign the item-name.
+    specs.item = addToTable(s, job, db, "specs_item-name", specs.itemName, dataDump.job_item_id, data, userInfo, null, null, "old");
 
     return specs;
 }

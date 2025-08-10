@@ -223,7 +223,7 @@ runParser = function(s, job, codebase){
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: submit.fileSource != "Default" ? submit.fileSource : "Watermark Servers",
-                repository: new Dir("//10.21.71.213/File Repository/"),
+                repository: new Dir("//10.21.71.213.us.digitalroominc.com/File Repository/"),
                 doubleSided: null,
                 secondSurface: null,
                 substrate: {
@@ -569,7 +569,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // 4mil with laminate need to print on Floor Decal
-                if(orderSpecs.mapping.substrate.mapId == 73 && orderSpecs.laminate.front.enabled == true){
+                if(orderSpecs.mapping.substrate.mapId == 73 && orderSpecs.resolved.substrate.laminate.front.enabled == true){
                     orderSpecs.mapping.substrate.mapId = 74;
                 }
 
@@ -1205,7 +1205,7 @@ runParser = function(s, job, codebase){
                 }
                 
                 // Full-Sheet subprocessing
-                if((product.width == 48 && product.height == 96) || (product.height == 48 && product.width == 96)){
+                if((product.width == 48 && product.height == 96) || (product.width == 96 && product.height == 48)){
                     if(matInfo.width == 48 && matInfo.height == 96){
                         product.query = "21";
                         product.subprocess.undersize = false;
