@@ -223,7 +223,7 @@ runParser = function(s, job, codebase){
                 projectNotes: doc.evalToString('//*[local-name()="Project"]/@Notes', map),
                 environment: module.localEnvironment,
                 fileSource: submit.fileSource != "Default" ? submit.fileSource : "Watermark Servers",
-                repository: new Dir("//10.21.71.213/File Repository/"),
+                repository: new Dir("//10.21.71.213.us.digitalroominc.com/File Repository/"),
                 doubleSided: null,
                 secondSurface: null,
                 substrate: {
@@ -569,7 +569,7 @@ runParser = function(s, job, codebase){
                 }
 
                 // 4mil with laminate need to print on Floor Decal
-                if(orderSpecs.mapping.substrate.mapId == 73 && orderSpecs.laminate.front.enabled == true){
+                if(orderSpecs.mapping.substrate.mapId == 73 && orderSpecs.resolved.substrate.laminate.front.enabled == true){
                     orderSpecs.mapping.substrate.mapId = 74;
                 }
 
@@ -1218,7 +1218,7 @@ runParser = function(s, job, codebase){
                 }
                 
                 // Full-Sheet subprocessing
-                if((product.width == 48 && product.height == 96) || (product.height == 48 && product.width == 96)){
+                if((product.width == 48 && product.height == 96) || (product.width == 96 && product.height == 48)){
                     if(matInfo.width == 48 && matInfo.height == 96){
                         product.query = "21";
                         product.subprocess.undersize = false;
@@ -1290,9 +1290,9 @@ runParser = function(s, job, codebase){
 
                         // Check for layouts that need special spacing setup
                         var isOpt2Layout =
-                            (product.bindingEdge === "Top" && width === '5.5' && height === '8.5') || 
-                            (width === '4.75' && height === '4.75') || 
-                            (width === '8.5' && height === '5.5');
+                            (product.bindingEdge == "Top" && width == '5.5' && height == '8.5') || 
+                            (width == '4.75' && height == '4.75') || 
+                            (width == '8.5' && height == '5.5');
 
                         if (isOpt2Layout) {
                             product.nUp = 2;
@@ -1848,7 +1848,7 @@ runParser = function(s, job, codebase){
                 // Cut Vinyl adjustments (These should be moved to the database in the future)
                 if(data.prodName == "CutVinyl" || data.prodName == "CutVinyl-Frosted"){
                     product.transfer = true;
-                    data.repository = "//10.21.71.213/Repository_VL/";
+                    data.repository = new Dir("//10.21.71.213.us.digitalroominc.com/Repository_VL/");
                     if(typeof(orderArray[i]["cut"]) != "undefined"){
                         if(orderArray[i].cut.method == "Reverse"){
                             product.nametag = "_Reverse";
