@@ -1425,7 +1425,7 @@ runParser = function(s, job, codebase){
 
                 // Pull the file information.
                 var file = buildFileObject(product, submit, data, db, s);
-                
+
                 // If the file exists and you have data to use, go here.
                 if(file.usable){
                     if(product.subprocess.orientationCheck){
@@ -1585,7 +1585,6 @@ runParser = function(s, job, codebase){
                 if(product.width == 24 && product.height == 6){
                     product.subprocess.undersize = false;
                 }
-
                 
                 // Size adjustments ----------------------------------------------------------
                 // General automated scaling for when approaching material dims.
@@ -1686,20 +1685,22 @@ runParser = function(s, job, codebase){
                 }
                 
                 // Backdrop undersizing for shipping purposes
-                if(product.subprocess.name == "Backdrop"){
-                    if(product.subprocess.undersize){
-                        if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
-                            if(file.width == product.width){
-                                // Width == 96
-                                if(product.width == "96"){
-                                    scale.width = 94/product.width*100;
-                                    data.notes.push([product.itemNumber,"Notes",'Backdrop width undersized. (' + Math.round(scale.width) + '%)']);
-                                }
-                                // Height == 96
-                                if(product.width != product.height){
-                                    if(product.height == "96"){
-                                        scale.height = 94/product.height*100;
-                                        data.notes.push([product.itemNumber,"Notes",'Backdrop height undersized. (' + Math.round(scale.height) + '%)']);
+                if(file.usable){
+                    if(product.subprocess.name == "Backdrop"){
+                        if(product.subprocess.undersize){
+                            if(!submit.override.fullsize.gang && !contains(submit.override.fullsize.items, product.itemNumber)){
+                                if(file.width == product.width){
+                                    // Width == 96
+                                    if(product.width == "96"){
+                                        scale.width = 94/product.width*100;
+                                        data.notes.push([product.itemNumber,"Notes",'Backdrop width undersized. (' + Math.round(scale.width) + '%)']);
+                                    }
+                                    // Height == 96
+                                    if(product.width != product.height){
+                                        if(product.height == "96"){
+                                            scale.height = 94/product.height*100;
+                                            data.notes.push([product.itemNumber,"Notes",'Backdrop height undersized. (' + Math.round(scale.height) + '%)']);
+                                        }
                                     }
                                 }
                             }
@@ -2373,7 +2374,7 @@ runParser = function(s, job, codebase){
 
             try {
                 postWebhook(s, job, db, "Critical Error", "This file has failed in Parser.", [
-                    ["Error", e.toString()]
+                    ["Error", String(e)]
                 ]);
             } catch (webhookErr) {
                 s.log(3, "Webhook post failed: " + webhookErr);
