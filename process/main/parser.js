@@ -70,6 +70,7 @@ runParser = function(s, job, codebase){
                 rotation: "",
                 merge: "",
                 removeFiles: false,
+                duplo: false,
                 fileSource: "Watermark Servers",
                 route:{
                     active: false,
@@ -126,6 +127,10 @@ runParser = function(s, job, codebase){
 
                     case "Remove Existing Files?":
                         submit.removeFiles = value == "true";
+                        break;
+
+                    case "Duplo?":
+                        submit.duplo = value == "true";
                         break;
 
                     case "File Source":
@@ -2088,6 +2093,14 @@ runParser = function(s, job, codebase){
                             data.thing += " (Compact)"
                         }
                     }
+
+                    if(submit.duplo){
+                        data.thing += " (Duplo)"
+                    }
+                }
+
+                if(submit.duplo){
+                    matInfo.cutter.device = "Duplo"
                 }
 
                 // For small product on the router(s), reassign the layer name.
