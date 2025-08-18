@@ -148,6 +148,9 @@ runFinalize = function(s, job, codebase){
                 // Coating
                 if(handoffData.coating.front.substrate.enabled || handoffData.coating.back.substrate.enabled){
                     name.coating = handoffData.mixedLam ? "-mixCoat" : "-Coat";
+                    if(handoffData.coating.front.substrate.value == "Dry" || handoffData.coating.back.substrate.value == "Dry"){
+                        name.coating = "-Dry"
+                    }
                 }
 
                 // FloorDecal
