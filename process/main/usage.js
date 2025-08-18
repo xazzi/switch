@@ -90,7 +90,7 @@ runUsage = function(s, job, codebase){
                 var product = handoffData.products.getItem(i);
                 var contentFile = product.evalToString('contentFile');
 
-                if (!phoenixProductNames[contentFile]) {
+                if (!(contentFile in phoenixProductNames)) {
                     unmatchedProducts.push([
                         product.evalToString('itemNumber'),
                         "Removed",
