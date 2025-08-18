@@ -87,6 +87,11 @@ runFinalize = function(s, job, codebase){
                             key: handoffDataDS.evalToString("//coating/back/substrate/key")
                         }
                     }
+                },
+                cutters: {
+                    autocut: handoffDataDS.evalToString("//cutters/autocut") == "true",
+                    device: handoffDataDS.evalToString("//cutters/device"),
+                    hotfolder: handoffDataDS.evalToString("//cutters/hotfolder")
                 }
             }
             
@@ -288,7 +293,11 @@ runFinalize = function(s, job, codebase){
                 
                 if(data.processType == "Cut"){
                     if(handoffData.type == "digital"){
-                        savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".jdf";
+                        if(handoffData.cutters.device == "Duplo"){
+                            savename = handoffData.gangNumber + "-" + phoenixPlan.index + "-Duplo.pdf";
+                        }else{
+                            savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".jdf";
+                        }
 
                     }else if(handoffData.type == "roll-label"){
                         savename = handoffData.gangNumber + "-" + phoenixPlan.index + ".pdf";
