@@ -1,11 +1,11 @@
-runParser = function(s, job){
-    function parser(s, job){
+simulator = function(s, job, codebase){
+    function run(s, job, codebase){
         try{
             var dir = {
-                support: "C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/support/",
-                subprocess: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/subprocess/"),
-                phoenixMarks: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix marks/"),
-                phoenixScripts: new Dir("C:/Scripts/" + s.getPropertyValue("scriptSource") + "/switch/process/phoenix scripts/")
+                support: "C:/Scripts/" + codebase + "/switch/process/support/",
+                subprocess: new Dir("C:/Scripts/" + codebase + "/switch/process/subprocess/"),
+                phoenixMarks: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix marks/"),
+                phoenixScripts: new Dir("C:/Scripts/" + codebase + "/switch/process/phoenix scripts/")
             }
             
             // Load in all of the supporting libraries and functions
@@ -24,10 +24,17 @@ runParser = function(s, job){
             eval(File.read(dir.support + "/compile-csv.js"));
             eval(File.read(dir.support + "/set-hem-labels.js"));
             eval(File.read(dir.support + "/set-product-labels.js"));
-            eval(File.read(dir.support + "/write-to-email-db.js"));
             eval(File.read(dir.support + "/get-edge-finishing.js"));
             eval(File.read(dir.support + "/connect-to-db.js"));
             eval(File.read(dir.support + "/load-module-settings.js"));
+            eval(File.read(dir.support + "/sql-statements.js"));
+            eval(File.read(dir.support + "/get-target-height.js"));
+            eval(File.read(dir.support + "/get-target-width.js"));
+            eval(File.read(dir.support + "/set-banner-storting.js"));
+            eval(File.read(dir.support + "/dart-template-check.js"));
+            eval(File.read(dir.support + "/set-date-object.js"));
+            eval(File.read(dir.support + "/get-timezone.js"));
+            eval(File.read(dir.support + "/webhook-post.js"));
 
             // Load settings from the module
             var module = loadModuleSettings(s)
@@ -95,6 +102,8 @@ runParser = function(s, job){
             var cutter = "Generic"
             var coating = "Merged"
             var regex = /,(?=(?:[^"]*"[^"]*")*[^"]*$)/
+
+            s.log(2, "Start")
 
             while(!inputCSV.file.eof){
                 var line = inputCSV.file.readLine();
@@ -177,7 +186,9 @@ runParser = function(s, job){
 
             }
 
-            //s.log(2, JSON.parse(masterObject))
+            s.log(2, JSON.stringify(masterObject))
+
+            stop
 
             for(var facility in masterObject){
                 for(var type in masterObject[facility]){
@@ -261,7 +272,7 @@ runParser = function(s, job){
             job.sendTo(findConnectionByName_db(s, "Critical Error"), job.getPath());
         }
     }
-    parser(s, job)
+    run(s, job, codebase)
 }
 
 // -------------------------------------------------------
